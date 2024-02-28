@@ -1,2 +1,2 @@
-pypdf==3.9.0
+pypdf==4.0.2
 pycryptodome==3.18.0
