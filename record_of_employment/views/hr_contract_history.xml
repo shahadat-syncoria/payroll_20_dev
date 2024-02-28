@@ -6,21 +6,16 @@
             <field name="model">hr.contract.history</field>
             <field name="inherit_id" ref="hr_contract.hr_contract_history_view_form"/>
             <field name="arch" type="xml">
-                    <xpath expr="//field[@name='job_id']" position="after">
-                  <field name = "state" invisible="1"/>
-                  <field name = "is_vacation_pay_paid" invisible="1"/>
+                <xpath expr="//field[@name='job_id']" position="after">
+                    <field invisible="1" name="state"/>
+                    <field invisible="1" name="is_vacation_pay_paid"/>
                 </xpath>
-
                 <xpath expr="//button[@name='hr_contract_view_form_new_action']" position="after">
-<!--                     <button name="vacation_pay" string="Vacation Pay" type="object" class="btn-primary"-->
-<!--                             attrs="{'invisible': ['|', ('state', 'in', ['draft','open']), '&amp;', ('state', 'not in', ['draft','open']), ('is_vacation_pay_paid','=', True)]}"/>-->
-                     <button name="vacation_pay" string="Vacation Pay" type="object" class="btn-primary"
-                            attrs="{'invisible': ['|', ('state', 'in', ['draft','open']), '&amp;', ('state', 'not in', ['draft','open']), ('is_vacation_pay_paid','=', True)]}"/>
-
-                    <button name="roe_generation" string="Roe Generation" type="object" class="btn-primary"
-                             attrs="{'invisible': ['|', ('state', 'in', [False,'draft','open']), '&amp;', ('state', 'not in', ['draft','open']), ('is_vacation_pay_paid','=', False)]}"/>
-                </xpath>
-            </field>
+                    <!--                     <button name="vacation_pay" string="Vacation Pay" type="object" class="btn-primary"-->
+                    <!--                             attrs="{'invisible': ['|', ('state', 'in', ['draft','open']), '&amp;', ('state', 'not in', ['draft','open']), ('is_vacation_pay_paid','=', True)]}"/>-->
+                    <button class="btn-primary" invisible="state in ['draft', 'open'] or (state not in ['draft', 'open'] and is_vacation_pay_paid == True)" name="vacation_pay" string="Vacation Pay" type="object"/>
+                    <button class="btn-primary" invisible="state in [False, 'draft', 'open'] or (state not in ['draft', 'open'] and is_vacation_pay_paid == False)" name="roe_generation" string="Roe Generation" type="object"/>
+                </xpath></field>
         </record>
     </data>
 </odoo>

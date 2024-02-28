@@ -1,100 +1,71 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <data>
-
         <record id="hr_irregular_pay_form_view" model="ir.ui.view">
             <field name="name">syncoria_can_irregular_payment.hr_irregular_pay.form</field>
             <field name="model">hr.irregular.pay</field>
             <field name="arch" type="xml">
                 <form string="Irregular Payment">
-                     <header>
-                         <button string="Confirm" name="action_confirm"  type="object"
-                                 attrs="{'invisible': [('state', 'not in', ['draft'])]}" groups="hr_payroll.group_hr_payroll_employee_manager" class="oe_highlight"/>
-
-                         <button string="Approve" name="action_validate"  type="object"
-                                 attrs="{'invisible': [('state', 'in', ['draft','validate','paid','cancel'])]}" groups="hr_payroll.group_hr_payroll_employee_manager" class="oe_highlight"/>
-
-                        <button string="Cancel" name="action_cancel" type="object"
-                                attrs="{'invisible': [('state', 'in', ['draft','paid','cancel'])]}"/>
-                        <button string="Mark as Draft" name="action_draft" type="object"
-                                attrs="{'invisible': [('state', 'not in', ['cancel'])]}"/>
-                        <field name="state" widget="statusbar" statusbar_visible="draft,to_approve,validate"
-                              />
+                    <header>
+                        <button class="oe_highlight" groups="hr_payroll.group_hr_payroll_employee_manager" invisible="state not in ['draft']" name="action_confirm" string="Confirm" type="object"/>
+                        <button class="oe_highlight" groups="hr_payroll.group_hr_payroll_employee_manager" invisible="state in ['draft', 'validate', 'paid', 'cancel']" name="action_validate" string="Approve" type="object"/>
+                        <button invisible="state in ['draft', 'paid', 'cancel']" name="action_cancel" string="Cancel" type="object"/>
+                        <button invisible="state not in ['cancel']" name="action_draft" string="Mark as Draft" type="object"/>
+                        <field name="state" statusbar_visible="draft,to_approve,validate" widget="statusbar"/>
                     </header>
                     <sheet>
-                         <div class="oe_title">
+                        <div class="oe_title">
                             <label for="name" string="Reference"/>
                             <h1>
                                 <field name="name" placeholder="Reference"/>
                             </h1>
                         </div>
                         <group>
-                                <field name="description"/>
-                            </group>
+                            <field name="description"/>
+                        </group>
                         <group>
-
                             <group>
-                            <field name="date" required="1" readonly="1"/>
+                                <field name="date" readonly="1" required="1"/>
                             </group>
                             <group>
-                                <field name="department_id" attrs="{'readonly': [('state','!=','draft')]}"/>
-                                <field name="paycycle_ids" widget="many2many_tags" attrs="{'readonly': [('state','!=','draft')]}"/>
+                                <field name="department_id" readonly="state != 'draft'"/>
+                                <field name="paycycle_ids" readonly="state != 'draft'" widget="many2many_tags"/>
                             </group>
                             <group>
-                                <field name="payment_type" required="1" attrs="{'readonly': [('state','!=','draft')]}"/>
-                                <field name="amount_cal_type" required="1" attrs="{'readonly': [('state','!=','draft')]}"/>
-
-                                   <field name="amount" attrs="{
-                                   'readonly': [('state','!=','draft')],
-                                   'required':[('amount_cal_type','==','global')],
-                                   'invisible':[('amount_cal_type','!=','global')]
-                                   }"/>
-                                <field name="amount_type" required="1" invisible="1" attrs="{'readonly': [('state','!=','draft')]}"/>
-
-
-
+                                <field name="payment_type" readonly="state != 'draft'" required="1"/>
+                                <field name="amount_cal_type" readonly="state != 'draft'" required="1"/>
+                                <field invisible="amount_cal_type != 'global'" name="amount" readonly="state != 'draft'" required="amount_cal_type == 'global'"/>
+                                <field invisible="1" name="amount_type" readonly="state != 'draft'" required="1"/>
                             </group>
-
                         </group>
                         <notebook>
-                            <page name="employee_line" string="Employees" >
+                            <page name="employee_line" string="Employees">
                                 <sheet>
-                                    <field name="line_ids" widget="section_and_note_one2many"
-                                           groups="hr_payroll.group_hr_payroll_employee_manager" attrs="{'readonly': [('state','!=','draft')]}">
-                                        <tree string="Employee Line" editable="bottom">
-
-
-                                            <field name="employee_id" />
-                                            <field name="amount" />
+                                    <field groups="hr_payroll.group_hr_payroll_employee_manager" name="line_ids" readonly="state != 'draft'" widget="section_and_note_one2many">
+                                        <tree editable="bottom" string="Employee Line">
+                                            <field name="employee_id"/>
+                                            <field name="amount"/>
                                             <field name="pay_status"/>
-
                                         </tree>
-<!--                                        <form string="Employees">-->
-
-<!--                                            <group>-->
-<!--                                                <group>-->
-<!--                                                    <field name="employee_id"/>-->
-<!--                                                    <field name="pay_status"/>-->
-<!--                                                </group>-->
-<!--                                            </group>-->
-
-
-<!--                                        </form>-->
-                                    </field>
+                                        <!--                                        <form string="Employees">-->
+                                        <!--                                            <group>-->
+                                        <!--                                                <group>-->
+                                        <!--                                                    <field name="employee_id"/>-->
+                                        <!--                                                    <field name="pay_status"/>-->
+                                        <!--                                                </group>-->
+                                        <!--                                            </group>-->
+                                        <!--                                        </form>--></field>
                                 </sheet>
                             </page>
-
                         </notebook>
                     </sheet>
                     <div class="oe_chatter">
-                        <field name="message_follower_ids" groups="base.group_user"/>
+                        <field groups="base.group_user" name="message_follower_ids"/>
                         <field name="activity_ids"/>
                         <field name="message_ids"/>
                     </div>
-                </form>
-            </field>
+                </form></field>
         </record>
-
         <record id="hr_irregular_pay_tree_view" model="ir.ui.view">
             <field name="name">syncoria_can_irregular_payment.hr_irregular_pay.tree</field>
             <field name="model">hr.irregular.pay</field>
@@ -103,14 +74,11 @@
                     <field name="name"/>
                     <field name="description" optional="show"/>
                     <field name="date"/>
-                    <field name="department_id" optional="show" />
+                    <field name="department_id" optional="show"/>
                     <field name="paycycle_ids" optional="show"/>
-
-                    <field name="state" widget="badge" decoration-info="state == 'draft'" decoration-warning="state in ('refuse','cancel')" decoration-success="state == state in ('validate','paid')"/>
-                </tree>
-            </field>
+                    <field decoration-info="state == 'draft'" decoration-success="state == state in ('validate','paid')" decoration-warning="state in ('refuse','cancel')" name="state" widget="badge"/>
+                </tree></field>
         </record>
-
         <record id="hr_irregular_pay_search_view" model="ir.ui.view">
             <field name="name">syncoria_can_irregular_payment.hr_irregular_pay.search</field>
             <field name="model">hr.irregular.pay</field>
@@ -120,19 +88,13 @@
                     <field name="description"/>
                     <separator/>
                     <group expand="1" string="Group By">
-                        <filter string="Date" name="date" domain="[]"
-                                context="{'group_by':'date'}"/>
-                        <filter string="State" name="state" domain="[]"
-                                context="{'group_by':'state'}"/>
-                        <filter string="Department" name="department_id" domain="[]"
-                                context="{'group_by':'department_id'}"/>
-                        <filter string="Pay cycle " name="paycycle_ids" domain="[]"
-                                context="{'group_by':'paycycle_ids'}"/>
+                        <filter context="{'group_by':'date'}" domain="[]" name="date" string="Date"/>
+                        <filter context="{'group_by':'state'}" domain="[]" name="state" string="State"/>
+                        <filter context="{'group_by':'department_id'}" domain="[]" name="department_id" string="Department"/>
+                        <filter context="{'group_by':'paycycle_ids'}" domain="[]" name="paycycle_ids" string="Pay cycle "/>
                     </group>
-                </search>
-            </field>
+                </search></field>
         </record>
-
         <record id="hr_irregular_pay_act_window" model="ir.actions.act_window">
             <field name="name">Irregular Pay</field>
             <field name="type">ir.actions.act_window</field>
@@ -141,11 +103,8 @@
             <field name="help" type="html">
                 <p class="oe_view_nocontent_create">
                     There is no examples click here to add new Irregular Payment.
-                </p>
-            </field>
+                </p></field>
         </record>
-
-        <menuitem name="Irregular Payment" id="hr_irregular_pay_menu" parent="hr_payroll.menu_hr_payroll_payslips" action="hr_irregular_pay_act_window" sequence="100" groups="hr_payroll.group_hr_payroll_employee_manager"/>
-
+        <menuitem action="hr_irregular_pay_act_window" groups="hr_payroll.group_hr_payroll_employee_manager" id="hr_irregular_pay_menu" name="Irregular Payment" parent="hr_payroll.menu_hr_payroll_payslips" sequence="100"/>
     </data>
 </odoo>

@@ -1,25 +1,21 @@
-<?xml version="1.0" ?>
+<?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <record id="sale_order_view_form" model="ir.ui.view">
         <field name="name">sale.order.form</field>
         <field name="model">sale.order</field>
-        <field name="inherit_id" ref="sale.view_order_form" />
+        <field name="inherit_id" ref="sale.view_order_form"/>
         <field name="arch" type="xml">
             <xpath expr="//page[last()]" position="after">
-                <page
-          string="Bambora Payment"
-          attrs="{ 'invisible':[('state','in',('draft','cancel'))] }"
-        >
+                <page invisible="state in ('draft', 'cancel')" string="Bambora Payment">
                     <group>
-                        <field name="batch_id" readonly="1" />
-                        <field name="bambora_batch_payment_id" readonly="1" />
-                        <field name="bambora_batch_state" readonly="1" />
-                        <field name="bambora_batch_status" readonly="1" />
+                        <field name="batch_id" readonly="1"/>
+                        <field name="bambora_batch_payment_id" readonly="1"/>
+                        <field name="bambora_batch_state" readonly="1"/>
+                        <field name="bambora_batch_status" readonly="1"/>
                     </group>
                     <group>
                     </group>
                 </page>
-            </xpath>
-        </field>
+            </xpath></field>
     </record>
 </odoo>

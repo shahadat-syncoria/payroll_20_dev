@@ -8,8 +8,9 @@
                     type="base64"
                     file="bambora_batch_payment/static/description/icon.png"
             />
-            <field name="display_as">Bambora EFT</field>
+<!--            <field name="display_as">Bambora EFT</field>-->
             <field name="code">bamboraeft</field>
+<!--            <field name="inline_form_view_id" ref="inline_form"/>-->
             <field name="pre_msg" type="html">
                 <p>Bambora EFT</p>
                 <ul class="list-inline">

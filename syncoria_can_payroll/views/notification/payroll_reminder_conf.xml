@@ -8,7 +8,7 @@
             <field name="inherit_id" ref="hr_payroll.res_config_settings_view_form"/>
             <field name="priority" eval="8"/>
             <field name="arch" type="xml">
-                <xpath expr="//div[@id='hr_payroll_accountant']" position="after">
+                <xpath expr="//block[@id='hr_payroll_accountant']" position="after">
                     <div id="syncoria_hr_payroll">
                         <h2>Payroll Reminder</h2>
                         <div class='row mt16 o_settings_container' id='sync_payroll_reminder_div'>

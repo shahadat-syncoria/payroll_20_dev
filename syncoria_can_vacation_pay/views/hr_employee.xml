@@ -20,18 +20,21 @@
                     </button>
                 </div>
 
-                <xpath expr="//field[@name='employee_type']" position="after">
+                <xpath expr="//group[@name='active_group']" position="after">
+                    <group string="Vacation Information">
                     <label for="vacation_pay_allocation_start"/>
                     <div class="o_row">
                         <field name="vacation_pay_allocation_start"/>
                         <span class="text-muted">month</span>
                     </div>
+
                     <field name="previous_allocated_vacation_leave"/>
                      <label for="allocated_vacation_leave"/>
                      <div class="o_row">
                          <field name="allocated_vacation_leave"/>
                         <span class="text-muted">days</span>
                     </div>
+                     </group>
 
 
 

@@ -1,80 +1,78 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-	<data>
-	
-		<!-- Bambora EFT Begins-->
-		<template id="bamboraeft_s2s_form">
+    <data>
+        <!-- Bambora EFT Begins-->
+        <template id="bamboraeft_s2s_form">
             <div class="bamboraeft_form">
-                <input type="hidden" name="data_set" data-create-route="/payment/bamboraeft/s2s/create_json_3ds" />
-				<input type="hidden" name="provider_id" t-att-value="id" />
-				<input type="hidden" name="provider_state" t-att-value="acq.state" />
-				<input type="hidden" name="bamboraeft_merchant_id" t-att-value="acq.bamboraeft_merchant_id" />
-				<input type="hidden" name="bamboraeft_batch_api" t-att-value="acq.bamboraeft_batch_api" />
-				<input type="hidden" name="bamboraeft_report_api" t-att-value="acq.bamboraeft_report_api" />
-                <input type="hidden" name="bamboraeft_payment_api" t-att-value="acq.bamboraeft_payment_api" />
-				<input type="hidden" name="bamboraeft_profile_api" t-att-value="acq.bamboraeft_profile_api" />
-				<input type="hidden" name="request" t-att-value="request" />
-				<input type="hidden" name="csrf_token" t-att-value="request.csrf_token()" />
-				<input t-if="return_url" type="hidden" name="return_url" t-att-value="return_url" />
-				<input t-if="partner_id" type="hidden" name="partner_id" t-att-value="partner_id" />
-				<input type="hidden" name="order_id" t-att-value="request.session.sale_order_id" />
-				<input type="hidden" name="window_href" t-att-value="request.httprequest" />
-				<input type="hidden" name="data_key"/>
-				<t t-if="website_sale_order">
-					<input type="hidden" name="charge_total" t-att-value="website_sale_order.amount_total"/>
-					<input type="hidden" name="order_name" t-att-value="website_sale_order.name"/>
-            	</t>
-                <input type="hidden" name="note" t-att-value="note" />
-				<input type="hidden" name="email" t-att-value="email" />
-                <input type="hidden" name="bamboraTran" t-att-value="bamboraTran" />
+                <input data-create-route="/payment/bamboraeft/s2s/create_json_3ds" name="data_set" type="hidden"/>
+                <input name="provider_id" t-att-value="id" type="hidden"/>
+                <input name="provider_state" t-att-value="acq.state" type="hidden"/>
+                <input name="bamboraeft_merchant_id" t-att-value="acq.bamboraeft_merchant_id" type="hidden"/>
+                <input name="bamboraeft_batch_api" t-att-value="acq.bamboraeft_batch_api" type="hidden"/>
+                <input name="bamboraeft_report_api" t-att-value="acq.bamboraeft_report_api" type="hidden"/>
+                <input name="bamboraeft_payment_api" t-att-value="acq.bamboraeft_payment_api" type="hidden"/>
+                <input name="bamboraeft_profile_api" t-att-value="acq.bamboraeft_profile_api" type="hidden"/>
+                <input name="request" t-att-value="request" type="hidden"/>
+                <input name="csrf_token" t-att-value="request.csrf_token()" type="hidden"/>
+                <input name="return_url" t-att-value="return_url" t-if="return_url" type="hidden"/>
+                <input name="partner_id" t-att-value="partner_id" t-if="partner_id" type="hidden"/>
+                <input name="order_id" t-att-value="request.session.sale_order_id" type="hidden"/>
+                <input name="window_href" t-att-value="request.httprequest" type="hidden"/>
+                <input name="data_key" type="hidden"/>
+                <t t-if="website_sale_order">
+                    <input name="charge_total" t-att-value="website_sale_order.amount_total" type="hidden"/>
+                    <input name="order_name" t-att-value="website_sale_order.name" type="hidden"/>
+                </t>
+                <input name="note" t-att-value="note" type="hidden"/>
+                <input name="email" t-att-value="email" type="hidden"/>
+                <input name="bamboraTran" t-att-value="bamboraTran" type="hidden"/>
                 <t t-if="'/my/orders' in request.httprequest.url">
-                    <t t-set="order" t-value="request.httprequest.url.rsplit('/')[1].split('?')[0]" />
+                    <t t-set="order" t-value="request.httprequest.url.rsplit('/')[1].split('?')[0]"/>
                     <t t-if="order">
-                        <input type="hidden" name="order_id" t-att-value="order" />
-                        <t t-set="order_rec" t-value="request.env['sale.order'].sudo().search([('id','=', order)])" />
-                        <input type="hidden" name="charge_total" t-att-value="order_rec.amount_total"/>
-                        <input type="hidden" name="order_name" t-att-value="order_rec.name"/>
+                        <input name="order_id" t-att-value="order" type="hidden"/>
+                        <t t-set="order_rec" t-value="request.env['sale.order'].sudo().search([('id','=', order)])"/>
+                        <input name="charge_total" t-att-value="order_rec.amount_total" type="hidden"/>
+                        <input name="order_name" t-att-value="order_rec.name" type="hidden"/>
                     </t>
                 </t>
                 <t t-if="'/my/invoices' in request.httprequest.url">
-                    <t t-set="invoice" t-value="request.httprequest.url.rsplit('/')[1].split('?')[0]" />
+                    <t t-set="invoice" t-value="request.httprequest.url.rsplit('/')[1].split('?')[0]"/>
                     <t t-if="invoice">
-                        <input type="hidden" name="invoice_id" t-att-value="invoice" />
-                        <t t-set="invoice_rec" t-value="request.env['account.move'].sudo().search([('id','=', invoice)])" />
-                        <input type="hidden" name="charge_total" t-att-value="invoice_rec.amount_total"/>
-                        <input type="hidden" name="order_name" t-att-value="invoice_rec.name"/>
+                        <input name="invoice_id" t-att-value="invoice" type="hidden"/>
+                        <t t-set="invoice_rec" t-value="request.env['account.move'].sudo().search([('id','=', invoice)])"/>
+                        <input name="charge_total" t-att-value="invoice_rec.amount_total" type="hidden"/>
+                        <input name="order_name" t-att-value="invoice_rec.name" type="hidden"/>
                     </t>
                 </t>
                 <div id="bamboraPayBank" t-attf-class="row mt8 #{'' if bootstrap_formatting else 'o_card_brand_detail'}">
-                    <div t-att-class="'form-group col-lg-6' if bootstrap_formatting else 'form-group'" id="bankName" >
-                        <input type="text" name="bank_name" id="bank_name" class="form-control bamboraeft_bank_name" placeholder="Bank Name" data-is-required="true"/>
+                    <div id="bankName" t-att-class="'form-group col-lg-6' if bootstrap_formatting else 'form-group'">
+                        <input class="form-control bamboraeft_bank_name" data-is-required="true" id="bank_name" name="bank_name" placeholder="Bank Name" type="text"/>
                     </div>
-                    <div t-att-class="'form-group col-lg-6' if bootstrap_formatting else 'form-group'" id="bankAccountHolder" >
-                        <input type="text" name="acc_holder_name" id="acc_holder_name" class="form-control bamboraeft_acc_holder_name" placeholder="Account Holder Name" data-is-required="true"/>
+                    <div id="bankAccountHolder" t-att-class="'form-group col-lg-6' if bootstrap_formatting else 'form-group'">
+                        <input class="form-control bamboraeft_acc_holder_name" data-is-required="true" id="acc_holder_name" name="acc_holder_name" placeholder="Account Holder Name" type="text"/>
                     </div>
-                    <div t-att-class="'form-group col-lg-6' if bootstrap_formatting else 'form-group'" id="accountNumber" >
-                        <input type="text" name="acc_number" id="acc_number" class="form-control bamboraeft_acc_number" placeholder="Bank Account No." data-is-required="true"/>
+                    <div id="accountNumber" t-att-class="'form-group col-lg-6' if bootstrap_formatting else 'form-group'">
+                        <input class="form-control bamboraeft_acc_number" data-is-required="true" id="acc_number" name="acc_number" placeholder="Bank Account No." type="text"/>
                     </div>
-                    <div t-att-class="'form-group col-lg-6' if bootstrap_formatting else 'form-group'" id="bankAccountType" >
-                        <input type="text" name="bank_account_type" id="bank_account_type" class="form-control bamboraeft_bank_account_type" placeholder="Bank Account type(eg: Canadian)" data-is-required="true"/>
+                    <div id="bankAccountType" t-att-class="'form-group col-lg-6' if bootstrap_formatting else 'form-group'">
+                        <input class="form-control bamboraeft_bank_account_type" data-is-required="true" id="bank_account_type" name="bank_account_type" placeholder="Bank Account type(eg: Canadian)" type="text"/>
                     </div>
-                    <div t-att-class="'form-group col-lg-6' if bootstrap_formatting else 'form-group'" id="institutionNumber" >
-                        <input type="text" name="institution_number" id="institution_number" class="form-control bamboraeft_institution_number" placeholder="Institution Number (3 Digits)" data-is-required="true"/>
+                    <div id="institutionNumber" t-att-class="'form-group col-lg-6' if bootstrap_formatting else 'form-group'">
+                        <input class="form-control bamboraeft_institution_number" data-is-required="true" id="institution_number" name="institution_number" placeholder="Institution Number (3 Digits)" type="text"/>
                     </div>
-                    <div t-att-class="'form-group col-lg-6' if bootstrap_formatting else 'form-group'" id="branchNumber" >
-                        <input type="text" name="branch_number" id="branch_number" class="form-control bamboraeft_branch_number" placeholder="Bank Transit number (5 Digits)" data-is-required="true"/>
+                    <div id="branchNumber" t-att-class="'form-group col-lg-6' if bootstrap_formatting else 'form-group'">
+                        <input class="form-control bamboraeft_branch_number" data-is-required="true" id="branch_number" name="branch_number" placeholder="Bank Transit number (5 Digits)" type="text"/>
                     </div>
                 </div>
-
             </div>
-		</template>
-	
+        </template>
         <template id="payment_bamboraeft_redirect" name="Payment Bambora EFT">
             <script type="text/javascript">
-                window.location.href = '<t t-out="return_url"/>';
+                window.location.href = '
+                <t t-out="return_url"/>
+                ';
             </script>
-		</template>
-
+        </template>
         <template id="bamboraeft_payment_process_page" name="Bambora EFT Payment processing page">
             <t t-call="portal.frontend_layout">
                 <div class="wrap">
@@ -85,47 +83,59 @@
                                     <!-- The content here is generated in JS -->
                                     <table class="table table-condensed" style="border-bottom: 0px solid white !important;">
                                         <tr>
-                                            <th>Transaction ID</th>
-                                            <th>Transaction Reference</th>
-                                            <th>Amount</th>
-                                            <th>Message</th>
+                                            <th>
+                                                Transaction ID
+                                            </th>
+                                            <th>
+                                                Transaction Reference
+                                            </th>
+                                            <th>
+                                                Amount
+                                            </th>
+                                            <th>
+                                                Message
+                                            </th>
                                         </tr>
-                                        <t t-foreach="payment_tx_ids" t-as="tx_id">
+                                        <t t-as="tx_id" t-foreach="payment_tx_ids">
                                             <tr>
-                                                <t t-set="payment_tx_id" t-value="env['payment.transaction'].sudo().browse(tx_id)" />
-                                                    <td><t t-out="payment_tx_id.id" /></td>
-                                                    <td><t t-out="payment_tx_id.reference"/></td>
-                                                    <td><t t-out="payment_tx_id.amount"/></td>
-                                                    <td>
-                                                        <t t-if="payment_tx_id.state=='pending'">
-                                                            Your Bambora EFT/ACH Transaction is in 'Pending' State.
-                                                            <t t-if="payment_tx_id.sale_order_ids and len(payment_tx_id.invoice_ids)==0">
-                                                                <t t-if="payment_tx_id.sale_order_ids[0].state=='sent'">
-                                                                    Your Order is in 'Quotation' State. It will be confirmed when the payment status changes to complete.
-                                                                </t>
-                                                            </t>
-                                                            <t t-if="len(payment_tx_id.sale_order_ids)==0 and len(payment_tx_id.invoice_ids)>0">
-                                                                <t t-if="payment_tx_id.invoice_ids[0].payment_state=='posted'">
-                                                                    Your Invoice is in 'In Payment' Payment Status. It will be in 'Paid' state when the payment status changes to complete.
-                                                                </t>
-                                                            </t>
-                                                        </t>
-                                                        <t t-if="payment_tx_id.state=='done'">
-                                                            Your Bambora EFT/ACH Transaction is in 'Done' State.
-                                                            <t t-if="payment_tx_id.sale_order_ids and len(payment_tx_id.invoice_ids)==0">
-                                                                <t t-if="payment_tx_id.sale_order_ids[0].state=='done'">
-                                                                    Your Order is Confirmed.
-                                                                </t>
-                                                            </t>
-                                                            <t t-if="len(payment_tx_id.sale_order_ids)==0 and len(payment_tx_id.invoice_ids)>0">
-                                                                <t t-if="payment_tx_id.invoice_ids[0].payment_state=='paid'">
-                                                                    Your Invoice is Paid.
-                                                                </t>
+                                                <t t-set="payment_tx_id" t-value="env['payment.transaction'].sudo().browse(tx_id)"/>
+                                                <td>
+                                                    <t t-out="payment_tx_id.id"/>
+                                                </td>
+                                                <td>
+                                                    <t t-out="payment_tx_id.reference"/>
+                                                </td>
+                                                <td>
+                                                    <t t-out="payment_tx_id.amount"/>
+                                                </td>
+                                                <td>
+                                                    <t t-if="payment_tx_id.state=='pending'">
+                                                        Your Bambora EFT/ACH Transaction is in 'Pending' State.
+                                                        <t t-if="payment_tx_id.sale_order_ids and len(payment_tx_id.invoice_ids)==0">
+                                                            <t t-if="payment_tx_id.sale_order_ids[0].state=='sent'">
+                                                                Your Order is in 'Quotation' State. It will be confirmed when the payment status changes to complete.
                                                             </t>
                                                         </t>
-
-                                                    </td>
-
+                                                        <t t-if="len(payment_tx_id.sale_order_ids)==0 and len(payment_tx_id.invoice_ids)>0">
+                                                            <t t-if="payment_tx_id.invoice_ids[0].payment_state=='posted'">
+                                                                Your Invoice is in 'In Payment' Payment Status. It will be in 'Paid' state when the payment status changes to complete.
+                                                            </t>
+                                                        </t>
+                                                    </t>
+                                                    <t t-if="payment_tx_id.state=='done'">
+                                                        Your Bambora EFT/ACH Transaction is in 'Done' State.
+                                                        <t t-if="payment_tx_id.sale_order_ids and len(payment_tx_id.invoice_ids)==0">
+                                                            <t t-if="payment_tx_id.sale_order_ids[0].state=='done'">
+                                                                Your Order is Confirmed.
+                                                            </t>
+                                                        </t>
+                                                        <t t-if="len(payment_tx_id.sale_order_ids)==0 and len(payment_tx_id.invoice_ids)>0">
+                                                            <t t-if="payment_tx_id.invoice_ids[0].payment_state=='paid'">
+                                                                Your Invoice is Paid.
+                                                            </t>
+                                                        </t>
+                                                    </t>
+                                                </td>
                                             </tr>
                                         </t>
                                     </table>
@@ -136,85 +146,69 @@
                 </div>
             </t>
         </template>
-
-
         <record id="action_bamobora_update_status" model="ir.actions.server">
             <field name="name">Bambora Batch Payment Update Status</field>
             <!-- <field name="groups_id" eval="[(4, ref('account.group_account_invoice'))]"/> -->
             <field name="model_id" ref="model_batch_payment_tracking"/>
             <field name="binding_view_types">list</field>
             <field name="state">code</field>
-            <field name="code">
-                action = model.action_report_bamboraeft_batch_payment()
-            </field>
+            <field name="code">action = model.action_report_bamboraeft_batch_payment()</field>
         </record>
-
         <record id="provider_form_bamboraeft" model="ir.ui.view">
             <field name="name">payment.provider.form.bamboraeft</field>
             <field name="model">payment.provider</field>
             <field name="inherit_id" ref="payment.payment_provider_form"/>
             <field name="arch" type="xml">
-                <xpath expr='//page[@name="credentials"]' position='inside'>
-                    <group attrs="{'invisible': [('code', '!=', 'bamboraeft')]}">
-                        <field name="debug_logging" invisible="1"/>
+                <xpath expr='//page[@name="credentials"]' position="inside">
+                    <group invisible="code != 'bamboraeft'">
+                        <field invisible="1" name="debug_logging"/>
                     </group>
                 </xpath>
-
                 <xpath expr="//div[@name='button_box']" position="inside">
-<!--                    <div class="oe_button_box" name="button_box">-->
-                        <button name="action_view_batches"
-                            type="object"
-                            class="oe_stat_button"
-                            icon="fa-tasks"
-                            attrs="{ 'invisible': [('code','!=','bamboraeft')] }"
-                            >
-                            <field name="batches_count" widget="statinfo" string="Batches"/>
-                        </button>
-                        <button name="toggle_debug"
-                                attrs="{'invisible': ['|', ('code','!=','bamboraeft'), ('debug_logging', '=', True)]}"
-                                class="oe_stat_button"
-                                type="object" icon="fa-code">
-                            <div class="o_stat_info o_field_widget">
-                                <span class="text-danger">No debug</span>
-                            </div>
-                        </button>
-                        <button name="toggle_debug"
-                                attrs="{'invisible': ['|', ('code','!=','bamboraeft'), ('debug_logging', '=', False)]}"
-                                class="oe_stat_button"
-                                type="object" icon="fa-code">
-                            <div class="o_stat_info o_field_widget">
-                                <span class="text-success">Debug requests</span>
-                            </div>
-                        </button>
-<!--                    </div>-->
+                    <!--                    <div class="oe_button_box" name="button_box">-->
+                    <button class="oe_stat_button" icon="fa-tasks" invisible="code != 'bamboraeft'" name="action_view_batches" type="object">
+                        <field name="batches_count" string="Batches" widget="statinfo"/>
+                    </button>
+                    <button class="oe_stat_button" icon="fa-code" invisible="code != 'bamboraeft' or debug_logging == True" name="toggle_debug" type="object">
+                        <div class="o_stat_info o_field_widget">
+                            <span class="text-danger">
+                                No debug
+                            </span>
+                        </div>
+                    </button>
+                    <button class="oe_stat_button" icon="fa-code" invisible="code != 'bamboraeft' or debug_logging == False" name="toggle_debug" type="object">
+                        <div class="o_stat_info o_field_widget">
+                            <span class="text-success">
+                                Debug requests
+                            </span>
+                        </div>
+                    </button>
+                    <!--                    </div>-->
                 </xpath>
-                <xpath expr='//page[@name="credentials"]' position='inside'>
-                    <group attrs="{'invisible': [('code', '!=', 'bamboraeft')]}">
+                <xpath expr='//page[@name="credentials"]' position="inside">
+                    <group invisible="code != 'bamboraeft'">
                         <group name="bambora_base" string="Bambora Credentials">
-                            <field name="bamboraeft_merchant_id"  attrs="{'required':[('code', '=', 'bamboraeft'), ('state', '!=', 'disabled')]}"/>
-                            <field name="bamboraeft_payment_api"  attrs="{'required':[('code', '=', 'bamboraeft'), ('state', '!=', 'disabled')]}"/>
-                            <field name="bamboraeft_profile_api"  attrs="{'required':[('code', '=', 'bamboraeft'), ('state', '!=', 'disabled')]}"/>
+                            <field name="bamboraeft_merchant_id" required="code == 'bamboraeft' and state != 'disabled'"/>
+                            <field name="bamboraeft_payment_api" required="code == 'bamboraeft' and state != 'disabled'"/>
+                            <field name="bamboraeft_profile_api" required="code == 'bamboraeft' and state != 'disabled'"/>
                         </group>
                         <group name="bambora_batch" string="Bambora Batch Credentials">
-                            <field name="bamboraeft_batch_api"  attrs="{'required':[('code', '=', 'bamboraeft'), ('state', '!=', 'disabled')]}"/>
-                            <field name="bamboraeft_report_api"  attrs="{'required':[('code', '=', 'bamboraeft'), ('state', '!=', 'disabled')]}"/>
-                            <field name="bamboraeft_transaction_type"  attrs="{'required':[('code', '=', 'bamboraeft'), ('state', '!=', 'disabled')]}"/>
-                            <field name="bamboraeft_tran_type"  attrs="{'required':[('code', '=', 'bamboraeft'), ('state', '!=', 'disabled')]}"/>
-                            <field name="bamboraeft_create_profile"  attrs="{'required':[('code', '=', 'bamboraeft'), ('state', '!=', 'disabled')]}"/>
+                            <field name="bamboraeft_batch_api" required="code == 'bamboraeft' and state != 'disabled'"/>
+                            <field name="bamboraeft_report_api" required="code == 'bamboraeft' and state != 'disabled'"/>
+                            <field name="bamboraeft_transaction_type" required="code == 'bamboraeft' and state != 'disabled'"/>
+                            <field name="bamboraeft_tran_type" required="code == 'bamboraeft' and state != 'disabled'"/>
+                            <field name="bamboraeft_create_profile" required="code == 'bamboraeft' and state != 'disabled'"/>
                         </group>
                     </group>
                 </xpath>
                 <xpath expr="//field[@name='journal_id']" position="after">
-                    <field name="bamboraeft_vendor_journal_id"  attrs="{'invisible': [('code', '!=', 'bamboraeft')] }"/>
+                    <field invisible="code != 'bamboraeft'" name="bamboraeft_vendor_journal_id"/>
                 </xpath>
                 <xpath expr="//field[@name='capture_manually']" position="after">
-                    <field name="bambora_record_interval"  attrs="{'invisible': [('code', '!=', 'bamboraeft')] }"/>
-                    <field name="test_batch" debug="1" attrs="{'invisible': [('code', '!=', 'bamboraeft')] }"/>
-                    <field name="partner_ids" widget="many2many_tags_email" placeholder="Add contacts to notify..."
-                        attrs="{'invisible': [('code', '!=', 'bamboraeft')] }"/>
-                </xpath>
-                
-            </field>
+                    <field invisible="code != 'bamboraeft'" name="bambora_record_interval"/>
+                    <field debug="1" invisible="code != 'bamboraeft'" name="test_batch"/>
+                    <field invisible="code != 'bamboraeft'" name="partner_ids" placeholder="Add contacts to notify..." widget="many2many_tags_email"/>
+                </xpath></field>
         </record>
         <record id="transaction_form_bamboraeft" model="ir.ui.view">
             <field name="name">provider.transaction.form.bamboraeft</field>
@@ -223,7 +217,7 @@
             <field name="arch" type="xml">
                 <xpath expr="//sheet" position="inside">
                     <notebook>
-                        <page string="Bambora EFT" id="bambora_eft" attrs="{'invisible':  [ ('provider_code', '!=', 'bamboraeft') ]}">
+                        <page id="bambora_eft" invisible="provider_code != 'bamboraeft'" string="Bambora EFT">
                             <group>
                                 <group>
                                     <field name="bamboraeft_batch_id" readonly="1"/>
@@ -239,10 +233,7 @@
                             </group>
                         </page>
                     </notebook>
-                </xpath>
-            </field>
+                </xpath></field>
         </record>
-      
-
-	</data>
+    </data>
 </odoo>

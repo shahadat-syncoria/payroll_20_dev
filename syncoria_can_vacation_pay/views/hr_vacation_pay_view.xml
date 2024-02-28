@@ -1,30 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <data>
-
         <record id="hr_vacation_pay_form_view" model="ir.ui.view">
             <field name="name">syncoria_can_vacation_pay.hr_vacation_pay.form</field>
             <field name="model">hr.vacation.pay</field>
             <field name="arch" type="xml">
                 <form string="Vacation Pay Request">
                     <header>
-                        <button string="Confirm" name="action_confirm" type="object" class="oe_highlight"
-                                attrs="{'invisible': [('state', '!=', 'draft')]}"/>
-                        <button string="Approve" name="action_approve" type="object" class="oe_highlight"
-                                attrs="{'invisible': [('state', '!=', 'confirm')]}"
-                                groups="hr_holidays.group_hr_holidays_manager"/>
-                        <button string="Validate" name="action_validate" states="validate1" type="object"
-                                groups="hr_holidays.group_hr_holidays_manager,hr_holidays.group_hr_holidays_user"
-                                class="oe_highlight"/>
-                        <button string="Refuse" name="action_refuse" type="object"
-                                attrs="{'invisible': [('state', 'not in', ('confirm','cancel','validate'))]}"
-                                groups="hr_holidays.group_hr_holidays_manager,hr_holidays.group_hr_holidays_user"/>
-                        <button string="Cancel" name="action_cancel" type="object"
-                                attrs="{'invisible': [('state', '!=', 'draft')]}"/>
-                        <button string="Mark as Draft" name="action_draft" type="object"
-                                attrs="{'invisible': [('state', 'not in', ['cancel', 'refuse'])]}"/>
-                        <field name="state" widget="statusbar" statusbar_visible="confirm,validate"
-                        />
+                        <button class="oe_highlight" invisible="state != 'draft'" name="action_confirm" string="Confirm" type="object"/>
+                        <button class="oe_highlight" groups="hr_holidays.group_hr_holidays_manager" invisible="state != 'confirm'" name="action_approve" string="Approve" type="object"/>
+                        <button class="oe_highlight" groups="hr_holidays.group_hr_holidays_manager,hr_holidays.group_hr_holidays_user" invisible="state not in ['validate1']" name="action_validate" string="Validate" type="object"/>
+                        <button groups="hr_holidays.group_hr_holidays_manager,hr_holidays.group_hr_holidays_user" invisible="state not in ('confirm', 'cancel', 'validate')" name="action_refuse" string="Refuse" type="object"/>
+                        <button invisible="state != 'draft'" name="action_cancel" string="Cancel" type="object"/>
+                        <button invisible="state not in ['cancel', 'refuse']" name="action_draft" string="Mark as Draft" type="object"/>
+                        <field name="state" statusbar_visible="confirm,validate" widget="statusbar"/>
                     </header>
                     <sheet>
                         <div class="oe_title">
@@ -34,33 +23,29 @@
                             </h1>
                         </div>
                         <group>
-                        <group string="Employee Information">
-                            <field name="employee_id"
-                                   groups="hr_holidays.group_hr_holidays_manager,hr_holidays.group_hr_holidays_user"/>
-                            <field name="department_id"/>
-                            <field name="job_id"/>
-                            <field name="contract_id"/>
-                            <field name="description"/>
-                        </group>
-                        <group string="Vacation Pay Request Information">
-                            <field name="date" readonly="1"/>
-                            <field name="vacation_pay_amount" invisible="1"/>
-                            <field name="duration" attrs="{'readonly':[('state','!=','draft')]}"/>
-                            <field name="vacation_remain" />
-                            <field name="is_last_pay" string="Is employee Quiting?" groups="hr_holidays.group_hr_holidays_manager,hr_holidays.group_hr_holidays_user"/>
-
-                        </group>
+                            <group string="Employee Information">
+                                <field groups="hr_holidays.group_hr_holidays_manager,hr_holidays.group_hr_holidays_user" name="employee_id"/>
+                                <field name="department_id"/>
+                                <field name="job_id"/>
+                                <field name="contract_id"/>
+                                <field name="description"/>
+                            </group>
+                            <group string="Vacation Pay Request Information">
+                                <field name="date" readonly="1"/>
+                                <field invisible="1" name="vacation_pay_amount"/>
+                                <field name="duration" readonly="state != 'draft'"/>
+                                <field name="vacation_remain"/>
+                                <field groups="hr_holidays.group_hr_holidays_manager,hr_holidays.group_hr_holidays_user" name="is_last_pay" string="Is employee Quiting?"/>
+                            </group>
                         </group>
                     </sheet>
                     <div class="oe_chatter">
-                        <field name="message_follower_ids" groups="base.group_user"/>
+                        <field groups="base.group_user" name="message_follower_ids"/>
                         <field name="activity_ids"/>
                         <field name="message_ids"/>
                     </div>
-                </form>
-            </field>
+                </form></field>
         </record>
-
         <record id="hr_vacation_pay_tree_view" model="ir.ui.view">
             <field name="name">syncoria_can_vacation_pay.hr_vacation_pay.tree</field>
             <field name="model">hr.vacation.pay</field>
@@ -69,13 +54,9 @@
                     <field name="name"/>
                     <field name="employee_id"/>
                     <field name="duration" sum="Total Duration"/>
-                    <field name="state" widget="badge" decoration-info="state == 'draft'"
-                           decoration-warning="state in ('refuse','cancel')"
-                           decoration-success="state == state in ('validate','paid')"/>
-                </tree>
-            </field>
+                    <field decoration-info="state == 'draft'" decoration-success="state == state in ('validate','paid')" decoration-warning="state in ('refuse','cancel')" name="state" widget="badge"/>
+                </tree></field>
         </record>
-
         <record id="hr_vacation_pay_search_view" model="ir.ui.view">
             <field name="name">syncoria_can_vacation_pay.hr_vacation_pay.search</field>
             <field name="model">hr.vacation.pay</field>
@@ -83,15 +64,13 @@
                 <search string="Vacation Pay Request">
                     <field name="employee_id"/>
                     <group expand="1" string="Group By">
-                        <filter string="Employee" name="group_employee_id" domain="[]"
-                                context="{'group_by':'employee_id'}"/>
+                        <filter context="{'group_by':'employee_id'}" domain="[]" name="group_employee_id" string="Employee"/>
                     </group>
                 </search>
-<!--                <searchpanel>-->
-<!--                    <field name="state" string="Status"/>-->
-<!--                    <field name="department_id" string="Department"/>-->
-<!--                </searchpanel>-->
-            </field>
+                <!--                <searchpanel>-->
+                <!--                    <field name="state" string="Status"/>-->
+                <!--                    <field name="department_id" string="Department"/>-->
+                <!--                </searchpanel>--></field>
         </record>
         <record id="hr_vacation_pay_act_window" model="ir.actions.act_window">
             <field name="name">Vacation Pay Request</field>
@@ -102,10 +81,8 @@
             <field name="help" type="html">
                 <p class="oe_view_nocontent_create">
                     There is no examples click here to add new Vacation Pay Request.
-                </p>
-            </field>
+                </p></field>
         </record>
-        <menuitem name="Vacation Pay Request" id="hr_vacation_pay_menu" parent="hr_holidays.menu_hr_holidays_my_leaves"
-                  action="hr_vacation_pay_act_window" sequence="10"/>
+        <menuitem action="hr_vacation_pay_act_window" id="hr_vacation_pay_menu" name="Vacation Pay Request" parent="hr_holidays.menu_hr_holidays_my_leaves" sequence="10"/>
     </data>
 </odoo>
