@@ -38,7 +38,7 @@ result=payslip.env['hr.payslip'].get_gross_amount(payslip.id)
 <!--            <field name="exemption_id" ref="cpp_exempt"/>-->
             <field name="amount_python_compute">
                 <![CDATA[
-result = (categories.GROSS + categories.ALW) - (categories.DED+categories.PRE_TAX_DEDUCTION+categories.POST_TAX_DEDUCTION)
+result = (categories['GROSS'] + categories['ALW']) - (categories['DED']+categories['PRE_TAX_DEDUCTION']+categories['POST_TAX_DEDUCTION'])
 
                     ]]>
             </field>
@@ -57,10 +57,10 @@ result = (categories.GROSS + categories.ALW) - (categories.DED+categories.PRE_TA
             <field name="amount_select">code</field>
             <field name="struct_id" ref="syncoria_can_payroll.structure_can_employee"/>
             <field name="condition_select">python</field>
-            <field name="condition_python">result = inputs.EXPENSES</field>
+            <field name="condition_python">result = 'EXPENSES' in inputs</field>
             <field name="amount_python_compute">
-result = inputs.EXPENSES.amount
-result_name = inputs.EXPENSES.name
+result = inputs.['EXPENSES'].amount
+result_name = inputs.['EXPENSES'].name
             </field>
 
 
@@ -79,7 +79,7 @@ result_name = inputs.EXPENSES.name
             <field name="condition_select">none</field>
             <field name="amount_python_compute">
 main_gross = GROSS
-irregular_gross = abs(categories.ADD_ALLOWANCE)
+irregular_gross = abs(categories['ADD_ALLOWANCE'])
 
 result = main_gross  + irregular_gross
             </field>

@@ -43,7 +43,7 @@
         <menuitem
                   id="menu_action_hr_paycycle_form"
                 action="paycycle_configuration_act_window"
-                name="Pay cycle Configuration"
+                name="Pay Cycle Configuration"
                 parent="menu_hr_salary_tax_configuration"
                 sequence="10"
             />

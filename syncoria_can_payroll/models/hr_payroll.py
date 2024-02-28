@@ -4,7 +4,7 @@ from odoo import fields, models, api
 class HrPayrollStructureType(models.Model):
     _inherit = 'hr.payroll.structure.type'
 
-    default_pay_cycle = fields.Many2one('paycycle.config', string="Default Pay cycle")
+    default_pay_cycle = fields.Many2one('paycycle.config', string="Default Pay Cycle")
 
     @api.onchange('default_pay_cycle')
     def _onchage_schedule_pay(self):

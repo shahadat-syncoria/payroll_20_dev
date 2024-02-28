@@ -159,14 +159,13 @@ class PayrollPaycycle(models.Model):
                 print(result)
                 rec.paycycle_period_ids = result
 
-    def name_get(self):
-        res = []
+    def _compute_display_name(self):
         for record in self:
-            name = record.paystub_group_name
             if record.paystub_group_name and record.pay_cycle:
-                name = record.paystub_group_name + '(' + record.pay_cycle + ')'
-            res.append((record.id, name))
-        return res
+                record.display_name = record.paystub_group_name + '(' + record.pay_cycle + ')' 
+            else:
+                super()._compute_display_name()
+
 
 
 
