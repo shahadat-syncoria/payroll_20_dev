@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="hr_payslip_form_inherit" model="ir.ui.view">
+            <field name="name">syncoria_can_payroll.hr_payslip.form</field>
+            <field name="model">hr.payslip</field>
+            <field name="inherit_id" ref="hr_payroll.view_hr_payslip_form"/>
+            <!--            <field name="priority" eval="8"/>-->
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='contract_domain_ids']" position="after">
+                    <field name="paid_date"/>
+                </xpath>
+                <xpath expr="//field[@name='date_from']" position="attributes">
+                    <attribute name="readonly">1</attribute>
+                    <attribute name="force_save">
+                        1</attribute>
+                </xpath>
+                <xpath expr="//field[@name='date_to']" position="attributes">
+                    <attribute name="readonly">1</attribute>
+                    <attribute name="force_save">
+                        1</attribute>
+                </xpath>
+                <xpath expr="//field[@name='struct_id']" position="attributes">
+                    <attribute name="readonly">1</attribute>
+                </xpath>
+                <xpath expr="//field[@name='payslip_run_id']" position="after">
+                    <!--                     <group name="syncoria_can_paycycle">-->
+                    <field name="pay_cycle" required="1"/>
+                    <field invisible="1" name="is_manual_input"/>
+                    <!--                         <field name="pay_cycle_period_ids_domain" />-->
+                    <field domain="[('id','in',pay_cycle_period_ids_domain)]" invisible="pay_cycle == False" name="pay_cycle_period" readonly="payslip_run_id != False" required="pay_cycle != False"/>
+                    <field invisible="1" name="pay_cycle_period_ids_domain"/>
+                    <!--                     </group>-->
+                </xpath></field>
+        </record>
+        <record id="hr_payslip_tree_inherit" model="ir.ui.view">
+            <field name="name">syncoria_can_payroll.hr_payslip.tree</field>
+            <field name="model">hr.payslip</field>
+            <field name="inherit_id" ref="hr_payroll.view_hr_payslip_tree"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='basic_wage']" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath></field>
+        </record>
+    </data>
+</odoo>

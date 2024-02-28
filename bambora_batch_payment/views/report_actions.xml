@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="action_report_deposit_summary_wizard" model="ir.actions.report">
+        <field name="name">Deposit Summary</field>
+        <field name="model">hr.payslip.run</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">bambora_batch_payment.report_deposit_summary</field>
+        <field name="report_file">bambora_batch_payment.report_deposit_summary</field>
+    </record>
+</odoo>
+

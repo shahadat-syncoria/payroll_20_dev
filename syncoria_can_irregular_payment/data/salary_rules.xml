@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+<!--        ===================== Employee ===========================-->
+        <record id="input_ca_bonus_pay" model="hr.payslip.input.type">
+            <field name="name">Bonus</field>
+            <field name="code">Bonus_Pay</field>
+            <field name="country_id" eval="False"/>
+        </record>
+
+
+        <record id="rule_ca_bonus_pay" model="hr.salary.rule">
+            <field name="name">Bonus</field>
+            <field name="sequence" eval="50"/>
+            <field name="code">BONUS</field>
+            <field name="category_id" ref="syncoria_can_payroll.additional_allowance"/>
+            <field name="appears_on_payslip" eval='True'/>
+            <field name="active" eval="1"/>
+            <field name="amount_select">code</field>
+            <field name="struct_id" ref="syncoria_can_payroll.structure_can_employee"/>
+            <field name="condition_select">python</field>
+            <field name="condition_python">result = inputs.Bonus_Pay</field>
+
+            <field name="amount_python_compute">
+result = inputs.Bonus_Pay.amount
+result_name = inputs.Bonus_Pay.name
+            </field>
+        </record>
+
+
+        <record id="input_ca_retro_pay" model="hr.payslip.input.type">
+            <field name="name">Retro</field>
+            <field name="code">Retro_Pay</field>
+            <field name="country_id" eval="False"/>
+        </record>
+
+
+        <record id="rule_ca_retro_pay" model="hr.salary.rule">
+            <field name="name">Retro Payment</field>
+            <field name="sequence" eval="70"/>
+            <field name="code">RETRO</field>
+            <field name="category_id" ref="syncoria_can_payroll.additional_allowance"/>
+            <field name="appears_on_payslip" eval='True'/>
+            <field name="active" eval="1"/>
+            <field name="amount_select">code</field>
+            <field name="struct_id" ref="syncoria_can_payroll.structure_can_employee"/>
+            <field name="condition_select">python</field>
+            <field name="condition_python">result = inputs.Retro_Pay</field>
+
+            <field name="amount_python_compute">
+result = inputs.Retro_Pay.amount
+result_name = inputs.Retro_Pay.name
+            </field>
+
+
+        </record>
+
+
+<!--        ===================== Worker =========================-->
+
+
+
+        <record id="rule_ca_bonus_pay_worker" model="hr.salary.rule">
+            <field name="name">Bonus</field>
+            <field name="sequence" eval="50"/>
+            <field name="code">BONUS</field>
+            <field name="category_id" ref="syncoria_can_payroll.additional_allowance"/>
+            <field name="appears_on_payslip" eval='True'/>
+            <field name="active" eval="1"/>
+            <field name="amount_select">code</field>
+            <field name="struct_id" ref="syncoria_can_payroll.structure_can_worker"/>
+            <field name="condition_select">python</field>
+            <field name="condition_python">result = inputs.Bonus_Pay</field>
+
+            <field name="amount_python_compute">
+result = inputs.Bonus_Pay.amount
+result_name = inputs.Bonus_Pay.name
+            </field>
+        </record>
+
+
+        <record id="rule_ca_retro_pay_worker" model="hr.salary.rule">
+            <field name="name">Retro Payment</field>
+            <field name="sequence" eval="70"/>
+            <field name="code">RETRO</field>
+            <field name="category_id" ref="syncoria_can_payroll.additional_allowance"/>
+            <field name="appears_on_payslip" eval='True'/>
+            <field name="active" eval="1"/>
+            <field name="amount_select">code</field>
+            <field name="struct_id" ref="syncoria_can_payroll.structure_can_worker"/>
+            <field name="condition_select">python</field>
+            <field name="condition_python">result = inputs.Retro_Pay</field>
+
+            <field name="amount_python_compute">
+result = inputs.Retro_Pay.amount
+result_name = inputs.Retro_Pay.name
+            </field>
+
+
+        </record>
+    </data>
+</odoo>

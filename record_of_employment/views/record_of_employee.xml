@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <record id="view_record_of_employee_form" model="ir.ui.view">
+        <field name="name">record.of.employee.form</field>
+        <field name="model">record.of.employee</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <field name="state" widget="statusbar" options="{'clickable': '1'}"/>
+                    <button name="download_roe_pdf" class="btn btn-primary" type="object" string="ROE Slip Download"
+                            attrs="{'invisible':[('state','!=','done')]}"/>
+                    <button name="download_roe_xml" class="btn btn-primary" type="object" string="ROE XML Download"
+                            attrs="{'invisible':[('state','!=','done')]}"/>
+                    <button name="compute_roe" class="btn btn-primary" type="object" string="Compute"
+                            attrs="{'invisible':[('state','in',['done','cancel'])]}"/>
+                </header>
+                <sheet>
+                    <div name="button_box">
+                        <button name="open_roe_website" class="oe_stat_button" icon="fa-upload" type="object">
+                            Upload ROE
+                        </button>
+                    </div>
+                    <group attrs="{'readonly': [('state', '!=', 'draft')]}">
+                        <group string="Employee Information">
+                            <field name="employee_id"/>
+                            <field name="company_id"/>
+                            <field name="occupation"/>
+                        </group>
+                        <group string="Employer Information">
+                            <field name="name_of_issuer_id"/>
+                            <field name="telephone_no"/>
+                            <field name="employer_payroll_ref"/>
+                            <field name="language"/>
+                        </group>
+
+                        <group string="Serial and Payroll Information">
+                            <field name="serial_no"/>
+                            <field name="amended_serial_no"/>
+                            <field name="cra_payroll_acc_num"/>
+                            <field name="social_insurance_number"/>
+                        </group>
+
+                        <group string="Pay Cycle Information">
+                            <field name="pay_period_id"/>
+                            <field name="first_day_worked"/>
+                            <field name="last_day_worked"/>
+                            <field name="final_pay_period_ending_date"/>
+                            <field name="expected_date_of_recall"/>
+                        </group>
+
+
+                        <group string="Insurable hour and earning Information">
+                            <field name="total_insurable_hours"/>
+                            <field name="total_insurable_earnings"/>
+                        </group>
+                        <group string="Separation Payments">
+                            <field name="vacation_pay_amount"/>
+                            <field name="vacation_pay_start_date"/>
+                            <field name="vacation_pay_end_date"/>
+                            <field name="statutory_holiday_pay_amount"/>
+                        </group>
+                        <group string="Reason For Issuing the roe">
+                            <field name="reason_for_issuing_roe"/>
+                            <field name="comments"/>
+                        </group>
+
+
+                    </group>
+                    <notebook>
+                        <page string="Payslips" name="payslips">
+                            <sheet>
+                                <field name="payslip_ids">
+
+                                    <tree create="false" delete="false" default_order="date_to asc">
+                                        <field name="number"/>
+                                        <field name="name"/>
+                                        <field name="pay_cycle_period"/>
+                                        <field name="date_to"/>
+                                        <field name="insurable_hour"/>
+                                        <field name="insurable_earning"/>
+                                    </tree>
+                                </field>
+                            </sheet>
+                        </page>
+                        <page string="Vacation Pay" name="vac_pay">
+                            <sheet>
+                                <field name="vacation_pay_ids">
+
+                                    <tree create="false" delete="false" default_order="paid_date asc">
+                                        <field name="employee_id"/>
+                                        <field name="duration"/>
+                                        <field name="paid_date"/>
+                                        <field name="state" widget="badge" decoration-info="state == 'draft'"
+                           decoration-warning="state in ('refuse','cancel')"
+                           decoration-success="state == state in ('validate','paid')"/>
+                                        <field name="vacation_pay_amount"/>
+                                        <field name="is_last_pay"/>
+                                    </tree>
+                                </field>
+                            </sheet>
+
+
+                        </page>
+                    </notebook>
+
+
+                </sheet>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids" groups="base.group_user"/>
+                    <field name="activity_ids"/>
+                    <field name="message_ids"/>
+                </div>
+            </form>
+
+        </field>
+    </record>
+    <record id="view_record_of_employee_tree" model="ir.ui.view">
+        <field name="name">record.of.employee.tree</field>
+        <field name="model">record.of.employee</field>
+        <field name="arch" type="xml">
+            <tree create="0">
+                <field name="employee_id"/>
+                <field name="company_id"/>
+                <!--                <field name="serial_no"/>-->
+                <!--                <field name="amended_serial_no"/>-->
+                <!--                <field name="employer_payroll_ref"/>-->
+                <!--                <field name="cra_payroll_acc_num"/>-->
+                <!--                <field name="social_insurance_number"/>-->
+                <!--                <field name="occupation"/>-->
+                <!--                <field name="total_insurable_hours"/>-->
+                <!--                <field name="total_insurable_earnings"/>-->
+                <field name="reason_for_issuing_roe"/>
+                <!--                <field name="name_of_issuer_id"/>-->
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_record_of_employee_search" model="ir.ui.view">
+        <field name="name">record.of.employee.search</field>
+        <field name="model">record.of.employee</field>
+        <field name="arch" type="xml">
+            <search string="ROE">
+                <field name="employee_id"/>
+                <field name="company_id"/>
+                <field name="serial_no"/>
+                <field name="amended_serial_no"/>
+                <field name="employer_payroll_ref"/>
+                <field name="cra_payroll_acc_num"/>
+                <field name="pay_period_id"/>
+                <field name="social_insurance_number"/>
+                <field name="first_day_worked"/>
+                <field name="last_day_worked"/>
+                <field name="final_pay_period_ending_date"/>
+                <field name="occupation"/>
+                <field name="total_insurable_hours"/>
+                <field name="total_insurable_earnings"/>
+                <field name="reason_for_issuing_roe"/>
+                <field name="expected_date_of_recall"/>
+                <field name="vacation_pay_amount"/>
+                <field name="vacation_pay_start_date"/>
+                <field name="vacation_pay_end_date"/>
+                <field name="statutory_holiday_pay_amount"/>
+                <field name="comments"/>
+                <field name="language"/>
+                <field name="telephone_no"/>
+                <field name="name_of_issuer_id"/>
+            </search>
+        </field>
+    </record>
+    <record id="action_record_of_employee" model="ir.actions.act_window">
+        <field name="name">ROE</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">record.of.employee</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <!--    <menuitem id="menu_roe"-->
+    <!--              name="ROE"-->
+    <!--              parent="menu_record_of_employment_root"-->
+    <!--              action="action_record_of_employee"-->
+    <!--              sequence="12"/>-->
+
+
+</odoo>

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="view_partner_form" model="ir.ui.view">
+            <field name="model">res.partner</field>
+            <field name="inherit_id" ref="base.view_partner_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//page[@name='internal_notes']" position="after">
+                    <page invisible="is_company == False" name="employer_info" string="Employeer Info">
+                        <group>
+                            <group>
+                                <field name="company_name1"/>
+                                <field name="company_name2"/>
+                                <field name="company_name3"/>
+                            </group>
+                            <group>
+                                <field domain="[('parent_id','=',id)]" name="employeer_contact_id"/>
+                                <field name="employeer_pprtr_1_sin"/>
+                                <field name="employeer_pprtr_2_sin"/>
+                            </group>
+                            <group>
+                                <field name="employeer_cra_number"/>
+                            </group>
+                        </group>
+                    </page>
+                </xpath></field>
+        </record>
+    </data>
+</odoo>

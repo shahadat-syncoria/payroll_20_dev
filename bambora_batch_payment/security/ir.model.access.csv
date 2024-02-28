@@ -1,0 +1,4 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_batch_payment_tracking,access_batch_payment_tracking,bambora_batch_payment.model_batch_payment_tracking,,1,1,1,1
+access_batch_payment_tracking_man,access_batch_payment_tracking_man,bambora_batch_payment.model_batch_payment_tracking,base.group_erp_manager,1,1,1,1
+access_bambora_cron_settings,access_bambora_cron_settings,model_bambora_cron_settings,base.group_erp_manager,1,1,1,1

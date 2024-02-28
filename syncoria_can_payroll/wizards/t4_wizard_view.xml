@@ -1,0 +1,35 @@
+<odoo>
+    <data>
+        <record id="statement_remuneration_wizard_wizard_form" model="ir.ui.view">
+            <field name="name">statement.remuneration.wizard.form</field>
+            <field name="model">statement.remuneration.wizard</field>
+            <field name="arch" type="xml">
+                <form string="T4 Form Wizard">
+                    <group>
+                        <group>
+                            <field name="employee_ids" required="1" widget="many2many_avatar_employee" />
+                            <field name="year" required="1"/>
+                        </group>
+                        <group>
+                            <field name="department_ids" widget="many2many_tags"/>
+                        </group>
+                    </group>
+                    <footer>
+                        <button string="Generate" type="object" name="generate_t4_records" class="oe_highlight"/>
+                        <button string="Cancel" special="cancel"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+        <record id="action_statement_remuneration_wizard" model="ir.actions.act_window">
+            <field name="name">T4 Batch Generation</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">statement.remuneration.wizard</field>
+            <field name="view_mode">form</field>
+            <field name="target">new</field>
+        </record>
+<!--        <menuitem id="test_wizard_menu"-->
+<!--                  sequence="35"-->
+<!--                  name="T4 Form" action="action_statement_remuneration_wizard" parent="hr_payroll.menu_hr_payroll_report"/>-->
+    </data>
+</odoo>

@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+         <record
+      id="action_payslip_bambora_batch_list"
+      model="ir.actions.server"
+    >
+            <field name="name">Bambora Batch Payslip Payment</field>
+            <!-- <field name="groups_id" eval="[(4, ref('account.group_account_invoice'))]"/> -->
+            <field name="model_id" ref="hr_payroll.model_hr_payslip" />
+            <field name="binding_model_id" ref="hr_payroll.model_hr_payslip" />
+            <field name="binding_view_types">list</field>
+            <field name="state">code</field>
+            <field name="code">
+                if records:
+                    action = records.action_register_bambora_batch_payment()
+            </field>
+        </record>
+
+        <record id="bambora_hr_payslip_form_inherit" model="ir.ui.view">
+            <field name="name">bambora_batch_payment.bambora_hr_payslip.form</field>
+            <field name="model">hr.payslip</field>
+            <field name="inherit_id" ref="hr_payroll.view_hr_payslip_form"/>
+<!--            <field name="priority" eval="8"/>-->
+            <field name="arch" type="xml">
+               <xpath expr="//field[@name='state']" position="replace">
+                   <field name="state" widget="statusbar" statusbar_visible="draft,done,waiting,paid"/>
+               </xpath>
+
+                <xpath expr="//button[@name='action_payslip_paid']" position="after">
+                     <button string="Bambora Bank Deposit" name="action_register_bambora_batch_payment" type="object" states="done,waiting" class="oe_highlight"/>
+
+                </xpath>
+                <xpath expr="//page[@name='account_info']" position="after">
+                    <page string="Bambora Info" name="bambora_info">
+                        <group>
+                            <group>
+                                <field name="bambora_payroll_account_id"/>
+                                <field name="bambora_bank_identifier_number" />
+                                <field name="bambora_bank_transit_number" />
+                            </group>
+                            <group name="accounting">
+
+                                <field name="batch_id"/>
+                                <field name="bambora_batch_payment_id"/>
+                                <field name="bambora_batch_state"/>
+                                <field name="bambora_batch_status"/>
+                            </group>
+                        </group>
+                    </page>
+
+                </xpath>
+            </field>
+        </record>
+    </data>
+</odoo>

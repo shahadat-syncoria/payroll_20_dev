@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!--         Root Menu  -->
+        <menuitem
+        id="menu_hr_payroll_remuneration"
+        name="Statement of Remuneration"
+        parent="hr_work_entry_contract_enterprise.menu_hr_payroll_root"
+        sequence="75"
+        groups="hr_payroll.group_hr_payroll_employee_manager"/>
+        <!--        # Main Form Menu-->
+        <menuitem name="Remuneration Paid(T4) Form" id="syncoria_can_payroll.t4_menu" sequence="25"
+                  action="syncoria_can_payroll.t4_action_window" parent="menu_hr_payroll_remuneration"
+                  groups="hr_payroll.group_hr_payroll_employee_manager"/>
+
+        <menuitem name="Batch" id="syncoria_can_payroll.t4_batch_menu" sequence="35"
+                  action="syncoria_can_payroll.action_statement_remuneration_wizard" parent="menu_hr_payroll_remuneration"
+                  groups="hr_payroll.group_hr_payroll_employee_manager"/>
+        <!--        Report Menus-->
+        <menuitem id="roe_wizard_menu"
+                  sequence="30"
+                  name="ROE Report" action="action_roe_earning_wizard" parent="hr_payroll.menu_hr_payroll_report"/>
+
+        <menuitem id="remittance_summary_wizard_menu"
+                  sequence="35"
+                  name="Remittance Summary" action="action_remittance_summary_wizard"
+                  parent="hr_payroll.menu_hr_payroll_report"/>
+        <menuitem id="receiver_general_wizard_menu"
+                  sequence="40"
+                  name="Receiver General" action="action_receiver_general_wizard"
+                  parent="hr_payroll.menu_hr_payroll_report"/>
+
+
+        <!--        ================= Configuration ============================-->
+        <menuitem
+                id="menu_hr_salary_tax_configuration"
+                name="Payroll Configuration"
+                parent="hr_work_entry_contract_enterprise.menu_hr_payroll_configuration"
+                sequence="90"
+                groups="hr_payroll.group_hr_payroll_manager"
+        />
+<!--        =================== Pay cycle Configuration ================================-->
+        <menuitem
+                  id="menu_action_hr_paycycle_form"
+                action="paycycle_configuration_act_window"
+                name="Pay cycle Configuration"
+                parent="menu_hr_salary_tax_configuration"
+                sequence="10"
+            />
+
+        <menuitem
+                id="menu_action_hr_tax_slab_form"
+                action="tax_slab_act_window"
+                name="Deductions"
+                parent="menu_hr_salary_tax_configuration"
+                sequence="20"/>
+        <menuitem
+                name="Federal Tax"
+                id="menu_action_hr_fed_tax"
+                parent="menu_hr_salary_tax_configuration"
+                sequence="30"
+                action="fed_tax_act_window"/>
+        <menuitem
+                name="Provincial Tax"
+                id="menu_action_hr_prov_tax"
+                parent="menu_hr_salary_tax_configuration"
+                sequence="40"
+                action="prov_tax_act_window"/>
+
+
+
+    </data>
+</odoo>

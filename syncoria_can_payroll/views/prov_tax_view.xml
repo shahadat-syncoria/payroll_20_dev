@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <record id="prov_tax_form_view" model="ir.ui.view">
+            <field name="name">syncoria_can_payroll.prov_tax.form</field>
+            <field name="model">prov.tax</field>
+            <field name="arch" type="xml">
+                <form string="Provincial Tax">
+                    <sheet>
+                        <group>
+                            <group>
+                                <field name="year"/>
+                                <field name="pay_cycle"/>
+                            </group>
+                            <group>
+                                <field name="salary_from"/>
+                                <field name="salary_to" string="Salary less than"/>
+                            </group>
+                            <group>
+                                <field name="tax_category"/>
+                                <field name="tax_amount"/>
+                            </group>
+
+
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record id="prov_tax_tree_view" model="ir.ui.view">
+            <field name="name">syncoria_can_payroll.prov_tax.tree</field>
+            <field name="model">prov.tax</field>
+            <field name="arch" type="xml">
+                <tree string="Provincial Tax">
+                    <field name="year"/>
+                    <field name="pay_cycle"/>
+                    <field name="salary_from"/>
+                    <field name="salary_to"/>
+                    <field name="tax_category"/>
+                    <field name="tax_amount"/>
+                </tree>
+            </field>
+        </record>
+
+        <record id="prov_tax_search_view" model="ir.ui.view">
+            <field name="name">syncoria_can_payroll.prov_tax.search</field>
+            <field name="model">prov.tax</field>
+            <field name="arch" type="xml">
+                <search string="Provincial Tax">
+                    <group expand="1" string="Group By">
+                        <filter string="Slab Year" name="group_year" domain="[]" context="{'group_by':'year'}"/>
+                        <filter string="Paycycle" name="group_pay_cycle" domain="[]" context="{'group_by':'pay_cycle'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+
+        <record id="prov_tax_act_window" model="ir.actions.act_window">
+            <field name="name">Provincial Tax</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">prov.tax</field>
+            <field name="view_mode">tree,form</field>
+            <field name="context">{'search_default_group_year': 1}</field>
+            <field name="help" type="html">
+                <p class="oe_view_nocontent_create">
+                    There is no examples click here to add new Provincial Tax.
+                </p>
+            </field>
+        </record>
+
+
+    </data>
+</odoo>

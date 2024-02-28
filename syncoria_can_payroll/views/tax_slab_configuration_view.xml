@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <record id="tax_slab_form_view" model="ir.ui.view">
+            <field name="name">syncoria_can_payroll.tax_slab.form</field>
+            <field name="model">tax.slab</field>
+            <field name="arch" type="xml">
+                <form string="Deductions">
+                    <sheet>
+                        <group>
+                            <field name="name" required="1"/>
+                            <field name="slab_year" required="1"/>
+                        </group>
+                        <notebook>
+                            <page name="cpp" string="CPP">
+                                <group>
+                                    <group>
+                                        <field name="cpp_max_an_pen_earn"/>
+                                        <field name="cpp_basic_exem"/>
+                                        <field name="cpp_emp_employ_rate"/>
+                                    </group>
+                                    <group>
+                                        <field name="cpp_max_con_earn"/>
+                                        <field name="cpp_emp_employ_contrib"/>
+                                    </group>
+                                </group>
+
+                            </page>
+                            <page name="ei" string="EI">
+                                <group>
+                                    <group>
+                                        <field name="ei_max_an_pen_earn"/>
+                                        <field name="ei_rate"/>
+                                        <field name="ei_employer_rate"/>
+                                    </group>
+                                    <group>
+                                        <field name="ei_max_emp_anu_prem"/>
+                                        <field name="ei_max_employer_anu_prem"/>
+                                    </group>
+                                </group>
+
+                            </page>
+                            <page name="fed_tax_line" string="Fed Tax">
+                                <group>
+                                    <field name="fed_tax_line_ids"
+                                           groups="hr_payroll.group_hr_payroll_employee_manager">
+                                        <tree string="Fed Tax">
+
+
+                                            <field name="year"/>
+                                            <field name="salary_from"/>
+                                            <field name="salary_to" string="Salary less than"/>
+                                            <field name="tax_category"/>
+                                            <field name="tax_amount"/>
+                                            <field name="pay_cycle"/>
+
+                                        </tree>
+                                        <form string="Fed Tax">
+
+                                            <group>
+                                                <group>
+                                                    <field name="year"/>
+                                                </group>
+                                                <group>
+                                                    <field name="salary_from"/>
+                                                    <field name="salary_to" string="Salary less than"/>
+                                                </group>
+                                                <group>
+                                                    <field name="tax_category"/>
+                                                    <field name="tax_amount"/>
+                                                    <field name="pay_cycle"/>
+                                                </group>
+
+
+                                            </group>
+
+
+                                        </form>
+                                    </field>
+                                </group>
+                            </page>
+                             <page name="prov_tax_line" string="Prov Tax">
+                                <group>
+                                    <field name="prov_tax_line_ids"
+                                           groups="hr_payroll.group_hr_payroll_employee_manager">
+                                        <tree string="Provincial Tax">
+
+
+                                            <field name="year"/>
+                                            <field name="salary_from"/>
+                                            <field name="salary_to"/>
+                                            <field name="tax_category"/>
+                                            <field name="tax_amount"/>
+                                            <field name="pay_cycle"/>
+
+                                        </tree>
+                                        <form string="Provincial Tax">
+
+                                            <group>
+                                                <group>
+                                                    <field name="year"/>
+                                                </group>
+                                                <group>
+                                                    <field name="salary_from"/>
+                                                    <field name="salary_to"/>
+                                                </group>
+                                                <group>
+                                                    <field name="tax_category"/>
+                                                    <field name="tax_amount"/>
+                                                    <field name="pay_cycle"/>
+                                                </group>
+
+
+                                            </group>
+
+
+                                        </form>
+                                    </field>
+                                </group>
+                            </page>
+                        </notebook>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record id="tax_slab_tree_view" model="ir.ui.view">
+            <field name="name">syncoria_can_payroll.tax_slab.tree</field>
+            <field name="model">tax.slab</field>
+            <field name="arch" type="xml">
+                <tree string="Deduction">
+                    <field name="name"/>
+                    <field name="slab_year"/>
+
+                </tree>
+            </field>
+        </record>
+
+        <record id="tax_slab_search_view" model="ir.ui.view">
+            <field name="name">syncoria_can_payroll.tax_slab.search</field>
+            <field name="model">tax.slab</field>
+            <field name="arch" type="xml">
+                <search string="Tax Slabs">
+                    <group expand="1" string="Group By">
+                        <!--                        <filter string="Example Field" name="example_field" domain="[]"-->
+                        <!--                                context="{'group_by':'example_field'}"/>-->
+                    </group>
+                </search>
+            </field>
+        </record>
+
+
+        <record id="tax_slab_act_window" model="ir.actions.act_window">
+            <field name="name">Deductions</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">tax.slab</field>
+            <field name="view_mode">tree,form</field>
+            <field name="help" type="html">
+                <p class="oe_view_nocontent_create">
+                    There is no examples click here to add new Deductions.
+                </p>
+            </field>
+        </record>
+
+
+    </data>
+</odoo>

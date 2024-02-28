@@ -1,0 +1,27 @@
+<odoo>
+    <data noupdate="0">
+        <record id="email_template_payroll_reminder" model="mail.template">
+            <field name="name">Payroll reminder template</field>
+            <field name="model_id" ref="hr_payroll.model_hr_payslip_run"/>
+            <field name="subject">Upcoming Salary Disbursement Reminder</field>
+            <field name="email_from">{{ object.company_id.email }}</field>
+<!--            <field name="email_to">jahin@syncoria.com,ador.jahin29@gmail.com,</field>-->
+            <field name="body_html" type="html">
+                <div style="margin: 0px; padding: 0px;">
+                    <p style="margin: 0px; padding: 10px; font-size: 13px;">
+                 Greetings ,<br></br>
+
+I hope this automated message reaches you in optimal functioning status. As the batch payment disbursement approaches, this automated reminder aims to inform you about the upcoming salary disbursement for our esteemed team.
+
+The disbursement payslip no <span style="font-weight:bold;" t-out="object.name or ''">Jan-1</span>is scheduled for <span style="font-weight:bold;" t-out="object.date_end or ''">2023-01-30</span>and I kindly request that you ensure all necessary preparations are in place to execute the payment process seamlessly. Your attention to this matter is highly valued, and I trust in your expertise and commitment to handling this responsibility.
+
+Wishing you a successful salary disbursement process, carried out with precision and efficiency by our mechanical colleagues.
+                    </p>
+                    <br></br>
+                    Regards<br></br>
+                    Administration
+                </div>
+            </field>
+        </record>
+    </data>
+</odoo>

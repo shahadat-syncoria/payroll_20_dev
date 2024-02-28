@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <record id="res_config_settings_can_payroll_form_inherit" model="ir.ui.view">
+            <field name="name">syncoria_can_payroll.res_config_settings.form</field>
+            <field name="model">res.config.settings</field>
+            <field name="inherit_id" ref="hr_payroll.res_config_settings_view_form"/>
+            <field name="priority" eval="8"/>
+            <field name="arch" type="xml">
+                <xpath expr="//div[@id='hr_payroll_accountant']" position="after">
+                    <div id="syncoria_hr_payroll">
+                        <h2>Payroll Reminder</h2>
+                        <div class='row mt16 o_settings_container' id='sync_payroll_reminder_div'>
+                            <div class="col-12 col-lg-6 o_setting_box" id="sync_helpdesk_from_stage_setting">
+                                <div class="o_setting_left_pane">
+                                </div>
+                                <div class="o_setting_right_pane">
+                                    <label for="reminder_recipient_ids" string="Recipients"/>
+                                    <div class="text-muted">
+                                        Reminder Recipients
+                                    </div>
+                                    <div class="content-group">
+                                        <div class="mt16">
+                                            <field name="reminder_recipient_ids" widget="many2many_tags"
+                                                   class="o_light_label"/>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-12 col-lg-6 o_setting_box" id="sync_helpdesk_to_stage_setting">
+                                <div class="o_setting_right_pane">
+                                    <label for="reminder_days_before_payroll" string="Reminder days"/>
+                                    <div class="text-muted">
+                                        Reminder days before next payroll run
+                                    </div>
+                                    <div class="content-group">
+                                        <div class="mt16">
+                                            <field name="reminder_days_before_payroll" class="o_light_label"/>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <h2>Payroll Configuration</h2>
+                        <div class='row mt16 o_settings_container' id='sync_payroll_configuration_div'>
+                            <div class="col-12 col-lg-6 o_setting_box" id="sync_payroll_attend_setting">
+                                <div class="o_setting_left_pane">
+                                </div>
+
+                                <div class="o_setting_right_pane">
+                                    <label for="attendance_manual_input" string="Attendance Manual Input"/>
+<!--                                    <div class="text-muted">-->
+<!--                                        Reminder Recipients-->
+<!--                                    </div>-->
+                                    <div class="content-group">
+                                        <div class="mt16">
+                                            <field name="attendance_manual_input" widget="boolean_toggle"
+                                                   class="o_light_label" force_save="1"/>
+
+                                    </div>
+
+                                </div>
+                            </div>
+                            </div>
+                            <div class="col-12 col-lg-6 o_setting_box" id="sync_payroll_overtimesetting">
+                                <div class="o_setting_left_pane">
+                                </div>
+
+                                <div class="o_setting_right_pane">
+                                    <label for="overtime_manual_input" string="Overtime Manual Input"/>
+<!--                                    <div class="text-muted">-->
+<!--                                        Reminder Recipients-->
+<!--                                    </div>-->
+                                    <div class="content-group">
+                                        <div class="mt16">
+                                            <field name="overtime_manual_input" widget="boolean_toggle"
+                                                   class="o_light_label"/>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </xpath>
+            </field>
+        </record>
+    </data>
+</odoo>

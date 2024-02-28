@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <data>
+
+        <record
+      id="action_account_invoice_bambora_batch_list"
+      model="ir.actions.server"
+    >
+            <field name="name">Bambora Batch Payment</field>
+            <!-- <field name="groups_id" eval="[(4, ref('account.group_account_invoice'))]"/> -->
+            <field name="model_id" ref="account.model_account_move" />
+            <field name="binding_model_id" ref="account.model_account_move" />
+            <field name="binding_view_types">list</field>
+            <field name="state">code</field>
+            <field name="code">
+                if records:
+                    action = records.action_register_bambora_batch_payment()
+            </field>
+        </record>
+
+        <record id="view_move_batch_payment_form" model="ir.ui.view">
+            <field name="name">view_move_batch_payment_form</field>
+            <field name="model">account.move</field>
+            <field name="inherit_id" ref="account.view_move_form" />
+            <field name="arch" type="xml">
+                <field name="partner_bank_id" position="after">
+                   <field name="bambora_bank_identifier_number" />
+                    <field name="bambora_bank_transit_number" />
+                    <field name="bambora_batch_payment_id" />
+                </field>
+            </field>
+        </record>
+
+        <record id="view_move_batch_payment_tree" model="ir.ui.view">
+            <field name="name">view_move_batch_payment_tree</field>
+            <field name="model">account.move</field>
+            <field name="inherit_id" ref="account.view_invoice_tree" />
+            <field name="arch" type="xml">
+                <field name="payment_state" position="after">
+                    <field name="bambora_batch_state" string="Bambora State" />
+                    <field
+            name="bambora_batch_status"
+            string="Bambora Status"
+          />
+                </field>
+            </field>
+        </record>
+
+
+    </data>
+</odoo>

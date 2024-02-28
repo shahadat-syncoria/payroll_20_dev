@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<odoo>
+    <data>
+
+        <template id="report_deposit_summary">
+            <t t-call="web.html_container">
+                                <t t-foreach="docs" t-as="o">
+                <t t-call="web.external_layout">
+
+                    <!-- <t t-call="report.external_layout"> -->
+                    <div class="page">
+                        <div class="text-center">
+                            <span t-esc="o.company_id.name"/>
+                            Deposit Summary
+                            <br/>
+
+                            <!--                                Paygroup:  <span t-esc="paygroup"/><br/>-->
+                            Pay Cycle Ending:
+                            <span t-esc="o.date_end.strftime('%b %d %Y')"/>
+                            <br/>
+                            Report Ran:
+                            <span t-esc="context_timestamp(datetime.datetime.now()).strftime('%b %d %Y %I:%M %p')"/>
+
+                        </div>
+                        <style>
+                            td {
+                            border-right:none !important;
+                            }
+                        </style>
+                        <table class="table  mt-2" style="border:none;" name="body">
+                            <tbody>
+                                <tr class="text-center">
+                                    <td>
+                                        <b>Employee ID</b>
+                                    </td>
+                                    <td>
+                                        <b>EMPLOYEE NAME</b>
+                                    </td>
+                                    <td>
+                                        <b>DEPOSIT NUMBER/BATCH NUMBER</b>
+                                    </td>
+                                    <td>
+                                        <b>BANK ID/NAME</b>
+                                    </td>
+                                    <td>
+                                        <b>TRANSACTION NUMBER</b>
+                                    </td>
+                                    <td>
+                                        <b>ACCOUNT NUMBER</b>
+                                    </td>
+                                    <td>
+                                        <b>AMOUNT</b>
+                                    </td>
+                                    <td>
+                                        <b>STATUS</b>
+                                    </td>
+                                </tr>
+                                <t t-set="lines"
+                                   t-value="payslips"/>
+                                <t t-foreach="o.slip_ids" t-as="line">
+                                    <t t-if="line.state in ['waiting','paid'] and line.bambora_batch_payment_id">
+
+
+                                        <tr>
+                                            <td style="text-align:left">
+                                                <span t-esc="line.employee_id.barcode"/>
+                                            </td>
+                                            <td style="text-align:center">
+                                                <span t-esc="line.employee_id.name"/>
+
+                                            </td>
+                                            <td style="text-align:center">
+                                                <span t-esc="line.batch_id"/>
+                                            </td>
+                                            <td style="text-align:center">
+                                                <t t-if="line.bambora_payroll_account_id">
+                                                    <span t-esc="line.bambora_payroll_account_id.bank_id.name"/>
+                                                </t>
+                                                <t t-else="">
+                                                    <span></span>
+                                                </t>
+
+                                            </td>
+                                            <td style="text-align:center">
+                                                <t t-if="line.bambora_batch_payment_id">
+                                                    <span t-esc="line.bambora_batch_payment_id.transaction_id"/>
+                                                </t>
+                                                <t t-else="">
+                                                    <span></span>
+                                                </t>
+
+                                            </td>
+                                            <td style="text-align:center">
+                                                <t t-if="line.bambora_payroll_account_id">
+                                                    <span t-esc="line.bambora_payroll_account_id.acc_number"/>
+                                                </t>
+                                                <t t-else="">
+                                                    <span></span>
+                                                </t>
+
+                                            </td>
+                                            <td style="text-align:center">
+                                                <t t-if="line.bambora_batch_payment_id">
+                                                    <span t-esc="line.bambora_batch_payment_id.amount"/>
+                                                </t>
+                                                <t t-else="">
+                                                    <span></span>
+                                                </t>
+
+                                            </td>
+                                            <td style="text-align:center">
+                                                <span t-esc="line.bambora_batch_state"/>
+
+                                            </td>
+                                        </tr>
+                                    </t>
+
+                                </t>
+                            </tbody>
+                        </table>
+                    </div>
+                </t>
+
+
+            </t>
+            </t>
+
+        </template>
+    </data>
+
+</odoo>
+
+
+

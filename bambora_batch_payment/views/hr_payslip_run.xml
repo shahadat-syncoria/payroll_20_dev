@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <record id="bambora_hr_payslip_run_form_inherit" model="ir.ui.view">
+            <field name="name">ProjectName.bambora_hr_payslip_run.form</field>
+            <field name="model">hr.payslip.run</field>
+            <field name="inherit_id" ref="hr_payroll.hr_payslip_run_form"/>
+<!--            <field name="priority" eval="8"/>-->
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='company_id']" position="after">
+                    <field name="is_bambora_deposite" invisible="1"/>
+                </xpath>
+                <xpath expr="//button[@name='action_paid']" position="after">
+                    <button string="Bambora Bank Deposit" name="action_register_bambora_batch_payment" type="object" class="oe_highlight"
+                            attrs="{'invisible':['|',('is_bambora_deposite','=',True),('state','not in',['close'])
+                            ]}"/>
+                </xpath>
+                <xpath expr="//button[@name='action_draft']" position="after">
+                      <button name="print_deposit_report" class="button button-primary" type="object" string="Print"/>
+
+                </xpath>
+            </field>
+        </record>
+    </data>
+</odoo>

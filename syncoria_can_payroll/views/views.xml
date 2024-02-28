@@ -1,0 +1,241 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="t4_form_view_form" model="ir.ui.view">
+            <field name="name">statement.remuneration.form</field>
+            <field name="model">statement.remuneration</field>
+            <field name="arch" type="xml">
+                <form string="T4 Form">
+                    <header>
+                        <field groups="!hr_payroll.group_hr_payroll_employee_manager" name="state" widget="statusbar"/>
+                        <field groups="hr_payroll.group_hr_payroll_employee_manager" name="state" options="{'clickable': '1'}" widget="statusbar"/>
+                        <button class="btn btn-primary" invisible="state in ['done', 'cancel']" name="compute_t4" string="Compute" type="object"/>
+                        <button class="btn btn-primary" invisible="state != 'done'" name="download_t4_xml" string="Xml Download" type="object"/>
+                        <button class="btn btn-primary" invisible="state != 'done'" name="download_t4_pdf" string="T4 Slip Download" type="object"/>
+                    </header>
+                    <sheet>
+                        <div name="button_box">
+                            <button class="oe_stat_button" icon="fa-upload" name="open_t4_website" type="object">
+                                Upload T4
+                            </button>
+                        </div>
+                        <div class="oe_title pe-0 w-100 mw-100" name="title">
+                            <h1 class="d-flex flex-row justify-content-between">
+                                <field class="text-truncate" name="employee_id" placeholder="Employee Name"/>
+                            </h1>
+                            <h2>
+                                <field groups="base.group_multi_company" invisible="1" name="company_id"/>
+                            </h2>
+                        </div>
+                        <group name="top_info">
+                            <group name="top_info_left">
+                                <field invisible="1" name="company_id"/>
+                                <!--                                <field name="employee_id" options="{'no_open': True, 'no_create': True}"/>-->
+                                <field name="employee_contract" options="{'no_open': True, 'no_create': True}"/>
+                                <field name="year"/>
+                                <!--                                <field name="name"/>-->
+                            </group>
+                        </group>
+                        <group name="empl_info" string="Employee Information">
+                            <group name="empl_info_name">
+                                <field name="employee_snm" required="0"/>
+                                <field name="employee_gvn_nm" required="0"/>
+                                <field name="employee_init" required="0"/>
+                            </group>
+                            <group name="empl_info_add">
+                                <field name="employee_addr_l1_txt" required="0"/>
+                                <field name="employee_addr_l2_txt" required="0"/>
+                                <field name="employee_cty_nm" required="0"/>
+                                <field name="employee_prov_cd" required="0"/>
+                                <field name="employee_cntry_cd" required="0"/>
+                                <field name="employee_pstl_cd" required="0"/>
+                            </group>
+                        </group>
+                        <group name="t4_slip" string="T4 Slip Info">
+                            <group name="t4_slip_left">
+                                <field name="employee_sin" required="0"/>
+                                <field name="employee_empe_nbr" required="0"/>
+                                <field name="employee_bn" required="0"/>
+                                <field name="employee_rpp_dpsp_rgst_nbr" required="0"/>
+                                <field name="employee_cpp_qpp_xmpt_cd" required="0"/>
+                                <field name="employee_ei_xmpt_cd" required="0"/>
+                            </group>
+                            <group name="t4_slip_right">
+                                <field name="employee_prov_pip_xmpt_cd" required="0"/>
+                                <field name="employee_empt_cd" required="0"/>
+                                <field name="employee_rpt_tcd" required="0"/>
+                                <field name="employee_empt_prov_cd" required="0"/>
+                            </group>
+                        </group>
+                        <group name="empl_t4_amount" string="T4 Amount">
+                            <group name="empl_t4_amount_left">
+                                <field name="employee_empt_incamt" readonly="employee_empt_cd in ['11', '12', '13', '17']" required="0"/>
+                                <field name="employee_cpp_cntrb_amt" readonly="employee_qpp_cntrb_amt > 0.0" required="0"/>
+                                <field name="employee_qpp_cntrb_amt" readonly="employee_cpp_cntrb_amt > 0.0" required="0"/>
+                                <field name="employee_empe_eip_amt" required="0"/>
+                                <field name="registered_rpp_cntrb_amt" required="0"/>
+                                <field name="income_itx_ddct_amt" required="0"/>
+                            </group>
+                            <group name="empl_t4_amount_right">
+                                <field name="employee_ei_insu_ern_amt" required="0"/>
+                                <field name="canada_cpp_qpp_ern_amt" required="0"/>
+                                <field name="union_unn_dues_amt" required="0"/>
+                                <field name="charitable_chrty_dons_amt" required="0"/>
+                                <field name="pension_padj_amt" required="0"/>
+                                <field name="PPIP_prov_pip_amt" required="0"/>
+                                <field name="PPIP_prov_insu_ern_amt" required="0"/>
+                            </group>
+                        </group>
+                        <group name="empl_OTH_INFO" string="Other Info">
+                            <group name="empl_OTH_INFO_left">
+                                <field name="hm_brd_lodg_amt" required="0"/>
+                                <field name="spcl_wrk_site_amt" required="0"/>
+                                <field name="prscb_zn_trvl_amt" required="0"/>
+                                <field name="med_trvl_amt" required="0"/>
+                                <field name="prsnl_vhcl_amt" required="0"/>
+                                <field name="rsn_per_km_amt" required="0"/>
+                                <field name="low_int_loan_amt" required="0"/>
+                                <field name="empe_hm_loan_amt" required="0"/>
+                                <field name="stok_opt_ben_amt" required="0"/>
+                                <field name="sob_a00_feb_amt" required="0"/>
+                                <field name="shr_opt_d_ben_amt" required="0"/>
+                                <field name="sod_d_a00_feb_amt" required="0"/>
+                                <field name="oth_tx_ben_amt" required="0"/>
+                                <field name="shr_opt_d1_ben_amt" required="0"/>
+                                <field name="sod_d1_a00_feb_amt" required="0"/>
+                                <field name="empt_cmsn_amt" required="0"/>
+                                <field name="cfppa_amt" required="0"/>
+                                <field name="dfr_sob_amt" required="0"/>
+                                <field name="empt_inc_amt_covid_prd1" required="0"/>
+                                <field name="empt_inc_amt_covid_prd2" required="0"/>
+                            </group>
+                            <group name="empl_OTH_INFO_right">
+                                <field name="empt_inc_amt_covid_prd3" required="0"/>
+                                <field name="empt_inc_amt_covid_prd4" required="0"/>
+                                <field name="nelg_rtir_amt" required="0"/>
+                                <field name="indn_nelg_rtir_amt" required="0"/>
+                                <field name="indn_empe_amt" required="0"/>
+                                <field name="oc_incamt" required="0"/>
+                                <field name="oc_dy_cnt" required="0"/>
+                                <field name="pr_90_cntrbr_amt" required="0"/>
+                                <field name="pr_90_ncntrbr_amt" required="0"/>
+                                <field name="cmpn_rpay_empr_amt" required="0"/>
+                                <field name="fish_gro_ern_amt" required="0"/>
+                                <field name="fish_net_ptnr_amt" required="0"/>
+                                <field name="fish_shr_prsn_amt" required="0"/>
+                                <field name="plcmt_emp_agcy_amt" required="0"/>
+                                <field name="drvr_taxis_oth_amt" required="0"/>
+                                <field name="brbr_hrdrssr_amt" required="0"/>
+                                <field name="pub_trnst_pass_amt" required="0"/>
+                                <field name="epaid_hlth_pln_amt" required="0"/>
+                                <field name="stok_opt_csh_out_eamt" required="0"/>
+                                <field name="vlntr_emergencyworker_xmpt_amt" required="0"/>
+                                <field name="indn_txmpt_sei_amt" required="0"/>
+                            </group>
+                        </group>
+                        <group groups="hr_payroll.group_hr_payroll_employee_manager" name="empl_t4_summary" string="T4 Summary">
+                            <group name="empl_t4_summary_left">
+                                <field name="bn" required="0"/>
+                                <field name="employer_l1_nm" required="0"/>
+                                <field name="employer_l2_nm"/>
+                                <field name="employer_l3_nm"/>
+                                <field name="employer_addr_l1_txt"/>
+                                <field name="employer_addr_l2_txt" required="0"/>
+                                <field name="employer_cty_nm" required="0"/>
+                                <field name="employer_prov_cd" required="0"/>
+                                <field name="employer_cntry_cd" required="0"/>
+                                <field name="employer_pstl_cd" required="0"/>
+                                <field name="cntc_nm" required="0"/>
+                                <field name="cntc_area_cd" required="0"/>
+                                <field name="cntc_phn_nbr" required="0"/>
+                                <field name="cntc_extn_nbr" required="0"/>
+                                <field name="tx_yr" required="0"/>
+                                <field name="slp_cnt" required="0"/>
+                                <field name="pprtr_1_sin" required="0"/>
+                            </group>
+                            <group name="empl_t4_summary_right">
+                                <field name="pprtr_2_sin"/>
+                                <field name="rpt_tcd" required="0"/>
+                                <field name="fileramendmentnote" readonly="employee_rpt_tcd != 'A'"/>
+                                <field name="tot_empt_incamt"/>
+                                <field name="tot_empe_cpp_amt"/>
+                                <field name="tot_empe_eip_amt"/>
+                                <field name="tot_rpp_cntrb_amt"/>
+                                <field name="tot_itx_ddct_amt"/>
+                                <field name="tot_padj_amt"/>
+                                <field name="tot_empr_cpp_amt"/>
+                                <field name="tot_empr_eip_amt"/>
+                            </group>
+                        </group>
+                    </sheet>
+                    <div class="oe_chatter">
+                        <field groups="base.group_user" name="message_follower_ids"/>
+                        <field name="activity_ids"/>
+                        <field name="message_ids"/>
+                    </div>
+                </form></field>
+        </record>
+        <record id="hr_contract_view_tree" model="ir.ui.view">
+            <field name="name">statement.remuneration.tree</field>
+            <field name="model">statement.remuneration</field>
+            <field name="arch" type="xml">
+                <tree multi_edit="1" string="T4 Form">
+                    <field name="employee_id"/>
+                    <field name="year"/>
+                </tree></field>
+        </record>
+        <record id="t4_form_view_search" model="ir.ui.view">
+            <field name="name">statement.remuneration.form</field>
+            <field name="model">statement.remuneration</field>
+            <field name="arch" type="xml">
+                <search string="Search Contract">
+                    <field name="name" string="Contract"/>
+                    <field name="employee_id" string="Employee"/>
+                    <group expand="0" string="Group By">
+                        <filter context="{'group_by': 'employee_id'}" domain="[]" name="group_by_employee" string="Employee"/>
+                    </group>
+                </search></field>
+        </record>
+        <!-- actions opening views on models -->
+        <record id="syncoria_can_payroll.t4_action_window" model="ir.actions.act_window">
+            <field name="name">T4 Form Slip</field>
+            <field name="res_model">statement.remuneration</field>
+            <field name="view_mode">tree,form</field>
+            <!--        <field name="domain">[('employee_id', '!=', False)]</field>-->
+            <!--        <field name="context">{'search_default_running': 1, 'search_default_to_renew': 1}</field>-->
+            <field name="search_view_id" ref="syncoria_can_payroll.t4_form_view_search"/>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">
+                    Create a new T4 Form
+                </p></field>
+        </record>
+        <!-- server action to the one above -->
+        <!--
+            <record model="ir.actions.server" id="syncoria_can_payroll.action_server">
+              <field name="name">syncoria_can_payroll server</field>
+              <field name="model_id" ref="model_syncoria_can_payroll_syncoria_can_payroll"/>
+              <field name="state">code</field>
+              <field name="code">action = {
+                  "type": "ir.actions.act_window",
+                  "view_mode": "tree,form",
+                  "res_model": model._name,
+                }</field>
+            </record>
+        -->
+        <!-- Top menu item -->
+        <!--
+            <menuitem name="syncoria_can_payroll" id="syncoria_can_payroll.menu_root"/>
+        -->
+        <!-- menu categories -->
+        <!--        <menuitem name="T4 Form" id="syncoria_can_payroll.t4_menu" sequence="25"-->
+        <!--                  action="syncoria_can_payroll.t4_action_window" parent="hr_payroll.menu_hr_payroll_employees_root" groups="hr_payroll.group_hr_payroll_employee_manager"/>-->
+        <!--    <menuitem name="Menu 2" id="syncoria_can_payroll.menu_2" parent="syncoria_can_payroll.menu_root"/>-->
+        <!-- actions -->
+        <!--
+            <menuitem name="List" id="syncoria_can_payroll.menu_1_list" parent="syncoria_can_payroll.menu_1"
+                      action="syncoria_can_payroll.action_window"/>
+            <menuitem name="Server to list" id="syncoria_can_payroll" parent="syncoria_can_payroll.menu_2"
+                      action="syncoria_can_payroll.action_server"/>
+        -->
+    </data>
+</odoo>

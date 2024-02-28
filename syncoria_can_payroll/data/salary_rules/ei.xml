@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="0">
+
+        <record id="rule_ca_ei" model="hr.salary.rule">
+            <field name="name">EI</field>
+            <field name="sequence" eval="110"/>
+            <field name="code">EI</field>
+            <field name="category_id" ref="hr_payroll.DED"/>
+            <field name="appears_on_payslip" eval="1"/>
+            <field name="active" eval="1"/>
+<!--            <field name="condition_select">none</field>-->
+            <field name="amount_select">code</field>
+            <field name="struct_id" ref="syncoria_can_payroll.structure_can_employee"/>
+<!--            <field name="exemption_id" ref="cpp_exempt"/>-->
+            <field name="amount_python_compute">
+                <![CDATA[
+is_pay_cycle = contract.salary_pay_cycle.pay_cycle
+if is_pay_cycle:
+    pay_cycle = int(is_pay_cycle)
+    main_gross = GROSS
+    irregular_gross = abs(categories.ADD_ALLOWANCE)
+
+    final_result = result = (((main_gross * pay_cycle) * (
+            contract.deductions.ei_rate / 100)) / pay_cycle) + (
+                                    irregular_gross * (contract.deductions.ei_rate / 100))
+    if final_result < 0.0:
+        final_result = 0.0
+    result = final_result
+else:
+    result = 0.0
+                ]]>
+            </field>
+        </record>
+
+        <record id="rule_ca_ei_employer" model="hr.salary.rule">
+            <field name="name">Employer EI</field>
+            <field name="sequence" eval="150"/>
+            <field name="code">EI_EMPLOYER</field>
+            <field name="category_id" ref="hr_payroll.COMP"/>
+            <field name="appears_on_payslip" eval="150"/>
+            <field name="active" eval="1"/>
+<!--            <field name="condition_select">none</field>-->
+            <field name="amount_select">code</field>
+            <field name="struct_id" ref="syncoria_can_payroll.structure_can_employee"/>
+<!--            <field name="exemption_id" ref="cpp_exempt"/>-->
+            <field name="amount_python_compute">
+                <![CDATA[
+is_pay_cycle = contract.salary_pay_cycle.pay_cycle
+if is_pay_cycle:
+    pay_cycle = int(is_pay_cycle)
+    main_gross = GROSS
+    irregular_gross = abs(categories.ADD_ALLOWANCE)
+
+    final_result = (((main_gross * pay_cycle) * (
+            contract.deductions.ei_employer_rate / 100)) / pay_cycle) + (
+                           irregular_gross * (contract.deductions.ei_employer_rate / 100))
+    if final_result < 0.0:
+        final_result = 0.0
+    result = final_result
+else:
+    result = 0.0
+                ]]>
+            </field>
+        </record>
+
+<!--        =============================== WORKER ========================-->
+         <record id="rule_ca_ei_worker" model="hr.salary.rule">
+            <field name="name">EI</field>
+            <field name="sequence" eval="110"/>
+            <field name="code">EI</field>
+            <field name="category_id" ref="hr_payroll.DED"/>
+            <field name="appears_on_payslip" eval="1"/>
+            <field name="active" eval="1"/>
+<!--            <field name="condition_select">none</field>-->
+            <field name="amount_select">code</field>
+            <field name="struct_id" ref="syncoria_can_payroll.structure_can_worker"/>
+<!--            <field name="exemption_id" ref="cpp_exempt"/>-->
+            <field name="amount_python_compute">
+                <![CDATA[
+is_pay_cycle = contract.salary_pay_cycle.pay_cycle
+if is_pay_cycle:
+    pay_cycle = int(is_pay_cycle)
+    main_gross = GROSS
+    irregular_gross = abs(categories.ADD_ALLOWANCE)
+
+    final_result = (((main_gross * pay_cycle) * (
+            contract.deductions.ei_rate / 100)) / pay_cycle) + (
+                           irregular_gross * (contract.deductions.ei_rate / 100))
+    if final_result < 0.0:
+        final_result = 0.0
+    result = final_result
+else:
+    result = 0.0
+                ]]>
+            </field>
+        </record>
+
+        <record id="rule_ca_ei_employer_worker" model="hr.salary.rule">
+            <field name="name">Employer EI</field>
+            <field name="sequence" eval="150"/>
+            <field name="code">EI_EMPLOYER</field>
+            <field name="category_id" ref="hr_payroll.COMP"/>
+            <field name="appears_on_payslip" eval="1"/>
+            <field name="active" eval="1"/>
+<!--            <field name="condition_select">none</field>-->
+            <field name="amount_select">code</field>
+            <field name="struct_id" ref="syncoria_can_payroll.structure_can_worker"/>
+<!--            <field name="exemption_id" ref="cpp_exempt"/>-->
+            <field name="amount_python_compute">
+                <![CDATA[
+is_pay_cycle = contract.salary_pay_cycle.pay_cycle
+if is_pay_cycle:
+    pay_cycle = int(is_pay_cycle)
+    main_gross = GROSS
+    irregular_gross = abs(categories.ADD_ALLOWANCE)
+
+    final_result = (((main_gross * pay_cycle) * (
+            contract.deductions.ei_employer_rate / 100)) / pay_cycle) + (
+                           irregular_gross * (contract.deductions.ei_employer_rate / 100))
+    if final_result < 0.0:
+        final_result = 0.0
+    result = final_result
+else:
+    result = 0.0
+                ]]>
+            </field>
+        </record>
+
+    </data>
+</odoo>

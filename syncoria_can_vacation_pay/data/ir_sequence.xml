@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="seq_hr_vacation_pay" model="ir.sequence">
+            <field name="name">Vacation Pay</field>
+            <field name="code">hr.vacation.pay</field>
+            <field name="prefix">VPR</field>
+            <field name="padding">5</field>
+            <field name="company_id" eval="False"></field>
+        </record>
+    </data>
+</odoo>

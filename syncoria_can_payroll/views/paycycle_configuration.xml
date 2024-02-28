@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <record id="paycycle_configuration_form_view" model="ir.ui.view">
+            <field name="name">Paycycle Configuration</field>
+            <field name="model">paycycle.config</field>
+            <field name="arch" type="xml">
+                <form string="Pay cycle Configuration">
+                    <sheet>
+                        <group>
+                            <group>
+                                <field name="paystub_group_name"/>
+                                <field name="pay_cycle"/>
+                            </group>
+                            <group>
+                                <field name="start_date"/>
+                            </group>
+                        </group>
+                        <notebook>
+                            <page name="pay_periods" string="Pay Periods">
+                                <group>
+                                    <field name="paycycle_period_ids"
+                                          >
+                                        <tree string="Pay Period" editable="bottom">
+                                            <field name="name"/>
+                                            <field name="start_date"/>
+                                            <field name="end_date"/>
+
+                                        </tree>
+                                    </field>
+                                </group>
+                            </page>
+                        </notebook>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record id="paycycle_configuration_tree_view" model="ir.ui.view">
+            <field name="name">ProjectName.paycycle_configuration.tree</field>
+            <field name="model">paycycle.config</field>
+            <field name="arch" type="xml">
+                <tree string="Pay cycle Configuration">
+                    <field name="paystub_group_name"/>
+                    <field name="pay_cycle"/>
+                    <field name="start_date"/>
+                </tree>
+            </field>
+        </record>
+
+        <record id="paycycle_configuration_search_view" model="ir.ui.view">
+            <field name="name">ProjectName.paycycle_configuration.search</field>
+            <field name="model">paycycle.config</field>
+            <field name="arch" type="xml">
+                <search string="Pay cycle Configuration">
+                    <group expand="1" string="Group By">
+                        <filter string="Pay cycle Field" name="pay_cycle" domain="[]"
+                                context="{'group_by':'pay_cycle'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+
+        <record id="paycycle_configuration_act_window" model="ir.actions.act_window">
+            <field name="name">Pay Cycle Configuration</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">paycycle.config</field>
+            <field name="view_mode">tree,form</field>
+            <field name="help" type="html">
+                <p class="oe_view_nocontent_create">
+                    There is no examples click here to add new Pay cycle Configuration.
+                </p>
+            </field>
+        </record>
+
+
+    </data>
+</odoo>

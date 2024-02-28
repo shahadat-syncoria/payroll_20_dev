@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="0">
+        <record id="paycycle_monthly" model="paycycle.config">
+            <field name="paystub_group_name">Monthly</field>
+            <field name="pay_cycle">12</field>
+<!--            <field name="start_date">1</field>-->
+
+        </record>
+        <record id="paycycle_semi-monthly" model="paycycle.config">
+            <field name="paystub_group_name">Semi-Monthly</field>
+            <field name="pay_cycle">24</field>
+<!--            <field name="start_date">1</field>-->
+
+        </record>
+
+        <record id="paycycle_bi-weekly" model="paycycle.config">
+            <field name="paystub_group_name">Bi-Weekly</field>
+            <field name="pay_cycle">26</field>
+<!--            <field name="start_date">1</field>-->
+
+        </record>
+
+        <record id="paycycle_weekly" model="paycycle.config">
+            <field name="paystub_group_name">Weekly</field>
+            <field name="pay_cycle">52</field>
+<!--            <field name="start_date">1</field>-->
+
+        </record>
+
+    </data>
+</odoo>

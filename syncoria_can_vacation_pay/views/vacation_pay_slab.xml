@@ -1,0 +1,46 @@
+<odoo>
+    <record id="view_hr_vacation_slab_form" model="ir.ui.view">
+        <field name="name">hr.vacation.slab.form</field>
+        <field name="model">hr.vacation.slab</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group>
+                        <field name="start_year"/>
+                        <field name="end_year"/>
+                        <field name="allocated_leave"/>
+                        <field name="leave_percentage"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+    <record id="view_hr_vacation_slab_tree" model="ir.ui.view">
+        <field name="name">hr.vacation.slab.tree</field>
+        <field name="model">hr.vacation.slab</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="start_year"/>
+                <field name="end_year"/>
+                <field name="allocated_leave"/>
+                <field name="leave_percentage"/>
+            </tree>
+        </field>
+    </record>
+    <record id="action_hr_vacation_slab" model="ir.actions.act_window">
+        <field name="name">Vacation slab</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">hr.vacation.slab</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <menuitem
+                id="menu_hr_vacation_slab"
+                name="Vacation Pay Configuration"
+                parent="hr_work_entry_contract_enterprise.menu_hr_payroll_configuration"
+                sequence="95"
+                groups="hr_payroll.group_hr_payroll_manager"
+        />
+    <menuitem id="menu_vacation_pay_slab" name="Vacation Leave" parent="menu_hr_vacation_slab"
+              action="action_hr_vacation_slab" sequence="10"/>
+</odoo>

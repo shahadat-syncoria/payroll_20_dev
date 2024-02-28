@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <record id="view_employee_form" model="ir.ui.view">
+            <field name="model">hr.employee</field>
+            <field name="inherit_id" ref="hr.view_employee_form"/>
+            <field name="arch" type="xml">
+                <field name="identification_id" position="attributes">
+                    <attribute name="string">Employee Social Insurance Number (SIN)</attribute>
+                </field>
+            </field>
+        </record>
+
+        <record id="view_employee_form_payroll" model="ir.ui.view">
+            <field name="model">hr.employee</field>
+            <field name="inherit_id" ref="hr_payroll.payroll_hr_employee_view_form"/>
+            <field name="arch" type="xml">
+                <field name="registration_number" position="attributes">
+                    <attribute name="string">Payroll Account Number</attribute>
+                </field>
+                <field name="registration_number" position="after">
+                    <field name="employee_prpp_dpsp_rgst_nbr"/>
+                </field>
+            </field>
+        </record>
+
+    </data>
+</odoo>

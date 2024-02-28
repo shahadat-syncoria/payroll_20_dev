@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <record id="hr_payslip_helper_form_" model="ir.ui.view">
+            <field name="name">syncoria_payroll_helper.hr_payslip.form</field>
+            <field name="model">hr.payslip</field>
+            <field name="inherit_id" ref="hr_payroll.view_hr_payslip_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//tree[1]" position="attributes">
+                       <attribute name="create">1</attribute>
+                       <attribute name="delete">1</attribute>
+                </xpath>
+                   <xpath expr="//field[@name='work_entry_type_id']" position="attributes">
+                       <attribute name="readonly">0</attribute>
+                </xpath>
+<!--                <xpath expr="//field[@name='number_of_days']" position="attributes">-->
+<!--                       <attribute name="readonly">0</attribute>-->
+<!--                </xpath>-->
+                <xpath expr="//field[@name='number_of_hours']" position="attributes">
+                       <attribute name="readonly">0</attribute>
+                </xpath>
+            </field>
+        </record>
+    </data>
+</odoo>

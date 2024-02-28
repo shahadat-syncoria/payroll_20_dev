@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<odoo>
+    <data>
+
+        <template id="report_remittance_summary">
+            <t t-call="web.html_container">
+                <!--                <t t-foreach="docs" t-as="o">-->
+                <t t-call="web.external_layout">
+
+                    <!-- <t t-call="report.external_layout"> -->
+                    <div class="page">
+                        <div style="margin:0 6rem 0 6rem">
+                            <table class="table " name="body">
+                                <tr>
+                                    <th colspan="2">
+                                    </th>
+<!--                                    <th>-->
+<!--                                    </th>-->
+                                    <th colspan="2">
+                                        <b>Source Deduction</b>
+                                    </th>
+                                    <th>
+                                        <b>Gross Taxable earnings</b>
+                                    </th>
+                                </tr>
+                                <tr style="text-align: center;">
+                                    <th style="width:20%">
+                                        Pay Date
+                                    </th>
+                                    <th style="width:10%">
+                                        Employees Paid
+                                    </th>
+                                    <th style="width:20%">
+                                        Current
+                                    </th>
+                                    <th style="width:20%">
+                                        Year To date
+                                    </th>
+                                    <th style="width:30%">
+                                        Total Gross Salary of the employees
+                                    </th>
+
+                                </tr>
+                                <t t-set="lines"
+                                   t-value="payslips"/>
+                                <t t-set="sum_total_gross" t-value="0.0"/>
+<!--                                <span t-esc="data['data']"/>-->
+                                <t t-foreach="lines" t-as="line">
+                                    <t t-set="sum_total_gross" t-value="sum_total_gross+float(line['total_gross'])"/>
+
+                                    <tr>
+                                        <td style="text-align:left">
+                                            <span t-esc="line['pay_date']"/>
+                                        </td>
+                                        <td style="text-align:center">
+                                            <span t-esc="line['employees_paid']"/>
+
+                                        </td>
+                                        <td style="text-align:right">
+                                            <span t-esc="line['total_amount']"/>
+                                        </td>
+                                        <td style="text-align:right">
+                                            <span t-esc="sum_total_gross"/>
+                                        </td>
+                                        <td style="text-align:right">
+                                            <span t-esc="line['total_gross']"/>
+
+                                        </td>
+                                    </tr>
+                                </t>
+                            </table>
+
+                        </div>
+
+                        <!--
+                        Build your report here!
+                        Do it in awesome way ;)
+                        -->
+                    </div>
+                </t>
+                <!--                </t>-->
+            </t>
+        </template>
+    </data>
+
+</odoo>
+
+
+

@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <data>
+        <record id="payment_provider_bamboraeft" model="payment.provider">
+            <field name="name">Bambora EFT</field>
+            <field
+                    name="image_128"
+                    type="base64"
+                    file="bambora_batch_payment/static/description/icon.png"
+            />
+            <field name="display_as">Bambora EFT</field>
+            <field name="code">bamboraeft</field>
+            <field name="pre_msg" type="html">
+                <p>Bambora EFT</p>
+                <ul class="list-inline">
+                    <li class="list-inline-item"><i
+                            class="fa fa-check"
+                    />Online Payment using Bank-to-Bank (ACH/EFT)
+                    </li>
+                    <li class="list-inline-item"><i
+                            class="fa fa-check"
+                    />Tokenize Bank Account
+                    </li>
+                    <li class="list-inline-item"><i
+                            class="fa fa-check"
+                    />Payment Status Tracking
+                    </li>
+                </ul>
+            </field>
+            <field name="module_id" ref="base.module_bambora_batch_payment"/>
+            <field name="company_id" ref="base.main_company"/>
+            <field
+                    name="journal_id"
+                    ref="bambora_batch_payment.bamboraeft_customer_journal"
+            />
+            <field
+                    name="bamboraeft_vendor_journal_id"
+                    ref="bambora_batch_payment.bamboraeft_vendor_journal"
+            />
+            <field name="pending_msg">
+                <![CDATA[
+              <h3>Your Bambora (EFT/ACH) Fund Transfer is in `Scheduled` State.</h3>
+              <p>Your transaction will be complete when your Bambora (EFT/ACH) Fund Transfer is in `complete` state.<p>
+            ]]>
+            </field>
+            <field name="bamboraeft_merchant_id">383610231</field>
+            <field
+                    name="bamboraeft_batch_api"
+            >59346692ed194CD1805A66f541287B74</field>
+            <field
+                    name="bamboraeft_report_api"
+            >AF492A390B00481CbD4a2907FA33e3ed</field>
+            <field
+                    name="bamboraeft_payment_api"
+            >9F0F1cE3EA9541489656E0d2470F5285</field>
+            <field
+                    name="bamboraeft_profile_api"
+            >5B94D0E7290D4D33953BD12EE6B467A4</field>
+            <field name="bamboraeft_create_profile">1</field>
+<!--            <field name="inline_form_view_id" ref="inline_form"/>-->
+<!--            <field name="support_authorization">True</field>-->
+<!--            <field name="support_fees_computation">False</field>-->
+<!--            <field name="support_refund"></field>-->
+            <field name="support_tokenization">True</field>
+            <field name="allow_tokenization">True</field>
+        </record>
+
+
+    </data>
+</odoo>

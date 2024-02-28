@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="hr_contract_form_inherit" model="ir.ui.view">
+            <field name="model">hr.contract</field>
+            <field name="inherit_id" ref="hr_payroll.hr_contract_form_inherit"/>
+            <field name="arch" type="xml">
+                <page name="part_time" position="after">
+                    <page name="remuneration_info" string="Remuneration Information">
+                        <group>
+                            <group>
+                                <!--                                <field name="is_cpp_qpp_xmpt_cd" widget='boolean_toggle'/>-->
+                                <!--                                <field name="is_ei_xmpt_cd" widget='boolean_toggle'/>-->
+                                <!--                                <field name="is_prov_pip_xmpt_cd" widget='boolean_toggle'/>-->
+                                <field name="employee_empt_cd"/>
+                            </group>
+                            <group>
+                                <field name="federal_amount_from_td1"/>
+                                <field name="federal_claim_code_from_td1"/>
+                                <field name="proviancial_amount_from_td1"/>
+                                <field name="proviancial_claim_code_from_td1"/>
+                            </group>
+                            <group>
+                                <field name="deductions" required="1"/>
+                            </group>
+                        </group>
+                        <group name="deductions" string="Deductions">
+                            <group>
+                                <label for="rrsp_amount"/>
+                                <div class="o_row">
+                                    <field name="rrsp_amount"/>
+                                    <field name="rrsp_type"/>
+                                </div>
+                            </group>
+                            <group>
+                                <field name="garnishment" widget="boolean_toggle"/>
+                                <label for="wage_garnishment" invisible="garnishment != True"/>
+                                <div class="o_row" invisible="garnishment != True">
+                                    <field name="wage_garnishment"/>
+                                    <field name="wage_garnishment_type"/>
+                                </div>
+                                <label for="bank_garnishment" invisible="garnishment != True"/>
+                                <div class="o_row" invisible="garnishment != True">
+                                    <field name="bank_garnishment"/>
+                                    <field name="bank_garnishment_type"/>
+                                </div>
+                                <label for="alimony_garnishment" invisible="garnishment != True"/>
+                                <div class="o_row" invisible="garnishment != True">
+                                    <field name="alimony_garnishment"/>
+                                    <field name="alimony_garnishment_type"/>
+                                </div>
+                                <label for="child_support_garnishment" invisible="garnishment != True"/>
+                                <div class="o_row" invisible="garnishment != True">
+                                    <field name="child_support_garnishment"/>
+                                    <field name="child_support_garnishment_type"/>
+                                </div>
+                            </group>
+                        </group>
+                    </page>
+                </page>
+                <xpath expr="//field[@name='structure_type_id']" position="after">
+                    <field name="salary_pay_cycle"/>
+                </xpath>
+                <!--                ======================= Hourly Configurations ===============-->
+                <xpath expr="//field[@name='wage_type']" position="after">
+                    <field invisible="is_hourly == True" name="paycycle_wage"/>
+                    <field invisible="is_hourly == True" name="is_fixed"/>
+                    <field name="is_hourly"/>
+                    <field invisible="is_hourly == False" name="hourly_rate"/>
+                </xpath>
+                <xpath expr="//div[@name='wage']" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath></field>
+        </record>
+    </data>
+</odoo>

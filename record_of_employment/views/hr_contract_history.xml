@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="view_hr_contract_history_form" model="ir.ui.view">
+            <field name="name">hr.contract.history.form</field>
+            <field name="model">hr.contract.history</field>
+            <field name="inherit_id" ref="hr_contract.hr_contract_history_view_form"/>
+            <field name="arch" type="xml">
+                    <xpath expr="//field[@name='job_id']" position="after">
+                  <field name = "state" invisible="1"/>
+                  <field name = "is_vacation_pay_paid" invisible="1"/>
+                </xpath>
+
+                <xpath expr="//button[@name='hr_contract_view_form_new_action']" position="after">
+<!--                     <button name="vacation_pay" string="Vacation Pay" type="object" class="btn-primary"-->
+<!--                             attrs="{'invisible': ['|', ('state', 'in', ['draft','open']), '&amp;', ('state', 'not in', ['draft','open']), ('is_vacation_pay_paid','=', True)]}"/>-->
+                     <button name="vacation_pay" string="Vacation Pay" type="object" class="btn-primary"
+                            attrs="{'invisible': ['|', ('state', 'in', ['draft','open']), '&amp;', ('state', 'not in', ['draft','open']), ('is_vacation_pay_paid','=', True)]}"/>
+
+                    <button name="roe_generation" string="Roe Generation" type="object" class="btn-primary"
+                             attrs="{'invisible': ['|', ('state', 'in', [False,'draft','open']), '&amp;', ('state', 'not in', ['draft','open']), ('is_vacation_pay_paid','=', False)]}"/>
+                </xpath>
+            </field>
+        </record>
+    </data>
+</odoo>

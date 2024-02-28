@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <data>
+
+
+        <record id="bamboraeft_outbound_electronic" model="account.payment.method">
+            <field name="name">Bambora EFT</field>
+            <field name="code">bamboraeft</field>
+            <field name="payment_type">outbound</field>
+        </record>
+
+        <record id="bamboraeft_inbound_electronic" model="account.payment.method">
+            <field name="name">Bambora EFT</field>
+            <field name="code">bamboraeft</field>
+            <field name="payment_type">inbound</field>
+        </record>
+    </data>
+</odoo>

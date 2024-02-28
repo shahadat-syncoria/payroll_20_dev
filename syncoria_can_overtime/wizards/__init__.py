@@ -1,0 +1,1 @@
+from . import manual_input_wiz

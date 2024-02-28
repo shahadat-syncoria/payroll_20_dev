@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="structure_can_employee" model="hr.payroll.structure">
+            <field name="name">Canadian Employee Pay</field>
+            <field name="type_id" ref="hr_contract.structure_type_employee"/>
+            <field name="country_id" ref="base.ca"/>
+            <field eval="[]" name="rule_ids"/>
+
+
+        </record>
+
+        <record id="structure_can_worker" model="hr.payroll.structure">
+            <field name="name">Canadian Worker Pay</field>
+            <field name="type_id" ref="hr_contract.structure_type_worker"/>
+            <field eval="[]" name="rule_ids"/>
+            <field name="country_id" ref="base.ca"/>
+        </record>
+
+        <record id="CALC" model="hr.salary.rule.category">
+            <field name="code">CALC</field>
+            <field name="name">Standard Calculation</field>
+        </record>
+
+        <record id="additional_allowance" model="hr.salary.rule.category">
+            <field name="code">ADD_ALLOWANCE</field>
+            <field name="name">Additional Allowance</field>
+        </record>
+
+        <record id="pre_tax_deduction" model="hr.salary.rule.category">
+            <field name="code">PRE_TAX_DEDUCTION</field>
+            <field name="name">Pre Tax Deduction</field>
+        </record>
+
+        <record id="post_tax_deduction" model="hr.salary.rule.category">
+            <field name="code">POST_TAX_DEDUCTION</field>
+            <field name="name">Post Tax Deduction</field>
+        </record>
+
+    </data>
+</odoo>

@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+
+    <template id="inline_form">
+        <div
+      t-if="provider.bamboraeft_tran_type == 'card'"
+      t-attf-id="o_bamboraeft_form_{{provider_id}}"
+      class="o_bamboraeft_card_form"
+    >
+            <div class="form-group">
+                <label
+          t-attf-for="o_bamboraeft_card_{{provider_id}}"
+          class="col-form-label"
+        >Card Number</label>
+                <input
+          type="text"
+          t-attf-id="o_bamboraeft_card_{{provider_id}}"
+          required=""
+          maxlength="19"
+          class="form-control"
+        />
+            </div>
+            <div class="row">
+                <div class="col-sm-8 form-group">
+                    <label
+            t-attf-for="o_bamboraeft_month_{{provider_id}}"
+          >Expiration</label>
+                    <div class="input-group">
+                        <input
+              type="number"
+              t-attf-id="o_bamboraeft_month_{{provider_id}}"
+              placeholder="MM"
+              min="1"
+              max="12"
+              required=""
+              class="form-control"
+            />
+                        <input
+              type="number"
+              t-attf-id="o_bamboraeft_year_{{provider_id}}"
+              placeholder="YY"
+              min="00"
+              max="99"
+              required=""
+              class="form-control"
+            />
+                    </div>
+                </div>
+                <div class="col-sm-4 form-group">
+                    <label t-attf-for="o_bamboraeft_code_{{provider_id}}">Card Code</label>
+                    <input
+            type="number"
+            t-attf-id="o_bamboraeft_code_{{provider_id}}"
+            max="9999"
+            class="form-control"
+          />
+                </div>
+            </div>
+        </div>
+        <div
+      t-else=""
+      t-attf-id="o_bamboraeft_form_{{provider_id}}"
+      class="bamboraeft_form"
+    >
+            <div
+        id="bamboraPayBank"
+        t-attf-class="row mt8 #{'' if bootstrap_formatting else 'o_card_brand_detail'}"
+      >
+                <div
+          t-att-class="'form-group col-lg-6'"
+          id="bankName"
+        >
+                    <input
+            type="text"
+            name="bank_name"
+            t-attf-id="o_bamboraeft_bank_name_{{provider_id}}"
+            class="form-control bamboraeft_bank_name"
+            placeholder="Bank Name"
+            required=""
+          />
+                </div>
+                <div
+          t-att-class="'form-group col-lg-6'"
+          id="bankAccountHolder"
+        >
+                    <input
+            type="text"
+            name="acc_holder_name"
+            t-attf-id="o_bamboraeft_account_name_{{provider_id}}"
+            class="form-control bamboraeft_acc_holder_name"
+            placeholder="Account Holder Name"
+            required=""
+          />
+                </div>
+                <div
+          t-att-class="'form-group col-lg-6'"
+          id="accountNumber"
+        >
+                    <input
+            type="text"
+            name="acc_number"
+            t-attf-id="o_bamboraeft_account_number_{{provider_id}}"
+            class="form-control bamboraeft_acc_number"
+            placeholder="Bank Account No."
+            required=""
+          />
+                </div>
+                <div
+          t-att-class="'form-group col-lg-6'"
+          id="bankAccountType"
+        >
+                    <input
+            type="text"
+            name="bank_account_type"
+            t-attf-id="o_bamboraeft_account_type_{{provider_id}}"
+            class="form-control bamboraeft_bank_account_type"
+            placeholder="Bank Account type(eg: Canadian)"
+            required=""
+          />
+                </div>
+                <div
+          t-att-class="'form-group col-lg-6'"
+          id="institutionNumber"
+        >
+                    <input
+            type="text"
+            name="institution_number"
+            t-attf-id="o_bamboraeft_institution_number_{{provider_id}}"
+            class="form-control bamboraeft_institution_number"
+            placeholder="Institution Number (3 Digits)"
+            required=""
+          />
+                </div>
+                <div
+          t-att-class="'form-group col-lg-6'"
+          id="branchNumber"
+        >
+                    <input
+            type="text"
+            name="branch_number"
+            t-attf-id="o_bamboraeft_branch_number_{{provider_id}}"
+            class="form-control bamboraeft_branch_number"
+            placeholder="Bank Transit number (5 Digits)"
+            required=""
+          />
+                </div>
+            </div>
+        </div>
+<!--        <div t-else="" t-attf-id="o_bamnora_form_{{provider_id}}" class="o_bamnora_form">-->
+<!--            <div class="form-group">-->
+<!--                <label t-attf-for="o_bamnora_bank_name_{{provider_id}}" class="col-form-label">Bank Name</label>-->
+<!--                <input type="text" t-attf-id="o_bamnora_bank_name_{{provider_id}}" required="" class="form-control"/>-->
+<!--            </div>-->
+<!--            <div class="form-group">-->
+<!--                <label t-attf-for="o_bamnora_account_name_{{provider_id}}" class="col-form-label">Name On Account</label>-->
+<!--                <input type="text" t-attf-id="o_bamnora_account_name_{{provider_id}}" required="" class="form-control"/>-->
+<!--            </div>-->
+<!--            <div class="form-group">-->
+<!--                <label t-attf-for="o_bamnora_account_number_{{provider_id}}" class="col-form-label">Account Number</label>-->
+<!--                <input type="text" t-attf-id="o_bamnora_account_number_{{provider_id}}" required="" class="form-control"/>-->
+<!--            </div>-->
+<!--            <div class="form-group">-->
+<!--                <label t-attf-for="o_bamnora_aba_number_{{provider_id}}" class="col-form-label">ABA Routing Number</label>-->
+<!--                <input type="text" t-attf-id="o_bamnora_aba_number_{{provider_id}}" required="" class="form-control"/>-->
+<!--            </div>-->
+<!--            <div class="form-group">-->
+<!--                <label t-attf-for="o_bamnora_account_type_{{provider_id}}" class="col-form-label">Bank Account Type</label>-->
+<!--                <select t-attf-id="o_bamnora_account_type_{{provider_id}}" required="" class="form-control">-->
+<!--                    <option value="checking">Personal Checking</option>-->
+<!--                    <option value="savings">Personal Savings</option>-->
+<!--                    <option value="businessChecking">Business Checking</option>-->
+<!--                </select>-->
+<!--            </div>-->
+<!--        </div>-->
+    </template>
+
+</odoo>

@@ -1,0 +1,31 @@
+---------------------- FED TAX -------------
+# wocredit= Fed tax without tax credit
+
+yearly = (contract.wage * 12) - (CPP * 12) - (EI * 12)
+if yearly < 50197:
+    wocredit = (yearly * 0.15)
+elif 50197 < yearly < 100392:
+    wocredit = (yearly * 0.205)
+elif 100392 < yearly < 155625:
+    wocredit = (yearly * 0.26)
+elif 155625 < yearly < 221708:
+    wocredit = (yearly * 0.29)
+elif 221708 < yearly:
+    wocredit = (yearly * 0.33)
+result = (wocredit - (contract.federal_amount_from_td1 * 0.15)) / 12
+
+--------------- PROV TX -----------------------
+# woc= Ontario Tax without credit
+
+yearly = (contract.wage * 12) - (CPP * 12) - (EI * 12)
+if yearly < 49231:
+    woc = (yearly * 0.0505)
+elif 46226 < yearly < 92454:
+    woc = (yearly * 0.0915)
+elif 92454 < yearly < 150000:
+    woc = (yearly * 0.1116)
+elif 150000 < yearly < 220000:
+    woc = (yearly * 0.1216)
+elif 220000 < yearly:
+    woc = (yearly * 0.1316)
+result = (woc - (contract.proviancial_amount_from_td1 * 0.15)) / 12

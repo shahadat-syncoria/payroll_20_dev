@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <data noupdate="1">
+        <record id="ir_cron_create_vacation_leave_allocation" model="ir.cron">
+            <field name="name">Vacation leave allocation</field>
+            <field
+        name="model_id"
+        ref="hr_holidays.model_hr_leave_allocation"
+      />
+            <field name="state">code</field>
+            <field
+        name="code"
+      >model.action_allocation_vac_leave()</field>
+            <field name="interval_number">1</field>
+            <field name="interval_type">weeks</field>
+            <field name="numbercall">-1</field>
+            <field name="doall" eval="False" />
+        </record>
+
+    </data>
+</odoo>

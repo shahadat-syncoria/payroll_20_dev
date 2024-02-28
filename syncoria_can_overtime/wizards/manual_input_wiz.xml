@@ -1,0 +1,28 @@
+<odoo>
+    <data>
+        <record id="view_hr_employee_manual_input_wiz_overtime" model="ir.ui.view">
+    <field name="name">hr_employee_manual_input_wiz_overtime</field>
+    <field name="model">hr.payslip.employee.manual.wizard</field>
+    <field name="inherit_id" ref="syncoria_can_payroll.view_hr_employee_manual_input_wiz"/>
+    <field name="arch" type="xml">
+        <xpath expr="//group[@name='file_upload']" position="inside">
+            <group><field name="file" invisible="1"/></group>
+            <group><button
+                       name="import_data"
+                       string="Import"
+                       type="object"
+                       class="btn-primary"
+                       invisible="1"
+                   /></group>
+
+        </xpath>
+        <xpath expr="//field[@name='attendance_hours']" position="after">
+            <!-- Add your fields or attributes here -->
+            <field name="overtime_hours"/>
+            <field name="stat_overtime_hours"/>
+        </xpath>
+
+    </field>
+</record>
+    </data>
+</odoo>

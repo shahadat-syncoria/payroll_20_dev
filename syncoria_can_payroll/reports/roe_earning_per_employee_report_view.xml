@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<odoo>
+    <data>
+
+        <template id="report_roe_earning_per_employee">
+            <t t-call="web.html_container">
+                <!--                <t t-foreach="docs" t-as="o">-->
+                <t t-call="web.external_layout">
+
+                    <!-- <t t-call="report.external_layout"> -->
+                    <div class="page">
+                        <div style="margin:0 6rem 0 6rem">
+                            <table class="table" name="header">
+                                <tr style="text-align: left;">
+                                    <th>
+                                        Payroll History -
+                                        <span t-esc="employee_name"/>
+                                    </th>
+
+                                </tr>
+                                <tr style="text-align: left;">
+                                    <th>
+                                        Hire Date:
+                                        <span t-esc="hire_date"/>
+                                        - Term Date:
+                                        <span t-esc="term_date"/>
+                                    </th>
+
+                                </tr>
+                                <tr style="text-align: left;">
+                                    <th>
+                                        Paygroup: <span t-esc="paygroup"/>
+                                    </th>
+
+                                </tr>
+                            </table>
+                            <table class="table mt-5" name="body">
+                                <tr style="text-align: center;">
+                                    <th>
+                                        Pay #
+                                    </th>
+                                    <th>
+                                        Pay Cycle
+                                    </th>
+                                    <th>
+                                        Hours
+                                    </th>
+                                    <th>
+                                        Gross Amount
+                                    </th>
+                                    <th>
+                                        Details
+                                    </th>
+                                    <th>
+                                    </th>
+<!--                                    <th>-->
+<!--                                        Off-cycle-->
+<!--                                    </th>-->
+
+                                </tr>
+                                <t t-set="lines"
+                                   t-value="payslips"/>
+                                <t t-foreach="lines" t-as="line">
+
+                                    <tr>
+                                    <td>
+                                        <span t-esc="line['pay']"/>
+                                    </td>
+                                    <td>
+                                        <span t-esc="line['paycycle_date_from']"/>-
+                                        <span t-esc="line['paycycle_date_to']"/>
+
+                                    </td>
+                                    <td>
+                                        <span t-esc="round(line['hours'],2)"/>
+                                    </td>
+                                    <td>
+                                        <span t-esc="currency_id" /> <span t-esc="round(line['Gross'],2)"/>
+                                    </td>
+                                    <td>
+                                        <span t-esc="line['details']"/>
+                                    </td>
+                                    <td>
+                                        <t t-set="start" t-value="false"/>
+                                         <t t-foreach="line['gross_details']" t-as="gross">
+                                             <span t-esc="currency_id" /> <span t-esc="gross['total']" /><br/>
+<!--                                             <t t-if="start == false">-->
+<!--                                                 <span t-esc="gross['total']"/>-->
+<!--                                             </t>-->
+<!--                                             <t t-else="">-->
+<!--                                                 <span t-esc="gross['total']"/><br/>-->
+<!--                                             </t>-->
+<!--                                             <t t-set="start" t-value="true"/>-->
+                                         </t>
+
+                                    </td>
+<!--                                    <td></td>-->
+                                </tr>
+                                </t>
+                            </table>
+
+                            <div>
+                                <span t-esc="round(total_hours,2)"/> hrs to: <span t-esc="round(total_hours)"/>
+                            </div>
+
+                        </div>
+
+                        <!--
+                        Build your report here!
+                        Do it in awesome way ;)
+                        -->
+                    </div>
+                </t>
+                <!--                </t>-->
+            </t>
+        </template>
+    </data>
+
+</odoo>
+
+
+

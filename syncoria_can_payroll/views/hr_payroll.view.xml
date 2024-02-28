@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <record id="hr_payroll_structure_type_form_inherit" model="ir.ui.view">
+            <field name="name">syncoria_can_payroll.hr_payroll_structure_type.form</field>
+            <field name="model">hr.payroll.structure.type</field>
+            <field name="inherit_id" ref="hr_payroll.hr_payroll_structure_type_view_form"/>
+<!--            <field name="priority" eval="8"/>-->
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='default_schedule_pay']" position="after">
+                    <field name="default_pay_cycle"/>
+                </xpath>
+                 <xpath expr="//field[@name='default_schedule_pay']" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+
+            </field>
+        </record>
+         <record id="hr_payroll_structure_form_inherit" model="ir.ui.view">
+            <field name="name">syncoria_can_payroll.hr_payroll_structure.form</field>
+            <field name="model">hr.payroll.structure</field>
+            <field name="inherit_id" ref="hr_payroll.view_hr_employee_grade_form"/>
+<!--            <field name="priority" eval="8"/>-->
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='schedule_pay']" position="after">
+                    <field name="structure_pay_cycle" />
+                </xpath>
+<!--                <xpath expr="//field[@name='schedule_pay']" position="attributes">-->
+<!--                        <attribute name="attrs">{'invisible': [('structure_pay_cycle','!=',False)]}</attribute>-->
+<!--                </xpath>-->
+
+            </field>
+        </record>
+    </data>
+</odoo>

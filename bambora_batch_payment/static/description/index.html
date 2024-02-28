@@ -1,0 +1,576 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Bambora EFT/ACH</title>
+    <link rel="stylesheet" type="text/css"
+          href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.0.0/css/bootstrap.min.css">
+    <link
+            href="https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&display=swap"
+            rel="stylesheet">
+</head>
+<body>
+<section class="oe_container mt48 mb32" style="margin-top: 30px;margin-left:calc(-42vw + 50%); width:84vw">
+    <div style="max-width:1040px;  margin:0 auto;">
+        <div class="oe_row"
+             style="box-sizing: border-box;  background-color: #fff; border-radius: 4px; border: 1px solid #ddd; box-shadow: 2px 4px 8px #eee; padding:50px 40px;">
+            <h1 class="oe_slogan text-center"
+                style="font-size: 26px; line-height: 34px; color:#444444; font-weight:700; font-family: Lato, arial, sans-serif;margin:0; padding: 0 0 30px 0;">
+                Integration of Bambora EFT/ACH with Odoo eCommerce and Sales</h1>
+            <p>Bambora, one of the largest financial technology companies in Canada, specializes in payment processing.
+                With this app, you can make transactions - Bank to Bank - easily and securely.</p>
+            <p>Bambora EFT is a function that allows you to pay Bills, Invoices instantaneously and collect customer
+                payments through Banks from Odoo websites and internal/portal sites. Also, you can make multiple
+                payments
+                batch-wise.</p>
+            <p>We are committed to making the integration as easy for you as possible. Yet, if you need assistance with
+                the
+                installation, don't hesitate to get in touch with Syncoria Inc.</p>
+            <div class="row align-items-center">
+                <div class="col-12 col-sm-5 col-md-5 col-lg-5">
+                    <div style="padding-top: 0;">
+                        <h3 style="color:#2e7dda; font-weight:600; text-align:center; font-size: 17px; opacity:1; margin:8px 0 16px"
+                            class="oe_slogan">
+                            <a>BOOK A DEMO</a>
+                        </h3>
+                        <div style="width: 80%; font-weight:500; font-size:15px; margin:0 auto; border:1px solid #0074ff; display:flex; border-radius:10px; min-width:350px">
+                            <div class="text-center" style="color:#0074ff;  padding:0; min-width:100%">
+                            <span class="bg-white position-relative shadow"
+                                  style="padding:18px 0 0 0; color:#0f1e40; float:left; font-weight:600; width:85px; vertical-align:middle; border-bottom-left-radius:9px; border-top-left-radius:9px; font-size:10px; height:100%;">
+                                    <span class="text-left d-inline-block pl-2">COPY LINK</span>
+                                    <span class="fa fa-play text-white position-absolute"
+                                          style="font-size:18px; margin:10px 0 0 5px; height:50px"></span>
+                            </span>
+                                <p style="font-size: 12px; margin-bottom:0; vertical-align:middle; border-top-right-radius:9px; border-bottom-right-radius:9px; line-height:50px; color:#0074ff; font-weight:500; padding:0 15px 0 80px"
+                                   class="text-center mb0">https://app.syncoria.com/sync/app/demo/</p>
+                            </div>
+                        </div>
+                        <p class="text-center my-2" style="color:#091E42; font-size:18px;  font-weight:500">or</p>
+                        <div class="text-center mb-3">
+                            <a href="mailto:info@syncoria.com?subject= Moneris Semi-Integration with Odoo POS v13"
+                               target="_blank"
+                               style="text-decoration: none; color:#0074ff; display:inline-block; padding:5px 20px 10px 20px; border:1px solid #0074ff; border-radius:6px"
+                               class="deep-1 deep_hover"><span
+                                    style="color:#0074ff; font-weight: bold; font-size:15px;  vertical-align:middle">Email Us</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12 col-sm-7 col-md-7 col-lg-7">
+                    <div class="right" style="float: right; border-radius: 0 4px 4px 0; overflow: hidden">
+                        <img src="banner.png" alt="banner" style="max-width: 100%;"/>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<section class="oe_container mt48 mb32" style="margin-top:50px; margin-left:calc(-42vw + 50%); width:84vw">
+    <div class="row" style="max-width:1040px; margin:0 auto; padding-bottom:64px; border-radius:15px">
+        <ul role="tablist" class="nav nav-tabs justify-content-center" data-tabs="tabs"
+            style="border:none; background-color:unset; margin:0 auto">
+            <li class="nav-item"
+                style="border-top-right-radius:10px; border-top-left-radius:10px; background-color:#e6f6ff; margin-right:10px; border:1px solid #ddd; border-bottom:0">
+                <a href="#syn_features" data-toggle="tab" aria-expanded="true" class="show active"
+                   style="font-size:15px; font-family: 'Lato', arial, sans-serif;  padding:10px 20px; font-weight:600;  border-top-left-radius:10px; border-top-right-radius:10px;  color:#2b2b2b; border:1px solid transparent;  ">
+                    Features</a>
+            </li>
+            <li class="nav-item"
+                style="border-top-right-radius:10px; border-top-left-radius:10px; background-color:#e6f6ff; margin-right:10px; border:1px solid #ddd; border-bottom:0">
+                <a href="#syn_screenshots" data-toggle="tab" aria-expanded="true" class="show"
+                   style="font-family:'Lato', arial, sans-serif;font-weight:600;  padding:10px 20px;  border-top-left-radius:10px; border-top-right-radius:10px; color:#2b2b2b; border:1px solid transparent">Screenshots</a>
+            </li>
+            <li class="nav-item"
+                style="border-top-right-radius:10px; border-top-left-radius:10px; background-color:#e6f6ff; margin-right:10px; border:1px solid #ddd; border-bottom:0">
+                <a href="#syn_support" data-toggle="tab" aria-expanded="true" class="show"
+                   style="font-family: 'Lato', arial, sans-serif;font-weight:600;  padding:10px 20px;  border-top-left-radius:10px; border-top-right-radius:10px; color:#2b2b2b; border:1px solid transparent">
+                    Support
+                </a>
+            </li>
+        </ul>
+        <div class="container-fluid" style="border:1px solid #ddd; padding: 20px;">
+            <div class="tab-content container pt-3" id="tabs_content">
+                <div class="tab-pane show active" role="tabpanel" id="syn_features">
+                    <div class="oe_container mt48">
+                        <section>
+                            <h3 class="text-center alert"
+                                style="color:#000; font-weight: 600; border-radius:6px; background-color:#f6ebff; padding:8px 10px; font-size:22px; line-height:30px; border:1px solid #f1f1f1;">
+                                Features
+                            </h3>
+                        </section>
+                        <section class="oe_container" style="padding:30px 0; margin: auto;">
+                            <div style="max-width: 1040px; margin:0 auto; padding: 0 15px; box-sizing: border-box;">
+                                <div class="oe_row">
+                                    <div class="row">
+                                        <div class="col-12 col-sm-12 col-md-12 col-lg-12">
+                                            <div class="row">
+                                                <div class="col-12 col-sm-12 col-md-6 col-lg-6"
+                                                     style="position: relative; margin-bottom: 15px;">
+                                                    <div style="position: relative; height: 100%; border-bottom: 1px solid #ddd; padding: 0 20px 20px 20px; display: block;">
+                                                        <h4 style="position: relative;  margin: 0 auto; color: #000; font-family: 'Lato', arial, sans-serif; font-weight: 700; font-size: 18px; line-height: 32px; padding: 5px 0 0 0; ">
+                                                            <img src="images/thik.png" alt="preview"> Easy Configuration
+                                                        </h4>
+                                                        <p style="font-family: 'Lato', arial, sans-serif;  padding: 10px 0 15px 0; margin:0; color: #555; font-size: 15px; line-height: 22px;">
+                                                            Give credentials and set bank accounts, that's it !!
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                                <div class="col-12 col-sm-12 col-md-6 col-lg-6"
+                                                     style="position: relative; margin-bottom: 15px;">
+                                                    <div style="position: relative; height: 100%; padding:0 20px; display: block; border-bottom: 1px solid #ddd; ">
+                                                        <h4 style="position: relative;  margin:  0 auto; color: #000; font-family: 'Lato', arial, sans-serif; font-weight: 700; font-size: 18px; line-height: 32px; padding: 5px 0 0 0; ">
+                                                            <img src="images/thik.png" alt="preview">
+                                                            Easy Website Payment
+                                                        </h4>
+                                                        <p style="font-family: 'Lato', arial, sans-serif;  padding: 10px 0 15px 0; margin:0; color: #555; font-size: 15px; line-height: 22px;">
+                                                            Payment for Customers is never so easy. Just give bank
+                                                            account information and you're ready to go.
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                                <div class="col-12 col-sm-12 col-md-6 col-lg-6"
+                                                     style="position: relative; margin-bottom: 15px;">
+                                                    <div style="position: relative; height: 100%; border-bottom: 1px solid #ddd; padding: 0 20px 20px 20px;display: block;">
+                                                        <h4 style="position: relative;  margin: 0 auto; color: #000; font-family: 'Lato', arial, sans-serif; font-weight: 700; font-size: 18px; line-height: 32px; padding: 5px 0 0 0; ">
+                                                            <img src="images/thik.png" alt="preview">Batch Payment
+                                                            (Customer/Vendor)</h4>
+                                                        <p style="font-family: 'Lato', arial, sans-serif;  padding: 10px 0 15px 0; margin:0; color: #555; font-size: 15px; line-height: 22px;">
+                                                            Pay multiple Vendors Bills or Customer invoice just by
+                                                            selecting records.</p>
+                                                    </div>
+                                                </div>
+                                                <div class="col-12 col-sm-12 col-md-6 col-lg-6"
+                                                     style="position: relative; margin-bottom: 15px;">
+                                                    <div style="position: relative; height: 100%;border-bottom: 1px solid #ddd; padding:0 20px;display: block;">
+                                                        <h4 style="position: relative;  margin:  0 auto; color: #000; font-family: 'Lato', arial, sans-serif; font-weight: 700; font-size: 18px; line-height: 32px; padding: 5px 0 0 0; ">
+                                                            <img src="images/thik.png" alt="preview">Add and Tokenize
+                                                            Bank Profile</h4>
+                                                        <p style="font-family: 'Lato', arial, sans-serif;  padding: 10px 0 15px 0; margin:0; color: #555; font-size: 15px; line-height: 22px;">
+                                                            Add Bank Information and Tokenize Bank Account</p>
+                                                    </div>
+                                                </div>
+                                                <div class="col-12 col-sm-12 col-md-6 col-lg-6"
+                                                     style="position: relative; margin-bottom: 15px;">
+                                                    <div style="position: relative; height: 100%;border-bottom: 1px solid #ddd; padding:0 20px;display: block;">
+                                                        <h4 style="position: relative;  margin:  0 auto; color: #000; font-family: 'Lato', arial, sans-serif; font-weight: 700; font-size: 18px; line-height: 32px; padding: 5px 0 0 0; ">
+                                                            <img src="images/thik.png" alt="preview">Easy Track Bank
+                                                            State</h4>
+                                                        <p style="font-family: 'Lato', arial, sans-serif;  padding: 10px 0 15px 0; margin:0; color: #555; font-size: 15px; line-height: 22px;">
+                                                            Easily track every status for your transaction .
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                                <div class="col-12 col-sm-12 col-md-6 col-lg-6"
+                                                     style="position: relative; margin-bottom: 15px;">
+                                                    <div style="position: relative; height: 100%; border-bottom: 1px solid #ddd;padding:0 20px;display: block;">
+                                                        <h4 style="position: relative;  margin:  0 auto; color: #000; font-family: 'Lato', arial, sans-serif; font-weight: 700; font-size: 18px; line-height: 32px; padding: 5px 0 0 0; ">
+                                                            <img src="images/thik.png" alt="preview">Invoice Payment
+                                                            Register
+                                                        </h4>
+                                                        <p style="font-family: 'Lato', arial, sans-serif;  padding: 10px 0 15px 0; margin:0; color: #555; font-size: 15px; line-height: 22px;">
+                                                            Completely auto payment register with successful
+                                                            transaction. No need to worry !
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                </div>
+                <div class="tab-pane" role="tabpanel" id="syn_screenshots">
+                    <section class="oe_container mt48">
+                        <div>
+                            <h3 class="text-center alert"
+                                style="color:#000; font-weight: 600;border-radius:6px; background-color:#f6ebff; padding:8px 10px; font-size:22px; line-height:30px; border:1px solid #f1f1f1;">
+                                Screenshots</h3>
+
+                            <!-- Screenshots Starts -->
+                            <h3 class="alert"
+                                style="color:#444; font-weight: 700; padding:8px 0 15px 0; font-size: 18px; line-height:24px; border:0">
+                                1. Vendor Bill Payment using Bambora EFT</h3>
+                            <p style="font-size: 16px; line-height: 24px; font-weight: 700;font-family:Lato, arial, sans-serif;">
+                                Must set vendor accounts information in vendor profile → invoicing
+                            </p>
+                            <img src="images/pic3.png" alt="preview"
+                                 style="max-width: 100%; display: block; margin:auto auto 40px auto; text-align: center; padding: 4px; border: 2px solid #ddd; border-radius: 4px;">
+                            <p style="font-size: 16px; line-height: 24px; font-weight: 700;font-family:Lato, arial, sans-serif;">
+                                Create a Bill and others tab must select a bank account which must have all bank
+                                information.
+                            </p>
+                            <img src="images/pic4.png" alt="preview"
+                                 style="max-width: 100%; display: block; margin:auto auto 40px auto; text-align: center; padding: 4px; border: 2px solid #ddd; border-radius: 4px;">
+                            <div style="font-size: 16px; line-height: 24px; font-weight: 700;font-family:Lato, arial, sans-serif;">
+                                Select as many bill want to pay through EFT . But must follows flowing criteria :
+                                <ol>
+                                    <li style="font-weight: 400; padding-top: 15px;">
+                                        Must have bank account with Account Number,Identification Number(3
+                                        digit),Institution
+                                        Number(5
+                                        digit)
+
+                                    </li>
+                                    <li style="font-weight: 400;">
+                                        Bill must be in posted State
+                                    </li>
+                                    <li style="font-weight: 400;">
+                                        Not paid previously or in Ecommerce transaction state
+                                    </li>
+                                </ol>
+                            </div>
+                            <img src="images/pic5.png" alt="preview"
+                                 style="max-width: 100%; display: block; margin:auto auto 40px auto; text-align: center; padding: 4px; border: 2px solid #ddd; border-radius: 4px;">
+
+                            <p style="font-size: 16px; line-height: 24px; font-weight: 700;font-family:Lato, arial, sans-serif;">
+                                Click ‘Bambora Batch Payment’ from action for initiate Bambora EFT request.
+                            </p>
+                            <img src="images/pic6.png" alt="preview"
+                                 style="max-width: 100%; display: block; margin:auto auto 40px auto; text-align: center; padding: 4px; border: 2px solid #ddd; border-radius: 4px;">
+
+                            <p style="font-size: 16px; line-height: 24px; font-weight: 700;font-family:Lato, arial, sans-serif;">
+                                After Successful Request in Bambora Status Column we can see the Current state . It
+                                might take ¾ days to complete the transaction and every step can seen from this
+                                column. </p>
+                            <img src="images/pic7.png" alt="preview"
+                                 style="max-width: 100%; display: block; margin:auto auto 40px auto; text-align: center; padding: 4px; border: 2px solid #ddd; border-radius: 4px;">
+
+                            <p style="font-size: 16px; line-height: 24px; font-weight: 700;font-family:Lato, arial, sans-serif;">
+                                All Bambora EFT requests and details can be seen from Vendors → Bambora Batch Payments.
+                            </p>
+                            <img src="images/pic8.png" alt="preview"
+                                 style="max-width: 100%; display: block; margin:auto auto 40px auto; text-align: center; padding: 4px; border: 2px solid #ddd; border-radius: 4px;">
+
+                            <img src="images/pic9.png" alt="preview"
+                                 style="max-width: 100%; display: block; margin:auto auto 40px auto; text-align: center; padding: 4px; border: 2px solid #ddd; border-radius: 4px;">
+
+
+                            <p style="font-size: 16px; line-height: 24px; font-weight: 700;font-family:Lato, arial, sans-serif;">
+                                EFT details can be seen from each Invoice/Bill in others bamora batch payments.
+
+                            </p>
+                            <img src="images/pic10.png" alt="preview"
+                                 style="max-width: 100%; display: block; margin:auto auto 40px auto; text-align: center; padding: 4px; border: 2px solid #ddd; border-radius: 4px;">
+
+                            <img src="images/pic11.png" alt="preview"
+                                 style="max-width: 100%; display: block; margin:auto auto 40px auto; text-align: center; padding: 4px; border: 2px solid #ddd; border-radius: 4px;">
+                            <p style="font-size: 16px; line-height: 24px; font-weight: 700;font-family:Lato, arial, sans-serif;">
+                                If Bambora Status is ‘Complete’ then Bill/Invoice will be auto paid.
+                            </p>
+                            <img src="images/pic12.png" alt="preview"
+                                 style="max-width: 100%; display: block; margin:auto auto 40px auto; text-align: center; padding: 4px; border: 2px solid #ddd; border-radius: 4px;">
+
+                            <div class="note"
+                                 style="font-size: 12px; line-height: 16px; color: #666; padding-bottom: 30px;">
+                                N.B - Same Procedure for Customer Invoice from Backend .
+                            </div>
+
+
+                            <h3 class="alert"
+                                style="color:#444; font-weight: 700; padding:8px 0 15px 0; font-size: 18px; line-height:24px; border:0">
+                                2. Customer Payments</h3>
+
+
+                            <h4 class="oe_slogan text-center"
+                                style="opacity: 1; font-weight: 400; font-size: 20px; line-height: 32px; padding: 15px 0 8px 0; margin:0 auto 25px; border-bottom:2px solid #ddd; max-width: 550px;">
+                                Website Payment using Bambora EFT
+                            </h4>
+
+                            <p style="font-size: 16px; line-height: 24px; font-weight: 700;font-family:Lato, arial, sans-serif;">
+                                Select Bambora EFT in Website Checkout
+                            </p>
+                            <img src="images/website_pay1.png" alt="preview"
+                                 style="max-width: 100%; display: block; margin:auto auto 40px auto; text-align: center; padding: 4px; border: 2px solid #ddd; border-radius: 4px;">
+                            <p style="font-size: 16px; line-height: 24px; font-weight: 700;font-family:Lato, arial, sans-serif;">
+                                Add bank account details and click on Pay Now
+                            </p>
+                            <img src="images/website_pay2.png" alt="preview"
+                                 style="max-width: 100%; display: block; margin:auto auto 40px auto; text-align: center; padding: 4px; border: 2px solid #ddd; border-radius: 4px;">
+
+                            <p style="font-size: 16px; line-height: 24px; font-weight: 700;font-family:Lato, arial, sans-serif;">
+                                Payment message will be shown.
+                            </p>
+                            <img src="images/website_pay3.png" alt="preview"
+                                 style="max-width: 100%; display: block; margin:auto auto 40px auto; text-align: center; padding: 4px; border: 2px solid #ddd; border-radius: 4px;">
+
+                            <p style="font-size: 16px; line-height: 24px; font-weight: 700;font-family:Lato, arial, sans-serif;">
+                                Backend View of Transaction
+                            </p>
+                            <p>Activate Developer Mode. Go to Invoicing -> Payment Transactions</p>
+                            <img src="images/website_pay4.png" alt="preview"
+                                 style="max-width: 100%; display: block; margin:auto auto 40px auto; text-align: center; padding: 4px; border: 2px solid #ddd; border-radius: 4px;">
+                            <img src="images/website_pay5.png" alt="preview"
+                                 style="max-width: 100%; display: block; margin:auto auto 40px auto; text-align: center; padding: 4px; border: 2px solid #ddd; border-radius: 4px;">
+                            <p style="font-size: 16px; line-height: 24px; font-weight: 700;font-family:Lato, arial, sans-serif;">
+                                Backend View of Relevant Sale Order
+                            </p>
+
+                            <img src="images/website_pay6.png" alt="preview"
+                                 style="max-width: 100%; display: block; margin:auto auto 40px auto; text-align: center; padding: 4px; border: 2px solid #ddd; border-radius: 4px;">
+
+                            <h4 class="oe_slogan text-center"
+                                style="opacity: 1; font-weight: 400; font-size: 20px; line-height: 32px; padding: 15px 0 8px 0; margin:0 auto 25px; border-bottom:2px solid #ddd; max-width: 550px;">
+                                Tokenize Bank Account
+                            </h4>
+
+                            <p>Go to Website -> My Account -> Manage Payment Methods</p>
+                            <img src="images/tokenize1.png" alt="preview"
+                                 style="max-width: 100%; display: block; margin:auto auto 40px auto; text-align: center; padding: 4px; border: 2px solid #ddd; border-radius: 4px;">
+                            <p style="font-size: 16px; line-height: 24px; font-weight: 700;font-family:Lato, arial, sans-serif;">
+                                Add Bank Account Information
+                            </p>
+                            <img src="images/tokenize2.png" alt="preview"
+                                 style="max-width: 100%; display: block; margin:auto auto 40px auto; text-align: center; padding: 4px; border: 2px solid #ddd; border-radius: 4px;">
+                            <p style="font-size: 16px; line-height: 24px; font-weight: 700;font-family:Lato, arial, sans-serif;">
+                                Bank Account is successfully tokenized.
+                            </p>
+                            <img src="images/tokenize3.png" alt="preview"
+                                 style="max-width: 100%; display: block; margin:auto auto 40px auto; text-align: center; padding: 4px; border: 2px solid #ddd; border-radius: 4px;">
+                            <p style="font-size: 16px; line-height: 24px; font-weight: 700;font-family:Lato, arial, sans-serif;">
+                                Backend View of Customer Bank Profile
+                            </p>
+                            <img src="images/tokenize4.png" alt="preview"
+                                 style="max-width: 100%; display: block; margin:auto auto 40px auto; text-align: center; padding: 4px; border: 2px solid #ddd; border-radius: 4px;">
+                            <img src="images/tokenize5.png" alt="preview"
+                                 style="max-width: 100%; display: block; margin:auto auto 40px auto; text-align: center; padding: 4px; border: 2px solid #ddd; border-radius: 4px;">
+                            <img src="images/tokenize6.png" alt="preview"
+                                 style="max-width: 100%; display: block; margin:auto auto 40px auto; text-align: center; padding: 4px; border: 2px solid #ddd; border-radius: 4px;">
+
+                            <h4 class="oe_slogan text-center"
+                                style="opacity: 1; font-weight: 400; font-size: 20px; line-height: 32px; padding: 15px 0 8px 0; margin:0 auto 25px; border-bottom:2px solid #ddd; max-width: 550px;">
+                                Payment using Tokenized Bank Profile
+                            </h4>
+
+                            <p style="font-size: 16px; line-height: 24px; font-weight: 700;font-family:Lato, arial, sans-serif;">
+                                Select Saved Bank Profile
+                            </p>
+                            <img src="images/profile_pay1.png" alt="preview"
+                                 style="max-width: 100%; display: block; margin:auto auto 40px auto; text-align: center; padding: 4px; border: 2px solid #ddd; border-radius: 4px;">
+                            <p style="font-size: 16px; line-height: 24px; font-weight: 700;font-family:Lato, arial, sans-serif;">
+                                Click on "Pay now" button
+                            </p>
+                            <img src="images/profile_pay2.png" alt="preview"
+                                 style="max-width: 100%; display: block; margin:auto auto 40px auto; text-align: center; padding: 4px; border: 2px solid #ddd; border-radius: 4px;">
+                            <img src="images/profile_pay3.png" alt="preview"
+                                 style="max-width: 100%; display: block; margin:auto auto 40px auto; text-align: center; padding: 4px; border: 2px solid #ddd; border-radius: 4px;">
+
+                            <p style="font-size: 16px; line-height: 24px; font-weight: 700;font-family:Lato, arial, sans-serif;">
+                                Backend View of Transaction
+                            </p>
+                            <p>Activate Developer Mode. Go to Invoicing -> Payment Transactions</p>
+                            <img src="images/profile_pay4.png" alt="preview"
+                                 style="max-width: 100%; display: block; margin:auto auto 40px auto; text-align: center; padding: 4px; border: 2px solid #ddd; border-radius: 4px;">
+                            <img src="images/profile_pay5.png" alt="preview"
+                                 style="max-width: 100%; display: block; margin:auto auto 40px auto; text-align: center; padding: 4px; border: 2px solid #ddd; border-radius: 4px;">
+                            <p style="font-size: 16px; line-height: 24px; font-weight: 700;font-family:Lato, arial, sans-serif;">
+                                Backend View of Relevant Sale Order
+                            </p>
+
+                            <img src="images/profile_pay6.png" alt="preview"
+                                 style="max-width: 100%; display: block; margin:auto auto 40px auto; text-align: center; padding: 4px; border: 2px solid #ddd; border-radius: 4px;">
+
+                            <h4 class="oe_slogan text-center"
+                                style="opacity: 1; font-weight: 400; font-size: 20px; line-height: 32px; padding: 15px 0 8px 0; margin:0 auto 25px; border-bottom:2px solid #ddd; max-width: 550px;">
+                                Delete Bank Profile
+                            </h4>
+                            <p style="font-size: 16px; line-height: 24px; font-weight: 700;font-family:Lato, arial, sans-serif;">
+                                Select Bank Profile and Click on "Delete"
+                            </p>
+                            <img src="images/profile_delete1.png" alt="preview"
+                                 style="max-width: 100%; display: block; margin:auto auto 40px auto; text-align: center; padding: 4px; border: 2px solid #ddd; border-radius: 4px;">
+                            <img src="images/profile_delete2.png" alt="preview"
+                                 style="max-width: 100%; display: block; margin:auto auto 40px auto; text-align: center; padding: 4px; border: 2px solid #ddd; border-radius: 4px;">
+                            <div style="border: 1px solid #ddd; padding: 0 15px 0 15px; background-color:#f7f7f7;">
+                                <h3 style="border: 1px solid #ddd; text-align: center; background-color:#fff; border-radius:10px; padding:0.55rem 1.25rem; font-size: 20px; line-height:28px; color: #212121; opacity: 1; font-family:Lato, arial, sans-serif; font-weight: 600; margin:25px auto;">
+                                    Installation Guideline</h3>
+                            </div>
+                            <div class="row justify-content-center">
+                                <div class="col-12 col-sm-12 col-md-12">
+                                    <div style="background-color: #fff; padding: 14px 14px 45px 14px; border-radius: 4px;border: 1px solid #ddd; margin-top: 15px;margin-bottom: 15px;">
+
+                                        <h3 style="font-size: 20px; line-height: 28px; font-weight: 600;">Install on
+                                            your server:</h3>
+                                        <div
+                                                style="font-size: 16px; line-height: 24px; font-weight: 400; font-family:Lato, arial, sans-serif;">
+                                            <ol style="padding-bottom:0; margin-bottom: 0;">
+                                                <li>Download the code on your server.
+                                                </li>
+                                                <li>Also add the module folder path to your Odoo Conf file.</li>
+                                                <li>Restart your server.</li>
+                                                <li>Go to Settings. Click on "Activate the developer mode".</li>
+                                                <li>Go to Apps. Click on "Update Apps List" and then click "Update".
+                                                </li>
+                                                <li>Remove all the filters and search by "Bambora EFT/ACH".</li>
+                                                <li>Click on Install.</li>
+                                            </ol>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-12 col-sm-12 col-md-12">
+                                    <div style="background-color: #fff; padding: 24px; border-radius: 4px; border: 1px solid #ddd;">
+                                        <h4
+                                                style="font-size: 22px; line-height: 30px; color: #212121; opacity: 1; font-family:Lato, arial, sans-serif; font-weight: 400;margin:0; padding: 8px 0 15px 0;">
+                                            For Production
+                                        </h4>
+                                        <div
+                                                style="font-size: 16px; line-height: 24px; font-weight: 400;font-family:Lato, arial, sans-serif; padding-bottom: 30px;">
+                                            Bambora Merchant Online
+                                            <a href="https://merchant.bambora.com/auth/signin"
+                                               target="_blank">https://merchant.bambora.com/auth/signin/</a> using your
+                                            Username and Password.
+                                        </div>
+                                        <img src="images/1.png" alt="preview"
+                                             style="max-width: 100%; display: block; margin:auto auto 40px auto; text-align: center; padding: 4px; border: 2px solid #ddd; border-radius: 4px;">
+
+                                        <h4
+                                                style="font-size:22px; line-height: 30px; color: #212121; opacity: 1; font-family:Lato, arial, sans-serif; font-weight: 400; margin:0; padding: 0 0 15px 0;">
+                                            For Testing
+                                        </h4>
+                                        <div
+                                                style="font-size: 16px; line-height: 24px; font-weight: 400;font-family:Lato, arial, sans-serif; padding-bottom: 35px;">
+                                            Go to Bambora Testing Url:
+                                            <a href="https://web.na.bambora.com/admin/sDefault.asp"
+                                               target="_blank">https://web.na.bambora.com/admin/sDefault.asp</a>.
+                                            <br>Login with Company login, User login and Password.</br>
+                                            <br>For creating a test Account, Fill out our sign up form to instantly get
+                                            a developer account with access to a sandbox.</b>.
+                                        </div>
+                                        <img src="images/2.png" alt="preview"
+                                             style="max-width: 100%; display: block; margin:auto auto 40px auto; text-align: center; padding: 4px; border: 2px solid #ddd; border-radius: 4px;">
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+
+                    <section class="oe_container"
+                             style="max-width: 1040px; margin: 50px auto 30px auto; padding: 0 15px; box-sizing: border-box;">
+                        <div class="row justify-content-center">
+                            <div class="col-12">
+
+                                <h4 class="oe_slogan text-center"
+                                    style="opacity: 1; font-weight: 400; font-size: 20px; line-height: 32px; padding: 15px 0 8px 0; margin:0 auto 25px; border-bottom:2px solid #ddd; max-width: 550px;">
+                                    Bambora Bank-to-Bank EFT Configurations
+                                </h4>
+                                <p
+                                        style="font-size: 16px; line-height: 24px; font-weight: 400;font-family:Lato, arial, sans-serif;">
+                                    Go to Invoicing -> Configuration -> Payment Acquirers
+                                </p>
+                                <img src="images/config1.png" alt="preview"
+                                     style="max-width: 100%; display: block; margin:auto auto 40px auto; text-align: center; padding: 4px; border: 2px solid #ddd; border-radius: 4px;">
+                                <p style="font-size: 16px; line-height: 24px; font-weight: 400;font-family:Lato, arial, sans-serif;">
+                                    Select Bambora EFT
+                                </p>
+                                <img src="images/config2.png" alt="preview"
+                                     style="max-width: 100%; display: block; margin:auto auto 40px auto; text-align: center; padding: 4px; border: 2px solid #ddd; border-radius: 4px;">
+                                <p
+                                        style="font-size: 16px; line-height: 24px; font-weight: 400;font-family:Lato, arial, sans-serif;">
+                                    Select State, Company and Website
+                                </p>
+                                <p
+                                        style="font-size: 16px; line-height: 24px; font-weight: 400;font-family:Lato, arial, sans-serif;">
+                                    Put the merchant ID, payment API and Profile API from the Bambora under Bambora
+                                    Credentials
+
+                                </p>
+                                <p
+                                        style="font-size: 16px; line-height: 24px; font-weight: 400;font-family:Lato, arial, sans-serif;">
+                                    Put the Batch API, Report API,Transaction Type(EFT for Canada and ACH for USA).
+                                    Activate 'Create Profile' if you want to tokenize Bank using Bambora.
+                                </p>
+                                <p
+                                        style="font-size: 16px; line-height: 24px; font-weight: 400;font-family:Lato, arial, sans-serif;">
+                                    Activate 'Create Profile' if you want to tokenize Bank using Bambora.
+                                </p>
+                                <img src="images/config3.png" alt="preview"
+                                     style="max-width: 100%; display: block; margin:auto auto 40px auto; text-align: center; padding: 4px; border: 2px solid #ddd; border-radius: 4px;">
+                                <div
+                                        style="font-size: 16px; line-height: 24px; font-weight: 400;font-family:Lato, arial, sans-serif;">
+                                    Go to Configuration Tab.
+                                    <ol>
+                                        <li style="font-weight: 400; padding-top: 15px;">
+                                            Select <b>Payment from Odoo</b> as Payment Flow
+                                        </li>
+                                        <li style="font-weight: 400;">
+                                            Select <b>Payment Journal</b> for Customer Payments
+                                        </li>
+                                        <li style="font-weight: 400;">
+                                            Select <b>Vendor Payment Journal</b> for Vendor Payments if you want to
+                                            activate Vendor Payments
+                                        </li>
+                                    </ol>
+                                </div>
+                                <img src="images/config4.png" alt="preview"
+                                     style="max-width: 100%; display: block; margin:auto auto 40px auto; text-align: center; padding: 4px; border: 2px solid #ddd; border-radius: 4px;">
+                                <p style="font-size: 16px; line-height: 24px; font-weight: 700;font-family:Lato, arial, sans-serif;">
+                                    Go to <strong>Messages</strong> Tab. You can edit messages according to your needs.
+
+                                </p>
+                                <img src="images/config5.png" alt="preview"
+                                     style="max-width: 100%; display: block; margin:auto auto 40px auto; text-align: center; padding: 4px; border: 2px solid #ddd; border-radius: 4px;">
+
+                            </div>
+                        </div>
+                    </section>
+                </div>
+                <div class="tab-pane" role="tabpanel" id="syn_support">
+                    <div class="mb64">
+                        <div class="mt32 mb32">
+                            <section>
+                                <h3 class="text-center alert"
+                                    style="color:#000; font-weight: 600; border-radius:6px; background-color:#f6ebff; padding:8px 10px; font-size:22px; line-height:30px; border:1px solid #f1f1f1;">
+                                    Create a Support Ticket
+                                </h3>
+                            </section>
+                            <h3 style="color:#2e7dda; font-family:'Lato', arial, sans-serif; font-weight:600; text-align:center; font-size:17px; opacity:1; margin:8px 0 16px"
+                                class="oe_slogan"> Issue Ticket
+                            </h3>
+                            <div style="width: 50%; font-weight:500; font-size:15px; margin:0 auto; border:1px solid #0074ff; display:flex; background-color:#0074ff; border-radius:10px; min-width:350px">
+                                <div class="text-center"
+                                     style="color:#091E42; font-family:'Lato', arial, sans-serif; padding:0; min-width:100%">
+                                    <div class="bg-white position-relative shadow"
+                                         style="padding:17px 0 ; color:#0f1e40; float:left; font-weight:600; width:100px; vertical-align:middle; border-bottom-left-radius:9px; border-top-left-radius:9px; font-size:12px; height:100%;">
+                                        <span class="text-left d-inline-block pl-2">COPY LINK</span>
+                                        <span class="text-white position-absolute" style="font-size:18px; margin:10px 0 0 5px; height:25px"></span>
+                                    </div>
+                                    <p style="vertical-align:middle; border-top-right-radius:9px; border-bottom-right-radius:9px; line-height:50px; margin-bottom:0; color:#fff; font-weight:500; padding:0 15px 0 80px"
+                                       class="text-center mb0">
+                                        https://app.syncoria.com/issueticket</p>
+
+                                </div>
+                            </div>
+                            <div class="mt32 mb32">
+                                <p class="text-center"
+                                   style="padding-top:20px; color:#0f1e40; max-width:80%; margin:0 auto">If
+                                    you face any issues while using our app and the issue is arising due to
+                                    our app, we provide you complementary support for a duration of
+                                    <b>60 days</b> from the date of purchase of the respective app.
+                                </p>
+                                <p class="text-center mt32" style="color:#0f1e40; max-width:75%; margin:0 auto">
+                                    To create a support ticket, please register on Syncoria Support Desk and
+                                    provide us necessary information to help you resolve the
+                                    issue.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<script src="https://code.jquery.com/jquery-3.4.1.slim.min.js"
+        integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n"
+        crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"
+        integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6"
+        crossorigin="anonymous"></script>
+</body>
+</html>

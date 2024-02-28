@@ -1,0 +1,665 @@
+
+msgid ""
+msgstr ""
+"Project-Id-Version:Odoo Server 14.0+e"
+"Report-Msgid-Bugs-To:"
+"POT-Creation-Date:2021-11-03 18:21+0000"
+"PO-Revision-Date:2021-11-03 18:21+0000"
+"Last-Translator:"
+"Language-Team:"
+"MIME-Version:1.0"
+"Content-Type:text/plain; charset=UTF-8"
+"Content-Transfer-Encoding:"
+"Plural-Forms:"
+
+#. module: bambora_batch_payment
+#: model:mail.template,body_html:bambora_batch_payment.email_template
+msgid ""
+"\n"
+"            \n"
+"            <p>Hello,\n"
+"            <br/>\n"
+"            <br/>\n"
+"            Your Bambora  cron need to run minimum ${ctx.get('minimum_cron_need')} times . But your current settings in cron it runs ${ctx.get('current_cron')} times. For highest  output please adjust the cron time(Default 20 min)<br/>\n"
+"            </p>\n"
+"            Regards,<br/>\n"
+"                Technical Administration Team\n"
+"             "
+msgstr ""
+"\\ n \\ n <p> Bonjour, \\ n <br/> \\ n <n <n <br/> \\ N Votre Bambora Cron "
+"doit être exécuté minimum {ctx.get ('minimum_cron_need')} fois. Mais vos "
+"paramètres actuels en cron il exécute {CTX.GET ('actuel_cron')}. Pour une "
+"sortie la plus élevée, veuillez régler le temps de cron (20 min) <br/> \\ n "
+"</ p> \\ N Cordialement, <br/> \\ N Team Administration technique \\ N "
+#. module: bambora_batch_payment
+#: model:mail.template,subject:bambora_batch_payment.email_template
+msgid "\"Test\""
+msgstr "\"Test\" "
+#. module: bambora_batch_payment
+#: model:ir.model.fields.selection,name:bambora_batch_payment.selection__payment_provider__bamboraeft_report_api_version__2_0
+msgid "2.0"
+msgstr "2,0 "
+#. module: bambora_batch_payment
+#: model_terms:ir.ui.view,arch_db:bambora_batch_payment.view_partners_form_payment_bamboraeft
+msgid "<span class=\"o_stat_text\">EFT</span>"
+msgstr "<span class = \\ \"o_stat_text \"> EFT </ span> "
+#. module: bambora_batch_payment
+#: model_terms:ir.ui.view,arch_db:bambora_batch_payment.code_form_bamboraeft
+msgid "<span class=\"text-danger\">No debug</span>"
+msgstr "<SPAN CLASS = \\ \"TEXT-DANGER \"> Aucun débogage </ span> "
+#. module: bambora_batch_payment
+#: model_terms:ir.ui.view,arch_db:bambora_batch_payment.code_form_bamboraeft
+msgid "<span class=\"text-success\">Debug requests</span>"
+msgstr "<span class = \\ \"Text-Success \"> Demandes de débogage </ span> "
+#. module: bambora_batch_payment
+#: model:ir.model.fields.selection,name:bambora_batch_payment.selection__payment_provider__bamboraeft_transaction_type__a
+msgid "ACH"
+msgstr "Seul "
+#. module: bambora_batch_payment
+#: model:ir.model.fields,field_description:bambora_batch_payment.field_payment_transaction__bambora_avs_result
+msgid "AVS Result"
+msgstr "AVS Résultat "
+#. module: bambora_batch_payment
+#: model_terms:ir.ui.view,arch_db:bambora_batch_payment.bamboraeft_s2s_form
+msgid "Account Holder Name"
+msgstr "Nom du titulaire du compte "
+#. module: bambora_batch_payment
+#: model:ir.model.fields,field_description:bambora_batch_payment.field_account_setup_bank_manual_config__bank_account_type
+#: model:ir.model.fields,field_description:bambora_batch_payment.field_res_partner_bank__bank_account_type
+msgid "Account Type"
+msgstr "Type de compte "
+#. module: bambora_batch_payment
+#: model:ir.model.fields,field_description:bambora_batch_payment.field_batch_payment_tracking__provider_id
+msgid "provider"
+msgstr "Acquéreur "
+#. module: bambora_batch_payment
+#: model:ir.model.fields,field_description:bambora_batch_payment.field_payment_provider__partner_ids
+msgid "Add contacts to notify.."
+msgstr "Ajouter des contacts pour notifier .. "
+#. module: bambora_batch_payment
+#: model_terms:ir.ui.view,arch_db:bambora_batch_payment.code_form_bamboraeft
+msgid "Add contacts to notify..."
+msgstr "Ajouter des contacts pour notifier ... "
+#. module: bambora_batch_payment
+#: model_terms:ir.ui.view,arch_db:bambora_batch_payment.bamboraeft_payment_process_page
+msgid "Amount"
+msgstr "Montant"
+#. module: bambora_batch_payment
+#: model:ir.model.fields,help:bambora_batch_payment.field_payment_provider__bambora_record_interval
+msgid "Amount of record handle per cron request."
+msgstr "Quantité de la poignée d'enregistrement par demande de cron. "
+#. module: bambora_batch_payment
+#: model:ir.model.fields,field_description:bambora_batch_payment.field_payment_transaction__bambora_auth_code
+msgid "Auth Code"
+msgstr "code d'autorisation "
+#. module: bambora_batch_payment
+#: model_terms:ir.ui.view,arch_db:bambora_batch_payment.code_form_bamboraeft
+msgid "Bambora Batch Credentials"
+msgstr "Identifiants du lot Bambora "
+#. module: bambora_batch_payment
+#: model:ir.actions.server,name:bambora_batch_payment.ir_cron_fetch_bamboraeft_batch_status_ir_actions_server
+#: model:ir.cron,cron_name:bambora_batch_payment.ir_cron_fetch_bamboraeft_batch_status
+#: model:ir.cron,name:bambora_batch_payment.ir_cron_fetch_bamboraeft_batch_status
+msgid "Bambora Batch Cron Status"
+msgstr "Statut de lot Bambora cron"
+#. module: bambora_batch_payment
+#: model:ir.actions.server,name:bambora_batch_payment.action_account_invoice_bambora_batch_list
+#: model:ir.model.fields,field_description:bambora_batch_payment.field_account_bank_statement_line__bambora_batch_payment_id
+#: model:ir.model.fields,field_description:bambora_batch_payment.field_account_move__bambora_batch_payment_id
+#: model:ir.model.fields,field_description:bambora_batch_payment.field_account_payment__bambora_batch_payment_id
+msgid "Bambora Batch Payment"
+msgstr "Paiement par lots Bambora"
+#. module: bambora_batch_payment
+#: model:ir.actions.server,name:bambora_batch_payment.ir_cron_fetch_report_bamboraeft_batch_ir_actions_server
+#: model:ir.cron,cron_name:bambora_batch_payment.ir_cron_fetch_report_bamboraeft_batch
+#: model:ir.cron,name:bambora_batch_payment.ir_cron_fetch_report_bamboraeft_batch
+msgid "Bambora Batch Payment Status Update"
+msgstr "Mise à jour du statut du paiement par lots Bambora"
+#. module: bambora_batch_payment
+#: model:ir.model,name:bambora_batch_payment.model_batch_payment_tracking
+msgid "Bambora Batch Payment Tracking"
+msgstr "Suivi du paiement par lots Bambora "
+#. module: bambora_batch_payment
+#: model:ir.actions.server,name:bambora_batch_payment.action_bamobora_update_status
+msgid "Bambora Batch Payment Update Status"
+msgstr ""
+"Statut de mise à jour de la mise à jour du paiement par lots de Bambora "
+#. module: bambora_batch_payment
+#: model:ir.actions.act_window,name:bambora_batch_payment.action_batch_payment
+#: model:ir.ui.menu,name:bambora_batch_payment.batch_payment_configuration_menu
+msgid "Bambora Batch Payments"
+msgstr "Paiements par lots Bambora "
+#. module: bambora_batch_payment
+#: model:ir.model.fields,field_description:bambora_batch_payment.field_payment_transaction__bambora_created
+msgid "Bambora Created on"
+msgstr "Bambora créé sur "
+#. module: bambora_batch_payment
+#: model_terms:ir.ui.view,arch_db:bambora_batch_payment.code_form_bamboraeft
+msgid "Bambora Credentials"
+msgstr "CIDÉRALES DE BAMBORA "
+#. module: bambora_batch_payment
+#: model:ir.model.fields,field_description:bambora_batch_payment.field_bambora_cron_settings__transaction_end
+msgid "Bambora Cron End Transaction"
+msgstr "Bambora Cron Fin Transaction "
+#. module: bambora_batch_payment
+#: model:ir.model.fields,field_description:bambora_batch_payment.field_bambora_cron_settings__transaction_start
+msgid "Bambora Cron Starting Transaction"
+msgstr "Transaction de démarrage de Bambora Cron "
+#. module: bambora_batch_payment
+#: model:ir.model.fields.selection,name:bambora_batch_payment.selection__payment_provider__code__bamboraeft
+#: model:payment.code,display_as:bambora_batch_payment.payment_provider_bamboraeft
+#: model:payment.code,name:bambora_batch_payment.payment_provider_bamboraeft
+#: model_terms:ir.ui.view,arch_db:bambora_batch_payment.transaction_form_bamboraeft
+msgid "Bambora EFT"
+msgstr "Bambora EFT "
+#. module: bambora_batch_payment
+#: model:ir.model.fields,field_description:bambora_batch_payment.field_payment_token__bambora_profile
+msgid "Bambora Profile"
+msgstr "Profil de Bambora "
+#. module: bambora_batch_payment
+#: model_terms:ir.ui.view,arch_db:bambora_batch_payment.view_move_batch_payment_tree
+msgid "Bambora State"
+msgstr "Etat de Bambora "
+#. module: bambora_batch_payment
+#: model:ir.model.fields,field_description:bambora_batch_payment.field_account_bank_statement_line__bambora_batch_status
+#: model:ir.model.fields,field_description:bambora_batch_payment.field_account_move__bambora_batch_status
+#: model:ir.model.fields,field_description:bambora_batch_payment.field_account_payment__bambora_batch_status
+#: model_terms:ir.ui.view,arch_db:bambora_batch_payment.view_move_batch_payment_tree
+msgid "Bambora Status"
+msgstr "Statut de Bambora "
+#. module: bambora_batch_payment
+#: model:ir.model.fields,field_description:bambora_batch_payment.field_payment_token__bambora_token
+msgid "Bambora Token"
+msgstr "Jeton Bambora "
+#. module: bambora_batch_payment
+#: model:ir.model.fields,field_description:bambora_batch_payment.field_account_setup_bank_manual_config__bamboraeft_status
+#: model:ir.model.fields,field_description:bambora_batch_payment.field_res_partner_bank__bamboraeft_status
+msgid "Bamboraeft Status"
+msgstr "Statut de Bamboraef "
+#. module: bambora_batch_payment
+#: model:ir.model.fields,field_description:bambora_batch_payment.field_account_setup_bank_manual_config__bamboraeft_customer_code
+#: model:ir.model.fields,field_description:bambora_batch_payment.field_res_partner_bank__bamboraeft_customer_code
+msgid "Bamora Profile No"
+msgstr "Bamora profil non "
+#. module: bambora_batch_payment
+#: model:ir.model.fields.selection,name:bambora_batch_payment.selection__payment_token__bamboraeft_tran_type__bank
+msgid "Bank"
+msgstr "Banque "
+#. module: bambora_batch_payment
+#: model_terms:ir.ui.view,arch_db:bambora_batch_payment.bamboraeft_s2s_form
+msgid "Bank Account No."
+msgstr "Compte en banque numéro. "
+#. module: bambora_batch_payment
+#: model:ir.model.fields,field_description:bambora_batch_payment.field_batch_payment_tracking__partner_bank_id
+msgid "Bank Account Number"
+msgstr "Numéro de compte bancaire "
+#. module: bambora_batch_payment
+#: model_terms:ir.ui.view,arch_db:bambora_batch_payment.bamboraeft_s2s_form
+msgid "Bank Account type(eg: Canadian)"
+msgstr "Type de compte bancaire (par exemple: Canadien) "
+#. module: bambora_batch_payment
+#: model:ir.model,name:bambora_batch_payment.model_res_partner_bank
+msgid "Bank Accounts"
+msgstr "Comptes bancaires "
+#. module: bambora_batch_payment
+#: model:ir.model.fields,field_description:bambora_batch_payment.field_account_bank_statement_line__bambora_bank_identifier_number
+#: model:ir.model.fields,field_description:bambora_batch_payment.field_account_move__bambora_bank_identifier_number
+#: model:ir.model.fields,field_description:bambora_batch_payment.field_account_payment__bambora_bank_identifier_number
+msgid "Bank Identifier No."
+msgstr "Numéro d'identifiant de banque "
+#. module: bambora_batch_payment
+#: model_terms:ir.ui.view,arch_db:bambora_batch_payment.bamboraeft_s2s_form
+msgid "Bank Name"
+msgstr "Nom de banque "
+#. module: bambora_batch_payment
+#: model:ir.model.fields,field_description:bambora_batch_payment.field_account_setup_bank_manual_config__bank_transit_no
+#: model:ir.model.fields,field_description:bambora_batch_payment.field_res_partner_bank__bank_transit_no
+msgid "Bank Transit No"
+msgstr "Banque Transit NO "
+#. module: bambora_batch_payment
+#: model:ir.model.fields,field_description:bambora_batch_payment.field_account_bank_statement_line__bambora_bank_transit_number
+#: model:ir.model.fields,field_description:bambora_batch_payment.field_account_move__bambora_bank_transit_number
+#: model:ir.model.fields,field_description:bambora_batch_payment.field_account_payment__bambora_bank_transit_number
+msgid "Bank Transit No."
+msgstr "N ° de transit bancaire "
+#. module: bambora_batch_payment
+#: model_terms:ir.ui.view,arch_db:bambora_batch_payment.bamboraeft_s2s_form
+msgid "Bank Transit number (5 Digits)"
+msgstr "Numéro de transit bancaire (5 chiffres) "
+#. module: bambora_batch_payment
+#: model:ir.model.fields,field_description:bambora_batch_payment.field_payment_provider__bamboraeft_batch_api
+msgid "Batch API"
+msgstr "API BATCH "
+#. module: bambora_batch_payment
+#: model:ir.model.fields,field_description:bambora_batch_payment.field_payment_provider__batches_count
+msgid "Batch Count"
+msgstr "Nombre par lots "
+#. module: bambora_batch_payment
+#: model:ir.model.fields,field_description:bambora_batch_payment.field_account_bank_statement_line__batch_id
+#: model:ir.model.fields,field_description:bambora_batch_payment.field_account_move__batch_id
+#: model:ir.model.fields,field_description:bambora_batch_payment.field_account_payment__batch_id
+#: model:ir.model.fields,field_description:bambora_batch_payment.field_batch_payment_tracking__batch_id
+msgid "Batch ID"
+msgstr "Identifiant du lots "
+#. module: bambora_batch_payment
+#: model:ir.model.fields,field_description:bambora_batch_payment.field_payment_transaction__bamboraeft_batch_id
+msgid "Batch Id"
+msgstr "Identifiant du lots "
+#. module: bambora_batch_payment
+#: model:ir.model.fields,field_description:bambora_batch_payment.field_payment_transaction__bamboraeft_batch_mode
+msgid "Batch Mode"
+msgstr "Temps différé "
+#. module: bambora_batch_payment
+#: model_terms:ir.actions.act_window,help:bambora_batch_payment.action_batch_payment
+msgid "Batch Payments from Bambora are tracked here"
+msgstr "Les paiements par lots de Bambora sont suivis ici"
+#. module: bambora_batch_payment
+#: model:ir.model.fields,field_description:bambora_batch_payment.field_payment_transaction__batch_track_id
+msgid "Batch Track"
+msgstr "Piste des lots "
+#. module: bambora_batch_payment
+#: model_terms:ir.ui.view,arch_db:bambora_batch_payment.code_form_bamboraeft
+msgid "Batches"
+msgstr "Lots "
+#. module: bambora_batch_payment
+#: model:ir.model.fields,field_description:bambora_batch_payment.field_payment_transaction__bambora_cvd_result
+msgid "CVD Result"
+msgstr "Résultat CVD "
+#. module: bambora_batch_payment
+#: model:ir.model.fields.selection,name:bambora_batch_payment.selection__payment_token__bamboraeft_tran_type__card
+msgid "Card"
+msgstr "Carte "
+#. module: bambora_batch_payment
+#: model:ir.model.fields,field_description:bambora_batch_payment.field_payment_transaction__bambora_card_type
+msgid "Card Type"
+msgstr "Type de carte "
+#. module: bambora_batch_payment
+#: model:ir.model.fields,field_description:bambora_batch_payment.field_payment_transaction__bamboraeft_code
+msgid "Code"
+msgstr "Code "
+#. module: bambora_batch_payment
+#: model:ir.model.fields.selection,name:bambora_batch_payment.selection__batch_payment_tracking__state__complete
+msgid "Complete"
+msgstr "Compléter "
+#. module: bambora_batch_payment
+#: model:ir.model,name:bambora_batch_payment.model_res_partner
+msgid "Contact"
+msgstr "Contact "
+#. module: bambora_batch_payment
+#: model:ir.model.fields,field_description:bambora_batch_payment.field_res_partner__payment_eft_count
+#: model:ir.model.fields,field_description:bambora_batch_payment.field_res_users__payment_eft_count
+msgid "Count Payment EFT Token"
+msgstr "Count Paiement EFT Jeton "
+#. module: bambora_batch_payment
+#: model:ir.model.fields,field_description:bambora_batch_payment.field_res_partner__payment_token_count
+#: model:ir.model.fields,field_description:bambora_batch_payment.field_res_users__payment_token_count
+msgid "Count Payment Token"
+msgstr "Count Paiement Jetken "
+#. module: bambora_batch_payment
+#: model_terms:ir.ui.view,arch_db:bambora_batch_payment.view_partner_bank_form_inherited
+msgid "Create Bambora Profile"
+msgstr "Créer un profil Bambora "
+#. module: bambora_batch_payment
+#: model:ir.model.fields,field_description:bambora_batch_payment.field_payment_provider__bamboraeft_create_profile
+msgid "Create Profile"
+msgstr "Créer un profil "
+#. module: bambora_batch_payment
+#: model:ir.model.fields,field_description:bambora_batch_payment.field_bambora_cron_settings__create_uid
+#: model:ir.model.fields,field_description:bambora_batch_payment.field_batch_payment_tracking__create_uid
+msgid "Created by"
+msgstr "Créé par "
+#. module: bambora_batch_payment
+#: model:ir.model.fields,field_description:bambora_batch_payment.field_bambora_cron_settings__create_date
+#: model:ir.model.fields,field_description:bambora_batch_payment.field_batch_payment_tracking__create_date
+msgid "Created on"
+msgstr "Créé sur "
+#. module: bambora_batch_payment
+#: model:ir.model.fields,field_description:bambora_batch_payment.field_bambora_cron_settings__cron_datetime
+msgid "Cron Date Time"
+msgstr "Cron Date Time "
+#. module: bambora_batch_payment
+#: model:ir.model.fields,field_description:bambora_batch_payment.field_payment_provider__bambora_record_interval
+msgid "Cron Record Interval"
+msgstr "Intervalle d'enregistrement cron "
+#. module: bambora_batch_payment
+#: model:ir.model.fields,field_description:bambora_batch_payment.field_payment_provider__debug_logging
+msgid "Debug logging"
+msgstr "Journalisation de débogage "
+#. module: bambora_batch_payment
+#: model:ir.model.fields,field_description:bambora_batch_payment.field_account_move__display_name
+#: model:ir.model.fields,field_description:bambora_batch_payment.field_account_payment_register__display_name
+#: model:ir.model.fields,field_description:bambora_batch_payment.field_bambora_cron_settings__display_name
+#: model:ir.model.fields,field_description:bambora_batch_payment.field_batch_payment_tracking__display_name
+#: model:ir.model.fields,field_description:bambora_batch_payment.field_ir_cron__display_name
+#: model:ir.model.fields,field_description:bambora_batch_payment.field_payment_provider__display_name
+#: model:ir.model.fields,field_description:bambora_batch_payment.field_payment_token__display_name
+#: model:ir.model.fields,field_description:bambora_batch_payment.field_payment_transaction__display_name
+#: model:ir.model.fields,field_description:bambora_batch_payment.field_res_partner__display_name
+#: model:ir.model.fields,field_description:bambora_batch_payment.field_res_partner_bank__display_name
+msgid "Display Name"
+msgstr "Afficher un nom "
+#. module: bambora_batch_payment
+#: model:ir.model.fields.selection,name:bambora_batch_payment.selection__batch_payment_tracking__state__duplicate
+msgid "Duplicate"
+msgstr "Dupliquer "
+#. module: bambora_batch_payment
+#: model:ir.model.fields,field_description:bambora_batch_payment.field_payment_provider__bamboraeft_dynamic_desc
+msgid "Dynamice Descriptor"
+msgstr "Descripteur de dynamice "
+#. module: bambora_batch_payment
+#: model:ir.model.fields.selection,name:bambora_batch_payment.selection__payment_provider__bamboraeft_transaction_type__e
+msgid "EFT"
+msgstr "EFT "
+#. module: bambora_batch_payment
+#: model:ir.model.fields,field_description:bambora_batch_payment.field_payment_transaction__bamboraeft_message
+msgid "EFT Message"
+msgstr "EFT Message "
+#. module: bambora_batch_payment
+#: model:ir.model.fields,field_description:bambora_batch_payment.field_account_move__id
+#: model:ir.model.fields,field_description:bambora_batch_payment.field_account_payment_register__id
+#: model:ir.model.fields,field_description:bambora_batch_payment.field_bambora_cron_settings__id
+#: model:ir.model.fields,field_description:bambora_batch_payment.field_batch_payment_tracking__id
+#: model:ir.model.fields,field_description:bambora_batch_payment.field_ir_cron__id
+#: model:ir.model.fields,field_description:bambora_batch_payment.field_payment_provider__id
+#: model:ir.model.fields,field_description:bambora_batch_payment.field_payment_token__id
+#: model:ir.model.fields,field_description:bambora_batch_payment.field_payment_transaction__id
+#: model:ir.model.fields,field_description:bambora_batch_payment.field_res_partner__id
+#: model:ir.model.fields,field_description:bambora_batch_payment.field_res_partner_bank__id
+msgid "ID"
+msgstr "identifiant "
+#. module: bambora_batch_payment
+#: model:ir.model.fields.selection,name:bambora_batch_payment.selection__batch_payment_tracking__state__in_process
+msgid "In process"
+msgstr "En cours "
+#. module: bambora_batch_payment
+#: model_terms:ir.ui.view,arch_db:bambora_batch_payment.bamboraeft_s2s_form
+msgid "Institution Number (3 Digits)"
+msgstr "Numéro d'établissement (3 chiffres) "
+#. module: bambora_batch_payment
+#: model:ir.model.fields,field_description:bambora_batch_payment.field_batch_payment_tracking__invoice_date
+msgid "Invoice Date"
+msgstr "Date de facturation "
+#. module: bambora_batch_payment
+#: model:ir.model.fields,field_description:bambora_batch_payment.field_batch_payment_tracking__invoice_no
+msgid "Invoice Number"
+msgstr "Numéro de facture "
+#. module: bambora_batch_payment
+#: model:ir.model.fields,field_description:bambora_batch_payment.field_batch_payment_tracking__invoice_ref
+msgid "Invoice Reference"
+msgstr "Référence de la facture "
+#. module: bambora_batch_payment
+#: model:ir.model,name:bambora_batch_payment.model_account_move
+msgid "Journal Entry"
+msgstr "Journal "
+#. module: bambora_batch_payment
+#: model:ir.model.fields,help:bambora_batch_payment.field_payment_provider__bamboraeft_vendor_journal_id
+msgid "Journal where the successful Vendor transactions will be posted"
+msgstr "Journal où les transactions du vendeur réussi seront publiées "
+#. module: bambora_batch_payment
+#: model:ir.model.fields,field_description:bambora_batch_payment.field_payment_transaction__bambora_last_four
+msgid "Last Four"
+msgstr "Dernier quatre "
+#. module: bambora_batch_payment
+#: model:ir.model.fields,field_description:bambora_batch_payment.field_account_move____last_update
+#: model:ir.model.fields,field_description:bambora_batch_payment.field_account_payment_register____last_update
+#: model:ir.model.fields,field_description:bambora_batch_payment.field_bambora_cron_settings____last_update
+#: model:ir.model.fields,field_description:bambora_batch_payment.field_batch_payment_tracking____last_update
+#: model:ir.model.fields,field_description:bambora_batch_payment.field_ir_cron____last_update
+#: model:ir.model.fields,field_description:bambora_batch_payment.field_payment_provider____last_update
+#: model:ir.model.fields,field_description:bambora_batch_payment.field_payment_token____last_update
+#: model:ir.model.fields,field_description:bambora_batch_payment.field_payment_transaction____last_update
+#: model:ir.model.fields,field_description:bambora_batch_payment.field_res_partner____last_update
+#: model:ir.model.fields,field_description:bambora_batch_payment.field_res_partner_bank____last_update
+msgid "Last Modified on"
+msgstr "Dernière modification sur "
+#. module: bambora_batch_payment
+#: model:ir.model.fields,field_description:bambora_batch_payment.field_bambora_cron_settings__write_uid
+#: model:ir.model.fields,field_description:bambora_batch_payment.field_batch_payment_tracking__write_uid
+msgid "Last Updated by"
+msgstr "Dernière mise à jour par "
+#. module: bambora_batch_payment
+#: model:ir.model.fields,field_description:bambora_batch_payment.field_bambora_cron_settings__write_date
+#: model:ir.model.fields,field_description:bambora_batch_payment.field_batch_payment_tracking__write_date
+msgid "Last Updated on"
+msgstr "Dernière mise à jour le "
+#. module: bambora_batch_payment
+#: model:ir.model.fields,help:bambora_batch_payment.field_payment_provider__debug_logging
+msgid "Log requests in order to ease debugging"
+msgstr "Demandes de journal afin de faciliter le débogage "
+#. module: bambora_batch_payment
+#: model:ir.model.fields,field_description:bambora_batch_payment.field_payment_provider__bamboraeft_merchant_id
+msgid "Merchant ID"
+msgstr "Marchand de marchands "
+#. module: bambora_batch_payment
+#: model_terms:ir.ui.view,arch_db:bambora_batch_payment.bamboraeft_payment_process_page
+msgid "Message"
+msgstr "Un message "
+#. module: bambora_batch_payment
+#: model:ir.model.fields,field_description:bambora_batch_payment.field_payment_transaction__bambora_order_number
+msgid "Order Number"
+msgstr "Numéro de commande "
+#. module: bambora_batch_payment
+#: model:account.payment.method,name:bambora_batch_payment.bamboraeft_outbound_electronic
+msgid "Outbound Electronic"
+msgstr "Électronique sortante "
+#. module: bambora_batch_payment
+#: model:ir.model.fields,field_description:bambora_batch_payment.field_batch_payment_tracking__invoice_partner_id
+msgid "Partner"
+msgstr "Partenaire "
+#. module: bambora_batch_payment
+#: model:ir.model.fields,field_description:bambora_batch_payment.field_payment_token__partner_bank_id
+msgid "Partner Bank"
+msgstr "Banque partenaire "
+#. module: bambora_batch_payment
+#: model:ir.model.fields,field_description:bambora_batch_payment.field_payment_provider__bamboraeft_payment_api
+msgid "Payment API"
+msgstr "API de paiement "
+#. module: bambora_batch_payment
+#: model:ir.model,name:bambora_batch_payment.model_payment_provider
+msgid "Payment provider"
+msgstr "Acquéreur de paiement "
+#. module: bambora_batch_payment
+#: model:ir.model.fields,field_description:bambora_batch_payment.field_batch_payment_tracking__transaction_date
+msgid "Payment Date"
+msgstr "Date de paiement "
+#. module: bambora_batch_payment
+#: model:ir.model.fields,field_description:bambora_batch_payment.field_payment_transaction__bambora_payment_method
+msgid "Payment Method"
+msgstr "Mode de paiement "
+#. module: bambora_batch_payment
+#: model:ir.model,name:bambora_batch_payment.model_payment_token
+#: model:ir.model.fields,field_description:bambora_batch_payment.field_account_setup_bank_manual_config__payment_token_id
+#: model:ir.model.fields,field_description:bambora_batch_payment.field_res_partner_bank__payment_token_id
+msgid "Payment Token"
+msgstr "Jeton de paiement "
+#. module: bambora_batch_payment
+#: model:ir.model.fields,field_description:bambora_batch_payment.field_res_partner__payment_token_ids
+#: model:ir.model.fields,field_description:bambora_batch_payment.field_res_users__payment_token_ids
+msgid "Payment Tokens"
+msgstr "Jetons de paiement "
+#. module: bambora_batch_payment
+#: model:ir.model,name:bambora_batch_payment.model_payment_transaction
+msgid "Payment Transaction"
+msgstr "Transaction de paiement "
+#. module: bambora_batch_payment
+#: model:ir.model.fields.selection,name:bambora_batch_payment.selection__payment_token__bambora_token_type__permanent
+msgid "Permanent"
+msgstr "Permanent"
+#. module: bambora_batch_payment
+#: model:ir.model.fields,field_description:bambora_batch_payment.field_payment_transaction__bamboraeft_process_time_zone
+msgid "Process Timezone"
+msgstr "Timezone de processus "
+#. module: bambora_batch_payment
+#: model:ir.model.fields,field_description:bambora_batch_payment.field_payment_transaction__bamboraeft_process_date
+msgid "Process date"
+msgstr "Date de traitement "
+#. module: bambora_batch_payment
+#: model:ir.model.fields,field_description:bambora_batch_payment.field_payment_provider__bamboraeft_profile_api
+msgid "Profile API"
+msgstr "Profil API "
+#. module: bambora_batch_payment
+#: model:ir.model.fields,field_description:bambora_batch_payment.field_payment_provider__code
+#: model:ir.model.fields,field_description:bambora_batch_payment.field_payment_token__provider
+msgid "Provider"
+msgstr "Fournisseur"
+#. module: bambora_batch_payment
+#: model:ir.model,name:bambora_batch_payment.model_account_payment_register
+msgid "Register Payment"
+msgstr "Enregistrer le paiement "
+#. module: bambora_batch_payment
+#: model:ir.model.fields.selection,name:bambora_batch_payment.selection__batch_payment_tracking__state__rejected
+msgid "Rejected"
+msgstr "Rejeté"
+#. module: bambora_batch_payment
+#: model:ir.model.fields,field_description:bambora_batch_payment.field_batch_payment_tracking__remain_settle_day
+msgid "Remaining days to Settle"
+msgstr "Jours restants pour régler "
+#. module: bambora_batch_payment
+#: model:ir.model.fields,field_description:bambora_batch_payment.field_payment_provider__bamboraeft_report_api
+msgid "Report API"
+msgstr "Signaler API "
+#. module: bambora_batch_payment
+#: model:ir.model.fields,field_description:bambora_batch_payment.field_payment_provider__bamboraeft_report_api_version
+msgid "Report Api Version"
+msgstr "Signaler la version API "
+#. module: bambora_batch_payment
+#: model:ir.model.fields,field_description:bambora_batch_payment.field_batch_payment_tracking__sale_ok
+msgid "Sale Batch?"
+msgstr "Lot de vente? "
+#. module: bambora_batch_payment
+#: model:ir.model.fields,field_description:bambora_batch_payment.field_payment_token__save_token
+msgid "Save Cards"
+msgstr "Carte de sauvegarde "
+#. module: bambora_batch_payment
+#: model:ir.model.fields.selection,name:bambora_batch_payment.selection__batch_payment_tracking__state__scheduled
+msgid "Scheduled"
+msgstr "Programmé "
+#. module: bambora_batch_payment
+#: model:ir.model,name:bambora_batch_payment.model_ir_cron
+msgid "Scheduled Actions"
+msgstr "Actions planifiées "
+#. module: bambora_batch_payment
+#: model:ir.model.fields,field_description:bambora_batch_payment.field_batch_payment_tracking__settlement_date
+msgid "Settlement Date"
+msgstr "Date de règlement "
+#. module: bambora_batch_payment
+#: model:ir.model.fields,help:bambora_batch_payment.field_account_bank_statement_line__bambora_bank_identifier_number
+#: model:ir.model.fields,help:bambora_batch_payment.field_account_move__bambora_bank_identifier_number
+#: model:ir.model.fields,help:bambora_batch_payment.field_account_payment__bambora_bank_identifier_number
+msgid "Sometimes called BIC or Swift."
+msgstr "Parfois appelé bic ou rapide. "
+#. module: bambora_batch_payment
+#: model:ir.model.fields,field_description:bambora_batch_payment.field_batch_payment_tracking__status
+msgid "Status Name"
+msgstr "Nom d'état "
+#. module: bambora_batch_payment
+#: model:ir.model.fields.selection,name:bambora_batch_payment.selection__payment_token__bambora_token_type__temporary
+msgid "Temporary"
+msgstr "Temporaire "
+#. module: bambora_batch_payment
+#: model:ir.model.fields,help:bambora_batch_payment.field_payment_token__save_token
+msgid ""
+"This option allows customers to save their credit card as a payment token "
+"and to reuse it for a later purchase. If you manage subscriptions (recurring"
+" invoicing), you need it to automatically charge the customer when you issue"
+" an invoice."
+msgstr ""
+"Cette option permet aux clients d'enregistrer leur carte de crédit comme "
+"jeton de paiement et de la réutiliser pour un achat ultérieur. Si vous gérez"
+" des abonnements (facturation récurrente), vous en avez besoin pour charger "
+"automatiquement le client lorsque vous publiez une facture. "
+#. module: bambora_batch_payment
+#: model:ir.model.fields,field_description:bambora_batch_payment.field_payment_token__bambora_token_type
+msgid "Token Type"
+msgstr "Type de jeton "
+#. module: bambora_batch_payment
+#: model:ir.model.fields,field_description:bambora_batch_payment.field_batch_payment_tracking__transaction_id
+#: model_terms:ir.ui.view,arch_db:bambora_batch_payment.bamboraeft_payment_process_page
+msgid "Transaction ID"
+msgstr "identifiant de transaction "
+#. module: bambora_batch_payment
+#: model:ir.model.fields,field_description:bambora_batch_payment.field_batch_payment_tracking__transaction_ids
+msgid "Transaction Ids"
+msgstr "ID de transaction "
+#. module: bambora_batch_payment
+#: model_terms:ir.ui.view,arch_db:bambora_batch_payment.bamboraeft_payment_process_page
+msgid "Transaction Reference"
+msgstr "Référence de transaction "
+#. module: bambora_batch_payment
+#: model:ir.model.fields,field_description:bambora_batch_payment.field_account_bank_statement_line__bambora_batch_state
+#: model:ir.model.fields,field_description:bambora_batch_payment.field_account_move__bambora_batch_state
+#: model:ir.model.fields,field_description:bambora_batch_payment.field_account_payment__bambora_batch_state
+#: model:ir.model.fields,field_description:bambora_batch_payment.field_batch_payment_tracking__state
+msgid "Transaction State"
+msgstr "État de la transaction "
+#. module: bambora_batch_payment
+#: model:ir.model.fields,field_description:bambora_batch_payment.field_payment_provider__bamboraeft_transaction_type
+#: model:ir.model.fields,field_description:bambora_batch_payment.field_payment_token__bamboraeft_tran_type
+#: model:ir.model.fields,field_description:bambora_batch_payment.field_payment_transaction__bambora_txn_type
+msgid "Transaction Type"
+msgstr "Type de transaction "
+#. module: bambora_batch_payment
+#: model:ir.model.fields,field_description:bambora_batch_payment.field_payment_provider__bamboraeft_vendor_journal_id
+msgid "Vendor Payment Journal"
+msgstr "Journal de paiement du vendeur "
+#. module: bambora_batch_payment
+#: model_terms:payment.provider,pending_msg:bambora_batch_payment.payment_provider_bamboraeft
+msgid "Your Bambora (EFT/ACH) Fund Transfer is in `Scheduled` State."
+msgstr ""
+"Le transfert de votre Fonds Bambora (EFT / ACH) est en état de «planifié». "
+#. module: bambora_batch_payment
+#: model_terms:ir.ui.view,arch_db:bambora_batch_payment.bamboraeft_payment_process_page
+msgid "Your Bambora EFT/ACH Transaction is in 'Done' State."
+msgstr "Votre transaction Bambora EFT / ACH est dans l'état «fait». "
+#. module: bambora_batch_payment
+#: model_terms:ir.ui.view,arch_db:bambora_batch_payment.bamboraeft_payment_process_page
+msgid "Your Bambora EFT/ACH Transaction is in 'Pending' State."
+msgstr "Votre transaction Bambora EFT / ACH est dans l'état «en attente». "
+#. module: bambora_batch_payment
+#: model_terms:ir.ui.view,arch_db:bambora_batch_payment.bamboraeft_payment_process_page
+msgid "Your Invoice is Paid."
+msgstr "Votre facture est payée. "
+#. module: bambora_batch_payment
+#: model_terms:ir.ui.view,arch_db:bambora_batch_payment.bamboraeft_payment_process_page
+msgid ""
+"Your Invoice is in 'In Payment' Payment Status. It will be in 'Paid' state "
+"when the payment status changes to complete."
+msgstr ""
+"Votre facture est dans le statut de paiement «en paiement». Il sera dans "
+"l'état «payé» lorsque le statut de paiement devient terminé. "
+#. module: bambora_batch_payment
+#: model_terms:ir.ui.view,arch_db:bambora_batch_payment.bamboraeft_payment_process_page
+msgid "Your Order is Confirmed."
+msgstr "Votre commande est confirmée. "
+#. module: bambora_batch_payment
+#: model_terms:ir.ui.view,arch_db:bambora_batch_payment.bamboraeft_payment_process_page
+msgid ""
+"Your Order is in 'Quotation' State. It will be confirmed when the payment "
+"status changes to complete."
+msgstr ""
+"Votre commande est en état de «citation». Il sera confirmé lorsque le statut"
+" de paiement devient terminé. "
+#. module: bambora_batch_payment
+#: model_terms:payment.provider,auth_msg:bambora_batch_payment.payment_provider_bamboraeft
+msgid "Your payment has been authorized."
+msgstr "Votre paiement a été autorisé. "
+#. module: bambora_batch_payment
+#: model_terms:payment.provider,cancel_msg:bambora_batch_payment.payment_provider_bamboraeft
+msgid "Your payment has been cancelled."
+msgstr "Votre paiement a été annulé. "
+#. module: bambora_batch_payment
+#: model_terms:payment.provider,done_msg:bambora_batch_payment.payment_providerbamboraeft
+msgid "Your payment has been successfully processed. Thank you!"
+msgstr "Votre paiement a été traité avec succès. Merci! "
+#. module: bambora_batch_payment
+#: model_terms:payment.provider,pending_msg:bambora_batch_payment.payment_providerbamboraeft
+msgid ""
+"Your transaction will be complete when your Bambora (EFT/ACH) Fund Transfer "
+"is in `complete` state."
+msgstr ""
+"Votre transaction sera complète lorsque votre transfert de fonds Bambora "
+"(EFT / ACH) est en état de «complet». "
+#. module: bambora_batch_payment
+#: model:ir.model,name:bambora_batch_payment.model_bambora_cron_settings
+msgid "bambora.cron.settings"
+msgstr "bambora.con.Settings "

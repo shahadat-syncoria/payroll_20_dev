@@ -1,0 +1,372 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+<!--        xxxxxxxxxxxxxxxxxx EMPLOYEE xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx-->
+<!--        =================== GROSS ======================-->
+      <record id="rule_ca_gross" model="hr.salary.rule">
+            <field name="name">GROSS</field>
+            <field name="sequence" eval="10"/>
+            <field name="code">GROSS</field>
+            <field name="category_id" ref="hr_payroll.GROSS"/>
+            <field name="appears_on_payslip" eval="1"/>
+            <field name="active" eval="1"/>
+            <field name="amount_select">code</field>
+            <field name="struct_id" ref="syncoria_can_payroll.structure_can_employee"/>
+<!--            <field name="condition_select">none</field>-->
+<!--            <field name="exemption_id" ref="cpp_exempt"/>-->
+            <field name="amount_python_compute">
+                <![CDATA[
+result=payslip.env['hr.payslip'].get_gross_amount(payslip.id)
+                    ]]>
+            </field>
+
+
+        </record>
+
+<!--        ========================= NET PAY =================-->
+     <record id="rule_ca_net" model="hr.salary.rule">
+            <field name="name">NET</field>
+            <field name="sequence" eval="350"/>
+            <field name="code">NET</field>
+            <field name="category_id" ref="hr_payroll.NET"/>
+            <field name="appears_on_payslip" eval="1"/>
+            <field name="active" eval="1"/>
+            <field name="amount_select">code</field>
+            <field name="struct_id" ref="syncoria_can_payroll.structure_can_employee"/>
+<!--            <field name="condition_select">none</field>-->
+<!--            <field name="exemption_id" ref="cpp_exempt"/>-->
+            <field name="amount_python_compute">
+                <![CDATA[
+result = (categories.GROSS + categories.ALW) - (categories.DED+categories.PRE_TAX_DEDUCTION+categories.POST_TAX_DEDUCTION)
+
+                    ]]>
+            </field>
+
+
+        </record>
+
+<!--        ============================ EXPENSE ===================-->
+        <record id="rule_ca_expense" model="hr.salary.rule">
+            <field name="name">EXPENSES</field>
+            <field name="sequence" eval="290"/>
+            <field name="code">EXPENSE</field>
+            <field name="category_id" ref="hr_payroll.ALW"/>
+            <field name="appears_on_payslip" eval="1"/>
+            <field name="active" eval="1"/>
+            <field name="amount_select">code</field>
+            <field name="struct_id" ref="syncoria_can_payroll.structure_can_employee"/>
+            <field name="condition_select">python</field>
+            <field name="condition_python">result = inputs.EXPENSES</field>
+            <field name="amount_python_compute">
+result = inputs.EXPENSES.amount
+result_name = inputs.EXPENSES.name
+            </field>
+
+
+        </record>
+
+        <!--        ============================ INSURABLE EARNING ===================-->
+        <record id="rule_ca_insurable_earning" model="hr.salary.rule">
+            <field name="name">Insurable Earning</field>
+            <field name="sequence" eval="320"/>
+            <field name="code">I_Earning</field>
+            <field name="category_id" ref="syncoria_can_payroll.CALC"/>
+            <field name="appears_on_payslip" eval="1"/>
+            <field name="active" eval="1"/>
+            <field name="amount_select">code</field>
+            <field name="struct_id" ref="syncoria_can_payroll.structure_can_employee"/>
+            <field name="condition_select">none</field>
+            <field name="amount_python_compute">
+main_gross = GROSS
+irregular_gross = abs(categories.ADD_ALLOWANCE)
+
+result = main_gross  + irregular_gross
+            </field>
+
+
+        </record>
+
+
+<!--        EXTRA DEDUCTIONS-->
+        <record id="rule_ca_rrsp" model="hr.salary.rule">
+            <field name="name">RRSP</field>
+            <field name="sequence" eval="210"/>
+            <field name="code">RRSP</field>
+            <field name="category_id" ref="syncoria_can_payroll.pre_tax_deduction"/>
+            <field name="appears_on_payslip" eval="1"/>
+            <field name="active" eval="1"/>
+            <field name="amount_select">code</field>
+            <field name="struct_id" ref="syncoria_can_payroll.structure_can_employee"/>
+            <field name="condition_select">python</field>
+            <field name="condition_python">result = contract.rrsp_amount > 0.0</field>
+            <field name="amount_python_compute">
+if contract.rrsp_amount > 0.0 and contract.rrsp_type == "percent":
+    result = GROSS *(contract.rrsp_amount/100)
+else:
+    result = contract.rrsp_amount
+            </field>
+        </record>
+<!--        GARNISHMENT       -->
+        <record id="rule_ca_wage_garnishment" model="hr.salary.rule">
+            <field name="name">Wage Garnishment</field>
+            <field name="sequence" eval="230"/>
+            <field name="code">WAGE_GARNISHMENT</field>
+            <field name="category_id" ref="syncoria_can_payroll.post_tax_deduction"/>
+            <field name="appears_on_payslip" eval="1"/>
+            <field name="active" eval="1"/>
+            <field name="amount_select">code</field>
+            <field name="struct_id" ref="syncoria_can_payroll.structure_can_employee"/>
+            <field name="condition_select">python</field>
+            <field name="condition_python">result = contract.garnishment and contract.wage_garnishment >0.0</field>
+            <field name="amount_python_compute">
+if contract.wage_garnishment > 0.0 and contract.wage_garnishment_type == "percent":
+    result = GROSS *(contract.wage_garnishment/100)
+else:
+    result = contract.wage_garnishment
+            </field>
+        </record>
+
+        <record id="rule_ca_bank_garnishment" model="hr.salary.rule">
+            <field name="name">Bank Account Garnishment</field>
+            <field name="sequence" eval="230"/>
+            <field name="code">BANK_GARNISHMENT</field>
+            <field name="category_id" ref="syncoria_can_payroll.post_tax_deduction"/>
+            <field name="appears_on_payslip" eval="1"/>
+            <field name="active" eval="1"/>
+            <field name="amount_select">code</field>
+            <field name="struct_id" ref="syncoria_can_payroll.structure_can_employee"/>
+            <field name="condition_select">python</field>
+            <field name="condition_python">result = contract.garnishment and contract.bank_garnishment >0.0</field>
+            <field name="amount_python_compute">
+if contract.bank_garnishment > 0.0 and contract.bank_garnishment_type == "percent":
+    result = GROSS *(contract.bank_garnishment/100)
+else:
+    result = contract.bank_garnishment
+            </field>
+        </record>
+
+         <record id="rule_ca_alimony_garnishment" model="hr.salary.rule">
+            <field name="name">Spousal Support or Alimony Garnishment</field>
+            <field name="sequence" eval="230"/>
+            <field name="code">ALIMONY_GARNISHMENT</field>
+            <field name="category_id" ref="syncoria_can_payroll.post_tax_deduction"/>
+            <field name="appears_on_payslip" eval="1"/>
+            <field name="active" eval="1"/>
+            <field name="amount_select">code</field>
+            <field name="struct_id" ref="syncoria_can_payroll.structure_can_employee"/>
+            <field name="condition_select">python</field>
+            <field name="condition_python">result = contract.garnishment and contract.alimony_garnishment >0.0</field>
+            <field name="amount_python_compute">
+if contract.alimony_garnishment > 0.0 and contract.alimony_garnishment_type == "percent":
+    result = GROSS *(contract.alimony_garnishment/100)
+else:
+    result = contract.alimony_garnishment
+            </field>
+        </record>
+
+         <record id="rule_ca_child_support_garnishment" model="hr.salary.rule">
+            <field name="name">Child Support Garnishment</field>
+            <field name="sequence" eval="230"/>
+            <field name="code">CHILD_SUPPORT_GARNISHMENT</field>
+            <field name="category_id" ref="syncoria_can_payroll.post_tax_deduction"/>
+            <field name="appears_on_payslip" eval="1"/>
+            <field name="active" eval="1"/>
+            <field name="amount_select">code</field>
+            <field name="struct_id" ref="syncoria_can_payroll.structure_can_employee"/>
+            <field name="condition_select">python</field>
+            <field name="condition_python">result = contract.garnishment and contract.child_support_garnishment >0.0</field>
+            <field name="amount_python_compute">
+if contract.child_support_garnishment > 0.0 and contract.child_support_garnishment_type == "percent":
+    result = GROSS *(contract.child_support_garnishment/100)
+else:
+    result = contract.child_support_garnishment
+            </field>
+        </record>
+
+
+
+<!--        xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx WORKER xxxxxxxxxxxxxxxxxxxxxxxxxx-->
+
+        <!--        =================== GROSS ======================-->
+          <record id="rule_ca_gross_worker" model="hr.salary.rule">
+            <field name="name">GROSS</field>
+            <field name="sequence" eval="10"/>
+            <field name="code">GROSS</field>
+            <field name="category_id" ref="hr_payroll.GROSS"/>
+            <field name="appears_on_payslip" eval="1"/>
+            <field name="active" eval="1"/>
+            <field name="amount_select">code</field>
+            <field name="struct_id" ref="syncoria_can_payroll.structure_can_worker"/>
+<!--            <field name="condition_select">none</field>-->
+<!--            <field name="exemption_id" ref="cpp_exempt"/>-->
+            <field name="amount_python_compute">
+                <![CDATA[
+result=payslip.env['hr.payslip'].get_gross_amount(payslip.id)
+                    ]]>
+            </field>
+
+
+        </record>
+        <!--        ========================= NET PAY =================-->
+         <record id="rule_ca_net_worker" model="hr.salary.rule">
+            <field name="name">NET</field>
+            <field name="sequence" eval="350"/>
+            <field name="code">NET</field>
+            <field name="category_id" ref="hr_payroll.NET"/>
+            <field name="appears_on_payslip" eval="1"/>
+            <field name="active" eval="1"/>
+            <field name="amount_select">code</field>
+            <field name="struct_id" ref="syncoria_can_payroll.structure_can_worker"/>
+<!--            <field name="condition_select">none</field>-->
+<!--            <field name="exemption_id" ref="cpp_exempt"/>-->
+            <field name="amount_python_compute">
+                <![CDATA[
+result = (categories.GROSS + categories.ALW) - categories.DED
+
+                    ]]>
+            </field>
+
+
+        </record>
+
+        <!--        ============================ EXPENSE ===================-->
+        <record id="rule_ca_expense_worker" model="hr.salary.rule">
+            <field name="name">EXPENSES</field>
+            <field name="sequence" eval="290"/>
+            <field name="code">EXPENSE</field>
+            <field name="category_id" ref="hr_payroll.ALW"/>
+            <field name="appears_on_payslip" eval="1"/>
+            <field name="active" eval="1"/>
+            <field name="amount_select">code</field>
+            <field name="struct_id" ref="syncoria_can_payroll.structure_can_worker"/>
+            <field name="condition_select">python</field>
+            <field name="condition_python">result = inputs.EXPENSES</field>
+            <field name="amount_python_compute">
+result = inputs.EXPENSES.amount
+result_name = inputs.EXPENSES.name
+            </field>
+        </record>
+
+          <!--        ============================ INSURABLE EARNING ===================-->
+        <record id="rule_ca_insurable_earning_worker" model="hr.salary.rule">
+            <field name="name">Insurable Earning</field>
+            <field name="sequence" eval="320"/>
+            <field name="code">I_Earning</field>
+            <field name="category_id" ref="syncoria_can_payroll.CALC"/>
+            <field name="appears_on_payslip" eval="1"/>
+            <field name="active" eval="1"/>
+            <field name="amount_select">code</field>
+            <field name="struct_id" ref="syncoria_can_payroll.structure_can_worker"/>
+            <field name="condition_select">none</field>
+            <field name="amount_python_compute">
+main_gross = GROSS
+irregular_gross = abs(categories.ADD_ALLOWANCE)
+
+result = main_gross  + irregular_gross
+            </field>
+
+
+        </record>
+
+
+        <!--        EXTRA DEDUCTIONS-->
+        <record id="rule_ca_rrsp_worker" model="hr.salary.rule">
+            <field name="name">RRSP</field>
+            <field name="sequence" eval="210"/>
+            <field name="code">RRSP_WORKER</field>
+            <field name="category_id" ref="syncoria_can_payroll.pre_tax_deduction"/>
+            <field name="appears_on_payslip" eval="1"/>
+            <field name="active" eval="1"/>
+            <field name="amount_select">code</field>
+            <field name="struct_id" ref="syncoria_can_payroll.structure_can_worker"/>
+            <field name="condition_select">python</field>
+            <field name="condition_python">result = contract.rrsp_amount > 0.0</field>
+            <field name="amount_python_compute">
+                if contract.rrsp_amount > 0.0 and contract.rrsp_type == "percent":
+                result = GROSS *(contract.rrsp_amount/100)
+                else:
+                result = rrsp_amount
+            </field>
+
+
+        </record>
+
+               <record id="rule_ca_wage_garnishment_worker" model="hr.salary.rule">
+            <field name="name">Wage Garnishment</field>
+            <field name="sequence" eval="230"/>
+            <field name="code">WAGE_GARNISHMENT</field>
+            <field name="category_id" ref="syncoria_can_payroll.post_tax_deduction"/>
+            <field name="appears_on_payslip" eval="1"/>
+            <field name="active" eval="1"/>
+            <field name="amount_select">code</field>
+            <field name="struct_id" ref="syncoria_can_payroll.structure_can_worker"/>
+            <field name="condition_select">python</field>
+            <field name="condition_python">result = contract.garnishment and contract.wage_garnishment >0.0</field>
+            <field name="amount_python_compute">
+if contract.wage_garnishment > 0.0 and contract.wage_garnishment_type == "percent":
+    result = GROSS *(contract.wage_garnishment/100)
+else:
+    result = contract.wage_garnishment
+            </field>
+        </record>
+
+        <record id="rule_ca_bank_garnishment_worker" model="hr.salary.rule">
+            <field name="name">Bank Account Garnishment</field>
+            <field name="sequence" eval="230"/>
+            <field name="code">BANK_GARNISHMENT</field>
+            <field name="category_id" ref="syncoria_can_payroll.post_tax_deduction"/>
+            <field name="appears_on_payslip" eval="1"/>
+            <field name="active" eval="1"/>
+            <field name="amount_select">code</field>
+            <field name="struct_id" ref="syncoria_can_payroll.structure_can_worker"/>
+            <field name="condition_select">python</field>
+            <field name="condition_python">result = contract.garnishment and contract.bank_garnishment >0.0</field>
+            <field name="amount_python_compute">
+if contract.bank_garnishment > 0.0 and contract.bank_garnishment_type == "percent":
+    result = GROSS *(contract.bank_garnishment/100)
+else:
+    result = contract.bank_garnishment
+            </field>
+        </record>
+
+         <record id="rule_ca_alimony_garnishment_worker" model="hr.salary.rule">
+            <field name="name">Spousal Support or Alimony Garnishment</field>
+            <field name="sequence" eval="230"/>
+            <field name="code">ALIMONY_GARNISHMENT</field>
+            <field name="category_id" ref="syncoria_can_payroll.post_tax_deduction"/>
+            <field name="appears_on_payslip" eval="1"/>
+            <field name="active" eval="1"/>
+            <field name="amount_select">code</field>
+            <field name="struct_id" ref="syncoria_can_payroll.structure_can_worker"/>
+            <field name="condition_select">python</field>
+            <field name="condition_python">result = contract.garnishment and contract.alimony_garnishment >0.0</field>
+            <field name="amount_python_compute">
+if contract.alimony_garnishment > 0.0 and contract.alimony_garnishment_type == "percent":
+    result = GROSS *(contract.alimony_garnishment/100)
+else:
+    result = contract.alimony_garnishment
+            </field>
+        </record>
+
+         <record id="rule_ca_child_support_garnishment_worker" model="hr.salary.rule">
+            <field name="name">Child Support Garnishment</field>
+            <field name="sequence" eval="230"/>
+            <field name="code">CHILD_SUPPORT_GARNISHMENT</field>
+            <field name="category_id" ref="syncoria_can_payroll.post_tax_deduction"/>
+            <field name="appears_on_payslip" eval="1"/>
+            <field name="active" eval="1"/>
+            <field name="amount_select">code</field>
+            <field name="struct_id" ref="syncoria_can_payroll.structure_can_worker"/>
+            <field name="condition_select">python</field>
+            <field name="condition_python">result = contract.garnishment and contract.child_support_garnishment >0.0</field>
+            <field name="amount_python_compute">
+if contract.child_support_garnishment > 0.0 and contract.child_support_garnishment_type == "percent":
+    result = GROSS *(contract.child_support_garnishment/100)
+else:
+    result = contract.child_support_garnishment
+            </field>
+        </record>
+
+    </data>
+</odoo>

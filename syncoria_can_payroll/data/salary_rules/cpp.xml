@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <record id="rule_ca_cpp" model="hr.salary.rule">
+            <field name="name">CPP</field>
+            <field name="sequence" eval="90"/>
+            <field name="code">CPP</field>
+            <field name="category_id" ref="hr_payroll.DED"/>
+            <field name="appears_on_payslip" eval="1"/>
+            <field name="active" eval="1"/>
+            <field name="amount_select">code</field>
+            <field name="struct_id" ref="syncoria_can_payroll.structure_can_employee"/>
+<!--            <field name="condition_select">none</field>-->
+<!--            <field name="exemption_id" ref="cpp_exempt"/>-->
+            <field name="amount_python_compute">
+                <![CDATA[
+is_pay_cycle = contract.salary_pay_cycle.pay_cycle
+if is_pay_cycle:
+    pay_cycle = int(is_pay_cycle)
+
+    main_gross = GROSS
+    irregular_gross = abs(categories.ADD_ALLOWANCE)
+
+    yearly_gross = (main_gross * pay_cycle - contract.deductions.cpp_basic_exem) + irregular_gross
+
+    if yearly_gross < contract.deductions.cpp_max_con_earn:
+        final_result = (((main_gross * pay_cycle - contract.deductions.cpp_basic_exem) * (contract.deductions.cpp_emp_employ_rate / 100) )/ pay_cycle)+(
+        irregular_gross * (contract.deductions.cpp_emp_employ_rate / 100))
+
+    else:
+        final_result =  (((contract.deductions.cpp_max_con_earn - contract.deductions.cpp_basic_exem) * (contract.deductions.cpp_emp_employ_rate / 100) )/ pay_cycle) + (
+        irregular_gross * (contract.deductions.cpp_emp_employ_rate / 100))
+    if final_result < 0.0:
+        final_result = 0.0
+    result = final_result
+else:
+    result = 0.0
+                    ]]>
+            </field>
+
+
+        </record>
+        <record id="rule_ca_cpp_employer" model="hr.salary.rule">
+            <field name="name">Employer CPP</field>
+            <field name="sequence" eval="130"/>
+            <field name="code">CPP_EMPLOYER</field>
+            <field name="category_id" ref="hr_payroll.COMP"/>
+            <field name="appears_on_payslip" eval="1"/>
+            <field name="active" eval="1"/>
+            <field name="amount_select">code</field>
+            <field name="struct_id" ref="syncoria_can_payroll.structure_can_employee"/>
+<!--            <field name="condition_select">none</field>-->
+<!--            <field name="exemption_id" ref="cpp_exempt"/>-->
+            <field name="amount_python_compute">
+                <![CDATA[
+result=CPP
+                    ]]>
+            </field>
+
+
+        </record>
+
+
+
+<!--        ====================== WORKER ==========================-->
+
+
+
+        <record id="rule_ca_cpp_worker" model="hr.salary.rule">
+            <field name="name">CPP</field>
+            <field name="sequence" eval="90"/>
+            <field name="code">CPP</field>
+            <field name="category_id" ref="hr_payroll.DED"/>
+            <field name="appears_on_payslip" eval="1"/>
+            <field name="active" eval="1"/>
+            <field name="amount_select">code</field>
+            <field name="struct_id" ref="syncoria_can_payroll.structure_can_worker"/>
+<!--            <field name="condition_select">none</field>-->
+<!--            <field name="exemption_id" ref="cpp_exempt"/>-->
+            <field name="amount_python_compute">
+                <![CDATA[
+is_pay_cycle = contract.salary_pay_cycle.pay_cycle
+if is_pay_cycle:
+    pay_cycle = int(is_pay_cycle)
+
+    main_gross = GROSS
+    irregular_gross = abs(categories.ADD_ALLOWANCE)
+
+    yearly_gross = (main_gross * pay_cycle - contract.deductions.cpp_basic_exem) + irregular_gross
+
+    if yearly_gross < contract.deductions.cpp_max_con_earn:
+        final_result = (((main_gross * pay_cycle - contract.deductions.cpp_basic_exem) * (
+                    contract.deductions.cpp_emp_employ_rate / 100)) / pay_cycle) + (
+                               irregular_gross * (contract.deductions.cpp_emp_employ_rate / 100))
+
+    else:
+        final_result = (((contract.deductions.cpp_max_con_earn - contract.deductions.cpp_basic_exem) * (
+                    contract.deductions.cpp_emp_employ_rate / 100)) / pay_cycle) + (
+                               irregular_gross * (contract.deductions.cpp_emp_employ_rate / 100))
+    if final_result < 0.0:
+        final_result = 0.0
+    result = final_result
+else:
+    result = 0.0
+                    ]]>
+            </field>
+
+
+        </record>
+        <record id="rule_ca_cpp_employer_worker" model="hr.salary.rule">
+            <field name="name">Employer CPP</field>
+            <field name="sequence" eval="130"/>
+            <field name="code">CPP_EMPLOYER</field>
+            <field name="category_id" ref="hr_payroll.COMP"/>
+            <field name="appears_on_payslip" eval="1"/>
+            <field name="active" eval="1"/>
+            <field name="amount_select">code</field>
+            <field name="struct_id" ref="syncoria_can_payroll.structure_can_worker"/>
+<!--            <field name="condition_select">none</field>-->
+<!--            <field name="exemption_id" ref="cpp_exempt"/>-->
+            <field name="amount_python_compute">
+                <![CDATA[
+result=CPP
+                    ]]>
+            </field>
+
+
+        </record>
+
+    </data>
+</odoo>

@@ -1,0 +1,25 @@
+<odoo>
+    <data>
+        <record id="email_template" model="mail.template">
+            <field name="name">bambora_warning_mail</field>
+            <field
+        name="model_id"
+        ref="bambora_batch_payment.model_batch_payment_tracking"
+      />
+            <field name="auto_delete" eval="True" />
+            <field name="email_from">{{object.email_to}}</field>
+            <field name="email_to">{{object.email_to}}</field>
+            <field name="subject">"Bambora EFT Warning Mail!"</field>
+            <field name="body_html">
+            <![CDATA[
+            <p>Hello,
+            <br/>
+            <br/>
+            Your Bambora Batch Payment Status Update cron need to run minimum ${ctx.get('minimum_cron_need')} times . But your current settings in cron, it runs ${ctx.get('current_cron')} times. For highest output, please adjust the cron time (Default 20 min)<br/>
+            </p>
+            Regards,<br/>
+                Technical Administration Team
+             ]]></field>
+        </record>
+    </data>
+</odoo>

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo noupdate="1">
+    <!-- Work Entry Type -->
+    <record id="sync_overtime_work_entry_type" model="hr.work.entry.type">
+        <field name="name">Canada Overtime Hours</field>
+        <field name="color">0</field>
+        <field name="code">CAN_OVERTIME</field>
+    </record>
+    <record id="sync_stat_overtime_work_entry_type" model="hr.work.entry.type">
+        <field name="name">Canada Statutory Holidays Overtime Hours</field>
+        <field name="color">0</field>
+        <field name="code">CAN_STAT_OVERTIME</field>
+    </record>
+    <!-- Hr Rule Parameter -->
+    <record id="sync_rule_parameter_overtime_pay" model="hr.rule.parameter">
+        <field name="name">Canada Overtime Pay Percentage</field>
+        <field name="code">can_overtime_pay_percent</field>
+        <field name="country_id" eval="False"/>
+    </record>
+    <record id="sync_rule_parameter_stat_overtime_pay" model="hr.rule.parameter">
+        <field name="name">Canada Statutory Holidays Overtime Pay Percentage</field>
+        <field name="code">can_stat_overtime_pay_percent</field>
+        <field name="country_id" eval="False"/>
+    </record>
+    <!-- Hr Rule Parameter Value -->
+    <record id="sync_rule_parameter_overtime_pay_value" model="hr.rule.parameter.value">
+        <field name="parameter_value">150</field>
+        <field name="rule_parameter_id" ref="syncoria_can_overtime.sync_rule_parameter_overtime_pay"/>
+        <field name="date_from" eval="datetime(2000, 1, 1).date()"/>
+    </record>
+    <record id="sync_rule_parameter_stat_overtime_pay_value" model="hr.rule.parameter.value">
+        <field name="parameter_value">250</field>
+        <field name="rule_parameter_id" ref="syncoria_can_overtime.sync_rule_parameter_stat_overtime_pay"/>
+        <field name="date_from" eval="datetime(2000, 1, 1).date()"/>
+    </record>
+</odoo>

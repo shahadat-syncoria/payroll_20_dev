@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="action_report_roe_earning_wizard" model="ir.actions.report">
+        <field name="name">ROE earning per Employee</field>
+        <field name="model">roe.earning.wizard</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">syncoria_can_payroll.report_roe_earning_per_employee</field>
+        <field name="report_file">syncoria_can_payroll.report_roe_earning_per_employee</field>
+    </record>
+
+    <!--    Remitance Summary Action -->
+
+    <record id="action_report_remitance_summary_wizard" model="ir.actions.report">
+        <field name="name">Remittance Summary</field>
+        <field name="model">remittance.summary.wizard</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">syncoria_can_payroll.report_remittance_summary</field>
+        <field name="report_file">syncoria_can_payroll.report_remittance_summary</field>
+    </record>
+
+    <record id="action_report_rgr" model="ir.actions.report">
+        <field name="name">Receiver General Report</field>
+        <field name="model">receiver.general.wizard</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">syncoria_can_payroll.report_rgr</field>
+        <field name="report_file">syncoria_can_payroll.report_rgr</field>
+    </record>
+</odoo>
+

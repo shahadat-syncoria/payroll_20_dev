@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <record id="sync_work_type_timesheet" model="hr.work.entry.type">
+            <field name="name">Timesheet Log</field>
+            <field name="code">TIMESHEET_WORK100</field>
+
+        </record>
+    </data>
+</odoo>

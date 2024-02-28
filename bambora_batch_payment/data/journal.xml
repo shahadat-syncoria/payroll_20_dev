@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <data noupdate="1">
+        <record id="bamboraeft_customer_journal" model="account.journal">
+            <field name="name">Bambora EFT-Customer</field>
+            <field name="code">EFTC0</field>
+            <field name="type">bank</field>
+        </record>
+        <record id="bamboraeft_vendor_journal" model="account.journal">
+            <field name="name">Bambora EFT-Vendor</field>
+            <field name="code">EFTV0</field>
+            <field name="type">bank</field>
+        </record>
+    </data>
+</odoo>

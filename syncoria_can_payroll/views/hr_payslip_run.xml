@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="hr_payslip_run_form_inherit" model="ir.ui.view">
+            <field name="name">syncoria_can_payroll.hr_payslip_run.form</field>
+            <field name="model">hr.payslip.run</field>
+            <field name="inherit_id" ref="hr_payroll.hr_payslip_run_form"/>
+            <field name="arch" type="xml">
+                <!--                <xpath expr="//button[@name='action_validate']" position="before">-->
+                <!--                    <field name="is_manual_input" invisible="1"/>-->
+                <!--                    <button name="%(syncoria_can_payroll.action_hr_employee_manual_input_wiz)d" type="action"-->
+                <!--                            string="Manually Generate Payslips" class="oe_highlight"-->
+                <!--                            attrs="{'invisible': ['|','&amp;',('is_manual_input','=',False),('state','=','draft'),('state','!=','draft')]}"/>-->
+                <!--                </xpath>-->
+                <!--                <xpath expr="//button[@name='%(hr_payroll.action_hr_payslip_by_employees)d']" position="attributes">-->
+                <!--                    <attribute name="attrs">{'invisible':['|','&amp;',('is_manual_input','=',True),('state','=','draft'),('state','!=','draft')]}</attribute>-->
+                <!--                    <attribute name="states">False</attribute>-->
+                <!--                     </xpath>-->
+                <xpath expr="//field[@name='date_start']" position="attributes">
+                    <attribute name="readonly">1</attribute>
+                    <attribute name="force_save">
+                        1</attribute>
+                </xpath>
+                <xpath expr="//field[@name='date_end']" position="attributes">
+                    <attribute name="readonly">1</attribute>
+                    <attribute name="force_save">
+                        1</attribute>
+                </xpath>
+                <xpath expr="//sheet/group/group[1]" position="after">
+                    <group name="syncoria_can_paycycle">
+                        <field name="pay_cycle" required="1"/>
+                        <field domain="[('id','in',pay_cycle_period_ids_domain)]" invisible="pay_cycle == False" name="pay_cycle_period" required="pay_cycle != False"/>
+                        <field invisible="1" name="pay_cycle_period_ids_domain"/>
+                    </group>
+                </xpath></field>
+        </record>
+    </data>
+</odoo>
