@@ -229,10 +229,10 @@ class RecordOfEmployee(models.Model):
         b9 = ET.SubElement(roe, "B9")
         ET.SubElement(b9, "FN").text = self.employee_id.name.split(" ")[-1] or " "
         ET.SubElement(b9, "LN").text = self.employee_id.name.split(" ")[0] or " "
-        ET.SubElement(b9, "A1").text = self.employee_id.address_home_id.street or " "
-        ET.SubElement(b9, "A2").text = self.employee_id.address_home_id.city or " "
-        ET.SubElement(b9, "A3").text = self.employee_id.address_home_id.country_id.name or " "
-        ET.SubElement(b9, "PC").text = self.employee_id.address_home_id.zip or " "
+        ET.SubElement(b9, "A1").text = self.employee_id.private_street or " "
+        ET.SubElement(b9, "A2").text = self.employee_id.private_city or " "
+        ET.SubElement(b9, "A3").text = self.employee_id.private_country_id.name or " "
+        ET.SubElement(b9, "PC").text = self.employee_id.private_zip or " "
 
         # PAY CYCLE INFORMATION
         ET.SubElement(roe, "B10").text = str(self.first_day_worked) or " "
@@ -362,8 +362,8 @@ class RecordOfEmployee(models.Model):
             self.vacation_pay_amount = str(has_last_payment[0].vacation_pay_amount) if has_last_payment else ''
             data = {
                 'sl_no': self.serial_no or '',
-                'employee_info': f'{self.employee_id.name}\n{self.employee_id.address_home_id.street},{self.employee_id.address_home_id.street2},{self.employee_id.address_home_id.city},{self.employee_id.address_home_id.country_id.name}' or '',
-                'employer_info': f'{self.name_of_issuer_id.name}\n{self.name_of_issuer_id.address_home_id.street},{self.name_of_issuer_id.address_home_id.street2},{self.name_of_issuer_id.address_home_id.city},{self.name_of_issuer_id.address_home_id.country_id.name}' or '',
+                'employee_info': f'{self.employee_id.name}\n{self.employee_id.private_street},{self.employee_id.private_street2},{self.employee_id.private_city},{self.employee_id.private_country_id.name}' or '',
+                'employer_info': f'{self.name_of_issuer_id.name}\n{self.name_of_issuer_id.private_street},{self.name_of_issuer_id.private_street2},{self.name_of_issuer_id.private_city},{self.name_of_issuer_id.private_country_id.name}' or '',
                 'pay_period_type': self.pay_period_id.paystub_group_name or '',
                 'unique_id2': '',
                 'employer_payroll_ref': self.employer_payroll_ref or '',
@@ -380,7 +380,7 @@ class RecordOfEmployee(models.Model):
                 'telephone1': self.telephone_no or '',
                 'telephone2': self.telephone_no or '',
                 'sl_roe': self.amended_serial_no or '',
-                'postal_code': self.employee_id.address_home_id.zip or '',
+                'postal_code': self.employee_id.private_zip or '',
                 'cra_payroll_acc': self.cra_payroll_acc_num or '',
                 'issuer_name': self.name_of_issuer_id.name or '',
                 'issue_date': datetime.datetime.now().date() or '',

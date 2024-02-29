@@ -720,7 +720,7 @@ class StatementOfRemuneration(models.Model):
         if self.employee_id:
             employee = self.employee_id
             employee_contract = self.employee_contract
-            employee_home_add = employee.address_home_id
+            # employee_home_add = employee.private_street
             employeer = self.company_id.partner_id
             employeer_contact_id = employeer.employeer_contact_id
 
@@ -731,12 +731,12 @@ class StatementOfRemuneration(models.Model):
                 'employee_init': employee.name.split(" ")[0][0],  # Need to sure and add field to employee
 
                 # Employee Home Address
-                "employee_addr_l1_txt": employee_home_add.street,
-                "employee_addr_l2_txt": employee_home_add.street2,
-                "employee_cty_nm": employee_home_add.city,
-                "employee_prov_cd": employee_home_add.state_id.code,
+                "employee_addr_l1_txt": employee.private_street,
+                "employee_addr_l2_txt": employee.private_street2,
+                "employee_cty_nm": employee.private_city,
+                "employee_prov_cd": employee.private_state_id.code,
                 "employee_cntry_cd": 'CAN',
-                "employee_pstl_cd": employee_home_add.zip,
+                "employee_pstl_cd": employee.private_zip,
 
                 # Employee T4slip
                 "employee_sin": str(employee.identification_id) or '',
