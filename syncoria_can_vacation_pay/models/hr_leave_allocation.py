@@ -48,7 +48,7 @@ class InheritedHrLeaveAllocation(models.Model):
                         # Update
 
                         previous_allocated_vac_id.action_refuse()
-                        previous_allocated_vac_id.action_draft()
+                        # previous_allocated_vac_id.action_draft()
                         previous_allocated_vac_id["number_of_days"] += allocated_day
                         previous_allocated_vac_id.action_validate()
                         previous_allocated_vac_id.message_post(
