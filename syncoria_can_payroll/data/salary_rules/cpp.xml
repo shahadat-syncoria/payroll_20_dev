@@ -20,7 +20,7 @@ if is_pay_cycle:
     pay_cycle = int(is_pay_cycle)
 
     main_gross = GROSS
-    irregular_gross = abs(categories.ADD_ALLOWANCE)
+    irregular_gross = abs(categories['ADD_ALLOWANCE'])
 
     yearly_gross = (main_gross * pay_cycle - contract.deductions.cpp_basic_exem) + irregular_gross
 
@@ -85,7 +85,7 @@ if is_pay_cycle:
     pay_cycle = int(is_pay_cycle)
 
     main_gross = GROSS
-    irregular_gross = abs(categories.ADD_ALLOWANCE)
+    irregular_gross = abs(categories['ADD_ALLOWANCE'])
 
     yearly_gross = (main_gross * pay_cycle - contract.deductions.cpp_basic_exem) + irregular_gross
 

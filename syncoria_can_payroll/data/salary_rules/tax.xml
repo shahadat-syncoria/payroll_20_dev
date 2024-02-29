@@ -22,8 +22,8 @@ if is_pay_cycle:
     claim_code = contract.federal_claim_code_from_td1
     year =  contract.deductions.slab_year
 
-    paycycle_gross = GROSS-categories.PRE_TAX_DEDUCTION
-    irregular_gross = abs(categories.ADD_ALLOWANCE)
+    paycycle_gross = GROSS-categories['PRE_TAX_DEDUCTION']
+    irregular_gross = abs(categories['ADD_ALLOWANCE'])
 
     irr_gross_percycle = 0.0
     if irregular_gross>0.0:
@@ -58,8 +58,8 @@ if is_pay_cycle:
     claim_code = contract.proviancial_claim_code_from_td1
     year =  contract.deductions.slab_year
 
-    paycycle_gross = GROSS-categories.PRE_TAX_DEDUCTION
-    irregular_gross = abs(categories.ADD_ALLOWANCE)
+    paycycle_gross = GROSS-categories['PRE_TAX_DEDUCTION']
+    irregular_gross = abs(categories['ADD_ALLOWANCE'])
     irr_gross_percycle = 0.0
     if irregular_gross>0.0:
         irr_gross_percycle = irregular_gross / pay_cycle
@@ -93,8 +93,8 @@ if is_pay_cycle:
     claim_code = contract.federal_claim_code_from_td1
     year =  contract.deductions.slab_year
 
-    paycycle_gross = GROSS-categories.PRE_TAX_DEDUCTION
-    irregular_gross = abs(categories.ADD_ALLOWANCE)
+    paycycle_gross = GROSS-categories['PRE_TAX_DEDUCTION']
+    irregular_gross = abs(categories['ADD_ALLOWANCE'])
 
     irr_gross_percycle = 0.0
     if irregular_gross>0.0:
@@ -129,8 +129,8 @@ if is_pay_cycle:
     claim_code = contract.proviancial_claim_code_from_td1
     year =  contract.deductions.slab_year
 
-    paycycle_gross = GROSS-categories.PRE_TAX_DEDUCTION
-    irregular_gross = abs(categories.ADD_ALLOWANCE)
+    paycycle_gross = GROSS-categories['PRE_TAX_DEDUCTION']
+    irregular_gross = abs(categories['ADD_ALLOWANCE'])
     irr_gross_percycle = 0.0
     if irregular_gross>0.0:
         irr_gross_percycle = irregular_gross / pay_cycle
