@@ -19,11 +19,11 @@
             <field name="amount_select">code</field>
             <field name="struct_id" ref="syncoria_can_payroll.structure_can_employee"/>
             <field name="condition_select">python</field>
-            <field name="condition_python">result = inputs.Bonus_Pay</field>
+            <field name="condition_python">result = 'Bonus_Pay' in inputs</field>
 
             <field name="amount_python_compute">
-result = inputs.Bonus_Pay.amount
-result_name = inputs.Bonus_Pay.name
+result = inputs['Bonus_Pay'].amount
+result_name = inputs['Bonus_Pay'].name
             </field>
         </record>
 
@@ -45,11 +45,11 @@ result_name = inputs.Bonus_Pay.name
             <field name="amount_select">code</field>
             <field name="struct_id" ref="syncoria_can_payroll.structure_can_employee"/>
             <field name="condition_select">python</field>
-            <field name="condition_python">result = inputs.Retro_Pay</field>
+            <field name="condition_python">result = 'Retro_Pay' in inputs</field>
 
             <field name="amount_python_compute">
-result = inputs.Retro_Pay.amount
-result_name = inputs.Retro_Pay.name
+result = inputs['Retro_Pay'].amount
+result_name = inputs['Retro_Pay'].name
             </field>
 
 
@@ -70,11 +70,11 @@ result_name = inputs.Retro_Pay.name
             <field name="amount_select">code</field>
             <field name="struct_id" ref="syncoria_can_payroll.structure_can_worker"/>
             <field name="condition_select">python</field>
-            <field name="condition_python">result = inputs.Bonus_Pay</field>
+            <field name="condition_python">result = 'Bonus_Pay' in inputs</field>
 
             <field name="amount_python_compute">
-result = inputs.Bonus_Pay.amount
-result_name = inputs.Bonus_Pay.name
+result = inputs['Bonus_Pay'].amount
+result_name = inputs['Bonus_Pay'].name
             </field>
         </record>
 
@@ -89,11 +89,11 @@ result_name = inputs.Bonus_Pay.name
             <field name="amount_select">code</field>
             <field name="struct_id" ref="syncoria_can_payroll.structure_can_worker"/>
             <field name="condition_select">python</field>
-            <field name="condition_python">result = inputs.Retro_Pay</field>
+            <field name="condition_python">result = 'Retro_Pay' in inputs</field>
 
             <field name="amount_python_compute">
-result = inputs.Retro_Pay.amount
-result_name = inputs.Retro_Pay.name
+result = inputs['Retro_Pay'].amount
+result_name = inputs['Retro_Pay'].name
             </field>
 
 

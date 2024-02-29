@@ -12,11 +12,11 @@
             <field name="amount_select">code</field>
             <field name="struct_id" ref="syncoria_can_payroll.structure_can_employee"/>
             <field name="condition_select">python</field>
-            <field name="condition_python">result = worked_days.CAN_OVERTIME</field>
+            <field name="condition_python">result = 'CAN_OVERTIME' in worked_days</field>
 
             <field name="amount_python_compute">
-result = worked_days.CAN_OVERTIME.amount
-result_name = worked_days.CAN_OVERTIME.name
+result = worked_days['CAN_OVERTIME'].amount
+result_name = worked_days['CAN_OVERTIME'].name
             </field>
         </record>
 
@@ -31,11 +31,11 @@ result_name = worked_days.CAN_OVERTIME.name
             <field name="amount_select">code</field>
             <field name="struct_id" ref="syncoria_can_payroll.structure_can_employee"/>
             <field name="condition_select">python</field>
-            <field name="condition_python">result = worked_days.CAN_STAT_OVERTIME</field>
+            <field name="condition_python">result = 'CAN_STAT_OVERTIME' in worked_days</field>
 
             <field name="amount_python_compute">
-result = worked_days.CAN_STAT_OVERTIME.amount
-result_name = worked_days.CAN_STAT_OVERTIME.name
+result = worked_days['CAN_STAT_OVERTIME'].amount
+result_name = worked_days['CAN_STAT_OVERTIME'].name
             </field>
         </record>
 
@@ -50,11 +50,11 @@ result_name = worked_days.CAN_STAT_OVERTIME.name
             <field name="amount_select">code</field>
             <field name="struct_id" ref="syncoria_can_payroll.structure_can_worker"/>
             <field name="condition_select">python</field>
-            <field name="condition_python">result = worked_days.CAN_OVERTIME</field>
+            <field name="condition_python">result = 'CAN_OVERTIME' in worked_days</field>
 
             <field name="amount_python_compute">
-result = worked_days.CAN_OVERTIME.amount
-result_name = worked_days.CAN_OVERTIME.name
+result = worked_days['CAN_OVERTIME'].amount
+result_name = worked_days['CAN_OVERTIME'].name
             </field>
 
 
@@ -69,11 +69,11 @@ result_name = worked_days.CAN_OVERTIME.name
             <field name="amount_select">code</field>
             <field name="struct_id" ref="syncoria_can_payroll.structure_can_worker"/>
             <field name="condition_select">python</field>
-            <field name="condition_python">result = worked_days.CAN_STAT_OVERTIME</field>
+            <field name="condition_python">result = 'CAN_STAT_OVERTIME' in worked_days</field>
 
             <field name="amount_python_compute">
-result = worked_days.CAN_STAT_OVERTIME.amount
-result_name = worked_days.CAN_STAT_OVERTIME.name
+result = worked_days['CAN_STAT_OVERTIME'].amount
+result_name = worked_days['CAN_STAT_OVERTIME'].name
             </field>
 
 
