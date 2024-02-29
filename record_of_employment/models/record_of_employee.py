@@ -82,7 +82,8 @@ class RecordOfEmployee(models.Model):
     occupation = fields.Char(string="13-Occupation")
     total_insurable_hours = fields.Float(string="15a-Total Insurable Hour According To Chart")
     total_insurable_earnings = fields.Float(string="15b-Total Insurable Earnings According To Chart")
-    reason_for_issuing_roe = fields.Selection(REASON_FOR_ROE, string="16-Reason For Issuing This ROE",default='quit_take_another_job')
+    reason_for_issuing_roe = fields.Selection(REASON_FOR_ROE, string="16-Reason For Issuing This ROE",
+                                              default='quit_take_another_job')
     vacation_pay_amount = fields.Char(string="17a-Vacation Pay")
     vacation_pay_start_date = fields.Date(string="Start Date")
     vacation_pay_end_date = fields.Date(string="End Date")
@@ -100,11 +101,10 @@ class RecordOfEmployee(models.Model):
     _sql_constraints = [
         ('employee_id', 'unique(employee_id)', "ROE already exist!"),
     ]
-    def name_get(self):
-        result = []
+
+    def _compute_display_name(self):
         for rec in self:
-            result.append((rec.id, f"{rec.employee_id.name}"))
-        return result
+            rec.display_name = f"{rec.employee_id.name}"
 
     def open_roe_website(self):
         return {
@@ -118,6 +118,7 @@ class RecordOfEmployee(models.Model):
             [('employee_id', '=', self.employee_id.id), ("state", "=", "paid")]).sorted(reverse=True,
                                                                                         key=lambda x: x.date_to)
         return employee_payslip_ids
+
     def get_vacation_pay_ids(self):
         employee_vacation_pay_ids = self.env['hr.vacation.pay'].search(
             [('employee_id', '=', self.employee_id.id), ("state", "=", "paid")]).sorted(reverse=True,
@@ -239,7 +240,7 @@ class RecordOfEmployee(models.Model):
         ET.SubElement(roe, "B12").text = str(self.final_pay_period_ending_date) or " "
         ET.SubElement(roe, "B13").text = self.occupation or " "
 
-        #EXPECTED DATE OF RECALL INFORMATION
+        # EXPECTED DATE OF RECALL INFORMATION
         b14 = ET.SubElement(roe, "B14")
         ET.SubElement(b14, "CD").text = str(
             dict(self._fields['expected_date_of_recall'].selection).get(self.expected_date_of_recall).split("-")[
@@ -252,13 +253,13 @@ class RecordOfEmployee(models.Model):
         for index, payslip in enumerate(self.get_payslip_ids(), start=1):
             pp = ET.SubElement(b15c, "PP")
             pp.set("nbr", str(index))
-            ET.SubElement(pp, "AMT").text = str(round(payslip.insurable_earning,2)) or " "
+            ET.SubElement(pp, "AMT").text = str(round(payslip.insurable_earning, 2)) or " "
 
         # REASON FOR ISUEING THE ROE AND CONTACT INFORMATION
         b16 = ET.SubElement(roe, "B16")
         ET.SubElement(b16, "CD").text = str(
             dict(self._fields['reason_for_issuing_roe'].selection).get(self.reason_for_issuing_roe).split("-")[
-                0] ) if self.reason_for_issuing_roe else ""  or " "
+                0]) if self.reason_for_issuing_roe else "" or " "
         ET.SubElement(b16, "FN").text = self.name_of_issuer_id.name.split(" ")[-1] if self.name_of_issuer_id else ""
         ET.SubElement(b16, "LN").text = self.name_of_issuer_id.name.split(" ")[0] if self.name_of_issuer_id else ""
         ET.SubElement(b16, "AC").text = "999"
@@ -270,7 +271,6 @@ class RecordOfEmployee(models.Model):
         vp.set("nbr", "1")
         has_last_payment = self.vacation_pay_ids.filtered(lambda x: x.is_last_pay)
 
-
         ET.SubElement(vp, "CD").text = '2' if has_last_payment else '1'
         ET.SubElement(vp, "SDT").text = ''
         ET.SubElement(vp, "EDT").text = ''
@@ -279,7 +279,7 @@ class RecordOfEmployee(models.Model):
         # STATUTORY HOLIDAY INFORMATION
         b17b = ET.SubElement(roe, "B17B")
         sh = ET.SubElement(b17b, "SH")
-        sh.set("nbr","1")
+        sh.set("nbr", "1")
         ET.SubElement(sh, "AMT").text = ''
 
         # OTHER MONIES INFORMATION
@@ -358,7 +358,7 @@ class RecordOfEmployee(models.Model):
             #         'Slip1Initial[0].2': None, 'Slip1Address[0].2': None, 'Slip1Amount1[0].2': None,
             #         'Slip1Amount2[0].2': None, 'Slip1Amount3[0].2': None, 'Slip1Amount4[0].2': None,
             #         'Slip1Amount5[0].2': None, 'Slip1Amount6[0].2': None}
-            has_last_payment =  self.vacation_pay_ids.filtered(lambda x: x.is_last_pay)
+            has_last_payment = self.vacation_pay_ids.filtered(lambda x: x.is_last_pay)
             self.vacation_pay_amount = str(has_last_payment[0].vacation_pay_amount) if has_last_payment else ''
             data = {
                 'sl_no': self.serial_no or '',
@@ -372,9 +372,10 @@ class RecordOfEmployee(models.Model):
                 'last_day_paid': self.last_day_worked or '',
                 'final_pay_period': self.final_pay_period_ending_date or '',
                 'occupation': self.occupation or '',
-                'total_insurance_hour': round(self._get_insurable_hour(),2) or '',
+                'total_insurance_hour': round(self._get_insurable_hour(), 2) or '',
                 'total_insurance_earning': self._get_insurable_earning() or '',
-                'exp_date_recall': dict(self._fields['expected_date_of_recall'].selection).get(self.expected_date_of_recall) or '',
+                'exp_date_recall': dict(self._fields['expected_date_of_recall'].selection).get(
+                    self.expected_date_of_recall) or '',
                 'reason': dict(self._fields['reason_for_issuing_roe'].selection).get(self.reason_for_issuing_roe) or '',
                 'telephone1': self.telephone_no or '',
                 'telephone2': self.telephone_no or '',
@@ -407,7 +408,7 @@ class RecordOfEmployee(models.Model):
                 earning_field = f'insurable_earning{index}'
 
                 data[date_field] = payslip.date_to
-                data[hours_field] = round(payslip.insurable_hour,2)
+                data[hours_field] = round(payslip.insurable_hour, 2)
                 data[earning_field] = payslip.insurable_earning
 
             writer.update_page_form_field_values(writer.pages[0], data)

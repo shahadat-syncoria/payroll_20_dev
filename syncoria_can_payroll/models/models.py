@@ -622,11 +622,10 @@ class StatementOfRemuneration(models.Model):
         if records_count > 1:
             raise UserError(_("Duplicate Error: Record already exists."))
 
-    def name_get(self):
-        result = []
+    def _compute_display_name(self):
         for rec in self:
-            result.append((rec.id, '%s-%s' % (rec.name, rec.year)))
-        return result
+            rec.display_name= rec.name + "-" + rec.year
+
 
     # ========================== Compute T4 ======================================
     def _get_all_t4_amount(self):
