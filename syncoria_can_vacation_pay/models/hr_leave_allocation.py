@@ -66,7 +66,7 @@ class InheritedHrLeaveAllocation(models.Model):
                             # 'date_to': datetime(datetime.today().year,12,31).date(),
                         }
                         record = self.sudo().create(data)
-                        record.action_confirm()
+                        record.action_validate()
                         record.message_post(
                             body=f"Vacation Leave for {employee.name} \n {datetime.today().date().__str__()}\n Allocation: {allocated_day}")
             except Exception as e:
