@@ -5,6 +5,22 @@
             <field name="model">hr.contract</field>
             <field name="inherit_id" ref="hr_contract.hr_contract_view_form"/>
             <field name="arch" type="xml">
+                <xpath expr="//button[@name='action_open_contract_list']" position="before">
+                    <button name="action_open_contract_history"
+                            class="oe_stat_button"
+                            icon="fa-book"
+                            type="object"
+                            groups="hr_contract.group_hr_contract_manager"
+                            context="{'default_employee_id': id}">
+
+                            <div class="o_stat_info">
+                                <span>
+                                    Contract history
+                                </span>
+                            </div>
+                        </button>
+
+                </xpath>
                 <page name="other" position="after">
                     <page name="remuneration_info" string="Remuneration Information">
                         <group>
