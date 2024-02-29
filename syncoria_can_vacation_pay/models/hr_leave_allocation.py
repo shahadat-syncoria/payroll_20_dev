@@ -7,15 +7,15 @@ from odoo.http import request
 class InheritedHrLeaveAllocation(models.Model):
     _inherit = 'hr.leave.allocation'
 
-    @api.model_create_multi
-    def create(self, vals_list):
-        for rec in vals_list:
-            vacation_pay_time_off_type_id = self.env['hr.leave.type'].search([
-                ('allow_vacation_pay', '=', True)], limit=1)
-            if vacation_pay_time_off_type_id and request.params['model'] != 'ir.cron':
-                if rec.get('holiday_status_id') == vacation_pay_time_off_type_id.id:
-                    raise UserError("You can not allocate vacation pay manually!!")
-        return super(InheritedHrLeaveAllocation,self).create(vals_list)
+    # @api.model_create_multi
+    # def create(self, vals_list):
+    #     for rec in vals_list:
+    #         vacation_pay_time_off_type_id = self.env['hr.leave.type'].search([
+    #             ('allow_vacation_pay', '=', True)], limit=1)
+    #         if vacation_pay_time_off_type_id and request.params['model'] != 'ir.cron':
+    #             if rec.get('holiday_status_id') == vacation_pay_time_off_type_id.id:
+    #                 raise UserError("You can not allocate vacation pay manually!!")
+    #     return super(InheritedHrLeaveAllocation,self).create(vals_list)
 
     def action_allocation_vac_leave(self):
         """

@@ -57,12 +57,15 @@ class HrVacationPay(models.Model):
         vac_remain = 0.0
         taken_vacation_leave = sum(vac_pay_by_employee.filtered(
             lambda x: x.state == 'validate').mapped('duration'))
-        for vac_type in vacation_leave_type:
-            data = vac_type.get_employees_days(employee_id.ids)
-            if data.get(employee_id.id):
-                if data.get(employee_id.id).get(vac_type.id):
-                    vac_remain = data.get(employee_id.id).get(vac_type.id).get(
-                        'virtual_remaining_leaves') - taken_vacation_leave
+        try:
+            for vac_type in vacation_leave_type:
+                data = vac_type.get_allocation_data(employee_id)
+                if data.get(employee_id):
+                    if data.get(employee_id)[0][1]:
+                        vac_remain = data.get(employee_id)[0][1].get(
+                            'virtual_remaining_leaves') - taken_vacation_leave
+        except Exception as e:
+            pass
 
         return vac_remain
 
