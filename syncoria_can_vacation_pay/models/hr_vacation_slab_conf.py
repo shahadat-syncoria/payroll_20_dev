@@ -25,7 +25,10 @@ class HrVacationSlab(models.Model):
 
     def _compute_display_name(self):
         for record in self:
-            record.display_name = '(' + str(record.start_year)+ '-' + str(record.end_year) + ')'
+            if record.start_year and record.end_year:
+                record.display_name = '(' + str(record.start_year)+ '-' + str(record.end_year) + ')'
+            else:
+                super()._compute_display_name()
 
     @api.constrains('start_year', 'end_year')
     def _check_date_range_overlap(self):

@@ -624,7 +624,12 @@ class StatementOfRemuneration(models.Model):
 
     def _compute_display_name(self):
         for rec in self:
-            rec.display_name= rec.name + "-" + rec.year
+            if rec.name and rec.year:
+                rec.display_name= str(rec.name) + "-" + str(rec.year)
+            else:
+                super()._compute_display_name()
+
+
 
 
     # ========================== Compute T4 ======================================

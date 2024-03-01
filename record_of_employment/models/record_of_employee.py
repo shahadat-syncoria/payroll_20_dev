@@ -104,7 +104,10 @@ class RecordOfEmployee(models.Model):
 
     def _compute_display_name(self):
         for rec in self:
-            rec.display_name = f"{rec.employee_id.name}"
+            if rec.employee_id.name:
+                rec.display_name = f"{rec.employee_id.name}"
+            else:
+                super()._compute_display_name()
 
     def open_roe_website(self):
         return {

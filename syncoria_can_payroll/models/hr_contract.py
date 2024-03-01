@@ -105,7 +105,7 @@ class InheritedResPartner(models.Model):
             try:
                 if contract.structure_type_id:
                     paycycle = contract.structure_type_id.default_pay_cycle
-                    if contract.structure_type_id.default_struct_id:
+                    if contract.structure_type_id.default_struct_id and contract.structure_type_id.default_struct_id.structure_pay_cycle:
                         paycycle = contract.structure_type_id.default_struct_id.structure_pay_cycle
                     contract.salary_pay_cycle = paycycle
             except:
@@ -118,7 +118,7 @@ class InheritedResPartner(models.Model):
             try:
                 if structure_type_ids:
                     paycycle = structure_type_ids.default_pay_cycle
-                    if structure_type_ids.default_struct_id:
+                    if structure_type_ids.default_struct_id and structure_type_ids.default_struct_id.structure_pay_cycle:
                         paycycle = structure_type_ids.default_struct_id.structure_pay_cycle
                     vals['salary_pay_cycle'] = paycycle.id
             except:
