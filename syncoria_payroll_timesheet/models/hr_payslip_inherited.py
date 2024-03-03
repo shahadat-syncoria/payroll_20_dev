@@ -18,7 +18,7 @@ class InheritedHrPaySlip(models.Model):
                     'display_name': employee.name,
                     'grid_row_index': 0}]
 
-                working_hours = employee.get_timesheet_and_working_hours_for_employees(employees_grid_data,
+                working_hours = employee.get_timesheet_and_working_hours_for_employees(
                                                                                        payslip.date_from.__str__(), payslip.date_to.__str__())
 
                 timesheet_hours = working_hours.get(employee.id).get("worked_hours")
