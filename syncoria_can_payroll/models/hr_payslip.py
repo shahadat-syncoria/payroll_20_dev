@@ -22,7 +22,7 @@ class InheritedHrPayslip(models.Model):
                             )
 
     pay_cycle = fields.Many2one('paycycle.config', related='contract_id.salary_pay_cycle', readonly=True)
-    pay_cycle_period = fields.Many2one('paycycle.period', states={'done': [('readonly', True)]})
+    pay_cycle_period = fields.Many2one('paycycle.period')
     pay_cycle_period_ids_domain = fields.Binary(
         compute='_compute_pay_cycle_period_domain', readonly=True,
         store=False)

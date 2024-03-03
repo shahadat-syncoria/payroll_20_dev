@@ -28,7 +28,7 @@
                     <field name="pay_cycle" required="1"/>
                     <field invisible="1" name="is_manual_input"/>
                     <!--                         <field name="pay_cycle_period_ids_domain" />-->
-                    <field domain="[('id','in',pay_cycle_period_ids_domain)]" invisible="pay_cycle == False" name="pay_cycle_period" readonly="payslip_run_id != False" required="pay_cycle != False"/>
+                    <field domain="[('id','in',pay_cycle_period_ids_domain)]" invisible="pay_cycle == False" name="pay_cycle_period" readonly="payslip_run_id != False or state == 'done'" required="pay_cycle != False"/>
                     <field invisible="1" name="pay_cycle_period_ids_domain"/>
                     <!--                     </group>-->
                 </xpath></field>

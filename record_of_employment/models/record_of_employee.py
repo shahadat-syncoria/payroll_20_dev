@@ -153,6 +153,7 @@ class RecordOfEmployee(models.Model):
         if self.employee_id:
             employee = self.employee_id
             payslip_ids = self.get_payslip_ids()
+            has_last_payment = self.vacation_pay_ids.filtered(lambda x: x.is_last_pay)
 
             self.write({
                 "company_id": employee.company_id,
@@ -167,7 +168,8 @@ class RecordOfEmployee(models.Model):
                 "total_insurable_hours": self._get_insurable_hour(),
                 "total_insurable_earnings": self._get_insurable_earning(),
                 "payslip_ids": payslip_ids,
-                "vacation_pay_ids": self.get_vacation_pay_ids()
+                "vacation_pay_ids": self.get_vacation_pay_ids(),
+                "vacation_pay_amount": round(has_last_payment[0].vacation_pay_amount,2) if has_last_payment else ''
             })
 
         # ======================== Generate and download T4 xml ===========================
@@ -362,7 +364,7 @@ class RecordOfEmployee(models.Model):
             #         'Slip1Amount2[0].2': None, 'Slip1Amount3[0].2': None, 'Slip1Amount4[0].2': None,
             #         'Slip1Amount5[0].2': None, 'Slip1Amount6[0].2': None}
             has_last_payment = self.vacation_pay_ids.filtered(lambda x: x.is_last_pay)
-            self.vacation_pay_amount = str(has_last_payment[0].vacation_pay_amount) if has_last_payment else ''
+            self.vacation_pay_amount = f'{has_last_payment[0].vacation_pay_amount:.2f}' if has_last_payment else ''
             data = {
                 'sl_no': self.serial_no or '',
                 'employee_info': f'{self.employee_id.name}\n{self.employee_id.private_street},{self.employee_id.private_street2},{self.employee_id.private_city},{self.employee_id.private_country_id.name}' or '',
