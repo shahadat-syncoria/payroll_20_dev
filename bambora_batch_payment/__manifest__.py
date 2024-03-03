@@ -24,9 +24,9 @@
         "views/report_actions.xml",
         "reports/deposit_summary_report_view.xml",
         "data/journal.xml",
+        "data/account_payment_method.xml",
         "data/bamboraeft.xml",
         "data/cron_data.xml",
-        "data/account_payment_method.xml",
         "data/custom_email.xml",
         "data/emails/payment_refuse_email.xml"
     ],

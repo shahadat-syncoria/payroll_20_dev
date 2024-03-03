@@ -50,7 +50,7 @@
             >59346692ed194CD1805A66f541287B74</field>
             <field
                     name="bamboraeft_report_api"
-            >AF492A390B00481CbD4a2907FA33e3ed</field>
+            >0104cFfc040E4E78A5215a9A737a44A9</field>
             <field
                     name="bamboraeft_payment_api"
             >9F0F1cE3EA9541489656E0d2470F5285</field>
@@ -58,6 +58,10 @@
                     name="bamboraeft_profile_api"
             >5B94D0E7290D4D33953BD12EE6B467A4</field>
             <field name="bamboraeft_create_profile">1</field>
+
+            <field name="payment_method_ids"
+               eval="[(6, 0, [
+                   ref('bambora_batch_payment.payment_method_bambora_eft')])]"/>
 <!--            <field name="inline_form_view_id" ref="inline_form"/>-->
 <!--            <field name="support_authorization">True</field>-->
 <!--            <field name="support_fees_computation">False</field>-->

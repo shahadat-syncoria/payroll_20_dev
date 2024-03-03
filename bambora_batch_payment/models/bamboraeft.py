@@ -128,6 +128,14 @@ class providerBamboraEft(models.Model):
 
     batches_count = fields.Integer(string="Batch Count", compute="compute_batches")
 
+    def _compute_feature_support_fields(self):
+        """ Override of `payment` to enable additional features. """
+        super()._compute_feature_support_fields()
+        self.filtered(lambda p: p.code == 'bamboraeft').update({
+            'allow_tokenization': 'full_only',
+            'support_tokenization': True,
+        })
+
     #=== BUSINESS METHODS ===#
 
     def _bambora_make_request(
