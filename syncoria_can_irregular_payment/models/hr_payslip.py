@@ -41,14 +41,14 @@ class IrregularPayslip(models.Model):
                     for ir_pay in irregular_employee_wise_pay_ids:
                         irre_pay_id = ir_pay.irr_pay_id
                         if irre_pay_id.payment_type == 'bonus':
-                            irregular_type_wise['bonus']['name'] = irregular_type_wise['bonus']['name']+des_name.join(
-                                ir_pay.mapped('irr_pay_id.description'))
+                            irregular_type_wise['bonus']['name'] += des_name.join(
+                                ir_pay.mapped('irr_pay_id.description')) + ","
                             irregular_type_wise['bonus']['irregular_pay_req_ref'] =irregular_type_wise['bonus']['irregular_pay_req_ref']+ des_name.join(
                                 ir_pay.mapped('irr_pay_id.name'))
                             irregular_type_wise['bonus']['amount'] += abs(ir_pay.amount)
                         elif irre_pay_id.payment_type == 'retro':
-                            irregular_type_wise['retro']['name'] =  irregular_type_wise['retro']['name']+des_name.join(
-                                ir_pay.mapped('irr_pay_id.description') )
+                            irregular_type_wise['retro']['name'] += des_name.join(
+                                ir_pay.mapped('irr_pay_id.description')) + ","
                             irregular_type_wise['retro']['irregular_pay_req_ref'] = irregular_type_wise['retro']['irregular_pay_req_ref']+des_name.join(
                                 ir_pay.mapped('irr_pay_id.name') )
                             irregular_type_wise['retro']['amount'] += abs(ir_pay.amount)
@@ -62,14 +62,14 @@ class IrregularPayslip(models.Model):
                         if irregular_type_wise['bonus']['amount']>0.0:
                             inputs_line.append((0, 0, {
                             'input_type_id': bonus_input_type,
-                            'name': irregular_type_wise['bonus']['name'] or "",
+                            'name': irregular_type_wise['bonus']['name'].rstrip(',') or "",
                             'irregular_pay_req_ref': irregular_type_wise['bonus']['irregular_pay_req_ref'] or "",
                             'amount': irregular_type_wise['bonus']['amount'] or 0.0,
                         }))
                         if irregular_type_wise['retro']['amount'] > 0.0:
                             inputs_line.append((0, 0, {
                             'input_type_id': retro_input_type,
-                            'name': irregular_type_wise['retro']['name'] or "",
+                            'name': irregular_type_wise['retro']['name'].rstrip(',') or "",
                             'irregular_pay_req_ref': irregular_type_wise['retro']['irregular_pay_req_ref'] or "",
                             'amount': irregular_type_wise['retro']['amount'] or "",
                         }))
