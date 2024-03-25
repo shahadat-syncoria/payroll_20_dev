@@ -79,14 +79,18 @@
                 </xpath>
                 <!--                ======================= Hourly Configurations ===============-->
                 <xpath expr="//field[@name='wage_type']" position="after">
-                    <field invisible="is_hourly == True" name="paycycle_wage"/>
-                    <field invisible="is_hourly == True" name="is_fixed"/>
+                    <field invisible="work_entry_source == 'timesheet_hours'" name="paycycle_wage"/>
+                    <field invisible="work_entry_source == 'timesheet_hours'" name="is_fixed"/>
                     <field name="is_hourly"/>
                     <field invisible="is_hourly == False" name="hourly_rate"/>
                 </xpath>
                 <xpath expr="//div[@name='wage']" position="attributes">
                     <attribute name="invisible">1</attribute>
-                </xpath></field>
+                </xpath>
+               <xpath expr="//field[@name='schedule_pay']" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+            </field>
         </record>
     </data>
 </odoo>
