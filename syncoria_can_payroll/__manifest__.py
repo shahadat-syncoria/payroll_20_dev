@@ -20,7 +20,7 @@
     'version': '17.0.0.1',
 
     # any module necessary for this one to work correctly
-    'depends': ['base','hr_payroll'],
+    'depends': ['base','hr_payroll','hr_work_entry'],
 
     # always loaded
     'data': [
@@ -55,6 +55,7 @@
         'views/hr_contract.xml',
         'views/hr_payslip.xml',
         'views/hr_payslip_run.xml',
+        'views/hr_work_entry_type_view.xml',
 
 
         # 'views/templates.xml',
