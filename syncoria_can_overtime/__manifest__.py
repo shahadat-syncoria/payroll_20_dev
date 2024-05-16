@@ -30,4 +30,5 @@
         'wizards/manual_input_wiz.xml'
 
     ],
+    'license': 'LGPL-3',
 }

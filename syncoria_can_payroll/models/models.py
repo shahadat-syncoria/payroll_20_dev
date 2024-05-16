@@ -147,7 +147,7 @@ class StatementOfRemuneration(models.Model):
     Note: Omission of a valid SIN results in non-registration of contributions to the Canada Pension Plan.")
     employee_empe_nbr = fields.Char("Employee number", size=20,
                                     help="- for example: region and/or branch payroll and/or department and/or employee number")
-    employee_bn = fields.Char("Payroll Account Number", size=15, help="- T4 slip, box 54\
+    employee_bn = fields.Char(" Employee Payroll Account Number", size=15, help="- T4 slip, box 54\
     - must correspond to the 'Business Number (BN)' on the related T4 Summary record Note: To process a return, the complete BN is required")
     employee_rpp_dpsp_rgst_nbr = fields.Integer("RPP or DPSP registration number registration number", help="- T4 slip, box 50\
     - enter the registration number for the plan where the employee received the largest pension adjustment amount")
@@ -171,7 +171,7 @@ class StatementOfRemuneration(models.Model):
     16 - Detached employee - Social security agreement.\
     Note: When CPP is paid by the employer on behalf of detached employees under employment code 16, box 14 is left blank if no other type of income is reported. Boxes 16 and 26 are completed with the appropriate amounts and boxes 18 and 24 are left blank.\
     17 - Fishers - Self-employed")
-    employee_rpt_tcd = fields.Selection(selection=REPORT_TYPE_CODE, string="Report Type Code", help="- originals = O\
+    employee_rpt_tcd = fields.Selection(selection=REPORT_TYPE_CODE, string=" Employee Report Type Code", help="- originals = O\
     - amendments = A\
     - cancel = C\
     Note: An amended return cannot contain an original slip")
@@ -402,7 +402,7 @@ class StatementOfRemuneration(models.Model):
     # ==================================== T4 Summary ===================================================
     # bn
     bn = fields.Char(
-        string="Payroll Account Number",
+        string=" Employer Payroll Account Number",
         size=15,
         # required=True,
         help="- Required, 15 alphanumeric, 9 digits RP 4 digits, Example: 000000000RP0000"

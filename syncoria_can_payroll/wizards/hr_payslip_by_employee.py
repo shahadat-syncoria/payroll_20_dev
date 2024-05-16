@@ -39,6 +39,7 @@ class SyncoriaHrPayslipEmployees(models.TransientModel):
 
 class SyncoriaHrEmployeeManualWizard(models.TransientModel):
     _name = "hr.payslip.employee.manual.wizard"
+    _description = "HR Employee Manual Wizard"
     @api.model
     def _get_default_attendance_hours(self,hr_payslip_run,employee_id):
         if not employee_id.contract_id.is_hourly:
@@ -187,6 +188,7 @@ class SyncoriaHrEmployeeManualWizard(models.TransientModel):
 
 class SyncoriaEmployeeManualInputLine(models.TransientModel):
     _name = "hr.employee.manual.input.line"
+    _description = "HR Employee Manual Input Line"
 
     manual_input_wizard_id= fields.Many2one("hr.payslip.employee.manual.wizard")
     employee_id = fields.Many2one("hr.employee", string="Employee Name")

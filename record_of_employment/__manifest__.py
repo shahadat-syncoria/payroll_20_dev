@@ -32,5 +32,6 @@
         'views/hr_contract_history.xml',
         'views/menu.xml',
     ],
+    'license': 'LGPL-3',
 
 }
