@@ -94,15 +94,29 @@
                 </xpath>
                 <!--                ======================= Hourly Configurations ===============-->
                 <xpath expr="//field[@name='wage_type']" position="after">
-                    <field invisible="work_entry_source == 'timesheet_hours'" name="paycycle_wage"/>
-                    <field invisible="work_entry_source == 'timesheet_hours'" name="is_fixed"/>
-                    <field name="is_hourly"/>
-                    <field invisible="is_hourly == False" name="hourly_rate"/>
+
+
+                       <field invisible="work_entry_source == 'timesheet_hours' or wage_type == 'hourly'" name="paycycle_wage"/>
+                    <field invisible="work_entry_source == 'timesheet_hours' or wage_type == 'hourly'" name="is_fixed"/>
+                    <field invisible="1" name="is_hourly"/>
+                    <field invisible="wage_type != 'hourly'" name="hourly_rate"/>
                 </xpath>
                 <xpath expr="//div[@name='wage']" position="attributes">
                     <attribute name="invisible">1</attribute>
                 </xpath>
                <xpath expr="//field[@name='schedule_pay']" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+            </field>
+        </record>
+
+
+        <record id="hr_contract_form_hourlywage" model="ir.ui.view">
+            <field name="model">hr.contract</field>
+            <field name="inherit_id" ref="hr_contract.hr_contract_view_form"/>
+            <field name="arch" type="xml">
+
+                  <xpath expr="//div[@name='hourly_wage']" position="attributes">
                     <attribute name="invisible">1</attribute>
                 </xpath>
             </field>

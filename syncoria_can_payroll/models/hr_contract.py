@@ -71,7 +71,7 @@ class InheritedResPartner(models.Model):
     salary_pay_cycle = fields.Many2one('paycycle.config', string='Salary Pay Cycle', help="For default value leave "
                                                                                           "blank", )
     # ========================= Hourly Configuration =======================
-    is_hourly = fields.Boolean(string="Is Hourly?", default=False)
+    is_hourly = fields.Boolean(string="Is Hourly?", compute="_compute_is_hourly", store=True)
     is_fixed = fields.Boolean(string="Is Fixed Salary?", default=True,help="Salary will be fixed according to Pay cycle wage regardless worked hour")
     hourly_rate = fields.Float(string="Hourly Rate")
     paycycle_wage = fields.Float(string="Pay Cycle Wage")
@@ -146,6 +146,22 @@ class InheritedResPartner(models.Model):
                 rec.wage = (rec.paycycle_wage * int(rec.salary_pay_cycle.pay_cycle or rec.structure_type_id.default_pay_cycle.pay_cycle)) / 12
             else:
                 rec.wage = 0.0
+
+    @api.onchange("hourly_rate")
+    def _onchange_wage(self):
+        for rec in self:
+            if rec.hourly_rate:
+                rec.hourly_wage = rec.hourly_rate
+            else:
+                rec.hourly_wage = 0.0
+    @api.depends("wage_type")
+    def _compute_is_hourly(self):
+        for rec in self:
+            if rec.wage_type == "hourly":
+                rec.is_hourly = True
+            else:
+                rec.is_hourly = False
+
 
     @api.constrains('hourly_rate')
     def _constraint_hourly_rate(self):
