@@ -1,3 +1,4 @@
+from PyPDF2 import PdfFileMerger
 from odoo import fields, models, api, _
 import os
 import xml.etree.ElementTree as ET
@@ -176,38 +177,38 @@ class RecordOfEmployee(models.Model):
 
     def download_roe_xml(self):
         # Generate the T4 XML content
+        for rec in self:
+            xml_content = rec.generate_roe_xml()
 
-        xml_content = self.generate_roe_xml()
+            # validate schema
+            get_path = get_module_resource('record_of_employment', 'utils/xml_schema')
+            # etree.XMLSchema(xmlschema_doc)
+            schema = etree.XMLSchema(file=get_path + '/' + 'PayrollExtractXmlV2.xsd')
+            # xml_doc = etree.parse(source=get_path + '/' + 'test.xml')
+            xml_doc = etree.fromstring(xml_content.encode('utf-8'))
+            # Validate the XML document
 
-        # validate schema
-        get_path = get_module_resource('record_of_employment', 'utils/xml_schema')
-        # etree.XMLSchema(xmlschema_doc)
-        schema = etree.XMLSchema(file=get_path + '/' + 'PayrollExtractXmlV2.xsd')
-        # xml_doc = etree.parse(source=get_path + '/' + 'test.xml')
-        xml_doc = etree.fromstring(xml_content.encode('utf-8'))
-        # Validate the XML document
+            try:
+                if not schema.validate(xml_doc):
+                    schema.assert_(xml_doc)
+                else:
+                    rec.xml_content = xml_content
 
-        try:
-            if not schema.validate(xml_doc):
-                schema.assert_(xml_doc)
-            else:
-                self.xml_content = xml_content
+                    # Prepare the file for download
+                    filename = f'{rec.employee_id.name}' + '_ROE' + '.xml'
+                    content_type = 'application/xml'
 
-                # Prepare the file for download
-                filename = f'{self.employee_id.name}' + '_ROE' + '.xml'
-                content_type = 'application/xml'
-
-                # Return the file as a response
-                return {
-                    'type': 'ir.actions.act_url',
-                    'url': '/web/content/?model=record.of.employee&field=xml_content&id=%s&filename=%s&content_type=%s' % (
-                        self.id, filename, content_type),
-                    'target': 'self',
-                }
-        except AssertionError as e:
-            self.message_post(body=f"{e}")
-        except Exception as e:
-            self.message_post(body=f"{e}")
+                    # Return the file as a response
+                    return {
+                        'type': 'ir.actions.act_url',
+                        'url': '/web/content/?model=record.of.employee&field=xml_content&id=%s&filename=%s&content_type=%s' % (
+                            rec.id, filename, content_type),
+                        'target': 'self',
+                    }
+            except AssertionError as e:
+                self.message_post(body=f"{e}")
+            except Exception as e:
+                self.message_post(body=f"{e}")
 
     def create_roe_xml(self):
 
@@ -313,123 +314,146 @@ class RecordOfEmployee(models.Model):
 
     # ===================== Download PDF ==========
     # ======================== Generate and download T4 PDF ===========================
+
+
     def download_roe_pdf(self):
-        try:
-            get_path = get_module_resource('record_of_employment', 'utils')
-            output_folder_path = os.path.expanduser(os.getenv("HOME")) + "/outPdf/"
-            if not os.path.isdir(output_folder_path):
-                os.mkdir(output_folder_path)
-            pdf_name = str(
-                datetime.datetime.now().strftime(f"{self.employee_id.name.replace(' ', '')}-")) + str(
-                datetime.datetime.now().strftime("%m%d%Y%H%M%S%f")) + ".pdf"
-            filename = output_folder_path + pdf_name
 
-            reader = PdfReader(get_path + '/' + "roe.pdf")
-            writer = PdfWriter()
+        kwrgs =[]
+        for rec in self:
+            if rec.state == 'done':
+                try:
+                    get_path = get_module_resource('record_of_employment', 'utils')
+                    output_folder_path = os.path.expanduser(os.getenv("HOME")) + "/outPdf/"
+                    if not os.path.isdir(output_folder_path):
+                        os.mkdir(output_folder_path)
+                    pdf_name = str(
+                        datetime.datetime.now().strftime(f"{rec.employee_id.name.replace(' ', '')}-")) + str(
+                        datetime.datetime.now().strftime("%m%d%Y%H%M%S%f")) + ".pdf"
+                    filename = output_folder_path + pdf_name
 
-            # page = reader.pages[0]
-            # fields = reader.get_fields()
+                    reader = PdfReader(get_path + '/' + "roe.pdf")
+                    writer = PdfWriter()
 
-            writer.append(reader)
+                # page = reader.pages[0]
+                # fields = reader.get_fields()
 
-            # data = {'Slip1Year[0]': self.year,
-            #         'Slip1EmployersName[0]': f'{self.employer_l1_nm}\n{self.employer_addr_l1_txt}\n{self.employer_cty_nm},{self.employer_prov_cd} {self.employer_pstl_cd}',
-            #         'Slip1Box54[0]': None,
-            #         'Slip1Box12[0]': self.employee_sin, 'Slip1Box14[0]': round(self.employee_empt_incamt, 2),
-            #         'Slip1Box22[0]': round(self.income_itx_ddct_amt, 2), 'Slip1Box10[0]': 'ON',
-            #         'Slip1Box16[0]': round(self.employee_cpp_cntrb_amt, 2),
-            #         'Slip1Box24[0]': round(self.employee_ei_insu_ern_amt, 2), 'Slip1Box17[0]': 0.0,
-            #         'Slip1Box26[0]': round(self.canada_cpp_qpp_ern_amt, 2),
-            #         'Slip1Box18[0]': self.employee_empe_eip_amt,
-            #         'Slip1Box44[0]': self.union_unn_dues_amt, 'Slip1Box20[0]': 0.0,
-            #         'Slip1Box46[0]': self.charitable_chrty_dons_amt, 'Slip1Box52[0]': self.pension_padj_amt,
-            #         'Slip1Box50[0]': self.employee_rpp_dpsp_rgst_nbr, 'Slip1Box55[0]': self.PPIP_prov_pip_amt,
-            #         'Slip1Box56[0]': self.PPIP_prov_insu_ern_amt, 'Slip1LastName[0]': self.employee_snm,
-            #         'Slip1FirstName[0]': self.employee_gvn_nm, 'Slip1Initial[0]': self.employee_init,
-            #         'Slip1Address[0]': f'{self.employee_addr_l1_txt}\n{self.employee_addr_l2_txt}\n{self.employee_cty_nm}\n{self.employee_prov_cd} {self.employee_pstl_cd}',
-            #         'Slip1Amount1[0]': None,
-            #         'Slip1Amount2[0]': None, 'Slip1Amount3[0]': None, 'Slip1Amount4[0]': None,
-            #         'Slip1Amount5[0]': None,
-            #         'Slip1Amount6[0]': None, 'Slip1EmployersName[0].2': None,
-            #         'Slip1Year[0].2': None, 'Slip1Box54[0].2': None, 'Slip1Box12[0].2': None,
-            #         'Slip1Box14[0].2': None,
-            #         'Slip1Box22[0].2': None, 'Slip1Box16[0].2': None, 'Slip1Box24[0].2': None,
-            #         'Slip1Box17[0].2': None,
-            #         'Slip1Box26[0].2': None, 'Slip1Box18[0].2': None, 'Slip1Box44[0].2': None,
-            #         'Slip1Box20[0].2': None,
-            #         'Slip1Box46[0].2': None, 'Slip1Box52[0].2': None, 'Slip1Box50[0].2': None,
-            #         'Slip1Box55[0].2': None,
-            #         'Slip1Box56[0].2': None, 'Slip1LastName[0].2': None, 'Slip1FirstName[0].2': None,
-            #         'Slip1Initial[0].2': None, 'Slip1Address[0].2': None, 'Slip1Amount1[0].2': None,
-            #         'Slip1Amount2[0].2': None, 'Slip1Amount3[0].2': None, 'Slip1Amount4[0].2': None,
-            #         'Slip1Amount5[0].2': None, 'Slip1Amount6[0].2': None}
-            has_last_payment = self.vacation_pay_ids.filtered(lambda x: x.is_last_pay)
-            self.vacation_pay_amount = f'{has_last_payment[0].vacation_pay_amount:.2f}' if has_last_payment else ''
-            data = {
-                'sl_no': self.serial_no or '',
-                'employee_info': f'{self.employee_id.name}\n{self.employee_id.private_street},{self.employee_id.private_street2},{self.employee_id.private_city},{self.employee_id.private_country_id.name}' or '',
-                'employer_info': f'{self.name_of_issuer_id.name}\n{self.name_of_issuer_id.private_street},{self.name_of_issuer_id.private_street2},{self.name_of_issuer_id.private_city},{self.name_of_issuer_id.private_country_id.name}' or '',
-                'pay_period_type': self.pay_period_id.paystub_group_name or '',
-                'unique_id2': '',
-                'employer_payroll_ref': self.employer_payroll_ref or '',
-                'sl_issue_no': self.social_insurance_number or '',
-                'first_day': self.first_day_worked or '',
-                'last_day_paid': self.last_day_worked or '',
-                'final_pay_period': self.final_pay_period_ending_date or '',
-                'occupation': self.occupation or '',
-                'total_insurance_hour': round(self._get_insurable_hour(), 2) or '',
-                'total_insurance_earning': self._get_insurable_earning() or '',
-                'exp_date_recall': dict(self._fields['expected_date_of_recall'].selection).get(
-                    self.expected_date_of_recall) or '',
-                'reason': dict(self._fields['reason_for_issuing_roe'].selection).get(self.reason_for_issuing_roe) or '',
-                'telephone1': self.telephone_no or '',
-                'telephone2': self.telephone_no or '',
-                'sl_roe': self.amended_serial_no or '',
-                'postal_code': self.employee_id.private_zip or '',
-                'cra_payroll_acc': self.cra_payroll_acc_num or '',
-                'issuer_name': self.name_of_issuer_id.name or '',
-                'issue_date': datetime.datetime.now().date() or '',
-                'vacation_pay': self.vacation_pay_amount or '',
-                'vacation_pay_start': self.vacation_pay_start_date or '',
-                'vacation_pay_end': self.vacation_pay_end_date or '',
-                'comment': self.comments or '',
-                'other_start_date1': '',
-                'other_start_date2': '', 'other_start_date3': '', 'other_end_date1': '',
-                'other_end_date2': '', 'other_end_date3': '',
-                'CheckBox-14Yj7BWRzb': '', 'CheckBox-QFXjTBRVwq': '', 'CheckBox-f1WzgWGwMl': '',
-                'CheckBox-djIjiRzJE7': '', 'CheckBox-3o38tjRP62': '', 'CheckBox-4qOCRr9Nrz': '',
-                'CheckBox-eTaQV6ngRM': '', 'CheckBox-7aZtgMItxj': '',
-                'comm_english': '', 'comm_french': '',
-                'unique_id': '', 'Text-9vMCmQF1F1': '',
-                'Text-yk2dZTKG-c': '', 'Text-0K3CUNZijm': '', 'Text-_e_t278CcP': '',
-                'Text-UA8BMNPK9-': '', 'Text-nvSTgcUKe2': '', 'Text-qSSHJVKGp9': '',
-                'Text-InbjcxfE6o': '', 'amount1': '', 'amount2': '', 'amount3': '', 'amount4': '',
-                'holiday_pay': '',
+                    writer.append(reader)
+                    rec.compute_roe()
 
-            }
-            for index, payslip in enumerate(self.get_payslip_ids(), start=1):
-                date_field = f'pay_period_ending_date{index}'
-                hours_field = f'insurable_hours{index}'
-                earning_field = f'insurable_earning{index}'
+                    has_last_payment = rec.vacation_pay_ids.filtered(lambda x: x.is_last_pay)
+                    rec.vacation_pay_amount = f'{has_last_payment[0].vacation_pay_amount:.2f}' if has_last_payment else ''
+                    data = {
+                        'sl_no': rec.serial_no or '',
+                        'employee_info': f'{rec.employee_id.name}\n{rec.employee_id.private_street},{rec.employee_id.private_street2},{rec.employee_id.private_city},{rec.employee_id.private_country_id.name}' or '',
+                        'employer_info': f'{rec.name_of_issuer_id.name}\n{rec.name_of_issuer_id.private_street},{rec.name_of_issuer_id.private_street2},{rec.name_of_issuer_id.private_city},{rec.name_of_issuer_id.private_country_id.name}' or '',
+                        'pay_period_type': rec.pay_period_id.paystub_group_name or '',
+                        'unique_id2': '',
+                        'employer_payroll_ref': rec.employer_payroll_ref or '',
+                        'sl_issue_no': rec.social_insurance_number or '',
+                        'first_day': rec.first_day_worked or '',
+                        'last_day_paid': rec.last_day_worked or '',
+                        'final_pay_period': rec.final_pay_period_ending_date or '',
+                        'occupation': rec.occupation or '',
+                        'total_insurance_hour': round(rec._get_insurable_hour(), 2) or '',
+                        'total_insurance_earning': rec._get_insurable_earning() or '',
+                        'exp_date_recall': dict(rec._fields['expected_date_of_recall'].selection).get(
+                            rec.expected_date_of_recall) or '',
+                        'reason': dict(rec._fields['reason_for_issuing_roe'].selection).get(rec.reason_for_issuing_roe) or '',
+                        'telephone1': rec.telephone_no or '',
+                    'telephone2': rec.telephone_no or '',
+                    'sl_roe': rec.amended_serial_no or '',
+                    'postal_code': rec.employee_id.private_zip or '',
+                    'cra_payroll_acc': rec.cra_payroll_acc_num or '',
+                    'issuer_name': rec.name_of_issuer_id.name or '',
+                    'issue_date': datetime.datetime.now().date() or '',
+                    'vacation_pay': rec.vacation_pay_amount or '',
+                    'vacation_pay_start': rec.vacation_pay_start_date or '',
+                    'vacation_pay_end': rec.vacation_pay_end_date or '',
+                    'comment': rec.comments or '',
+                    'other_start_date1': '',
+                    'other_start_date2': '', 'other_start_date3': '', 'other_end_date1': '',
+                    'other_end_date2': '', 'other_end_date3': '',
+                    'CheckBox-14Yj7BWRzb': '', 'CheckBox-QFXjTBRVwq': '', 'CheckBox-f1WzgWGwMl': '',
+                    'CheckBox-djIjiRzJE7': '', 'CheckBox-3o38tjRP62': '', 'CheckBox-4qOCRr9Nrz': '',
+                    'CheckBox-eTaQV6ngRM': '', 'CheckBox-7aZtgMItxj': '',
+                    'comm_english': '', 'comm_french': '',
+                    'unique_id': '', 'Text-9vMCmQF1F1': '',
+                    'Text-yk2dZTKG-c': '', 'Text-0K3CUNZijm': '', 'Text-_e_t278CcP': '',
+                    'Text-UA8BMNPK9-': '', 'Text-nvSTgcUKe2': '', 'Text-qSSHJVKGp9': '',
+                    'Text-InbjcxfE6o': '', 'amount1': '', 'amount2': '', 'amount3': '', 'amount4': '',
+                    'holiday_pay': '',
 
-                data[date_field] = payslip.date_to
-                data[hours_field] = round(payslip.insurable_hour, 2)
-                data[earning_field] = payslip.insurable_earning
+                    }
+                    for index, payslip in enumerate(rec.get_payslip_ids(), start=1):
+                        date_field = f'pay_period_ending_date{index}'
+                        hours_field = f'insurable_hours{index}'
+                        earning_field = f'insurable_earning{index}'
 
-            writer.update_page_form_field_values(writer.pages[0], data)
+                        data[date_field] = payslip.date_to
+                        data[hours_field] = round(payslip.insurable_hour, 2)
+                        data[earning_field] = payslip.insurable_earning
 
-            # write "output" to pypdf-output.pdf
-            with open(filename, "wb") as output_stream:
-                writer.write(output_stream)
-        except PermissionError as pe:
-            raise UserError(_(f"Permission Error:{pe}"))
-        except IOError as ie:
-            raise UserError(_(f'IO Error:{ie}'))
-        except Exception as e:
-            raise UserError(_(f"Internal Error:{e}"))
+                    writer.update_page_form_field_values(writer.pages[0], data)
+
+                # write "output" to pypdf-output.pdf
+                    with open(filename, "wb") as output_stream:
+                        writer.write(output_stream)
+                except PermissionError as pe:
+                    raise UserError(_(f"Permission Error:{pe}"))
+                except IOError as ie:
+                    raise UserError(_(f'IO Error:{ie}'))
+                except Exception as e:
+                    raise UserError(_(f"Internal Error:{e}"))
+
+
+                kwrgs.append((filename,pdf_name))
 
         return {
             'type': 'ir.actions.act_url',
-            'url': '/download/pdf?file_path=%s&file_name=%s' % (filename, pdf_name),
+            'url': '/download/pdf?file_path=%s&file_name=%s&file_paths=%s' % ('', pdf_name,kwrgs),
             'target': 'new',
+        }
+
+    def send_roe_xml_batch(self):
+        files_list=[]
+        mail_template = self.env.ref('record_of_employment.email_template_batch_roe_xml')
+        mail_template.attachment_ids =[]
+        for rec in self:
+            xml_content = rec.generate_roe_xml()
+            rec.xml_content = xml_content
+
+            attachment = self.env['ir.attachment'].create({
+                'name':  str(
+                        datetime.datetime.now().strftime(f"{rec.employee_id.name.replace(' ', '')}-")) + str(
+                        datetime.datetime.now().strftime("%m%d%Y%H%M%S%f")) + ".xml",
+                'raw': xml_content,
+                'res_id': rec.id,
+                'res_model': 'record.of.employee',
+                'type': 'binary',
+                'mimetype': 'application/xml',
+            })
+            files_list.append((4, attachment.id))
+
+
+        # mail_template.attachment_ids = files_list
+        email_values = {
+            "attachment_ids":files_list
+        }
+
+        try:
+            mail_template.send_mail(rec.id, force_send=True, raise_exception=True,email_values=email_values)
+            message = "Your email has been sent."
+            notification_type = 'success'
+        except Exception as e:
+            message = f"Error occurred while sending email: {str(e)}"
+            notification_type = 'danger'
+
+        return {
+            'type': 'ir.actions.client',
+            'tag': 'display_notification',
+            'params': {
+                'message': message,
+                'type': notification_type,
+                'sticky': True,
+            }
         }

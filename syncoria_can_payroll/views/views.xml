@@ -209,6 +209,27 @@
                     Create a new T4 Form
                 </p></field>
         </record>
+
+        <record model="ir.actions.server" id="action_download_merged_t4">
+       <field name="name">Download Batch T4 </field>
+       <field name="model_id" ref="syncoria_can_payroll.model_statement_remuneration"/>
+       <field name="binding_model_id" ref="syncoria_can_payroll.model_statement_remuneration"/>
+        <field name="binding_view_types">list</field>
+       <field name="state">code</field>
+       <field name="code">
+            action = records.download_t4_pdf()
+       </field>
+    </record>
+        <record model="ir.actions.server" id="action_download_merged_t4_xml">
+       <field name="name">Send Batch T4 XML via Email</field>
+       <field name="model_id" ref="syncoria_can_payroll.model_statement_remuneration"/>
+       <field name="binding_model_id" ref="syncoria_can_payroll.model_statement_remuneration"/>
+        <field name="binding_view_types">list</field>
+       <field name="state">code</field>
+       <field name="code">
+            action = records.send_t4_xml_batch()
+       </field>
+    </record>
         <!-- server action to the one above -->
         <!--
             <record model="ir.actions.server" id="syncoria_can_payroll.action_server">

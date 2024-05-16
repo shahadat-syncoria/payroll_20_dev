@@ -29,6 +29,9 @@
                   sequence="40"
                   name="Receiver General" action="action_receiver_general_wizard"
                   parent="hr_payroll.menu_hr_payroll_report"/>
+        <menuitem id="employee_net_menu"
+                  sequence="39"
+                  name="Employee Net Pay Report" action="action_employee_net_pay_wizard" parent="hr_payroll.menu_hr_payroll_report"/>
 
 
         <!--        ================= Configuration ============================-->

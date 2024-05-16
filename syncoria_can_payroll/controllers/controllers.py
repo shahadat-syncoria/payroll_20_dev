@@ -49,30 +49,50 @@ class T4WizardController(http.Controller):
         # model = request.env['statement.remuneration.wizard'].sudo().browse(int(id))
 
         # file_path = '/path/to/your/pdf/file.pdf'
+        import ast
+        from odoo.tools import pdf
+        files_list = []
+        for file_path in ast.literal_eval(kwargs.get('file_paths')):
+            if not os.path.isfile(file_path[0]):
+                return http.request.not_found()
 
-        if not os.path.isfile(file_path):
-            return http.request.not_found()
+            with open(file_path[0], 'rb') as file:
+                file_content = file.read()
 
-        with open(file_path, 'rb') as file:
-            file_content = file.read()
+            # Retrieve the PDF file from the model's binary field
+            file_content = file_content
 
-        # Retrieve the PDF file from the model's binary field
-        file_content = file_content
+            if not file_content:
+                return http.request.not_found()
+            files_list.append(file_content)
 
-        if not file_content:
-            return http.request.not_found()
+        merged_pdf = pdf.merge_pdf(files_list)
 
-        # Serve the file for download
-        response = request.make_response(
-            file_content,
-            headers=[
-                ('Content-Type', 'application/pdf'),
-                ('Content-Disposition', f'attachment; filename={file_name}')
-            ]
-        )
-        os.remove(file_path)
+        pdfhttpheaders = [
+            ('Content-Type', 'application/pdf'),
+            ('Content-Length', len(merged_pdf)),
+            ('Content-Disposition', f'attachment; filename={file_name}')
+        ]
 
-        return response
+        os.remove(file_path[0])
+
+        return request.make_response(merged_pdf, headers=pdfhttpheaders)
+
+
+
+
+        #
+        # # Serve the file for download
+        # response = request.make_response(
+        #     file_content,
+        #     headers=[
+        #         ('Content-Type', 'application/pdf'),
+        #         ('Content-Disposition', f'attachment; filename={file_name}')
+        #     ]
+        # )
+        # os.remove(file_path)
+
+        # return response
 
 # class SyncoriaCanPayroll(http.Controller):
 #     @http.route('/syncoria_can_payroll/syncoria_can_payroll', auth='public')

@@ -13,7 +13,7 @@ from odoo.addons.syncoria_can_payroll.controllers.controllers  import T4WizardCo
 class ROEWizardController(T4WizardController):
 
     @http.route('/web/content', type='http', auth='public')
-    def download_t4_xml(self, model, field, id, filename=None, content_type=None, **kwargs):
+    def download_roe_xml(self, model, field, id, filename=None, content_type=None, **kwargs):
         if model == 'record.of.employee' and field == 'xml_content' and id:
                 record = request.env[model].sudo().browse(int(id))
                 xml_content = record.xml_content
