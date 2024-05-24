@@ -217,7 +217,7 @@
         <field name="binding_view_types">list</field>
        <field name="state">code</field>
        <field name="code">
-            action = records.download_t4_pdf()
+            action = records.download_t4_pdf(is_bulk=True)
        </field>
     </record>
         <record model="ir.actions.server" id="action_download_merged_t4_xml">

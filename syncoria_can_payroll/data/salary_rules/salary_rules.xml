@@ -183,8 +183,45 @@ else:
     result = contract.child_support_garnishment
             </field>
         </record>
+        <!--        =================== Benefit Plans ======================-->
 
+        <record id="rule_ca_life_insurance" model="hr.salary.rule">
+            <field name="name">Life Insurance</field>
+            <field name="sequence" eval="230"/>
+            <field name="code">LIFE_INSURANCE</field>
+            <field name="category_id" ref="syncoria_can_payroll.post_tax_deduction"/>
+            <field name="appears_on_payslip" eval="1"/>
+            <field name="active" eval="1"/>
+            <field name="amount_select">code</field>
+            <field name="struct_id" ref="syncoria_can_payroll.structure_can_employee"/>
+            <field name="condition_select">python</field>
+            <field name="condition_python">result = contract.benefit_plans and contract.life_insurance >0.0</field>
+            <field name="amount_python_compute">
+if contract.life_insurance > 0.0 and contract.life_insurance_type == "percent":
+    result = GROSS *(contract.life_insurance/100)
+else:
+    result = contract.life_insurance
+            </field>
+        </record>
 
+        <record id="rule_ca_medical_insurance" model="hr.salary.rule">
+            <field name="name">Medical Insurance</field>
+            <field name="sequence" eval="230"/>
+            <field name="code">MEDICAL_INSURANCE</field>
+            <field name="category_id" ref="syncoria_can_payroll.post_tax_deduction"/>
+            <field name="appears_on_payslip" eval="1"/>
+            <field name="active" eval="1"/>
+            <field name="amount_select">code</field>
+            <field name="struct_id" ref="syncoria_can_payroll.structure_can_employee"/>
+            <field name="condition_select">python</field>
+            <field name="condition_python">result = contract.benefit_plans and contract.medical_insurance >0.0</field>
+            <field name="amount_python_compute">
+if contract.medical_insurance > 0.0 and contract.medical_insurance_type == "percent":
+    result = GROSS *(contract.medical_insurance/100)
+else:
+    result = contract.medical_insurance
+            </field>
+        </record>
 
 <!--        xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx WORKER xxxxxxxxxxxxxxxxxxxxxxxxxx-->
 
@@ -243,8 +280,8 @@ result = (categories['GROSS'] + categories['ALW']) - categories['DED']
             <field name="condition_select">python</field>
             <field name="condition_python">result = 'EXPENSES' in inputs</field>
             <field name="amount_python_compute">
-result = inputs.['EXPENSES'].amount
-result_name = inputs.['EXPENSES'].name
+result = inputs['EXPENSES'].amount
+result_name = inputs['EXPENSES'].name
             </field>
         </record>
 
@@ -365,6 +402,46 @@ if contract.child_support_garnishment > 0.0 and contract.child_support_garnishme
     result = GROSS *(contract.child_support_garnishment/100)
 else:
     result = contract.child_support_garnishment
+            </field>
+        </record>
+
+         <!--        =================== Benefit Plans ======================-->
+
+        <record id="rule_ca_life_insurance_worker" model="hr.salary.rule">
+            <field name="name">Life Insurance</field>
+            <field name="sequence" eval="230"/>
+            <field name="code">LIFE_INSURANCE</field>
+            <field name="category_id" ref="syncoria_can_payroll.post_tax_deduction"/>
+            <field name="appears_on_payslip" eval="1"/>
+            <field name="active" eval="1"/>
+            <field name="amount_select">code</field>
+            <field name="struct_id" ref="syncoria_can_payroll.structure_can_worker"/>
+            <field name="condition_select">python</field>
+            <field name="condition_python">result = contract.benefit_plans and contract.life_insurance >0.0</field>
+            <field name="amount_python_compute">
+if contract.life_insurance > 0.0 and contract.life_insurance_type == "percent":
+    result = GROSS *(contract.life_insurance/100)
+else:
+    result = contract.life_insurance
+            </field>
+        </record>
+
+        <record id="rule_ca_medical_insurance_worker" model="hr.salary.rule">
+            <field name="name">Medical Insurance</field>
+            <field name="sequence" eval="230"/>
+            <field name="code">MEDICAL_INSURANCE</field>
+            <field name="category_id" ref="syncoria_can_payroll.post_tax_deduction"/>
+            <field name="appears_on_payslip" eval="1"/>
+            <field name="active" eval="1"/>
+            <field name="amount_select">code</field>
+            <field name="struct_id" ref="syncoria_can_payroll.structure_can_worker"/>
+            <field name="condition_select">python</field>
+            <field name="condition_python">result = contract.benefit_plans and contract.medical_insurance >0.0</field>
+            <field name="amount_python_compute">
+if contract.medical_insurance > 0.0 and contract.medical_insurance_type == "percent":
+    result = GROSS *(contract.medical_insurance/100)
+else:
+    result = contract.medical_insurance
             </field>
         </record>
 

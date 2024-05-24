@@ -970,7 +970,7 @@ class StatementOfRemuneration(models.Model):
         return xml_content
 
     # ======================== Generate and download T4 PDF ===========================
-    def download_t4_pdf(self):
+    def download_t4_pdf(self, is_bulk=False):
         kwrgs=[]
         for rec in self:
             if rec.state == 'done':
@@ -979,9 +979,12 @@ class StatementOfRemuneration(models.Model):
                     output_folder_path = os.path.expanduser(os.getenv("HOME")) + "/outPdf/"
                     if not os.path.isdir(output_folder_path):
                         os.mkdir(output_folder_path)
-                    pdf_name = str(
-                        datetime.datetime.now().strftime(f"{rec.employee_id.name.replace(' ', '')}-{rec.year}-")) + str(
-                        datetime.datetime.now().strftime("%m%d%Y%H%M%S%f")) + ".pdf"
+                    if is_bulk:  # Change the PDF name if called from the action
+                        pdf_name = "Merged_T4.pdf"
+                    else:
+                        pdf_name = str(
+                            datetime.datetime.now().strftime(f"{rec.employee_id.name.replace(' ', '')}-{rec.year}-")) + str(
+                            datetime.datetime.now().strftime("%m%d%Y%H%M%S%f")) + ".pdf"
                     filename = output_folder_path + pdf_name
 
                     reader = PdfReader(get_path + '/' + "t4-fill-22e.pdf")

@@ -316,7 +316,7 @@ class RecordOfEmployee(models.Model):
     # ======================== Generate and download T4 PDF ===========================
 
 
-    def download_roe_pdf(self):
+    def download_roe_pdf(self, is_bulk=False):
 
         kwrgs =[]
         for rec in self:
@@ -326,9 +326,13 @@ class RecordOfEmployee(models.Model):
                     output_folder_path = os.path.expanduser(os.getenv("HOME")) + "/outPdf/"
                     if not os.path.isdir(output_folder_path):
                         os.mkdir(output_folder_path)
-                    pdf_name = str(
-                        datetime.datetime.now().strftime(f"{rec.employee_id.name.replace(' ', '')}-")) + str(
-                        datetime.datetime.now().strftime("%m%d%Y%H%M%S%f")) + ".pdf"
+                    if is_bulk:  # Change the PDF name if called from the action
+                        pdf_name = "Merged_ROE.pdf"
+                    else:
+                        pdf_name = str(
+                            datetime.datetime.now().strftime(f"{rec.employee_id.name.replace(' ', '')}-")) + str(
+                            datetime.datetime.now().strftime("%m%d%Y%H%M%S%f")) + ".pdf"
+
                     filename = output_folder_path + pdf_name
 
                     reader = PdfReader(get_path + '/' + "roe.pdf")

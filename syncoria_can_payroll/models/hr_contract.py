@@ -96,6 +96,17 @@ class InheritedResPartner(models.Model):
     child_support_garnishment = fields.Integer("Child Support Garnishment",
                                          help="A court may order the garnishment of wages to ensure that spousal support or alimony payments are made.")
     child_support_garnishment_type = fields.Selection(deduction_amount_type, default="percent")
+
+    # =========================== Benefit Plans ===================================
+    benefit_plans = fields.Boolean("Benefit Plans",default=False)
+
+
+    life_insurance = fields.Integer("Life Insurance")
+    life_insurance_type = fields.Selection(deduction_amount_type, default="percent")
+
+    medical_insurance = fields.Integer("Medical Insurance")
+    medical_insurance_type = fields.Selection(deduction_amount_type, default="percent")
+
     # To get the paycycle of the employee from its structure_type_id if the paycycle is not selected.
     @api.model_create_multi
     def create(self, vals_list):

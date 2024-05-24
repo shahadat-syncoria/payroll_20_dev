@@ -160,7 +160,7 @@
         <field name="binding_view_types">list</field>
        <field name="state">code</field>
        <field name="code">
-            action = records.download_roe_pdf()
+            action = records.download_roe_pdf(is_bulk=True)
        </field>
     </record>
 
