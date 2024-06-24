@@ -746,7 +746,7 @@ class StatementOfRemuneration(models.Model):
                 # Employee T4slip
                 "employee_sin": str(employee.identification_id) or '',
                 "employee_empe_nbr": employee.barcode,
-                "employee_bn": employee.registration_number,
+                "employee_bn": employee.company_id.payroll_account_number,
                 "employee_rpp_dpsp_rgst_nbr": employee.employee_prpp_dpsp_rgst_nbr,
                 "employee_cpp_qpp_xmpt_cd": '0' if employee_contract.is_cpp_qpp_xmpt_cd else '1',
                 "employee_ei_xmpt_cd": '0' if employee_contract.is_ei_xmpt_cd else '1',

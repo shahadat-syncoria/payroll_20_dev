@@ -164,8 +164,8 @@ class RecordOfEmployee(models.Model):
                 "last_day_worked": employee.contract_id.date_end,
                 "final_pay_period_ending_date": payslip_ids[0].date_to if payslip_ids else '',
                 "occupation": employee.job_id.name,
-                "cra_payroll_acc_num": employee.registration_number,
-                "employer_payroll_ref": self.name_of_issuer_id.registration_number or '',
+                "cra_payroll_acc_num": employee.company_id.payroll_account_number,
+                "employer_payroll_ref": self.company_id.employer_payroll_ref or '',
                 "total_insurable_hours": self._get_insurable_hour(),
                 "total_insurable_earnings": self._get_insurable_earning(),
                 "payslip_ids": payslip_ids,
@@ -348,8 +348,8 @@ class RecordOfEmployee(models.Model):
                     rec.vacation_pay_amount = f'{has_last_payment[0].vacation_pay_amount:.2f}' if has_last_payment else ''
                     data = {
                         'sl_no': rec.serial_no or '',
-                        'employee_info': f'{rec.employee_id.name}\n{rec.employee_id.private_street},{rec.employee_id.private_street2},{rec.employee_id.private_city},{rec.employee_id.private_country_id.name}' or '',
-                        'employer_info': f'{rec.name_of_issuer_id.name}\n{rec.name_of_issuer_id.private_street},{rec.name_of_issuer_id.private_street2},{rec.name_of_issuer_id.private_city},{rec.name_of_issuer_id.private_country_id.name}' or '',
+                        'employee_info': f'{rec.employee_id.name}\n{rec.employee_id.private_street or ""},{rec.employee_id.private_street2 or ""},{rec.employee_id.private_city or ""},{rec.employee_id.private_country_id.name or ""}' or '',
+                        'employer_info': f'{rec.name_of_issuer_id.name}\n{rec.name_of_issuer_id.private_street or ""},{rec.name_of_issuer_id.private_street2 or ""},{rec.name_of_issuer_id.private_city or ""},{rec.name_of_issuer_id.private_country_id.name or ""}' or '',
                         'pay_period_type': rec.pay_period_id.paystub_group_name or '',
                         'unique_id2': '',
                         'employer_payroll_ref': rec.employer_payroll_ref or '',
