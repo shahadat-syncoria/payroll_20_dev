@@ -29,7 +29,7 @@ if is_pay_cycle:
         irregular_gross * (contract.deductions.cpp_emp_employ_rate / 100))
 
     else:
-        final_result =  (((contract.deductions.cpp_max_con_earn - contract.deductions.cpp_basic_exem) * (contract.deductions.cpp_emp_employ_rate / 100) )/ pay_cycle) + (
+        final_result =  (((contract.deductions.cpp_max_an_pen_earn - contract.deductions.cpp_basic_exem) * (contract.deductions.cpp_emp_employ_rate / 100) )/ pay_cycle) + (
         irregular_gross * (contract.deductions.cpp_emp_employ_rate / 100))
     if final_result < 0.0:
         final_result = 0.0
@@ -95,7 +95,7 @@ if is_pay_cycle:
                                irregular_gross * (contract.deductions.cpp_emp_employ_rate / 100))
 
     else:
-        final_result = (((contract.deductions.cpp_max_con_earn - contract.deductions.cpp_basic_exem) * (
+        final_result = (((contract.deductions.cpp_max_an_pen_earn - contract.deductions.cpp_basic_exem) * (
                     contract.deductions.cpp_emp_employ_rate / 100)) / pay_cycle) + (
                                irregular_gross * (contract.deductions.cpp_emp_employ_rate / 100))
     if final_result < 0.0:

@@ -17,7 +17,7 @@
     # Check https://github.com/odoo/odoo/blob/16.0/odoo/addons/base/data/ir_module_category_data.xml
     # for the full list
     'category': 'Human Resources/Payroll',
-    'version': '17.0.0.1',
+    'version': '17.0.0.2',
 
     # any module necessary for this one to work correctly
     'depends': ['base','hr_payroll','hr_work_entry'],
@@ -34,6 +34,7 @@
         'data/salary_rules/ei.xml',
         'data/salary_rules/tax.xml',
         'data/emails/reminder_email.xml',
+        'data/emails/batch_xml_send_email.xml',
         # Wizard
         'wizards/manual_input_generate_payslip.xml',
 
@@ -56,6 +57,7 @@
         'views/hr_payslip.xml',
         'views/hr_payslip_run.xml',
         'views/hr_work_entry_type_view.xml',
+        'views/res_company_views.xml',
 
 
         # 'views/templates.xml',
@@ -66,11 +68,14 @@
         'wizards/receiver_general_wizard_views.xml',
         'wizards/t4_wizard_view.xml',
         'wizards/hr_payroll_payslip_by_employee_views.xml',
+        'wizards/employee_net_pay_wizard_views.xml',
+
 
         # ======== Reports =============
         'reports/roe_earning_per_employee_report_view.xml',
         'reports/remittance_summary_report_view.xml',
         'reports/rgr_report_view.xml',
+        'reports/employee_net_pay_report.xml',
 
         # ======== Menus ===============
         'views/menus.xml',

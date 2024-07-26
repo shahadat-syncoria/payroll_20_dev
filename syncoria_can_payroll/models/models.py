@@ -746,7 +746,7 @@ class StatementOfRemuneration(models.Model):
                 # Employee T4slip
                 "employee_sin": str(employee.identification_id) or '',
                 "employee_empe_nbr": employee.barcode,
-                "employee_bn": employee.registration_number,
+                "employee_bn": employee.company_id.payroll_account_number,
                 "employee_rpp_dpsp_rgst_nbr": employee.employee_prpp_dpsp_rgst_nbr,
                 "employee_cpp_qpp_xmpt_cd": '0' if employee_contract.is_cpp_qpp_xmpt_cd else '1',
                 "employee_ei_xmpt_cd": '0' if employee_contract.is_ei_xmpt_cd else '1',
@@ -784,21 +784,24 @@ class StatementOfRemuneration(models.Model):
     # ======================== Generate and download T4 xml ===========================
     def download_t4_xml(self):
         # Generate the T4 XML content
+        kwrgs=[]
+        for rec in self:
+            xml_content = rec.generate_t4_xml()
+            rec.xml_content = xml_content
 
-        xml_content = self.generate_t4_xml()
-        self.xml_content = xml_content
+            # Prepare the file for download
+            filename = f'{rec.employee_id.name}' + '_T4' + '.xml'
+            content_type = 'application/xml'
 
-        # Prepare the file for download
-        filename = f'{self.employee_id.name}' + '_T4' + '.xml'
-        content_type = 'application/xml'
+            kwrgs.append((rec.id,filename, content_type))
 
         # Return the file as a response
-        return {
-            'type': 'ir.actions.act_url',
-            'url': '/web/content/?model=statement.remuneration&field=xml_content&id=%s&filename=%s&content_type=%s' % (
-                self.id, filename, content_type),
-            'target': 'self',
-        }
+            return {
+                'type': 'ir.actions.act_url',
+                'url': '/web/content/?model=statement.remuneration&field=xml_content&id=%s&filename=%s&content_type=%s' % (
+                    rec.id, filename, content_type),
+                'target': 'self',
+            }
 
     def create_t4_xml(self):
         # Create the root element
@@ -967,65 +970,117 @@ class StatementOfRemuneration(models.Model):
         return xml_content
 
     # ======================== Generate and download T4 PDF ===========================
-    def download_t4_pdf(self):
-        try:
-            get_path = get_module_resource('syncoria_can_payroll', 'utils')
-            output_folder_path = os.path.expanduser(os.getenv("HOME")) + "/outPdf/"
-            if not os.path.isdir(output_folder_path):
-                os.mkdir(output_folder_path)
-            pdf_name = str(
-                datetime.datetime.now().strftime(f"{self.employee_id.name.replace(' ', '')}-{self.year}-")) + str(
-                datetime.datetime.now().strftime("%m%d%Y%H%M%S%f")) + ".pdf"
-            filename = output_folder_path + pdf_name
+    def download_t4_pdf(self, is_bulk=False):
+        kwrgs=[]
+        for rec in self:
+            if rec.state == 'done':
+                try:
+                    get_path = get_module_resource('syncoria_can_payroll', 'utils')
+                    output_folder_path = os.path.expanduser(os.getenv("HOME")) + "/outPdf/"
+                    if not os.path.isdir(output_folder_path):
+                        os.mkdir(output_folder_path)
+                    if is_bulk:  # Change the PDF name if called from the action
+                        pdf_name = "Merged_T4.pdf"
+                    else:
+                        pdf_name = str(
+                            datetime.datetime.now().strftime(f"{rec.employee_id.name.replace(' ', '')}-{rec.year}-")) + str(
+                            datetime.datetime.now().strftime("%m%d%Y%H%M%S%f")) + ".pdf"
+                    filename = output_folder_path + pdf_name
 
-            reader = PdfReader(get_path + '/' + "t4-fill-22e.pdf")
-            writer = PdfWriter()
+                    reader = PdfReader(get_path + '/' + "t4-fill-22e.pdf")
+                    writer = PdfWriter()
 
-            page = reader.pages[0]
-            fields = reader.get_fields()
+                    page = reader.pages[0]
+                    fields = reader.get_fields()
 
-            writer.append(reader)
+                    writer.append(reader)
 
-            data = {'Slip1Year[0]': self.year,
-                    'Slip1EmployersName[0]': f'{self.employer_l1_nm}\n{self.employer_addr_l1_txt}\n{self.employer_cty_nm},{self.employer_prov_cd} {self.employer_pstl_cd}',
-                    'Slip1Box54[0]': None,
-                    'Slip1Box12[0]': self.employee_sin, 'Slip1Box14[0]': round(self.employee_empt_incamt,2),
-                    'Slip1Box22[0]': round(self.income_itx_ddct_amt, 2), 'Slip1Box10[0]': 'ON',
-                    'Slip1Box16[0]': round(self.employee_cpp_cntrb_amt,2),
-                    'Slip1Box24[0]': round(self.employee_ei_insu_ern_amt,2), 'Slip1Box17[0]': 0.0,
-                    'Slip1Box26[0]': round(self.canada_cpp_qpp_ern_amt,2), 'Slip1Box18[0]': self.employee_empe_eip_amt,
-                    'Slip1Box44[0]': self.union_unn_dues_amt, 'Slip1Box20[0]': 0.0,
-                    'Slip1Box46[0]': self.charitable_chrty_dons_amt, 'Slip1Box52[0]': self.pension_padj_amt,
-                    'Slip1Box50[0]': self.employee_rpp_dpsp_rgst_nbr, 'Slip1Box55[0]': self.PPIP_prov_pip_amt,
-                    'Slip1Box56[0]': self.PPIP_prov_insu_ern_amt, 'Slip1LastName[0]': self.employee_snm,
-                    'Slip1FirstName[0]': self.employee_gvn_nm, 'Slip1Initial[0]': self.employee_init,
-                    'Slip1Address[0]': f'{self.employee_addr_l1_txt}\n{self.employee_addr_l2_txt}\n{self.employee_cty_nm}\n{self.employee_prov_cd} {self.employee_pstl_cd}',
-                    'Slip1Amount1[0]': None,
-                    'Slip1Amount2[0]': None, 'Slip1Amount3[0]': None, 'Slip1Amount4[0]': None, 'Slip1Amount5[0]': None,
-                    'Slip1Amount6[0]': None, 'Slip1EmployersName[0].2': None,
-                    'Slip1Year[0].2': None, 'Slip1Box54[0].2': None, 'Slip1Box12[0].2': None, 'Slip1Box14[0].2': None,
-                    'Slip1Box22[0].2': None, 'Slip1Box16[0].2': None, 'Slip1Box24[0].2': None, 'Slip1Box17[0].2': None,
-                    'Slip1Box26[0].2': None, 'Slip1Box18[0].2': None, 'Slip1Box44[0].2': None, 'Slip1Box20[0].2': None,
-                    'Slip1Box46[0].2': None, 'Slip1Box52[0].2': None, 'Slip1Box50[0].2': None, 'Slip1Box55[0].2': None,
-                    'Slip1Box56[0].2': None, 'Slip1LastName[0].2': None, 'Slip1FirstName[0].2': None,
-                    'Slip1Initial[0].2': None, 'Slip1Address[0].2': None, 'Slip1Amount1[0].2': None,
-                    'Slip1Amount2[0].2': None, 'Slip1Amount3[0].2': None, 'Slip1Amount4[0].2': None,
-                    'Slip1Amount5[0].2': None, 'Slip1Amount6[0].2': None}
+                    data = {'Slip1Year[0]': rec.year,
+                            'Slip1EmployersName[0]': f'{rec.employer_l1_nm}\n{rec.employer_addr_l1_txt}\n{rec.employer_cty_nm},{rec.employer_prov_cd} {rec.employer_pstl_cd}',
+                            'Slip1Box54[0]': None,
+                            'Slip1Box12[0]': rec.employee_sin, 'Slip1Box14[0]': round(rec.employee_empt_incamt,2),
+                            'Slip1Box22[0]': round(rec.income_itx_ddct_amt, 2), 'Slip1Box10[0]': 'ON',
+                            'Slip1Box16[0]': round(rec.employee_cpp_cntrb_amt,2),
+                            'Slip1Box24[0]': round(rec.employee_ei_insu_ern_amt,2), 'Slip1Box17[0]': 0.0,
+                            'Slip1Box26[0]': round(rec.canada_cpp_qpp_ern_amt,2), 'Slip1Box18[0]': rec.employee_empe_eip_amt,
+                            'Slip1Box44[0]': rec.union_unn_dues_amt, 'Slip1Box20[0]': 0.0,
+                            'Slip1Box46[0]': rec.charitable_chrty_dons_amt, 'Slip1Box52[0]': rec.pension_padj_amt,
+                            'Slip1Box50[0]': rec.employee_rpp_dpsp_rgst_nbr, 'Slip1Box55[0]': rec.PPIP_prov_pip_amt,
+                            'Slip1Box56[0]': rec.PPIP_prov_insu_ern_amt, 'Slip1LastName[0]': rec.employee_snm,
+                            'Slip1FirstName[0]': rec.employee_gvn_nm, 'Slip1Initial[0]': rec.employee_init,
+                            'Slip1Address[0]': f'{rec.employee_addr_l1_txt}\n{rec.employee_addr_l2_txt}\n{rec.employee_cty_nm}\n{rec.employee_prov_cd} {rec.employee_pstl_cd}',
+                            'Slip1Amount1[0]': None,
+                            'Slip1Amount2[0]': None, 'Slip1Amount3[0]': None, 'Slip1Amount4[0]': None, 'Slip1Amount5[0]': None,
+                            'Slip1Amount6[0]': None, 'Slip1EmployersName[0].2': None,
+                            'Slip1Year[0].2': None, 'Slip1Box54[0].2': None, 'Slip1Box12[0].2': None, 'Slip1Box14[0].2': None,
+                            'Slip1Box22[0].2': None, 'Slip1Box16[0].2': None, 'Slip1Box24[0].2': None, 'Slip1Box17[0].2': None,
+                            'Slip1Box26[0].2': None, 'Slip1Box18[0].2': None, 'Slip1Box44[0].2': None, 'Slip1Box20[0].2': None,
+                            'Slip1Box46[0].2': None, 'Slip1Box52[0].2': None, 'Slip1Box50[0].2': None, 'Slip1Box55[0].2': None,
+                            'Slip1Box56[0].2': None, 'Slip1LastName[0].2': None, 'Slip1FirstName[0].2': None,
+                            'Slip1Initial[0].2': None, 'Slip1Address[0].2': None, 'Slip1Amount1[0].2': None,
+                            'Slip1Amount2[0].2': None, 'Slip1Amount3[0].2': None, 'Slip1Amount4[0].2': None,
+                            'Slip1Amount5[0].2': None, 'Slip1Amount6[0].2': None}
 
-            writer.update_page_form_field_values(writer.pages[0], data)
+                    writer.update_page_form_field_values(writer.pages[0], data)
 
-            # write "output" to pypdf-output.pdf
-            with open(filename, "wb") as output_stream:
-                writer.write(output_stream)
-        except PermissionError as pe:
-            raise UserError(_(f"Permission Error:{pe}"))
-        except IOError as ie:
-            raise UserError(_(f'IO Error:{ie}'))
-        except Exception as e:
-            raise UserError(_(f"Internal Error:{e}"))
+                    # write "output" to pypdf-output.pdf
+                    with open(filename, "wb") as output_stream:
+                        writer.write(output_stream)
+                except PermissionError as pe:
+                    raise UserError(_(f"Permission Error:{pe}"))
+                except IOError as ie:
+                    raise UserError(_(f'IO Error:{ie}'))
+                except Exception as e:
+                    raise UserError(_(f"Internal Error:{e}"))
+
+                kwrgs.append((filename, pdf_name))
 
         return {
             'type': 'ir.actions.act_url',
-            'url': '/download/pdf?file_path=%s&file_name=%s' % (filename, pdf_name),
+            'url': '/download/pdf?file_path=%s&file_name=%s&file_paths=%s' % ('', pdf_name,kwrgs),
             'target': 'new',
         }
+
+    def send_t4_xml_batch(self):
+        files_list=[]
+        mail_template = self.env.ref('syncoria_can_payroll.email_template_batch_xml')
+        for rec in self:
+            xml_content = rec.generate_t4_xml()
+            rec.xml_content = xml_content
+
+            attachment = self.env['ir.attachment'].create({
+                'name': str(
+                        datetime.datetime.now().strftime(f"{rec.employee_id.name.replace(' ', '')}-{rec.year}-")) + str(
+                        datetime.datetime.now().strftime("%m%d%Y%H%M%S%f")) + ".xml",
+                'raw': xml_content,
+                'res_id': rec.id,
+                'res_model': 'statement.remuneration',
+                'type': 'binary',
+                'mimetype': 'application/xml',
+            })
+            files_list.append((4, attachment.id))
+
+        # mail_template.attachment_ids = files_list
+        email_values = {
+            "attachment_ids": files_list
+        }
+
+        try:
+            mail_template.send_mail(rec.id, force_send=True, raise_exception=True,email_values=email_values)
+            message = "Your email has been sent."
+            notification_type = 'success'
+        except Exception as e:
+            message = f"Error occurred while sending email: {str(e)}"
+            notification_type = 'danger'
+
+        return {
+            'type': 'ir.actions.client',
+            'tag': 'display_notification',
+            'params': {
+                'message': message,
+                'type': notification_type,
+                'sticky': True,
+            }
+        }
+
+

@@ -17,9 +17,10 @@
             <field name="inherit_id" ref="hr_payroll.payroll_hr_employee_view_form"/>
             <field name="arch" type="xml">
                 <field name="registration_number" position="attributes">
-                    <attribute name="string">Payroll Account Number</attribute>
+                    <attribute name="invisible">1</attribute>
                 </field>
                 <field name="registration_number" position="after">
+                    <field name="payroll_account_number" string="Payroll Account Number" readonly="1"/>
                     <field name="employee_prpp_dpsp_rgst_nbr"/>
                 </field>
             </field>

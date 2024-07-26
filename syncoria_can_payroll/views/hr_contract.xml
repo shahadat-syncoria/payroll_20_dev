@@ -72,6 +72,21 @@
                                 </div>
                             </group>
                         </group>
+                         <group name="benefit_plans" string="Benefit Plans">
+                            <group>
+                                <field name="benefit_plans" widget="boolean_toggle"/>
+                                <label for="life_insurance" invisible="benefit_plans != True"/>
+                                <div class="o_row" invisible="benefit_plans != True">
+                                    <field name="life_insurance"/>
+                                    <field name="life_insurance_type"/>
+                                </div>
+                                <label for="medical_insurance" invisible="benefit_plans != True"/>
+                                <div class="o_row" invisible="benefit_plans != True">
+                                    <field name="medical_insurance"/>
+                                    <field name="medical_insurance_type"/>
+                                </div>
+                            </group>
+                        </group>
                     </page>
                 </page>
                 <xpath expr="//field[@name='structure_type_id']" position="after">

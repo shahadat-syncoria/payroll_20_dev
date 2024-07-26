@@ -152,4 +152,26 @@
     <!--              parent="menu_record_of_employment_root"-->
     <!--              action="action_record_of_employee"-->
     <!--              sequence="12"/>-->
+
+    <record model="ir.actions.server" id="action_download_roe">
+       <field name="name">Download Batch ROE Merged PDF</field>
+       <field name="model_id" ref="record_of_employment.model_record_of_employee"/>
+       <field name="binding_model_id" ref="record_of_employment.model_record_of_employee"/>
+        <field name="binding_view_types">list</field>
+       <field name="state">code</field>
+       <field name="code">
+            action = records.download_roe_pdf(is_bulk=True)
+       </field>
+    </record>
+
+    <record model="ir.actions.server" id="action_download_roe_batch_xml">
+       <field name="name">Send Batch ROE XML via Email</field>
+       <field name="model_id" ref="record_of_employment.model_record_of_employee"/>
+       <field name="binding_model_id" ref="record_of_employment.model_record_of_employee"/>
+        <field name="binding_view_types">list</field>
+       <field name="state">code</field>
+       <field name="code">
+            action = records.send_roe_xml_batch()
+       </field>
+    </record>
 </odoo>

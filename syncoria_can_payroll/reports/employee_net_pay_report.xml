@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<odoo>
+    <data>
+
+        <template id="report_employee_net_pay">
+            <t t-call="web.html_container">
+                <!--                <t t-foreach="docs" t-as="o">-->
+                <t t-call="web.external_layout">
+
+                    <!-- <t t-call="report.external_layout"> -->
+                    <div class="page">
+                        <div style="margin:0 6rem 0 6rem">
+                            <table class="table" name="header">
+                                <tr style="text-align: left;">
+                                    <th>
+                                     Pay Cycle :
+                                        <span t-esc="pay_cycle"/>
+                                    </th>
+                                </tr>
+                                <tr style="text-align: left;">
+                                    <th>
+                                     Pay Period :
+                                        <span t-esc="pay_period"/>
+                                    </th>
+
+                                </tr>
+
+                            </table>
+                            <table class="table mt-5" name="body">
+                                <tr style="text-align: center;">
+                                    <th>
+                                        Payslip Reference
+                                    </th>
+                                    <th>
+                                        Payslip Name
+                                    </th>
+                                    <th>
+                                        Employee Name
+                                    </th>
+                                    <th>
+                                        Job Position
+                                    </th>
+                                    <th>
+                                        Bank Account
+                                    </th>
+                                    <th>
+                                        Salary
+                                    </th>
+
+
+                                </tr>
+                                <t t-set="lines"
+                                   t-value="payslips"/>
+                                <t t-foreach="lines" t-as="line">
+
+                                    <tr>
+                                    <td>
+                                        <span t-esc="line['reference']"/>
+                                    </td>
+                                    <td>
+                                        <span t-esc="line['payslip_name']"/>
+                                    </td>
+                                    <td>
+                                        <span t-esc="line['employee_name']"/>
+                                    </td>
+                                    <td>
+                                        <span t-esc="line['job_position']"/>-
+                                    </td>
+                                    <td>
+                                      <span t-esc="line['bank_account']"/>
+                                    </td>
+                                    <td>
+                                      <span t-esc="line['amount']"/>
+                                    </td>
+
+                                </tr>
+                                </t>
+                            </table>
+
+
+                        </div>
+
+                        <!--
+                        Build your report here!
+                        Do it in awesome way ;)
+                        -->
+                    </div>
+                </t>
+                <!--                </t>-->
+            </t>
+        </template>
+    </data>
+
+</odoo>
