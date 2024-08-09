@@ -82,6 +82,11 @@ class InheritedHrPayslip(models.Model):
         for slip in self:
             slip.employee_id.with_context({"type":"ALL"}).update_ytd_erp() # "ALL" is for update YTD of CPP,CPP2,PI
 
+    def action_payslip_cancel(self):
+        super(InheritedHrPayslip,self).action_payslip_cancel()
+        for slip in self:
+            slip.employee_id.with_context({"type":"ALL"}).update_ytd_erp() # "ALL" is for update YTD of CPP,CPP2,PI
+
     def get_previous_irregular_payment(self, id, paycycle):
         payslip = self.browse(id)
         payslip_employee = payslip.employee_id
