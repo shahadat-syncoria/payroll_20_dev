@@ -29,11 +29,6 @@ class InheritedHrPayslip(models.Model):
     is_manual_input = fields.Boolean(compute='_compute_is_manual_input')
 
 
-    @api.onchange('state')
-    def _onchange_state_for_ytd(self):
-        for rec in self:
-            if rec.state == 'paid':
-                rec.employee_id.with_context({"type": "ALL"}).update_ytd_erp()
 
 
     def _compute_is_manual_input(self):
@@ -115,6 +110,8 @@ class InheritedHrPayslip(models.Model):
         for rec in self:
             if rec.payslip_run_id and res and 'state' in vals and vals.get('state') == 'paid':
                 rec.payslip_run_id._check_paid_status()
+            if 'state' in vals and vals.get('state') == 'paid':
+                rec.employee_id.with_context({"type": "ALL"}).update_ytd_erp()
         return res
 
     # ================== Report ======================
