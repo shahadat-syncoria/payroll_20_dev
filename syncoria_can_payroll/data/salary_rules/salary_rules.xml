@@ -17,7 +17,12 @@
 <!--            <field name="exemption_id" ref="cpp_exempt"/>-->
             <field name="amount_python_compute">
                 <![CDATA[
-result=payslip.env['hr.payslip'].get_gross_amount(payslip.id)
+unpaid_leave = 0
+if 'LEAVE90' in worked_days and contract.is_fixed:
+    per_hour_salary = payslip.env['hr.payslip'].get_gross_amount(payslip.id)/(contract.resource_calendar_id.full_time_required_hours*52/int(contract.salary_pay_cycle.pay_cycle))
+    unpaid_leave=-per_hour_salary*worked_days['LEAVE90'].number_of_hours
+
+result=payslip.env['hr.payslip'].get_gross_amount(payslip.id)+unpaid_leave
                     ]]>
             </field>
 
@@ -239,7 +244,12 @@ else:
 <!--            <field name="exemption_id" ref="cpp_exempt"/>-->
             <field name="amount_python_compute">
                 <![CDATA[
-result=payslip.env['hr.payslip'].get_gross_amount(payslip.id)
+unpaid_leave = 0
+if 'LEAVE90' in worked_days and contract.is_fixed:
+    per_hour_salary = payslip.env['hr.payslip'].get_gross_amount(payslip.id)/(contract.resource_calendar_id.full_time_required_hours*52/int(contract.salary_pay_cycle.pay_cycle))
+    unpaid_leave=-per_hour_salary*worked_days['LEAVE90'].number_of_hours
+
+result=payslip.env['hr.payslip'].get_gross_amount(payslip.id)+unpaid_leave
                     ]]>
             </field>
 
