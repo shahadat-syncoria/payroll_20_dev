@@ -28,6 +28,14 @@ class InheritedHrPayslip(models.Model):
         store=False)
     is_manual_input = fields.Boolean(compute='_compute_is_manual_input')
 
+
+    @api.onchange('state')
+    def _onchange_state_for_ytd(self):
+        for rec in self:
+            if rec.state == 'paid':
+                rec.employee_id.with_context({"type": "ALL"}).update_ytd_erp()
+
+
     def _compute_is_manual_input(self):
         with_user = self.env['ir.config_parameter'].sudo()
         attendance_manual = with_user.get_param('syncoria_can_payroll.attendance_manual_input')

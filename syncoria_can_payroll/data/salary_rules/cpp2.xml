@@ -29,7 +29,7 @@ if is_pay_cycle:
     if final_cpp2 < 0.00:
         result = 0.00
     else:
-         result=final_cpp2 if CPP < 0 else 0.00
+         result=final_cpp2 if CPP <= 0 else 0.00
 else:
     result=0.00
                     ]]>
@@ -91,7 +91,7 @@ if is_pay_cycle:
     if final_cpp2 < 0.00:
         result = 0.00
     else:
-         result=final_cpp2 if CPP < 0 else 0.00
+         result=final_cpp2 if CPP <= 0 else 0.00
 else:
     result=0.00
                     ]]>
