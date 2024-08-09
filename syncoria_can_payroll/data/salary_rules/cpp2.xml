@@ -23,7 +23,7 @@ if is_pay_cycle:
     main_gross = GROSS + irregular_gross
     PM= 12
     calculation_1 =  contract.deductions.cpp2_emp_employ_contrib * (PM/12) - employee.ytd_cpp2
-    W = max(employee.ytd_pi,contract.deductions.cpp2_add_max_an_pen_earn)
+    W = max(employee.ytd_pi,contract.deductions.cpp_max_an_pen_earn)
     calculation_2 =  (employee.ytd_pi + main_gross - W) * (contract.deductions.cpp2_emp_employ_rate / 100)
     final_cpp2 = min(calculation_1,calculation_2)
     if final_cpp2 < 0.00:
@@ -85,7 +85,7 @@ if is_pay_cycle:
     main_gross = GROSS + irregular_gross
     PM= 12
     calculation_1 =  contract.deductions.cpp2_emp_employ_contrib * (PM/12) - employee.ytd_cpp2
-    W = max(employee.ytd_pi,contract.deductions.cpp2_add_max_an_pen_earn)
+    W = max(employee.ytd_pi,contract.deductions.cpp_max_an_pen_earn)
     calculation_2 =  (employee.ytd_pi + main_gross - W) * (contract.deductions.cpp2_emp_employ_rate / 100)
     final_cpp2 = min(calculation_1,calculation_2)
     if final_cpp2 < 0.00:
