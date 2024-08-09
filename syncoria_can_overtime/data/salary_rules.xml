@@ -4,7 +4,7 @@
 <!--        ===================== Employee ===========================-->
         <record id="rule_ca_overtime_pay" model="hr.salary.rule">
             <field name="name">Overtime</field>
-            <field name="sequence" eval="170"/>
+            <field name="sequence" eval="70"/>
             <field name="code">OVERTIME</field>
             <field name="category_id" ref="syncoria_can_payroll.additional_allowance"/>
             <field name="appears_on_payslip" eval='True'/>
@@ -23,7 +23,7 @@ result_name = worked_days['CAN_OVERTIME'].name
 
         <record id="rule_ca_stat_overtime_pay" model="hr.salary.rule">
             <field name="name">Statutory Holiday Overtime</field>
-            <field name="sequence" eval="190"/>
+            <field name="sequence" eval="75"/>
             <field name="code">STAT_OVERTIME</field>
             <field name="category_id" ref="syncoria_can_payroll.additional_allowance"/>
             <field name="appears_on_payslip" eval='True'/>
@@ -42,7 +42,7 @@ result_name = worked_days['CAN_STAT_OVERTIME'].name
         <!--        ===================== Worker =========================-->
         <record id="rule_ca_overtime_pay_worker" model="hr.salary.rule">
             <field name="name">Overtime</field>
-            <field name="sequence" eval="170"/>
+            <field name="sequence" eval="70"/>
             <field name="code">WORKER_OVERTIME</field>
             <field name="category_id" ref="syncoria_can_payroll.additional_allowance"/>
             <field name="appears_on_payslip" eval='True'/>
@@ -61,7 +61,7 @@ result_name = worked_days['CAN_OVERTIME'].name
         </record>
         <record id="rule_ca_stat_overtime_pay_worker" model="hr.salary.rule">
             <field name="name">Statutory Holiday Overtime</field>
-            <field name="sequence" eval="190"/>
+            <field name="sequence" eval="75"/>
             <field name="code">WORKER_STAT_OVERTIME</field>
             <field name="category_id" ref="syncoria_can_payroll.additional_allowance"/>
             <field name="appears_on_payslip" eval='True'/>
