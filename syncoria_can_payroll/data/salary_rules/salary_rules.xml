@@ -38,7 +38,7 @@ result=payslip.env['hr.payslip'].get_gross_amount(payslip.id)
 <!--            <field name="exemption_id" ref="cpp_exempt"/>-->
             <field name="amount_python_compute">
                 <![CDATA[
-result = (categories['GROSS'] + categories['ALW'])+categories['ADD_ALLOWANCE']) - (categories['DED']+categories['PRE_TAX_DEDUCTION']+categories['POST_TAX_DEDUCTION'])
+result = (categories['GROSS'] + categories['ALW']+categories['ADD_ALLOWANCE']) - (categories['DED']+categories['PRE_TAX_DEDUCTION']+categories['POST_TAX_DEDUCTION'])
 
                     ]]>
             </field>
@@ -259,7 +259,7 @@ result=payslip.env['hr.payslip'].get_gross_amount(payslip.id)
 <!--            <field name="exemption_id" ref="cpp_exempt"/>-->
             <field name="amount_python_compute">
                 <![CDATA[
-result = (categories['GROSS'] + categories['ALW'])+categories['ADD_ALLOWANCE']) - categories['DED']
+result = (categories['GROSS'] + categories['ALW']+categories['ADD_ALLOWANCE']) - categories['DED']
 
                     ]]>
             </field>
