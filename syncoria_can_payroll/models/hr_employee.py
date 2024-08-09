@@ -13,6 +13,69 @@ class InhertitedHrEmployee(models.Model):
     sync_first_contract_date = fields.Date("First Contract Date", compute='compute_first_contract_date', store=True, groups='hr.group_hr_user')
     payroll_account_number = fields.Char('Payroll Account Number', groups="hr.group_hr_user", related= "company_id.payroll_account_number")
     identification_id = fields.Char(string='Identification No', groups="hr.group_hr_user", tracking=True, required=True)
+
+    # ========================================== YTD Information ===================================
+    ytd_cpp_erp = fields.Float("Year To Date CPP contribution in ERP")
+    ytd_previous_cpp = fields.Float("Previous CPP",tracking=True,default=0)
+    ytd_cpp = fields.Float("Year To Date CPP",default=0,store=True,compute='_compute_ytd_cpp')
+
+    #CPP2
+    ytd_cpp2_erp = fields.Float("Year To Date CPP2 contribution in ERP")
+    ytd_previous_cpp2 = fields.Float("Previous CPP2", tracking=True, default=0)
+    ytd_cpp2 = fields.Float("Year To Date CPP2", default=0, store=True, compute='_compute_ytd_cpp2')
+
+    #PIYTD
+    ytd_pi = fields.Float("Year To Date CPP2", default=0, store=True, compute='_compute_ytd_cpp2')
+
+    @api.depends("ytd_cpp_erp","ytd_previous_cpp")
+    def _compute_ytd_cpp(self):
+        for rec in self:
+            rec.ytd_cpp = rec.ytd_cpp_erp + rec.ytd_previous_cpp
+
+    @api.depends("ytd_cpp2_erp", "ytd_previous_cpp2")
+    def _compute_ytd_cpp2(self):
+        for rec in self:
+            rec.ytd_cpp2 = rec.ytd_cpp2_erp + rec.ytd_previous_cpp2
+
+
+    def _get_ytd_payslip_line_ids(self):
+        """
+            This is helper function to get YTD paid payslips compute line ids
+        """
+        payslip_ytd = self.slip_ids.filtered(
+            lambda x: x.state == 'paid' and (
+                x.paid_date.year if x.paid_date else x.write_date.year) == int(
+                self.contract_id.deductions.slab_year or 0))
+
+        return payslip_ytd.line_ids
+
+    def _update_ytd_cpp_pi(self,payslip_ytd,req_type):
+        if req_type in ['CPP', "CPP2"]:
+            ytd_total_amount = sum(
+                payslip_ytd.filtered(lambda x: x.code == req_type).mapped("total"))
+            if req_type == 'CPP':
+                self.ytd_cpp_erp = ytd_total_amount
+            elif req_type == 'CPP2':
+                self.ytd_cpp2_erp = ytd_total_amount
+        elif req_type in ['PI']:
+            ytd_total_amount = sum(
+                payslip_ytd.filtered(lambda x: x.category_id.code in ["GROSS", "ADD_ALLOWANCE", "ALW"]).mapped("total"))
+            self.ytd_pi = ytd_total_amount
+
+    def update_ytd_erp(self):
+        for rec in self:
+            payslip_ytd = rec._get_ytd_payslip_line_ids()
+            if self.env.context['type'] == "ALL":
+                for i in ["CPP", "CPP2", "PI"]:
+                    rec._update_ytd_cpp_pi(payslip_ytd,i)
+            else:
+                rec._update_ytd_cpp_pi(payslip_ytd,rec.env.context.get('type'))
+
+
+
+
+
+
     @api.depends('first_contract_date')
     def compute_first_contract_date(self):
         for rec in self:

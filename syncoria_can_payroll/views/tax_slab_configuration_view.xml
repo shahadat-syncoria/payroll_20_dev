@@ -27,6 +27,19 @@
                                 </group>
 
                             </page>
+                            <page name="cpp2" string="CPP2">
+                                <group>
+                                    <group>
+                                        <field name="cpp2_add_max_an_pen_earn"/>
+                                        <field name="cpp2_emp_employ_rate"/>
+                                    </group>
+                                    <group>
+                                        <field name="cpp2_emp_employ_contrib"/>
+                                        <field name="cpp2_self_employed_contrib"/>
+                                    </group>
+                                </group>
+
+                            </page>
                             <page name="ei" string="EI">
                                 <group>
                                     <group>

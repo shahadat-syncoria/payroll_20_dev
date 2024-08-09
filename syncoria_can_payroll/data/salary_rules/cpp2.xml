@@ -1,11 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <data>
-
-        <record id="rule_ca_cpp" model="hr.salary.rule">
-            <field name="name">CPP</field>
-            <field name="sequence" eval="90"/>
-            <field name="code">CPP</field>
+        <record id="rule_ca_cpp2" model="hr.salary.rule">
+            <field name="name">CPP2</field>
+            <field name="sequence" eval="95"/>
+            <field name="code">CPP2</field>
             <field name="category_id" ref="hr_payroll.DED"/>
             <field name="appears_on_payslip" eval="1"/>
             <field name="active" eval="1"/>
@@ -23,14 +22,14 @@ if is_pay_cycle:
     irregular_gross = abs(categories['ADD_ALLOWANCE'])
     main_gross = GROSS + irregular_gross
     PM= 12
-
-    calculation_1 =  contract.deductions.cpp_emp_employ_contrib * (PM/12) - employee.ytd_cpp ;
-    calculation_2 =   (contract.deductions.cpp_emp_employ_rate / 100) * (main_gross -(contract.deductions.cpp_basic_exem /pay_cycle))
-    final_cpp = min(calculation_1,calculation_2)
-    if final_cpp < 0.00:
+    calculation_1 =  contract.deductions.cpp2_emp_employ_contrib * (PM/12) - employee.ytd_cpp2
+    W = max(employee.ytd_pi,contract.deductions.cpp2_add_max_an_pen_earn)
+    calculation_2 =  (employee.ytd_pi + main_gross - W) * (contract.deductions.cpp2_emp_employ_rate / 100)
+    final_cpp2 = min(calculation_1,calculation_2)
+    if final_cpp2 < 0.00:
         result = 0.00
     else:
-        result=final_cpp
+        result=final_cpp2
 else:
     result=0.00
                     ]]>
@@ -38,10 +37,10 @@ else:
 
 
         </record>
-        <record id="rule_ca_cpp_employer" model="hr.salary.rule">
-            <field name="name">Employer CPP</field>
-            <field name="sequence" eval="130"/>
-            <field name="code">CPP_EMPLOYER</field>
+        <record id="rule_ca_cpp2_employer" model="hr.salary.rule">
+            <field name="name">Employer CPP2</field>
+            <field name="sequence" eval="135"/>
+            <field name="code">CPP2_EMPLOYER</field>
             <field name="category_id" ref="hr_payroll.COMP"/>
             <field name="appears_on_payslip" eval="1"/>
             <field name="active" eval="1"/>
@@ -51,7 +50,7 @@ else:
 <!--            <field name="exemption_id" ref="cpp_exempt"/>-->
             <field name="amount_python_compute">
                 <![CDATA[
-result=CPP
+result=CPP2
                     ]]>
             </field>
 
@@ -64,10 +63,10 @@ result=CPP
 
 
 
-        <record id="rule_ca_cpp_worker" model="hr.salary.rule">
-            <field name="name">CPP</field>
-            <field name="sequence" eval="90"/>
-            <field name="code">CPP</field>
+        <record id="rule_ca_cpp2_worker" model="hr.salary.rule">
+            <field name="name">CPP2</field>
+            <field name="sequence" eval="95"/>
+            <field name="code">CPP2</field>
             <field name="category_id" ref="hr_payroll.DED"/>
             <field name="appears_on_payslip" eval="1"/>
             <field name="active" eval="1"/>
@@ -85,14 +84,14 @@ if is_pay_cycle:
     irregular_gross = abs(categories['ADD_ALLOWANCE'])
     main_gross = GROSS + irregular_gross
     PM= 12
-
-    calculation_1 =  contract.deductions.cpp_emp_employ_contrib * (PM/12) - employee.ytd_cpp ;
-    calculation_2 =   (contract.deductions.cpp_emp_employ_rate / 100) * (main_gross -(contract.deductions.cpp_basic_exem /pay_cycle))
-    final_cpp = min(calculation_1,calculation_2)
-    if final_cpp < 0.00:
+    calculation_1 =  contract.deductions.cpp2_emp_employ_contrib * (PM/12) - employee.ytd_cpp2
+    W = max(employee.ytd_pi,contract.deductions.cpp2_add_max_an_pen_earn)
+    calculation_2 =  (employee.ytd_pi + main_gross - W) * (contract.deductions.cpp2_emp_employ_rate / 100)
+    final_cpp2 = min(calculation_1,calculation_2)
+    if final_cpp2 < 0.00:
         result = 0.00
     else:
-        result=final_cpp
+        result=final_cpp2
 else:
     result=0.00
                     ]]>
@@ -100,10 +99,10 @@ else:
 
 
         </record>
-        <record id="rule_ca_cpp_employer_worker" model="hr.salary.rule">
-            <field name="name">Employer CPP</field>
-            <field name="sequence" eval="130"/>
-            <field name="code">CPP_EMPLOYER</field>
+        <record id="rule_ca_cpp2_employer_worker" model="hr.salary.rule">
+            <field name="name">Employer CPP2</field>
+            <field name="sequence" eval="135"/>
+            <field name="code">CPP2_EMPLOYER</field>
             <field name="category_id" ref="hr_payroll.COMP"/>
             <field name="appears_on_payslip" eval="1"/>
             <field name="active" eval="1"/>
@@ -113,7 +112,7 @@ else:
 <!--            <field name="exemption_id" ref="cpp_exempt"/>-->
             <field name="amount_python_compute">
                 <![CDATA[
-result=CPP
+result=CPP2
                     ]]>
             </field>
 
