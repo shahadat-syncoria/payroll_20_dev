@@ -9,6 +9,50 @@
                 <field name="identification_id" position="attributes">
                     <attribute name="string">Employee Social Insurance Number (SIN)</attribute>
                 </field>
+                <xpath expr="//notebook" position="inside">
+                    <page name="sync_payroll_info" string="Syncoria Payroll Information" groups="hr.group_hr_manager">
+                                <group>
+                                    <group string='CPP' name="cpp">
+                                        <group>
+                                            <field name="ytd_cpp_erp"/>
+                                            <field name="ytd_previous_cpp"/>
+                                            <field name="ytd_cpp"/>
+                                        </group>
+                                        <group>
+                                            <button name="update_ytd_erp" type="object"
+                                                    help="Update ERP CPP" title="Update ERP CPP" context="{'type':'CPP'}" icon="fa-refresh"/>
+
+                                        </group>
+
+
+                                    </group>
+                                    <group string='CPP2' name="cpp2">
+                                        <group>
+                                            <field name="ytd_cpp2_erp"/>
+                                            <field name="ytd_previous_cpp2"/>
+                                            <field name="ytd_cpp2"/>
+                                        </group>
+                                        <group>
+                                            <button name="update_ytd_erp" type="object"
+                                                    help="Update ERP CPP2" context="{'type':'CPP2'}" title="Update ERP CPP2" icon="fa-refresh"/>
+
+                                        </group>
+
+
+                                    </group>
+                                    <group string='PI' name="pi">
+                                        <group>
+                                            <field name="ytd_pi" readonly="1"/>
+                                        </group>
+                                        <group>
+                                        <button name="update_ytd_erp" type="object"
+                                                    help="Update ERP YTDPI" context="{'type':'PI'}" title="Update ERP YTDPI" icon="fa-refresh"/>
+                                            </group>
+                                    </group>
+
+                                </group>
+                            </page>
+                </xpath>
             </field>
         </record>
 

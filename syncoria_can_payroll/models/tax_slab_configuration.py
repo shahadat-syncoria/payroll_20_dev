@@ -24,6 +24,12 @@ class TaxSlabConfiguration(models.Model):
     cpp_emp_employ_rate = fields.Float(string="Employee & Employer Contribution Rate (%)",digits=(6,4))
     cpp_emp_employ_contrib = fields.Float(string="Maximum Annual Employee & Employer Contribution")
 
+    # ========================== CPP2 ============================
+    cpp2_add_max_an_pen_earn = fields.Float(string="Additional Maximum Annual Pensionable Earnings")
+    cpp2_emp_employ_rate = fields.Float(string="CPP2 Employee & Employer Contribution Rate (%)", digits=(6, 4))
+    cpp2_emp_employ_contrib = fields.Float(string="CPP2 Maximum Annual Employee & Employer Contribution")
+    cpp2_self_employed_contrib = fields.Float(string="Maximum Annual Self-employed Contribution")
+
     # =========================== EI ================================
     ei_max_an_pen_earn = fields.Float(string="Maximum Annual Insurable Earnings")
     ei_rate = fields.Float(string="Rate (%)",digits=(6,4))

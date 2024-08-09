@@ -17,7 +17,7 @@
     # Check https://github.com/odoo/odoo/blob/16.0/odoo/addons/base/data/ir_module_category_data.xml
     # for the full list
     'category': 'Human Resources/Payroll',
-    'version': '17.0.0.2',
+    'version': '17.0.0.4',
 
     # any module necessary for this one to work correctly
     'depends': ['base','hr_payroll','hr_work_entry'],
@@ -31,6 +31,7 @@
         'data/salary_category.xml',
         'data/salary_rules/salary_rules.xml',
         'data/salary_rules/cpp.xml',
+        'data/salary_rules/cpp2.xml',
         'data/salary_rules/ei.xml',
         'data/salary_rules/tax.xml',
         'data/emails/reminder_email.xml',

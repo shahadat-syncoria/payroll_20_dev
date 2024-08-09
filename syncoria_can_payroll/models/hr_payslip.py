@@ -78,6 +78,9 @@ class InheritedHrPayslip(models.Model):
         if any(slip.state not in ['done', 'waiting'] for slip in self):
             raise UserError(_('Cannot mark payslip as paid if not confirmed or waiting.'))
         self.write({'state': 'paid', 'paid_date': fields.Date.today()})
+        # ================= YTD Information Update =========
+        for slip in self:
+            slip.employee_id.with_context({"type":"ALL"}).update_ytd_erp() # "ALL" is for update YTD of CPP,CPP2,PI
 
     def get_previous_irregular_payment(self, id, paycycle):
         payslip = self.browse(id)
