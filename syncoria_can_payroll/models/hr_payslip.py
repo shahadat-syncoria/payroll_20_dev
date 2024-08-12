@@ -185,26 +185,26 @@ class InheritedHrPayslip(models.Model):
 
         # ================== For Version 17 no need schedule pay =================
 
-        @api.depends('date_from', 'date_to', 'struct_id')
-        def _compute_warning_message(self):
-            for slip in self.filtered(lambda p: p.date_to):
-                slip.warning_message = False
-                warnings = []
-                if slip.contract_id and (slip.date_from < slip.contract_id.date_start
-                                         or (slip.contract_id.date_end and slip.date_to > slip.contract_id.date_end)):
-                    warnings.append(_("The period selected does not match the contract validity period."))
+    @api.depends('date_from', 'date_to', 'struct_id')
+    def _compute_warning_message(self):
+        for slip in self.filtered(lambda p: p.date_to):
+            slip.warning_message = False
+            warnings = []
+            if slip.contract_id and (slip.date_from < slip.contract_id.date_start
+                                     or (slip.contract_id.date_end and slip.date_to > slip.contract_id.date_end)):
+                warnings.append(_("The period selected does not match the contract validity period."))
 
-                if slip.date_to > date_utils.end_of(fields.Date.today(), 'month'):
-                    warnings.append(_(
-                        "Work entries may not be generated for the period from %(start)s to %(end)s.",
-                        start=date_utils.add(date_utils.end_of(fields.Date.today(), 'month'), days=1),
-                        end=slip.date_to,
-                    ))
+            if slip.date_to > date_utils.end_of(fields.Date.today(), 'month'):
+                warnings.append(_(
+                    "Work entries may not be generated for the period from %(start)s to %(end)s.",
+                    start=date_utils.add(date_utils.end_of(fields.Date.today(), 'month'), days=1),
+                    end=slip.date_to,
+                ))
 
-                # if (slip.contract_id.schedule_pay or slip.contract_id.structure_type_id.default_schedule_pay) \
-                #         and slip.date_from + slip._get_schedule_timedelta() != slip.date_to:
-                #     warnings.append(_("The duration of the payslip is not accurate according to the structure type."))
+            # if (slip.contract_id.schedule_pay or slip.contract_id.structure_type_id.default_schedule_pay) \
+            #         and slip.date_from + slip._get_schedule_timedelta() != slip.date_to:
+            #     warnings.append(_("The duration of the payslip is not accurate according to the structure type."))
 
-                if warnings:
-                    warnings = [_("This payslip can be erroneous :")] + warnings
-                    slip.warning_message = "\n  ・ ".join(warnings)
+            if warnings:
+                warnings = [_("This payslip can be erroneous :")] + warnings
+                slip.warning_message = "\n  ・ ".join(warnings)
