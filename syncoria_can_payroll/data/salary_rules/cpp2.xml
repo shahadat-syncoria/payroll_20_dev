@@ -19,7 +19,7 @@ if is_pay_cycle:
     pay_cycle = int(is_pay_cycle)
 
 
-    irregular_gross = abs(categories['ADD_ALLOWANCE'])
+    irregular_gross = I_Earning
     main_gross = GROSS + irregular_gross
     PM= 12
     calculation_1 =  contract.deductions.cpp2_emp_employ_contrib * (PM/12) - employee.ytd_cpp2
@@ -81,7 +81,7 @@ if is_pay_cycle:
     pay_cycle = int(is_pay_cycle)
 
 
-    irregular_gross = abs(categories['ADD_ALLOWANCE'])
+    irregular_gross = I_Earning
     main_gross = GROSS + irregular_gross
     PM= 12
     calculation_1 =  contract.deductions.cpp2_emp_employ_contrib * (PM/12) - employee.ytd_cpp2

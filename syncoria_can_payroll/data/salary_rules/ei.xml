@@ -19,7 +19,7 @@ is_pay_cycle = contract.salary_pay_cycle.pay_cycle
 if is_pay_cycle:
     pay_cycle = int(is_pay_cycle)
     main_gross = GROSS
-    irregular_gross = abs(categories['ADD_ALLOWANCE'])
+    irregular_gross = I_Earning
 
     final_result = result = (((main_gross * pay_cycle) * (
             contract.deductions.ei_rate / 100)) / pay_cycle) + (
@@ -50,7 +50,7 @@ is_pay_cycle = contract.salary_pay_cycle.pay_cycle
 if is_pay_cycle:
     pay_cycle = int(is_pay_cycle)
     main_gross = GROSS
-    irregular_gross = abs(categories['ADD_ALLOWANCE'])
+    irregular_gross = I_Earning
 
     final_result = (((main_gross * pay_cycle) * (
             contract.deductions.ei_employer_rate / 100)) / pay_cycle) + (
@@ -82,7 +82,7 @@ is_pay_cycle = contract.salary_pay_cycle.pay_cycle
 if is_pay_cycle:
     pay_cycle = int(is_pay_cycle)
     main_gross = GROSS
-    irregular_gross = abs(categories['ADD_ALLOWANCE'])
+    irregular_gross = I_Earning
 
     final_result = (((main_gross * pay_cycle) * (
             contract.deductions.ei_rate / 100)) / pay_cycle) + (
@@ -113,7 +113,7 @@ is_pay_cycle = contract.salary_pay_cycle.pay_cycle
 if is_pay_cycle:
     pay_cycle = int(is_pay_cycle)
     main_gross = GROSS
-    irregular_gross = abs(categories['ADD_ALLOWANCE'])
+    irregular_gross = I_Earning
 
     final_result = (((main_gross * pay_cycle) * (
             contract.deductions.ei_employer_rate / 100)) / pay_cycle) + (
