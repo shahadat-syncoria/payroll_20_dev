@@ -130,7 +130,9 @@ class InheritedHrPayslip(models.Model):
         try:
             is_pay_cycle = rec.contract_id.salary_pay_cycle.pay_cycle
             gross_work_entry_type = self.env['hr.work.entry.type'].search([('is_gross', '=',True)])
+            deduct_from_gross_work_entry_type = self.env['hr.work.entry.type'].search([('deduct_from_gross', '=',True)])
             result += sum([round(rec._get_worked_days_line_amount(gross_entry_type.code),2) if gross_entry_type.code else 0.0 for gross_entry_type in gross_work_entry_type])
+            result -= sum([round(rec._get_worked_days_line_amount(deduct_gross_entry_type.code),2) if deduct_gross_entry_type.code else 0.0 for deduct_gross_entry_type in deduct_from_gross_work_entry_type])
             if is_pay_cycle and not rec.contract_id.is_hourly:
                 if rec.contract_id.work_entry_source in ['attendance','calendar']:
                     result += round(rec._get_worked_days_line_amount('WORK100'),2)
