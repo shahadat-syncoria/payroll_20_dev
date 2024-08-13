@@ -21,7 +21,7 @@ if is_pay_cycle:
     main_gross = GROSS
     irregular_gross = I_Earning
 
-    final_result = result = (((main_gross * pay_cycle) * (
+    final_result =(((main_gross * pay_cycle) * (
             contract.deductions.ei_rate / 100)) / pay_cycle) + (
                                     irregular_gross * (contract.deductions.ei_rate / 100))
     if final_result < 0.0:
