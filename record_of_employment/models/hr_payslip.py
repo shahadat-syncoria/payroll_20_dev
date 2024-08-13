@@ -36,7 +36,7 @@ class InsurablePayslip(models.Model):
         for work_entry in self.worked_days_line_ids:
             if work_entry.work_entry_type_id.code == "TIMESHEET_WORK100" and self.contract_id.work_entry_source == 'timesheet_hours':
                 timesheet_amount += work_entry.number_of_hours
-            elif work_entry.work_entry_type_id.code == "WORK100" and self.contract_id.work_entry_source == 'attendance':
+            elif work_entry.work_entry_type_id.code == "WORK100":
                 timesheet_amount += work_entry.number_of_hours
         result = vacation_amount + timesheet_amount
 
