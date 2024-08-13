@@ -647,6 +647,7 @@ class StatementOfRemuneration(models.Model):
         canada_cpp_qpp_ern_amt = 0.0
         employee_empt_incamt = 0.0
         employee_empe_eip_amt = 0.0
+        employer_empe_eip_amt = 0.0
         employee_ei_insu_ern_amt = 0.0
         income_itx_ddct_amt = 0.0
         union_unn_dues_amt = 0.0
@@ -661,13 +662,15 @@ class StatementOfRemuneration(models.Model):
                 #     canada_cpp_qpp_ern_amt += line.amount
                 if line.code == 'CPP':
                     cpp_cnt_amount += line.amount
-                elif line.category_id.code == 'GROSS':
+                elif line.code == 'I_Earning': #This will be total gross amount (GROSS + ALW + ADD_ALW)
                     employee_empt_incamt += line.amount
                 # elif line.code == 'EI_EA':
                 #
                 #     employee_ei_insu_ern_amt += line.amount
                 elif line.code == 'EI':
                     employee_empe_eip_amt += line.amount
+                elif line.code == 'EI_EMPLOYER':
+                    employer_empe_eip_amt += line.amount
                 elif line.code in ['FTAX', 'OTAX']:
                     income_itx_ddct_amt += line.amount
                 elif line.code == 'UNION_DUES':
@@ -688,15 +691,13 @@ class StatementOfRemuneration(models.Model):
             'employee_empt_incamt': round(employee_empt_incamt,2),
             'tot_empt_incamt': round(employee_empt_incamt,2),
             'income_itx_ddct_amt': round(income_itx_ddct_amt,2),
+            'tot_itx_ddct_amt': round(income_itx_ddct_amt,2),
             'union_unn_dues_amt': round(union_unn_dues_amt,2),
             'charitable_chrty_dons_amt': round(charitable_chrty_dons_amt,2),
             'pension_padj_amt': round(pension_padj_amt,2),
         })
         if not employee_contract.is_cpp_qpp_xmpt_cd:
-            if employee_empt_incamt < 66600:
-                canada_cpp_qpp_ern_amt = round(employee_empt_incamt,2)
-            else:
-                canada_cpp_qpp_ern_amt = 3754.45
+            canada_cpp_qpp_ern_amt = round(employee_empt_incamt, 2)
             t4_amount.update(
                 {'employee_cpp_cntrb_amt': round(cpp_cnt_amount,2),
                  'tot_empe_cpp_amt': round(cpp_cnt_amount,2),
@@ -704,13 +705,11 @@ class StatementOfRemuneration(models.Model):
                  'canada_cpp_qpp_ern_amt': round(canada_cpp_qpp_ern_amt,2)}
             )
         if not employee_contract.is_ei_xmpt_cd:
-            if employee_empt_incamt < 61500:
-                employee_ei_insu_ern_amt = round(employee_empt_incamt,2)
-            else:
-                employee_ei_insu_ern_amt = 1002.45
+            employee_ei_insu_ern_amt = round(employee_empt_incamt, 2)
             t4_amount.update(
                 {'employee_empe_eip_amt': round(employee_empe_eip_amt,2),
-                 'tot_empr_eip_amt': round((employee_empt_incamt * 0.02282),2),
+                 'tot_empe_eip_amt': round(employee_empe_eip_amt,2),
+                 'tot_empr_eip_amt': round(employer_empe_eip_amt,2),
                  'employee_ei_insu_ern_amt': round(employee_ei_insu_ern_amt,2)}
             )
         if not employee_contract.is_prov_pip_xmpt_cd:

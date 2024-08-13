@@ -49,7 +49,7 @@ result = (categories['GROSS'] + categories['ALW']+categories['ADD_ALLOWANCE']) -
 <!--        ============================ EXPENSE ===================-->
         <record id="rule_ca_expense" model="hr.salary.rule">
             <field name="name">EXPENSES</field>
-            <field name="sequence" eval="290"/>
+            <field name="sequence" eval="85"/>
             <field name="code">EXPENSE</field>
             <field name="category_id" ref="hr_payroll.ALW"/>
             <field name="appears_on_payslip" eval="1"/>
@@ -69,7 +69,7 @@ result_name = inputs.['EXPENSES'].name
         <!--        ============================ INSURABLE EARNING ===================-->
         <record id="rule_ca_insurable_earning" model="hr.salary.rule">
             <field name="name">Insurable Earning</field>
-            <field name="sequence" eval="320"/>
+            <field name="sequence" eval="89"/>
             <field name="code">I_Earning</field>
             <field name="category_id" ref="syncoria_can_payroll.CALC"/>
             <field name="appears_on_payslip" eval="1"/>
@@ -79,9 +79,10 @@ result_name = inputs.['EXPENSES'].name
             <field name="condition_select">none</field>
             <field name="amount_python_compute">
 main_gross = GROSS
-irregular_gross = abs(categories['ADD_ALLOWANCE'])
+irregular_gross = categories['ADD_ALLOWANCE']
+regular_alw = categories['ALW']
 
-result = main_gross  + irregular_gross
+result = main_gross  + irregular_gross + regular_alw
             </field>
 
 
@@ -270,7 +271,7 @@ result = (categories['GROSS'] + categories['ALW']+categories['ADD_ALLOWANCE']) -
         <!--        ============================ EXPENSE ===================-->
         <record id="rule_ca_expense_worker" model="hr.salary.rule">
             <field name="name">EXPENSES</field>
-            <field name="sequence" eval="290"/>
+            <field name="sequence" eval="85"/>
             <field name="code">EXPENSE</field>
             <field name="category_id" ref="hr_payroll.ALW"/>
             <field name="appears_on_payslip" eval="1"/>
@@ -288,7 +289,7 @@ result_name = inputs['EXPENSES'].name
           <!--        ============================ INSURABLE EARNING ===================-->
         <record id="rule_ca_insurable_earning_worker" model="hr.salary.rule">
             <field name="name">Insurable Earning</field>
-            <field name="sequence" eval="320"/>
+            <field name="sequence" eval="89"/>
             <field name="code">I_Earning</field>
             <field name="category_id" ref="syncoria_can_payroll.CALC"/>
             <field name="appears_on_payslip" eval="1"/>
@@ -298,9 +299,10 @@ result_name = inputs['EXPENSES'].name
             <field name="condition_select">none</field>
             <field name="amount_python_compute">
 main_gross = GROSS
-irregular_gross = abs(categories['ADD_ALLOWANCE'])
+irregular_gross = categories['ADD_ALLOWANCE']
+regular_alw = categories['ALW']
 
-result = main_gross  + irregular_gross
+result = main_gross  + irregular_gross + regular_alw
             </field>
 
 

@@ -2,6 +2,7 @@ import json
 
 from odoo import fields, models, _, api
 from odoo.exceptions import UserError, ValidationError
+from odoo.tools import date_utils
 from ..helper.helper_functions import year_selection
 
 PAYGROUP = {
@@ -27,6 +28,9 @@ class InheritedHrPayslip(models.Model):
         compute='_compute_pay_cycle_period_domain', readonly=True,
         store=False)
     is_manual_input = fields.Boolean(compute='_compute_is_manual_input')
+
+
+
 
     def _compute_is_manual_input(self):
         with_user = self.env['ir.config_parameter'].sudo()
@@ -82,6 +86,11 @@ class InheritedHrPayslip(models.Model):
         for slip in self:
             slip.employee_id.with_context({"type":"ALL"}).update_ytd_erp() # "ALL" is for update YTD of CPP,CPP2,PI
 
+    def action_payslip_cancel(self):
+        super(InheritedHrPayslip,self).action_payslip_cancel()
+        for slip in self:
+            slip.employee_id.with_context({"type":"ALL"}).update_ytd_erp() # "ALL" is for update YTD of CPP,CPP2,PI
+
     def get_previous_irregular_payment(self, id, paycycle):
         payslip = self.browse(id)
         payslip_employee = payslip.employee_id
@@ -102,6 +111,8 @@ class InheritedHrPayslip(models.Model):
         for rec in self:
             if rec.payslip_run_id and res and 'state' in vals and vals.get('state') == 'paid':
                 rec.payslip_run_id._check_paid_status()
+            if 'state' in vals and vals.get('state') == 'paid':
+                rec.employee_id.with_context({"type": "ALL"}).update_ytd_erp()
         return res
 
     # ================== Report ======================
@@ -119,7 +130,9 @@ class InheritedHrPayslip(models.Model):
         try:
             is_pay_cycle = rec.contract_id.salary_pay_cycle.pay_cycle
             gross_work_entry_type = self.env['hr.work.entry.type'].search([('is_gross', '=',True)])
+            deduct_from_gross_work_entry_type = self.env['hr.work.entry.type'].search([('deduct_from_gross', '=',True)])
             result += sum([round(rec._get_worked_days_line_amount(gross_entry_type.code),2) if gross_entry_type.code else 0.0 for gross_entry_type in gross_work_entry_type])
+            result -= sum([round(rec._get_worked_days_line_amount(deduct_gross_entry_type.code),2) if deduct_gross_entry_type.code else 0.0 for deduct_gross_entry_type in deduct_from_gross_work_entry_type])
             if is_pay_cycle and not rec.contract_id.is_hourly:
                 if rec.contract_id.work_entry_source in ['attendance','calendar']:
                     result += round(rec._get_worked_days_line_amount('WORK100'),2)
@@ -171,3 +184,29 @@ class InheritedHrPayslip(models.Model):
     #         if line.work_entry_type_id.id in unique_work_entry_type_ids:
     #             raise ValidationError('Worked Entry Type must be unique per payslip.')
     #         unique_work_entry_type_ids.append(line.work_entry_type_id.id)
+
+        # ================== For Version 17 no need schedule pay =================
+
+    @api.depends('date_from', 'date_to', 'struct_id')
+    def _compute_warning_message(self):
+        for slip in self.filtered(lambda p: p.date_to):
+            slip.warning_message = False
+            warnings = []
+            if slip.contract_id and (slip.date_from < slip.contract_id.date_start
+                                     or (slip.contract_id.date_end and slip.date_to > slip.contract_id.date_end)):
+                warnings.append(_("The period selected does not match the contract validity period."))
+
+            if slip.date_to > date_utils.end_of(fields.Date.today(), 'month'):
+                warnings.append(_(
+                    "Work entries may not be generated for the period from %(start)s to %(end)s.",
+                    start=date_utils.add(date_utils.end_of(fields.Date.today(), 'month'), days=1),
+                    end=slip.date_to,
+                ))
+
+            # if (slip.contract_id.schedule_pay or slip.contract_id.structure_type_id.default_schedule_pay) \
+            #         and slip.date_from + slip._get_schedule_timedelta() != slip.date_to:
+            #     warnings.append(_("The duration of the payslip is not accurate according to the structure type."))
+
+            if warnings:
+                warnings = [_("This payslip can be erroneous :")] + warnings
+                slip.warning_message = "\n  ・ ".join(warnings)
