@@ -148,7 +148,7 @@ class InheritedResPartner(models.Model):
                 rec.wage = 0.0
 
     @api.onchange("hourly_rate")
-    def _onchange_wage(self):
+    def _onchange_hourly_wage(self):
         for rec in self:
             if rec.hourly_rate:
                 rec.hourly_wage = rec.hourly_rate
