@@ -20,8 +20,7 @@ if is_pay_cycle:
     pay_cycle = int(is_pay_cycle)
 
 
-    irregular_gross = I_Earning
-    main_gross = GROSS + irregular_gross
+    main_gross = I_Earning
     PM= 12
 
     calculation_1 =  contract.deductions.cpp_emp_employ_contrib * (PM/12) - employee.ytd_cpp ;
@@ -81,9 +80,7 @@ is_pay_cycle = contract.salary_pay_cycle.pay_cycle
 if is_pay_cycle:
     pay_cycle = int(is_pay_cycle)
 
-
-    irregular_gross = I_Earning
-    main_gross = GROSS + irregular_gross
+    main_gross = I_Earning
     PM= 12
 
     calculation_1 =  contract.deductions.cpp_emp_employ_contrib * (PM/12) - employee.ytd_cpp ;
@@ -125,29 +122,7 @@ result=CPP
 
 
 <!--        ========================== Previous CPP calculation ===========-->
-        <!--is_pay_cycle = contract.salary_pay_cycle.pay_cycle-->
-<!--if is_pay_cycle:-->
-<!--    pay_cycle = int(is_pay_cycle)-->
 
-<!--    main_gross = GROSS-->
-<!--    irregular_gross = abs(categories['ADD_ALLOWANCE'])-->
-
-<!--    yearly_gross = (main_gross * pay_cycle - contract.deductions.cpp_basic_exem) + irregular_gross-->
-
-<!--    if yearly_gross < contract.deductions.cpp_max_con_earn:-->
-<!--        final_result = (((main_gross * pay_cycle - contract.deductions.cpp_basic_exem) * (-->
-<!--                    contract.deductions.cpp_emp_employ_rate / 100)) / pay_cycle) + (-->
-<!--                               irregular_gross * (contract.deductions.cpp_emp_employ_rate / 100))-->
-
-<!--    else:-->
-<!--        final_result = (((contract.deductions.cpp_max_an_pen_earn - contract.deductions.cpp_basic_exem) * (-->
-<!--                    contract.deductions.cpp_emp_employ_rate / 100)) / pay_cycle) + (-->
-<!--                               irregular_gross * (contract.deductions.cpp_emp_employ_rate / 100))-->
-<!--    if final_result < 0.0:-->
-<!--        final_result = 0.0-->
-<!--    result = final_result-->
-<!--else:-->
-<!--    result = 0.0-->
 
     </data>
 </odoo>

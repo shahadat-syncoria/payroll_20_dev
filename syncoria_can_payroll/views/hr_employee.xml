@@ -40,7 +40,35 @@
 
 
                                     </group>
-                                    <group string='PI' name="pi">
+                                    <group string='EI' name="ei">
+                                        <group>
+                                            <field name="ytd_ei_erp"/>
+                                            <field name="ytd_previous_ei"/>
+                                            <field name="ytd_ei"/>
+                                        </group>
+                                        <group>
+                                            <button name="update_ytd_erp" type="object"
+                                                    help="Update ERP CPP2" context="{'type':'EI'}" title="Update ERP EI" icon="fa-refresh"/>
+
+                                        </group>
+
+
+                                    </group>
+                                    <group string='Employer EI ' name="ei">
+                                        <group>
+                                            <field name="ytd_ei_employer_erp"/>
+<!--                                            <field name="ytd_previous_ei"/>-->
+                                            <field name="ytd_ei_employer"/>
+                                        </group>
+                                        <group>
+                                            <button name="update_ytd_erp" type="object"
+                                                    help="Update ERP Employer EI" context="{'type':'EI_EMPLOYER'}" title="Update ERP Employer EI" icon="fa-refresh"/>
+
+                                        </group>
+
+
+                                    </group>
+                                    <group string='PI/IE' name="pi">
                                         <group>
                                             <field name="ytd_pi" readonly="1"/>
                                         </group>

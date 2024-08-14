@@ -15,20 +15,19 @@
 <!--            <field name="exemption_id" ref="cpp_exempt"/>-->
             <field name="amount_python_compute">
                 <![CDATA[
-is_pay_cycle = contract.salary_pay_cycle.pay_cycle
-if is_pay_cycle:
-    pay_cycle = int(is_pay_cycle)
-    main_gross = GROSS
-    irregular_gross = I_Earning
 
-    final_result =(((main_gross * pay_cycle) * (
-            contract.deductions.ei_rate / 100)) / pay_cycle) + (
-                                    irregular_gross * (contract.deductions.ei_rate / 100))
-    if final_result < 0.0:
-        final_result = 0.0
-    result = final_result
+main_gross = I_Earning
+
+calculation_1 =   contract.deductions.ei_max_emp_anu_prem - employee.ytd_ei ;
+calculation_2 =   (contract.deductions.ei_rate / 100) * main_gross
+final_ei = min(calculation_1,calculation_2)
+if final_ei < 0.00:
+    result = 0.00
 else:
-    result = 0.0
+    result=final_ei
+
+
+
                 ]]>
             </field>
         </record>
@@ -46,20 +45,17 @@ else:
 <!--            <field name="exemption_id" ref="cpp_exempt"/>-->
             <field name="amount_python_compute">
                 <![CDATA[
-is_pay_cycle = contract.salary_pay_cycle.pay_cycle
-if is_pay_cycle:
-    pay_cycle = int(is_pay_cycle)
-    main_gross = GROSS
-    irregular_gross = I_Earning
 
-    final_result = (((main_gross * pay_cycle) * (
-            contract.deductions.ei_employer_rate / 100)) / pay_cycle) + (
-                           irregular_gross * (contract.deductions.ei_employer_rate / 100))
-    if final_result < 0.0:
-        final_result = 0.0
-    result = final_result
+main_gross = I_Earning
+
+calculation_1 =   contract.deductions.ei_max_employer_anu_prem - employee.ytd_ei_employer ;
+calculation_2 =   (contract.deductions.ei_employer_rate / 100) * main_gross
+final_ei = min(calculation_1,calculation_2)
+if final_ei < 0.00:
+    result = 0.00
 else:
-    result = 0.0
+    result=final_ei
+
                 ]]>
             </field>
         </record>
@@ -78,20 +74,19 @@ else:
 <!--            <field name="exemption_id" ref="cpp_exempt"/>-->
             <field name="amount_python_compute">
                 <![CDATA[
-is_pay_cycle = contract.salary_pay_cycle.pay_cycle
-if is_pay_cycle:
-    pay_cycle = int(is_pay_cycle)
-    main_gross = GROSS
-    irregular_gross = I_Earning
 
-    final_result = (((main_gross * pay_cycle) * (
-            contract.deductions.ei_rate / 100)) / pay_cycle) + (
-                           irregular_gross * (contract.deductions.ei_rate / 100))
-    if final_result < 0.0:
-        final_result = 0.0
-    result = final_result
+main_gross = I_Earning
+
+calculation_1 =   contract.deductions.ei_max_emp_anu_prem - employee.ytd_ei ;
+calculation_2 =   (contract.deductions.ei_rate / 100) * main_gross
+final_ei = min(calculation_1,calculation_2)
+if final_ei < 0.00:
+    result = 0.00
 else:
-    result = 0.0
+    result=final_ei
+
+
+
                 ]]>
             </field>
         </record>
@@ -109,20 +104,17 @@ else:
 <!--            <field name="exemption_id" ref="cpp_exempt"/>-->
             <field name="amount_python_compute">
                 <![CDATA[
-is_pay_cycle = contract.salary_pay_cycle.pay_cycle
-if is_pay_cycle:
-    pay_cycle = int(is_pay_cycle)
-    main_gross = GROSS
-    irregular_gross = I_Earning
 
-    final_result = (((main_gross * pay_cycle) * (
-            contract.deductions.ei_employer_rate / 100)) / pay_cycle) + (
-                           irregular_gross * (contract.deductions.ei_employer_rate / 100))
-    if final_result < 0.0:
-        final_result = 0.0
-    result = final_result
+main_gross = I_Earning
+
+calculation_1 =   contract.deductions.ei_max_employer_anu_prem - employee.ytd_ei_employer ;
+calculation_2 =   (contract.deductions.ei_employer_rate / 100) * main_gross
+final_ei = min(calculation_1,calculation_2)
+if final_ei < 0.00:
+    result = 0.00
 else:
-    result = 0.0
+    result=final_ei
+
                 ]]>
             </field>
         </record>

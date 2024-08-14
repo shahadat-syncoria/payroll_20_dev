@@ -29,3 +29,73 @@ elif 150000 < yearly < 220000:
 elif 220000 < yearly:
     woc = (yearly * 0.1316)
 result = (woc - (contract.proviancial_amount_from_td1 * 0.15)) / 12
+============================================================================
+14 Aug, 2024
+Previous CPP calculation:
+
+is_pay_cycle = contract.salary_pay_cycle.pay_cycle
+if is_pay_cycle:
+    pay_cycle = int(is_pay_cycle)
+
+    main_gross = GROSS
+    irregular_gross = abs(categories['ADD_ALLOWANCE'])
+
+    yearly_gross = (main_gross * pay_cycle - contract.deductions.cpp_basic_exem) + irregular_gross
+
+    if yearly_gross < contract.deductions.cpp_max_con_earn:
+        final_result = (((main_gross * pay_cycle - contract.deductions.cpp_basic_exem) * (
+                    contract.deductions.cpp_emp_employ_rate / 100)) / pay_cycle) + (
+                               irregular_gross * (contract.deductions.cpp_emp_employ_rate / 100))
+
+    else:
+        final_result = (((contract.deductions.cpp_max_an_pen_earn - contract.deductions.cpp_basic_exem) * (
+                    contract.deductions.cpp_emp_employ_rate / 100)) / pay_cycle) + (
+                               irregular_gross * (contract.deductions.cpp_emp_employ_rate / 100))
+    if final_result < 0.0:
+        final_result = 0.0
+    result = final_result
+else:
+    result = 0.0
+
+
+ ====================================================================================================
+ 14 Aug, 2024
+ Employee EI calculation
+
+ is_pay_cycle = contract.salary_pay_cycle.pay_cycle
+if is_pay_cycle:
+    pay_cycle = int(is_pay_cycle)
+    main_gross = GROSS
+    irregular_gross = I_Earning
+
+    final_result =(((main_gross * pay_cycle) * (
+            contract.deductions.ei_rate / 100)) / pay_cycle) + (
+                                    irregular_gross * (contract.deductions.ei_rate / 100))
+    if final_result < 0.0:
+        final_result = 0.0
+    result = final_result
+else:
+    result = 0.0
+
+ ============================================================================================
+
+ ====================================================================================================
+ 14 Aug, 2024
+ Employer EI calculation
+
+is_pay_cycle = contract.salary_pay_cycle.pay_cycle
+if is_pay_cycle:
+    pay_cycle = int(is_pay_cycle)
+    main_gross = GROSS
+    irregular_gross = I_Earning
+
+    final_result = (((main_gross * pay_cycle) * (
+            contract.deductions.ei_employer_rate / 100)) / pay_cycle) + (
+                           irregular_gross * (contract.deductions.ei_employer_rate / 100))
+    if final_result < 0.0:
+        final_result = 0.0
+    result = final_result
+else:
+    result = 0.0
+
+ ============================================================================================

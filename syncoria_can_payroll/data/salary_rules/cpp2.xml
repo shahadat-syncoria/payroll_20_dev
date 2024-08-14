@@ -19,8 +19,7 @@ if is_pay_cycle:
     pay_cycle = int(is_pay_cycle)
 
 
-    irregular_gross = I_Earning
-    main_gross = GROSS + irregular_gross
+    main_gross = I_Earning
     PM= 12
     calculation_1 =  contract.deductions.cpp2_emp_employ_contrib * (PM/12) - employee.ytd_cpp2
     W = max(employee.ytd_pi,contract.deductions.cpp_max_an_pen_earn)
@@ -80,9 +79,7 @@ is_pay_cycle = contract.salary_pay_cycle.pay_cycle
 if is_pay_cycle:
     pay_cycle = int(is_pay_cycle)
 
-
-    irregular_gross = I_Earning
-    main_gross = GROSS + irregular_gross
+    main_gross = I_Earning
     PM= 12
     calculation_1 =  contract.deductions.cpp2_emp_employ_contrib * (PM/12) - employee.ytd_cpp2
     W = max(employee.ytd_pi,contract.deductions.cpp_max_an_pen_earn)

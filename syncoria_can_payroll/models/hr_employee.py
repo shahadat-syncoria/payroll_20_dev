@@ -23,9 +23,18 @@ class InhertitedHrEmployee(models.Model):
     ytd_cpp2_erp = fields.Float("Year To Date CPP2 contribution in ERP")
     ytd_previous_cpp2 = fields.Float("Previous CPP2", tracking=True, default=0)
     ytd_cpp2 = fields.Float("Year To Date CPP2", default=0, store=True, compute='_compute_ytd_cpp2')
+    # EI
+    ytd_ei_erp = fields.Float("Year To Date EI contribution in ERP")
+    ytd_previous_ei = fields.Float("Previous EI", tracking=True, default=0)
+    ytd_ei = fields.Float("Year To Date EI", default=0, store=True, compute='_compute_ytd_ei')
+
+    # EI Employer
+    ytd_ei_employer_erp = fields.Float("Year To Date Employer EI  contribution in ERP")
+    ytd_previous_ei_employer = fields.Float("Previous Employer EI ", tracking=True, default=0)
+    ytd_ei_employer = fields.Float("Year To Date Employer EI", default=0, store=True, compute='_compute_ytd_ei_employer')
 
     #PIYTD
-    ytd_pi = fields.Float("Year To Date CPP2", default=0, store=True, compute='_compute_ytd_cpp2')
+    ytd_pi = fields.Float("Year To Date PI/IE", default=0, store=True, compute='_compute_ytd_cpp2')
 
     @api.depends("ytd_cpp_erp","ytd_previous_cpp")
     def _compute_ytd_cpp(self):
@@ -36,6 +45,16 @@ class InhertitedHrEmployee(models.Model):
     def _compute_ytd_cpp2(self):
         for rec in self:
             rec.ytd_cpp2 = rec.ytd_cpp2_erp + rec.ytd_previous_cpp2
+
+    @api.depends("ytd_ei_erp", "ytd_previous_ei")
+    def _compute_ytd_ei(self):
+        for rec in self:
+            rec.ytd_ei = rec.ytd_ei_erp + rec.ytd_previous_ei
+
+    @api.depends("ytd_ei_employer_erp", "ytd_previous_ei_employer")
+    def _compute_ytd_ei_employer(self):
+        for rec in self:
+            rec.ytd_ei_employer = rec.ytd_ei_employer_erp + rec.ytd_previous_ei_employer
 
 
     def _get_ytd_payslip_line_ids(self):
@@ -49,14 +68,18 @@ class InhertitedHrEmployee(models.Model):
 
         return payslip_ytd.line_ids
 
-    def _update_ytd_cpp_pi(self,payslip_ytd,req_type):
-        if req_type in ['CPP', "CPP2"]:
+    def _update_ytd_cpp_pi_ei(self,payslip_ytd,req_type):
+        if req_type in ['CPP', "CPP2","EI","EI_EMPLOYER"]:
             ytd_total_amount = sum(
                 payslip_ytd.filtered(lambda x: x.code == req_type).mapped("total"))
             if req_type == 'CPP':
                 self.ytd_cpp_erp = ytd_total_amount
             elif req_type == 'CPP2':
                 self.ytd_cpp2_erp = ytd_total_amount
+            elif req_type == 'EI':
+                self.ytd_ei_erp = ytd_total_amount
+            elif req_type == 'EI_EMPLOYER':
+                self.ytd_ei_employer_erp = ytd_total_amount
         elif req_type in ['PI']:
             ytd_total_amount = sum(
                 payslip_ytd.filtered(lambda x: x.category_id.code in ["GROSS", "ADD_ALLOWANCE", "ALW"]).mapped("total"))
@@ -66,10 +89,10 @@ class InhertitedHrEmployee(models.Model):
         for rec in self:
             payslip_ytd = rec._get_ytd_payslip_line_ids()
             if self.env.context['type'] == "ALL":
-                for i in ["CPP", "CPP2", "PI"]:
-                    rec._update_ytd_cpp_pi(payslip_ytd,i)
+                for i in ["CPP", "CPP2", "PI","EI","EI_EMPLOYER"]:
+                    rec._update_ytd_cpp_pi_ei(payslip_ytd,i)
             else:
-                rec._update_ytd_cpp_pi(payslip_ytd,rec.env.context.get('type'))
+                rec._update_ytd_cpp_pi_ei(payslip_ytd,rec.env.context.get('type'))
 
 
 
