@@ -686,6 +686,8 @@ class StatementOfRemuneration(models.Model):
 
             # if
             # cpp_cnt_amount +=
+        # Total Insurable earning with previous amount
+        employee_empt_incamt +=  self.employee_id.ytd_previous_pi
 
         t4_amount.update({
             'employee_empt_incamt': round(employee_empt_incamt,2),
@@ -698,6 +700,9 @@ class StatementOfRemuneration(models.Model):
         })
         if not employee_contract.is_cpp_qpp_xmpt_cd:
             canada_cpp_qpp_ern_amt = round(employee_empt_incamt, 2)
+            # Total CPP with previous amount
+            cpp_cnt_amount += self.employee_id.ytd_previous_cpp
+
             t4_amount.update(
                 {'employee_cpp_cntrb_amt': round(cpp_cnt_amount,2),
                  'tot_empe_cpp_amt': round(cpp_cnt_amount,2),
@@ -706,6 +711,10 @@ class StatementOfRemuneration(models.Model):
             )
         if not employee_contract.is_ei_xmpt_cd:
             employee_ei_insu_ern_amt = round(employee_empt_incamt, 2)
+            # Total Employee EI with previous amount
+            employee_empe_eip_amt += self.employee_id.ytd_previous_ei
+            # Total Employer EI with previous amount
+            employer_empe_eip_amt += self.employee_id.ytd_previous_ei_employer
             t4_amount.update(
                 {'employee_empe_eip_amt': round(employee_empe_eip_amt,2),
                  'tot_empe_eip_amt': round(employee_empe_eip_amt,2),

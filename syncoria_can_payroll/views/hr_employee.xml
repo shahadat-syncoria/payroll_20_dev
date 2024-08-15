@@ -57,7 +57,7 @@
                                     <group string='Employer EI ' name="ei">
                                         <group>
                                             <field name="ytd_ei_employer_erp"/>
-<!--                                            <field name="ytd_previous_ei"/>-->
+                                            <field name="ytd_previous_ei"/>
                                             <field name="ytd_ei_employer"/>
                                         </group>
                                         <group>
@@ -70,7 +70,9 @@
                                     </group>
                                     <group string='PI/IE' name="pi">
                                         <group>
-                                            <field name="ytd_pi" readonly="1"/>
+                                            <field name="ytd_pi_erp"/>
+                                            <field name="ytd_previous_pi" />
+                                            <field name="ytd_pi" />
                                         </group>
                                         <group>
                                         <button name="update_ytd_erp" type="object"

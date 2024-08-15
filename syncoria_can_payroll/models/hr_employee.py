@@ -34,7 +34,14 @@ class InhertitedHrEmployee(models.Model):
     ytd_ei_employer = fields.Float("Year To Date Employer EI", default=0, store=True, compute='_compute_ytd_ei_employer')
 
     #PIYTD
-    ytd_pi = fields.Float("Year To Date PI/IE", default=0, store=True, compute='_compute_ytd_cpp2')
+    ytd_pi = fields.Float("Year To Date PI/IE", default=0, store=True, compute='_compute_ytd_pi')
+    ytd_pi_erp = fields.Float("Year To Date PI/IE ERP", default=0, store=True)
+    ytd_previous_pi = fields.Float("Previous Year To Date PI/IE", default=0, store=True)
+
+    @api.depends("ytd_pi_erp", "ytd_previous_pi")
+    def _compute_ytd_pi(self):
+        for rec in self:
+            rec.ytd_pi = rec.ytd_pi_erp + rec.ytd_previous_pi
 
     @api.depends("ytd_cpp_erp","ytd_previous_cpp")
     def _compute_ytd_cpp(self):
@@ -83,7 +90,7 @@ class InhertitedHrEmployee(models.Model):
         elif req_type in ['PI']:
             ytd_total_amount = sum(
                 payslip_ytd.filtered(lambda x: x.category_id.code in ["GROSS", "ADD_ALLOWANCE", "ALW"]).mapped("total"))
-            self.ytd_pi = ytd_total_amount
+            self.ytd_pi_erp = ytd_total_amount
 
     def update_ytd_erp(self):
         for rec in self:
