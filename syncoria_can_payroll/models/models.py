@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 import os
 
+from lxml import etree
+
 from odoo import models, fields, api, _
 import xml.etree.ElementTree as ET
 from odoo.exceptions import UserError
@@ -204,9 +206,17 @@ class StatementOfRemuneration(models.Model):
     - T4 slip, box 16
     Note: Under no circumstances should amounts for both CPP and QPP appear on the same slip. A separate T4 slip is needed for each province of employment.""")
 
+    employee_cppe_cntrb_amt = fields.Float("Employee's second Canada Pension Plan (CPP2) contributions", help=""""- 6 numeric
+            - T4 slip, box 16A , (For taxation year 2024 and subsequent)
+            Note: Under no circumstances should amounts for both second CPP and second QPP appear on the same slip. A separate T4 slip is needed for each province of employment.""")
+
     employee_qpp_cntrb_amt = fields.Float("Employee's Quebec Pension Plan (QPP) contributions", help=""""- 6 numeric
     - T4 slip, box 17
     Note: Under no circumstances should amounts for both CPP and QPP appear on the same slip. A separate T4 slip is needed for each province of employment.""")
+
+    employee_qppe_cntrb_amt = fields.Float("Employee's second Québec Pension Plan (QPP2) contributions", help=""""- 6 numeric
+            - T4 slip, box 17A, (For taxation year 2024 and subsequent)
+            Note: Under no circumstances should amounts for both second CPP and second QPP appear on the same slip. A separate T4 slip is needed for each province of employment.""")
 
     employee_empe_eip_amt = fields.Float("Employee's Employment Insurance (EI) premium", help="""" 6 numeric
     - T4 slip, box 18""")
@@ -243,6 +253,20 @@ class StatementOfRemuneration(models.Model):
     - T4 Slip, box 56""")
 
     # =================================== Other Info ===============================
+    # empr_dntl_ben_rpt_cd
+    empr_dntl_ben_rpt_cd = fields.Selection(selection=[ ('1', 'Not eligible to access any dental care insurance, or coverage of dental service of any kind'),
+        ('2', 'Payee only'),
+        ('3', 'Payee, spouse and dependent children'),
+        ('4', 'Payee and their spouse'),
+        ('5', 'Payee and their dependent children'),] ,string="Employer-offered dental benefits", help="""- Required, 1 numeric
+        - T4 slip, box 45
+        For 2023 and subsequent calendar years, it is mandatory to indicate whether the employee or any of their family members were eligible or not, on December 31 of that year, to access any dental care insurance, or coverage of dental services of any kind, that you offered.
+        
+        1 - Not eligible to access any dental care insurance, or coverage of dental service of any kind
+        2 - Payee only
+        3 - Payee, spouse and dependent children
+        4 - Payee and their spouse
+        5 - Payee and their dependent children""",default='1')
     # hm_brd_lodg_amt
     hm_brd_lodg_amt = fields.Float("Housing, board and lodging amount", help="- Other Income Amount - Code 30")
 
@@ -558,6 +582,14 @@ class StatementOfRemuneration(models.Model):
         help="- 11 numeric\n- Accumulated total of employees' Canada Pension Plan contributions"
     )
 
+    # tot_empe_cppe_amt
+    tot_empe_cppe_amt = fields.Float(
+        string="Total employees' second Pension Plan contributions",
+        help="""- 11 numeric
+        - Accumulated total of employees' second Canada Pension Plan contributions
+        Note: Do not include the total employees' second Quebec Pension Plan contributions in this field."""
+    )
+
     # tot_empe_eip_amt
     tot_empe_eip_amt = fields.Float(
         string="Total employees' employment insurance premiums",
@@ -585,6 +617,10 @@ class StatementOfRemuneration(models.Model):
     # tot_empr_cpp_amt
     tot_empr_cpp_amt = fields.Float(
         string="Total employer's Canada Pension Plan contributions", help="- 11 numeric"
+    )
+    # tot_empr_cppe_amt
+    tot_empr_cppe_amt = fields.Float(
+        string="Total employer's second Pension Plan contributions", help="""- 11 numeric"""
     )
 
     # tot_empr_eip_amt
@@ -643,6 +679,9 @@ class StatementOfRemuneration(models.Model):
         employee_contract = self.employee_contract
         t4_amount = {}
         cpp_cnt_amount = 0.0
+        cpp_cnt_amount = 0.0
+        cppe_cntrb_amt = 0.0 # CPP2 amount
+        qppe_cntrb_amt = 0.0 # Quebec CPP2 amount
         qpp_cnt_amount = 0.0
         canada_cpp_qpp_ern_amt = 0.0
         employee_empt_incamt = 0.0
@@ -662,6 +701,8 @@ class StatementOfRemuneration(models.Model):
                 #     canada_cpp_qpp_ern_amt += line.amount
                 if line.code == 'CPP':
                     cpp_cnt_amount += line.amount
+                elif line.code == 'CPP2':
+                    cppe_cntrb_amt += line.amount
                 elif line.code == 'I_Earning': #This will be total gross amount (GROSS + ALW + ADD_ALW)
                     employee_empt_incamt += line.amount
                 # elif line.code == 'EI_EA':
@@ -703,10 +744,17 @@ class StatementOfRemuneration(models.Model):
             # Total CPP with previous amount
             cpp_cnt_amount += self.employee_id.ytd_previous_cpp
 
+            # Total CPP2 with previous amount
+            cppe_cntrb_amt += self.employee_id.ytd_previous_cpp2
             t4_amount.update(
-                {'employee_cpp_cntrb_amt': round(cpp_cnt_amount,2),
+                {
+                  'employee_cpp_cntrb_amt': round(cpp_cnt_amount,2),
+                  'employee_cppe_cntrb_amt': round(cppe_cntrb_amt,2),
                  'tot_empe_cpp_amt': round(cpp_cnt_amount,2),
                  'tot_empr_cpp_amt': round(cpp_cnt_amount,2),
+                #CPP2
+                'tot_empe_cppe_amt': round(cppe_cntrb_amt, 2),
+                'tot_empr_cppe_amt': round(cppe_cntrb_amt, 2),
                  'canada_cpp_qpp_ern_amt': round(canada_cpp_qpp_ern_amt,2)}
             )
         if not employee_contract.is_ei_xmpt_cd:
@@ -837,129 +885,134 @@ class StatementOfRemuneration(models.Model):
         ET.SubElement(empe_addr, "pstl_cd").text = self.employee_pstl_cd
 
         # Add other subelements
-        ET.SubElement(t4_slip, "sin").text = str(self.employee_sin)
-        ET.SubElement(t4_slip, "empe_nbr").text = str(self.employee_empe_nbr) or ''
-        ET.SubElement(t4_slip, "bn").text = str(self.employee_bn) or ''
-        ET.SubElement(t4_slip, "rpp_dpsp_rgst_nbr").text = str(self.employee_rpp_dpsp_rgst_nbr) or ''
-        ET.SubElement(t4_slip, "cpp_qpp_xmpt_cd").text = str(self.employee_cpp_qpp_xmpt_cd) or ''
-        ET.SubElement(t4_slip, "ei_xmpt_cd").text = str(self.employee_ei_xmpt_cd) or ''
-        ET.SubElement(t4_slip, "prov_pip_xmpt_cd").text = str(self.employee_prov_pip_xmpt_cd) or ''
-        ET.SubElement(t4_slip, "empt_cd").text = str(self.employee_empt_cd) or ''
-        ET.SubElement(t4_slip, "rpt_tcd").text = str(self.employee_rpt_tcd) or ''
-        ET.SubElement(t4_slip, "empt_prov_cd").text = str(self.employee_empt_prov_cd) or ''
+        ET.SubElement(t4_slip, "sin").text = str(self.employee_sin or '')
+        ET.SubElement(t4_slip, "empe_nbr").text = str(self.employee_empe_nbr or '') or ''
+        ET.SubElement(t4_slip, "bn").text = str(self.employee_bn or '')
+        ET.SubElement(t4_slip, "rpp_dpsp_rgst_nbr").text = str(self.employee_rpp_dpsp_rgst_nbr or '')
+        ET.SubElement(t4_slip, "cpp_qpp_xmpt_cd").text = str(self.employee_cpp_qpp_xmpt_cd or '')
+        ET.SubElement(t4_slip, "ei_xmpt_cd").text = str(self.employee_ei_xmpt_cd or '')
+        ET.SubElement(t4_slip, "prov_pip_xmpt_cd").text = str(self.employee_prov_pip_xmpt_cd or '')
+        ET.SubElement(t4_slip, "empt_cd").text = str(self.employee_empt_cd or '')
+        ET.SubElement(t4_slip, "rpt_tcd").text = str(self.employee_rpt_tcd or '') or ''
+        ET.SubElement(t4_slip, "empt_prov_cd").text = str(self.employee_empt_prov_cd or '')
+        ET.SubElement(t4_slip, "empr_dntl_ben_rpt_cd").text = str(self.empr_dntl_ben_rpt_cd or '')
 
         # Add T4_AMT subelement
         t4_amt = ET.SubElement(t4_slip, "T4_AMT")
-        ET.SubElement(t4_amt, "empt_incamt").text = str(self.employee_empt_incamt) or ''
-        ET.SubElement(t4_amt, "cpp_cntrb_amt").text = str(self.employee_cpp_cntrb_amt) or ''
-        ET.SubElement(t4_amt, "qpp_cntrb_amt").text = str(self.employee_qpp_cntrb_amt) or ''
-        ET.SubElement(t4_amt, "empe_eip_amt").text = str(self.employee_empe_eip_amt) or ''
-        ET.SubElement(t4_amt, "rpp_cntrb_amt").text = str(self.registered_rpp_cntrb_amt) or ''
-        ET.SubElement(t4_amt, "itx_ddct_amt").text = str(self.income_itx_ddct_amt) or ''
-        ET.SubElement(t4_amt, "ei_insu_ern_amt").text = str(self.employee_ei_insu_ern_amt) or ''
-        ET.SubElement(t4_amt, "cpp_qpp_ern_amt").text = str(self.canada_cpp_qpp_ern_amt) or ''
-        ET.SubElement(t4_amt, "unn_dues_amt").text = str(self.union_unn_dues_amt) or ''
-        ET.SubElement(t4_amt, "chrty_dons_amt").text = str(self.charitable_chrty_dons_amt) or ''
-        ET.SubElement(t4_amt, "padj_amt").text = str(self.pension_padj_amt) or ''
-        ET.SubElement(t4_amt, "prov_pip_amt").text = str(self.PPIP_prov_pip_amt) or ''
-        ET.SubElement(t4_amt, "prov_insu_ern_amt").text = str(self.PPIP_prov_insu_ern_amt) or ''
+        ET.SubElement(t4_amt, "empt_incamt").text = str(self.employee_empt_incamt or '')
+        ET.SubElement(t4_amt, "cpp_cntrb_amt").text = str(self.employee_cpp_cntrb_amt or '')
+        ET.SubElement(t4_amt, "cppe_cntrb_amt").text = str(self.employee_cppe_cntrb_amt or '')
+        ET.SubElement(t4_amt, "qpp_cntrb_amt").text = str(self.employee_qpp_cntrb_amt or '')
+        ET.SubElement(t4_amt, "qppe_cntrb_amt").text = str(self.employee_qppe_cntrb_amt or '')
+        ET.SubElement(t4_amt, "empe_eip_amt").text = str(self.employee_empe_eip_amt or '')
+        ET.SubElement(t4_amt, "rpp_cntrb_amt").text = str(self.registered_rpp_cntrb_amt or '')
+        ET.SubElement(t4_amt, "itx_ddct_amt").text = str(self.income_itx_ddct_amt or '')
+        ET.SubElement(t4_amt, "ei_insu_ern_amt").text = str(self.employee_ei_insu_ern_amt or '')
+        ET.SubElement(t4_amt, "cpp_qpp_ern_amt").text = str(self.canada_cpp_qpp_ern_amt or '')
+        ET.SubElement(t4_amt, "unn_dues_amt").text = str(self.union_unn_dues_amt or '')
+        ET.SubElement(t4_amt, "chrty_dons_amt").text = str(self.charitable_chrty_dons_amt or '')
+        ET.SubElement(t4_amt, "padj_amt").text = str(self.pension_padj_amt or '')
+        ET.SubElement(t4_amt, "prov_pip_amt").text = str(self.PPIP_prov_pip_amt or '')
+        ET.SubElement(t4_amt, "prov_insu_ern_amt").text = str(self.PPIP_prov_insu_ern_amt or '')
 
         # Add OTH_INFO subelement
         oth_info = ET.SubElement(t4_slip, "OTH_INFO")
-        ET.SubElement(oth_info, "hm_brd_lodg_amt").text = str(self.hm_brd_lodg_amt) or ''
-        ET.SubElement(oth_info, "spcl_wrk_site_amt").text = str(self.spcl_wrk_site_amt) or ''
-        ET.SubElement(oth_info, "prscb_zn_trvl_amt").text = str(self.prscb_zn_trvl_amt) or ''
-        ET.SubElement(oth_info, "med_trvl_amt").text = str(self.med_trvl_amt) or ''
-        ET.SubElement(oth_info, "prsnl_vhcl_amt").text = str(self.prsnl_vhcl_amt) or ''
-        ET.SubElement(oth_info, "rsn_per_km_amt").text = str(self.rsn_per_km_amt) or ''
-        ET.SubElement(oth_info, "low_int_loan_amt").text = str(self.low_int_loan_amt) or ''
-        ET.SubElement(oth_info, "empe_hm_loan_amt").text = str(self.empe_hm_loan_amt) or ''
-        ET.SubElement(oth_info, "stok_opt_ben_amt").text = str(self.stok_opt_ben_amt) or ''
-        ET.SubElement(oth_info, "sob_a00_feb_amt").text = str(self.sob_a00_feb_amt) or ''
-        ET.SubElement(oth_info, "shr_opt_d_ben_amt").text = str(self.shr_opt_d_ben_amt) or ''
-        ET.SubElement(oth_info, "sod_d_a00_feb_amt").text = str(self.sod_d_a00_feb_amt) or ''
-        ET.SubElement(oth_info, "oth_tx_ben_amt").text = str(self.oth_tx_ben_amt) or ''
-        ET.SubElement(oth_info, "shr_opt_d1_ben_amt").text = str(self.shr_opt_d1_ben_amt) or ''
-        ET.SubElement(oth_info, "sod_d1_a00_feb_amt").text = str(self.sod_d1_a00_feb_amt) or ''
-        ET.SubElement(oth_info, "empt_cmsn_amt").text = str(self.empt_cmsn_amt) or ''
-        ET.SubElement(oth_info, "cfppa_amt").text = str(self.cfppa_amt) or ''
-        ET.SubElement(oth_info, "dfr_sob_amt").text = str(self.dfr_sob_amt) or ''
-        ET.SubElement(oth_info, "empt_inc_amt_covid_prd1").text = str(self.empt_inc_amt_covid_prd1) or ''
-        ET.SubElement(oth_info, "empt_inc_amt_covid_prd2").text = str(self.empt_inc_amt_covid_prd2) or ''
-        ET.SubElement(oth_info, "empt_inc_amt_covid_prd3").text = str(self.empt_inc_amt_covid_prd3) or ''
-        ET.SubElement(oth_info, "empt_inc_amt_covid_prd4").text = str(self.empt_inc_amt_covid_prd4) or ''
-        ET.SubElement(oth_info, "elg_rtir_amt").text = str(self.nelg_rtir_amt) or ''
-        ET.SubElement(oth_info, "nelg_rtir_amt").text = str(self.indn_nelg_rtir_amt) or ''
-        ET.SubElement(oth_info, "indn_nelg_rtir_amt").text = str(self.indn_nelg_rtir_amt) or ''
-        ET.SubElement(oth_info, "indn_empe_amt").text = str(self.indn_empe_amt) or ''
-        ET.SubElement(oth_info, "oc_incamt").text = str(self.oc_incamt) or ''
-        ET.SubElement(oth_info, "oc_dy_cnt").text = str(self.oc_dy_cnt) or ''
-        ET.SubElement(oth_info, "pr_90_cntrbr_amt").text = str(self.pr_90_cntrbr_amt) or ''
-        ET.SubElement(oth_info, "pr_90_ncntrbr_amt").text = str(self.pr_90_ncntrbr_amt) or ''
-        ET.SubElement(oth_info, "cmpn_rpay_empr_amt").text = str(self.cmpn_rpay_empr_amt) or ''
-        ET.SubElement(oth_info, "fish_gro_ern_amt").text = str(self.fish_gro_ern_amt) or ''
-        ET.SubElement(oth_info, "fish_net_ptnr_amt").text = str(self.fish_net_ptnr_amt) or ''
-        ET.SubElement(oth_info, "fish_shr_prsn_amt").text = str(self.fish_shr_prsn_amt) or ''
-        ET.SubElement(oth_info, "plcmt_emp_agcy_amt").text = str(self.plcmt_emp_agcy_amt) or ''
-        ET.SubElement(oth_info, "drvr_taxis_oth_amt").text = str(self.drvr_taxis_oth_amt) or ''
-        ET.SubElement(oth_info, "brbr_hrdrssr_amt").text = str(self.brbr_hrdrssr_amt) or ''
-        ET.SubElement(oth_info, "pub_trnst_pass_amt").text = str(self.pub_trnst_pass_amt) or ''
-        ET.SubElement(oth_info, "epaid_hlth_pln_amt").text = str(self.epaid_hlth_pln_amt) or ''
-        ET.SubElement(oth_info, "stok_opt_csh_out_eamt").text = str(self.stok_opt_csh_out_eamt) or ''
-        ET.SubElement(oth_info, "vlntr_emergencyworker_xmpt_amt").text = str(self.vlntr_emergencyworker_xmpt_amt) or ''
-        ET.SubElement(oth_info, "indn_txmpt_sei_amt").text = str(self.indn_txmpt_sei_amt) or ''
+        ET.SubElement(oth_info, "hm_brd_lodg_amt").text = str(self.hm_brd_lodg_amt or '')
+        ET.SubElement(oth_info, "spcl_wrk_site_amt").text = str(self.spcl_wrk_site_amt or '')
+        ET.SubElement(oth_info, "prscb_zn_trvl_amt").text = str(self.prscb_zn_trvl_amt or '')
+        ET.SubElement(oth_info, "med_trvl_amt").text = str(self.med_trvl_amt or '')
+        ET.SubElement(oth_info, "prsnl_vhcl_amt").text = str(self.prsnl_vhcl_amt or '')
+        ET.SubElement(oth_info, "rsn_per_km_amt").text = str(self.rsn_per_km_amt or '')
+        ET.SubElement(oth_info, "low_int_loan_amt").text = str(self.low_int_loan_amt or '')
+        ET.SubElement(oth_info, "empe_hm_loan_amt").text = str(self.empe_hm_loan_amt or '')
+        ET.SubElement(oth_info, "stok_opt_ben_amt").text = str(self.stok_opt_ben_amt or '')
+        ET.SubElement(oth_info, "sob_a00_feb_amt").text = str(self.sob_a00_feb_amt or '')
+        ET.SubElement(oth_info, "shr_opt_d_ben_amt").text = str(self.shr_opt_d_ben_amt or '')
+        ET.SubElement(oth_info, "sod_d_a00_feb_amt").text = str(self.sod_d_a00_feb_amt or '')
+        ET.SubElement(oth_info, "oth_tx_ben_amt").text = str(self.oth_tx_ben_amt or '')
+        ET.SubElement(oth_info, "shr_opt_d1_ben_amt").text = str(self.shr_opt_d1_ben_amt or '')
+        ET.SubElement(oth_info, "sod_d1_a00_feb_amt").text = str(self.sod_d1_a00_feb_amt or '')
+        ET.SubElement(oth_info, "empt_cmsn_amt").text = str(self.empt_cmsn_amt or '')
+        ET.SubElement(oth_info, "cfppa_amt").text = str(self.cfppa_amt or '')
+        ET.SubElement(oth_info, "dfr_sob_amt").text = str(self.dfr_sob_amt or '')
+        ET.SubElement(oth_info, "empt_inc_amt_covid_prd1").text = str(self.empt_inc_amt_covid_prd1 or '')
+        ET.SubElement(oth_info, "empt_inc_amt_covid_prd2").text = str(self.empt_inc_amt_covid_prd2 or '')
+        ET.SubElement(oth_info, "empt_inc_amt_covid_prd3").text = str(self.empt_inc_amt_covid_prd3 or '')
+        ET.SubElement(oth_info, "empt_inc_amt_covid_prd4").text = str(self.empt_inc_amt_covid_prd4 or '')
+        ET.SubElement(oth_info, "elg_rtir_amt").text = str(self.nelg_rtir_amt or '')
+        ET.SubElement(oth_info, "nelg_rtir_amt").text = str(self.indn_nelg_rtir_amt or '')
+        ET.SubElement(oth_info, "indn_nelg_rtir_amt").text = str(self.indn_nelg_rtir_amt or '')
+        ET.SubElement(oth_info, "indn_empe_amt").text = str(self.indn_empe_amt or '')
+        ET.SubElement(oth_info, "oc_incamt").text = str(self.oc_incamt or '')
+        ET.SubElement(oth_info, "oc_dy_cnt").text = str(self.oc_dy_cnt or '')
+        ET.SubElement(oth_info, "pr_90_cntrbr_amt").text = str(self.pr_90_cntrbr_amt or '')
+        ET.SubElement(oth_info, "pr_90_ncntrbr_amt").text = str(self.pr_90_ncntrbr_amt or '')
+        ET.SubElement(oth_info, "cmpn_rpay_empr_amt").text = str(self.cmpn_rpay_empr_amt or '')
+        ET.SubElement(oth_info, "fish_gro_ern_amt").text = str(self.fish_gro_ern_amt or '')
+        ET.SubElement(oth_info, "fish_net_ptnr_amt").text = str(self.fish_net_ptnr_amt or '')
+        ET.SubElement(oth_info, "fish_shr_prsn_amt").text = str(self.fish_shr_prsn_amt or '')
+        ET.SubElement(oth_info, "plcmt_emp_agcy_amt").text = str(self.plcmt_emp_agcy_amt or '')
+        ET.SubElement(oth_info, "drvr_taxis_oth_amt").text = str(self.drvr_taxis_oth_amt or '')
+        ET.SubElement(oth_info, "brbr_hrdrssr_amt").text = str(self.brbr_hrdrssr_amt or '')
+        ET.SubElement(oth_info, "pub_trnst_pass_amt").text = str(self.pub_trnst_pass_amt or '')
+        ET.SubElement(oth_info, "epaid_hlth_pln_amt").text = str(self.epaid_hlth_pln_amt or '')
+        ET.SubElement(oth_info, "stok_opt_csh_out_eamt").text = str(self.stok_opt_csh_out_eamt or '')
+        ET.SubElement(oth_info, "vlntr_emergencyworker_xmpt_amt").text = str(self.vlntr_emergencyworker_xmpt_amt or '')
+        ET.SubElement(oth_info, "indn_txmpt_sei_amt").text = str(self.indn_txmpt_sei_amt or '')
 
         # Create T4Summary element
         t4_summary = ET.SubElement(t4, "T4Summary")
-        ET.SubElement(t4_summary, "bn").text = str(self.bn) or ''
+        ET.SubElement(t4_summary, "bn").text = str(self.bn or '') or ''
 
         # Add EMPR_NM subelement
         empr_nm = ET.SubElement(t4_summary, "EMPR_NM")
-        ET.SubElement(empr_nm, "l1_nm").text = str(self.employer_l1_nm) or ''
-        ET.SubElement(empr_nm, "l2_nm").text = str(self.employer_l2_nm) or ''
-        ET.SubElement(empr_nm, "l3_nm").text = str(self.employer_l3_nm) or ''
+        ET.SubElement(empr_nm, "l1_nm").text = str(self.employer_l1_nm or '')
+        ET.SubElement(empr_nm, "l2_nm").text = str(self.employer_l2_nm or '')
+        ET.SubElement(empr_nm, "l3_nm").text = str(self.employer_l3_nm or '')
 
         # Add EMPR_ADDR subelement
         empr_addr = ET.SubElement(t4_summary, "EMPR_ADDR")
-        ET.SubElement(empr_addr, "addr_l1_txt").text = str(self.employer_addr_l1_txt) or ''
-        ET.SubElement(empr_addr, "addr_l2_txt").text = str(self.employer_addr_l2_txt) or ''
-        ET.SubElement(empr_addr, "cty_nm").text = str(self.employer_cty_nm) or ''
-        ET.SubElement(empr_addr, "prov_cd").text = str(self.employer_prov_cd) or ''
-        ET.SubElement(empr_addr, "cntry_cd").text = str(self.employer_cntry_cd) or ''
-        ET.SubElement(empr_addr, "pstl_cd").text = str(self.employer_pstl_cd) or ''
+        ET.SubElement(empr_addr, "addr_l1_txt").text = str(self.employer_addr_l1_txt or '')
+        ET.SubElement(empr_addr, "addr_l2_txt").text = str(self.employer_addr_l2_txt or '')
+        ET.SubElement(empr_addr, "cty_nm").text = str(self.employer_cty_nm or '')
+        ET.SubElement(empr_addr, "prov_cd").text = str(self.employer_prov_cd or '')
+        ET.SubElement(empr_addr, "cntry_cd").text = str(self.employer_cntry_cd or '')
+        ET.SubElement(empr_addr, "pstl_cd").text = str(self.employer_pstl_cd or '')
 
         # Add CNTC subelement
         cntc = ET.SubElement(t4_summary, "CNTC")
-        ET.SubElement(cntc, "cntc_nm").text = str(self.cntc_nm) or ''
-        ET.SubElement(cntc, "cntc_area_cd").text = str(self.cntc_area_cd) or ''
-        ET.SubElement(cntc, "cntc_phn_nbr").text = str(self.cntc_phn_nbr) or ''
-        ET.SubElement(cntc, "cntc_extn_nbr").text = str(self.cntc_extn_nbr) or ''
+        ET.SubElement(cntc, "cntc_nm").text = str(self.cntc_nm or '')
+        ET.SubElement(cntc, "cntc_area_cd").text = str(self.cntc_area_cd or '')
+        ET.SubElement(cntc, "cntc_phn_nbr").text = str(self.cntc_phn_nbr or '')
+        ET.SubElement(cntc, "cntc_extn_nbr").text = str(self.cntc_extn_nbr or '')
 
-        ET.SubElement(t4_summary, "tx_yr").text = str(self.tx_yr) or ''
-        ET.SubElement(t4_summary, "slp_cnt").text = str(self.slp_cnt) or ''
+        ET.SubElement(t4_summary, "tx_yr").text = str(self.tx_yr or '')
+        ET.SubElement(t4_summary, "slp_cnt").text = str(self.slp_cnt or '')
 
         # Add PPRTR_SIN subelement
         pprtr_sin = ET.SubElement(t4_summary, "PPRTR_SIN")
-        ET.SubElement(pprtr_sin, "pprtr_1_sin").text = str(self.pprtr_1_sin) or ''
-        ET.SubElement(pprtr_sin, "pprtr_2_sin").text = str(self.pprtr_2_sin) or ''
+        ET.SubElement(pprtr_sin, "pprtr_1_sin").text = str(self.pprtr_1_sin or '')
+        ET.SubElement(pprtr_sin, "pprtr_2_sin").text = str(self.pprtr_2_sin or '')
 
-        ET.SubElement(t4_summary, "rpt_tcd").text = str(self.rpt_tcd) or ''
-        ET.SubElement(t4_summary, "fileramendmentnote").text = str(self.fileramendmentnote) or ''
+        ET.SubElement(t4_summary, "rpt_tcd").text = str(self.rpt_tcd or '')
+        ET.SubElement(t4_summary, "fileramendmentnote").text = str(self.fileramendmentnote or '')
 
         # Add T4_TAMT subelement
         t4_tamt = ET.SubElement(t4_summary, "T4_TAMT")
-        ET.SubElement(t4_tamt, "tot_empt_incamt").text = str(self.tot_empt_incamt) or ''
-        ET.SubElement(t4_tamt, "tot_empe_cpp_amt").text = str(self.tot_empe_cpp_amt) or ''
-        ET.SubElement(t4_tamt, "tot_empe_eip_amt").text = str(self.tot_empe_eip_amt) or ''
-        ET.SubElement(t4_tamt, "tot_rpp_cntrb_amt").text = str(self.tot_rpp_cntrb_amt) or ''
-        ET.SubElement(t4_tamt, "tot_itx_ddct_amt").text = str(self.tot_itx_ddct_amt) or ''
+        ET.SubElement(t4_tamt, "tot_empt_incamt").text = str(self.tot_empt_incamt or '')
+        ET.SubElement(t4_tamt, "tot_empe_cpp_amt").text = str(self.tot_empe_cpp_amt or '')
+        ET.SubElement(t4_tamt, "tot_empe_cppe_amt").text = str(self.tot_empe_cppe_amt or '')
+        ET.SubElement(t4_tamt, "tot_empe_eip_amt").text = str(self.tot_empe_eip_amt or '')
+        ET.SubElement(t4_tamt, "tot_rpp_cntrb_amt").text = str(self.tot_rpp_cntrb_amt or '')
+        ET.SubElement(t4_tamt, "tot_itx_ddct_amt").text = str(self.tot_itx_ddct_amt or '')
         # ET.SubElement(t4_tamt, "tot_ei_insu_ern_amt").text = "2000.00"
         # ET.SubElement(t4_tamt, "tot_cpp_qpp_ern_amt").text = "3000.00"
         # ET.SubElement(t4_tamt, "tot_unn_dues_amt").text = "100.00"
         # ET.SubElement(t4_tamt, "tot_chrty_dons_amt").text = "200.00"
-        ET.SubElement(t4_tamt, "tot_padj_amt").text = str(self.tot_padj_amt) or ''
-        ET.SubElement(t4_tamt, "tot_empr_cpp_amt").text = str(self.tot_empr_cpp_amt) or ''
-        ET.SubElement(t4_tamt, "tot_empr_eip_amt").text = str(self.tot_empr_eip_amt) or ''
+        ET.SubElement(t4_tamt, "tot_padj_amt").text = str(self.tot_padj_amt or '')
+        ET.SubElement(t4_tamt, "tot_empr_cpp_amt").text = str(self.tot_empr_cpp_amt or '')
+        ET.SubElement(t4_tamt, "tot_empr_cppe_amt").text = str(self.tot_empr_cppe_amt or '')
+        ET.SubElement(t4_tamt, "tot_empr_eip_amt").text = str(self.tot_empr_eip_amt or '')
         # ET.SubElement(t4_tamt, "tot_prov_pip_amt").text = "100.00"
         # ET.SubElement(t4_tamt, "tot_prov_insu_ern_amt").text = "1000.00"
 
@@ -995,7 +1048,7 @@ class StatementOfRemuneration(models.Model):
                             datetime.datetime.now().strftime("%m%d%Y%H%M%S%f")) + ".pdf"
                     filename = output_folder_path + pdf_name
 
-                    reader = PdfReader(get_path + '/' + "t4-fill-22e.pdf")
+                    reader = PdfReader(get_path + '/' + "t4-fill-23e.pdf")
                     writer = PdfWriter()
 
                     page = reader.pages[0]
@@ -1007,8 +1060,9 @@ class StatementOfRemuneration(models.Model):
                             'Slip1EmployersName[0]': f'{rec.employer_l1_nm}\n{rec.employer_addr_l1_txt}\n{rec.employer_cty_nm},{rec.employer_prov_cd} {rec.employer_pstl_cd}',
                             'Slip1Box54[0]': None,
                             'Slip1Box12[0]': rec.employee_sin, 'Slip1Box14[0]': round(rec.employee_empt_incamt,2),
-                            'Slip1Box22[0]': round(rec.income_itx_ddct_amt, 2), 'Slip1Box10[0]': 'ON',
+                            'Slip1Box22[0]': round(rec.income_itx_ddct_amt, 2), 'Slip1Box10[0]': 'ON','DropDownList[0]': rec.empr_dntl_ben_rpt_cd or "1",
                             'Slip1Box16[0]': round(rec.employee_cpp_cntrb_amt,2),
+                            'Slip1Box16A[0]': round(rec.employee_cppe_cntrb_amt,2),
                             'Slip1Box24[0]': round(rec.employee_ei_insu_ern_amt,2), 'Slip1Box17[0]': 0.0,
                             'Slip1Box26[0]': round(rec.canada_cpp_qpp_ern_amt,2), 'Slip1Box18[0]': rec.employee_empe_eip_amt,
                             'Slip1Box44[0]': rec.union_unn_dues_amt, 'Slip1Box20[0]': 0.0,
@@ -1021,7 +1075,7 @@ class StatementOfRemuneration(models.Model):
                             'Slip1Amount2[0]': None, 'Slip1Amount3[0]': None, 'Slip1Amount4[0]': None, 'Slip1Amount5[0]': None,
                             'Slip1Amount6[0]': None, 'Slip1EmployersName[0].2': None,
                             'Slip1Year[0].2': None, 'Slip1Box54[0].2': None, 'Slip1Box12[0].2': None, 'Slip1Box14[0].2': None,
-                            'Slip1Box22[0].2': None, 'Slip1Box16[0].2': None, 'Slip1Box24[0].2': None, 'Slip1Box17[0].2': None,
+                            'Slip1Box22[0].2': None, 'Slip1Box16[0].2': None, 'Slip1Box24[0].2': None, 'Slip1Box17[0].2': None,'Slip1Box17A[0].2': None,
                             'Slip1Box26[0].2': None, 'Slip1Box18[0].2': None, 'Slip1Box44[0].2': None, 'Slip1Box20[0].2': None,
                             'Slip1Box46[0].2': None, 'Slip1Box52[0].2': None, 'Slip1Box50[0].2': None, 'Slip1Box55[0].2': None,
                             'Slip1Box56[0].2': None, 'Slip1LastName[0].2': None, 'Slip1FirstName[0].2': None,

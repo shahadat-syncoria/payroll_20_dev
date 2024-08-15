@@ -72,6 +72,9 @@
                                 <field name="employee_empt_incamt" readonly="employee_empt_cd in ['11', '12', '13', '17']" required="0"/>
                                 <field name="employee_cpp_cntrb_amt" readonly="employee_qpp_cntrb_amt > 0.0" required="0"/>
                                 <field name="employee_qpp_cntrb_amt" readonly="employee_cpp_cntrb_amt > 0.0" required="0"/>
+                                <field name="employee_cppe_cntrb_amt"  required="0"/>
+                                <field name="employee_qppe_cntrb_amt" readonly="employee_qppe_cntrb_amt > 0.0" required="0"/>
+
                                 <field name="employee_empe_eip_amt" required="0"/>
                                 <field name="registered_rpp_cntrb_amt" required="0"/>
                                 <field name="income_itx_ddct_amt" required="0"/>
@@ -144,6 +147,7 @@
                                 <field name="employer_cty_nm" required="0"/>
                                 <field name="employer_prov_cd" required="0"/>
                                 <field name="employer_cntry_cd" required="0"/>
+                                <field name="empr_dntl_ben_rpt_cd" required="0"/>
                                 <field name="employer_pstl_cd" required="0"/>
                                 <field name="cntc_nm" required="0"/>
                                 <field name="cntc_area_cd" required="0"/>
@@ -159,11 +163,13 @@
                                 <field name="fileramendmentnote" readonly="employee_rpt_tcd != 'A'"/>
                                 <field name="tot_empt_incamt"/>
                                 <field name="tot_empe_cpp_amt"/>
+                                <field name="tot_empe_cppe_amt"/>
                                 <field name="tot_empe_eip_amt"/>
                                 <field name="tot_rpp_cntrb_amt"/>
                                 <field name="tot_itx_ddct_amt"/>
                                 <field name="tot_padj_amt"/>
                                 <field name="tot_empr_cpp_amt"/>
+                                <field name="tot_empr_cppe_amt"/>
                                 <field name="tot_empr_eip_amt"/>
                             </group>
                         </group>
