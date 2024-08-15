@@ -167,7 +167,7 @@ class RecordOfEmployee(models.Model):
                 "cra_payroll_acc_num": employee.company_id.payroll_account_number,
                 "employer_payroll_ref": self.company_id.employer_payroll_ref or '',
                 "total_insurable_hours": self._get_insurable_hour(),
-                "total_insurable_earnings": self._get_insurable_earning(),
+                "total_insurable_earnings": self.employee_id.ytd_pi,
                 "payslip_ids": payslip_ids,
                 "vacation_pay_ids": self.get_vacation_pay_ids(),
                 "vacation_pay_amount": round(has_last_payment[0].vacation_pay_amount,2) if has_last_payment else ''
@@ -354,9 +354,9 @@ class RecordOfEmployee(models.Model):
                         'unique_id2': '',
                         'employer_payroll_ref': rec.employer_payroll_ref or '',
                         'sl_issue_no': rec.social_insurance_number or '',
-                        'first_day': rec.first_day_worked or '',
-                        'last_day_paid': rec.last_day_worked or '',
-                        'final_pay_period': rec.final_pay_period_ending_date or '',
+                        'first_day': rec.first_day_worked.strftime('%d-%m-%Y') or '',
+                        'last_day_paid': rec.last_day_worked.strftime('%d-%m-%Y') or '',
+                        'final_pay_period': rec.final_pay_period_ending_date.strftime('%d-%m-%Y') or '',
                         'occupation': rec.occupation or '',
                         'total_insurance_hour': round(rec._get_insurable_hour(), 2) or '',
                         'total_insurance_earning': rec._get_insurable_earning() or '',
@@ -369,10 +369,10 @@ class RecordOfEmployee(models.Model):
                     'postal_code': rec.employee_id.private_zip or '',
                     'cra_payroll_acc': rec.cra_payroll_acc_num or '',
                     'issuer_name': rec.name_of_issuer_id.name or '',
-                    'issue_date': datetime.datetime.now().date() or '',
+                    'issue_date': datetime.datetime.now().strftime('%d-%m-%Y') or '',
                     'vacation_pay': rec.vacation_pay_amount or '',
-                    'vacation_pay_start': rec.vacation_pay_start_date or '',
-                    'vacation_pay_end': rec.vacation_pay_end_date or '',
+                    'vacation_pay_start': rec.vacation_pay_start_date.strftime('%d-%m-%Y') if rec.vacation_pay_start_date else '',
+                    'vacation_pay_end': rec.vacation_pay_end_date.strftime('%d-%m-%Y') if rec.vacation_pay_end_date else '',
                     'comment': rec.comments or '',
                     'other_start_date1': '',
                     'other_start_date2': '', 'other_start_date3': '', 'other_end_date1': '',
@@ -393,7 +393,7 @@ class RecordOfEmployee(models.Model):
                         hours_field = f'insurable_hours{index}'
                         earning_field = f'insurable_earning{index}'
 
-                        data[date_field] = payslip.date_to
+                        data[date_field] = payslip.date_to.strftime('%d-%m-%Y')
                         data[hours_field] = round(payslip.insurable_hour, 2)
                         data[earning_field] = payslip.insurable_earning
 
