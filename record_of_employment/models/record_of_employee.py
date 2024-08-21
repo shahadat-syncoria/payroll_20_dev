@@ -132,6 +132,7 @@ class RecordOfEmployee(models.Model):
     def _get_insurable_earning(self):
         employee_payslip_ids = self.get_payslip_ids()
 
+
         total_insurable_earning = 0.0
 
         for line in employee_payslip_ids.line_ids:
