@@ -25,7 +25,7 @@
                         </group>
                         <group>
                             <group>
-                                <field name="date" readonly="1" required="1"/>
+                                <field name="date" readonly="0" required="1"/>
                                  <field name="payment_type" readonly="state != 'draft'" required="1"/>
                                 <field name="amount_cal_type" readonly="state != 'draft'" required="1"/>
                                 <field invisible="amount_cal_type != 'global'" name="amount" readonly="state != 'draft'" required="amount_cal_type == 'global'"/>
