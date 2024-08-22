@@ -16,6 +16,16 @@
 <!--            <field name="exemption_id" ref="cpp_exempt"/>-->
             <field name="amount_python_compute">
                 <![CDATA[
+def calculate_irr_bonuses_annual_tax(payslip,claim_code,year,pay_cycle,paycycle_gross,irregular_gross):
+    total_gross_with_irr =  (irregular_gross / pay_cycle)+paycycle_gross
+
+    tax_amount_gross_without_irr = payslip.env['fed.tax'].get_tax_amount(paycycle_gross,claim_code,year,pay_cycle)
+    tax_amount_gross_with_irr = payslip.env['fed.tax'].get_tax_amount(total_gross_with_irr,claim_code,year,pay_cycle)
+
+    irr_pay_tax = tax_amount_gross_with_irr - tax_amount_gross_without_irr
+    annual_irr_pay_tax = irr_pay_tax * pay_cycle
+    return annual_irr_pay_tax,tax_amount_gross_without_irr
+
 is_pay_cycle = contract.salary_pay_cycle.pay_cycle
 if is_pay_cycle:
     pay_cycle = int(is_pay_cycle)
@@ -23,15 +33,24 @@ if is_pay_cycle:
     year =  contract.deductions.slab_year
 
     paycycle_gross = GROSS-categories['PRE_TAX_DEDUCTION']
+
     irregular_gross = categories['ADD_ALLOWANCE']
 
     irr_gross_percycle = 0.0
+    previous_annual_irr_pay_tax=0.0
+    previous_tax_amount_gross_without_irr = 0.0
     if irregular_gross>0.0:
-        irr_gross_percycle = irregular_gross / pay_cycle
         previous_irregular_payment=payslip.env['hr.payslip'].get_previous_irregular_payment(payslip.id,pay_cycle)
+        if previous_irregular_payment > 0.00:
+            previous_annual_irr_pay_tax,previous_tax_amount_gross_without_irr = calculate_irr_bonuses_annual_tax(payslip,claim_code,year,pay_cycle,paycycle_gross,irregular_gross=previous_irregular_payment)
 
-        paycycle_gross = paycycle_gross + irr_gross_percycle + previous_irregular_payment
-    result = payslip.env['fed.tax'].get_tax_amount(paycycle_gross,claim_code,year,pay_cycle)
+        annual_irr_pay_tax,tax_amount_gross_without_irr = calculate_irr_bonuses_annual_tax(payslip,claim_code,year,pay_cycle,paycycle_gross,irregular_gross)
+        if previous_annual_irr_pay_tax:
+            current_irr_tax_amount = abs(previous_annual_irr_pay_tax - annual_irr_pay_tax)
+            annual_irr_pay_tax = current_irr_tax_amount
+        result = tax_amount_gross_without_irr + annual_irr_pay_tax
+    else:
+        result = payslip.env['fed.tax'].get_tax_amount(paycycle_gross,claim_code,year,pay_cycle)
 else:
     result= 0.0
                 ]]>
@@ -52,21 +71,41 @@ else:
 <!--            <field name="exemption_id" ref="cpp_exempt"/>-->
             <field name="amount_python_compute">
                 <![CDATA[
+def calculate_irr_bonuses_annual_tax(payslip,claim_code,year,pay_cycle,paycycle_gross,irregular_gross):
+    total_gross_with_irr =  (irregular_gross / pay_cycle)+paycycle_gross
+
+    tax_amount_gross_without_irr = payslip.env['prov.tax'].get_tax_amount(paycycle_gross,claim_code,year,pay_cycle)
+    tax_amount_gross_with_irr = payslip.env['prov.tax'].get_tax_amount(total_gross_with_irr,claim_code,year,pay_cycle)
+
+    irr_pay_tax = tax_amount_gross_with_irr - tax_amount_gross_without_irr
+    annual_irr_pay_tax = irr_pay_tax * pay_cycle
+    return annual_irr_pay_tax,tax_amount_gross_without_irr
+
 is_pay_cycle = contract.salary_pay_cycle.pay_cycle
 if is_pay_cycle:
     pay_cycle = int(is_pay_cycle)
-    claim_code = contract.proviancial_claim_code_from_td1
+    claim_code = contract.federal_claim_code_from_td1
     year =  contract.deductions.slab_year
 
     paycycle_gross = GROSS-categories['PRE_TAX_DEDUCTION']
-    irregular_gross = categories['ADD_ALLOWANCE']
-    irr_gross_percycle = 0.0
-    if irregular_gross>0.0:
-        irr_gross_percycle = irregular_gross / pay_cycle
-        previous_irregular_payment=payslip.env['hr.payslip'].get_previous_irregular_payment(payslip.id,pay_cycle)
-        paycycle_gross = paycycle_gross + irr_gross_percycle + previous_irregular_payment
 
-    result = payslip.env['prov.tax'].get_tax_amount(paycycle_gross,claim_code,year,pay_cycle)
+    irregular_gross = categories['ADD_ALLOWANCE']
+
+    irr_gross_percycle = 0.0
+    previous_annual_irr_pay_tax=0.0
+    previous_tax_amount_gross_without_irr = 0.0
+    if irregular_gross>0.0:
+        previous_irregular_payment=payslip.env['hr.payslip'].get_previous_irregular_payment(payslip.id,pay_cycle)
+        if previous_irregular_payment > 0.00:
+            previous_annual_irr_pay_tax,previous_tax_amount_gross_without_irr = calculate_irr_bonuses_annual_tax(payslip,claim_code,year,pay_cycle,paycycle_gross,irregular_gross=previous_irregular_payment)
+
+        annual_irr_pay_tax,tax_amount_gross_without_irr = calculate_irr_bonuses_annual_tax(payslip,claim_code,year,pay_cycle,paycycle_gross,irregular_gross)
+        if previous_annual_irr_pay_tax:
+            current_irr_tax_amount = abs(previous_annual_irr_pay_tax - annual_irr_pay_tax)
+            annual_irr_pay_tax = current_irr_tax_amount
+        result = tax_amount_gross_without_irr + annual_irr_pay_tax
+    else:
+        result = payslip.env['prov.tax'].get_tax_amount(paycycle_gross,claim_code,year,pay_cycle)
 else:
     result= 0.0
                 ]]>
@@ -87,6 +126,16 @@ else:
 <!--            <field name="exemption_id" ref="cpp_exempt"/>-->
             <field name="amount_python_compute">
                 <![CDATA[
+def calculate_irr_bonuses_annual_tax(payslip,claim_code,year,pay_cycle,paycycle_gross,irregular_gross):
+    total_gross_with_irr =  (irregular_gross / pay_cycle)+paycycle_gross
+
+    tax_amount_gross_without_irr = payslip.env['fed.tax'].get_tax_amount(paycycle_gross,claim_code,year,pay_cycle)
+    tax_amount_gross_with_irr = payslip.env['fed.tax'].get_tax_amount(total_gross_with_irr,claim_code,year,pay_cycle)
+
+    irr_pay_tax = tax_amount_gross_with_irr - tax_amount_gross_without_irr
+    annual_irr_pay_tax = irr_pay_tax * pay_cycle
+    return annual_irr_pay_tax,tax_amount_gross_without_irr
+
 is_pay_cycle = contract.salary_pay_cycle.pay_cycle
 if is_pay_cycle:
     pay_cycle = int(is_pay_cycle)
@@ -94,15 +143,24 @@ if is_pay_cycle:
     year =  contract.deductions.slab_year
 
     paycycle_gross = GROSS-categories['PRE_TAX_DEDUCTION']
+
     irregular_gross = categories['ADD_ALLOWANCE']
 
     irr_gross_percycle = 0.0
+    previous_annual_irr_pay_tax=0.0
+    previous_tax_amount_gross_without_irr = 0.0
     if irregular_gross>0.0:
-        irr_gross_percycle = irregular_gross / pay_cycle
         previous_irregular_payment=payslip.env['hr.payslip'].get_previous_irregular_payment(payslip.id,pay_cycle)
+        if previous_irregular_payment > 0.00:
+            previous_annual_irr_pay_tax,previous_tax_amount_gross_without_irr = calculate_irr_bonuses_annual_tax(payslip,claim_code,year,pay_cycle,paycycle_gross,irregular_gross=previous_irregular_payment)
 
-        paycycle_gross = paycycle_gross + irr_gross_percycle + previous_irregular_payment
-    result = payslip.env['fed.tax'].get_tax_amount(paycycle_gross,claim_code,year,pay_cycle)
+        annual_irr_pay_tax,tax_amount_gross_without_irr = calculate_irr_bonuses_annual_tax(payslip,claim_code,year,pay_cycle,paycycle_gross,irregular_gross)
+        if previous_annual_irr_pay_tax:
+            current_irr_tax_amount = abs(previous_annual_irr_pay_tax - annual_irr_pay_tax)
+            annual_irr_pay_tax = current_irr_tax_amount
+        result = tax_amount_gross_without_irr + annual_irr_pay_tax
+    else:
+        result = payslip.env['fed.tax'].get_tax_amount(paycycle_gross,claim_code,year,pay_cycle)
 else:
     result= 0.0
                 ]]>
@@ -123,21 +181,41 @@ else:
 <!--            <field name="exemption_id" ref="cpp_exempt"/>-->
             <field name="amount_python_compute">
                 <![CDATA[
+def calculate_irr_bonuses_annual_tax(payslip,claim_code,year,pay_cycle,paycycle_gross,irregular_gross):
+    total_gross_with_irr =  (irregular_gross / pay_cycle)+paycycle_gross
+
+    tax_amount_gross_without_irr = payslip.env['prov.tax'].get_tax_amount(paycycle_gross,claim_code,year,pay_cycle)
+    tax_amount_gross_with_irr = payslip.env['prov.tax'].get_tax_amount(total_gross_with_irr,claim_code,year,pay_cycle)
+
+    irr_pay_tax = tax_amount_gross_with_irr - tax_amount_gross_without_irr
+    annual_irr_pay_tax = irr_pay_tax * pay_cycle
+    return annual_irr_pay_tax,tax_amount_gross_without_irr
+
 is_pay_cycle = contract.salary_pay_cycle.pay_cycle
 if is_pay_cycle:
     pay_cycle = int(is_pay_cycle)
-    claim_code = contract.proviancial_claim_code_from_td1
+    claim_code = contract.federal_claim_code_from_td1
     year =  contract.deductions.slab_year
 
     paycycle_gross = GROSS-categories['PRE_TAX_DEDUCTION']
-    irregular_gross = categories['ADD_ALLOWANCE']
-    irr_gross_percycle = 0.0
-    if irregular_gross>0.0:
-        irr_gross_percycle = irregular_gross / pay_cycle
-        previous_irregular_payment=payslip.env['hr.payslip'].get_previous_irregular_payment(payslip.id,pay_cycle)
-        paycycle_gross = paycycle_gross + irr_gross_percycle + previous_irregular_payment
 
-    result = payslip.env['prov.tax'].get_tax_amount(paycycle_gross,claim_code,year,pay_cycle)
+    irregular_gross = categories['ADD_ALLOWANCE']
+
+    irr_gross_percycle = 0.0
+    previous_annual_irr_pay_tax=0.0
+    previous_tax_amount_gross_without_irr = 0.0
+    if irregular_gross>0.0:
+        previous_irregular_payment=payslip.env['hr.payslip'].get_previous_irregular_payment(payslip.id,pay_cycle)
+        if previous_irregular_payment > 0.00:
+            previous_annual_irr_pay_tax,previous_tax_amount_gross_without_irr = calculate_irr_bonuses_annual_tax(payslip,claim_code,year,pay_cycle,paycycle_gross,irregular_gross=previous_irregular_payment)
+
+        annual_irr_pay_tax,tax_amount_gross_without_irr = calculate_irr_bonuses_annual_tax(payslip,claim_code,year,pay_cycle,paycycle_gross,irregular_gross)
+        if previous_annual_irr_pay_tax:
+            current_irr_tax_amount = abs(previous_annual_irr_pay_tax - annual_irr_pay_tax)
+            annual_irr_pay_tax = current_irr_tax_amount
+        result = tax_amount_gross_without_irr + annual_irr_pay_tax
+    else:
+        result = payslip.env['prov.tax'].get_tax_amount(paycycle_gross,claim_code,year,pay_cycle)
 else:
     result= 0.0
                 ]]>

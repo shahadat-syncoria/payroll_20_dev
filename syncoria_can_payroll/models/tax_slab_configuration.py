@@ -96,7 +96,7 @@ class FedTax(models.Model):
         # if result is None:
         domain = [
             ('salary_from', '<=', salary),
-            ('salary_to', '>=', salary-1),
+            ('salary_to', '>', salary),
             ('pay_cycle', '=', pay_cycle),
             ('tax_category', '=', tax_category),
             ('year', '=', year)
@@ -151,7 +151,7 @@ class ProvTax(models.Model):
         # if result is None:
         domain = [
             ('salary_from', '<=', salary),
-            ('salary_to', '>=', salary-1),
+            ('salary_to', '>', salary),
             ('pay_cycle', '=', pay_cycle),
             ('tax_category', '=', tax_category),
             ('year', '=', year)

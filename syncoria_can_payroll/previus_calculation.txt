@@ -97,6 +97,28 @@ if is_pay_cycle:
     result = final_result
 else:
     result = 0.0
+===============================================================================
+Date on Removing : 22 Aug
+Fed TAX calculation
+
+is_pay_cycle = contract.salary_pay_cycle.pay_cycle
+if is_pay_cycle:
+    pay_cycle = int(is_pay_cycle)
+    claim_code = contract.federal_claim_code_from_td1
+    year =  contract.deductions.slab_year
+
+    paycycle_gross = GROSS-categories['PRE_TAX_DEDUCTION']
+    irregular_gross = categories['ADD_ALLOWANCE']
+
+    irr_gross_percycle = 0.0
+    if irregular_gross>0.0:
+        irr_gross_percycle = irregular_gross / pay_cycle
+        previous_irregular_payment=payslip.env['hr.payslip'].get_previous_irregular_payment(payslip.id,pay_cycle)
+
+        paycycle_gross = paycycle_gross + irr_gross_percycle + previous_irregular_payment
+    result = payslip.env['fed.tax'].get_tax_amount(paycycle_gross,claim_code,year,pay_cycle)
+else:
+    result= 0.0
 
 
 

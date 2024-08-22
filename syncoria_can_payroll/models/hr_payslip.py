@@ -95,13 +95,13 @@ class InheritedHrPayslip(models.Model):
         payslip = self.browse(id)
         payslip_employee = payslip.employee_id
         payslip_date_year = payslip.date_from.year
-        payslip_with_irregular_payment = payslip_employee.slip_ids.filtered(
+        payslip_with_irregular_payment_line_ids = payslip_employee.slip_ids.filtered(
             lambda x: x.state == 'paid' and x.input_line_ids and (
-                x.paid_date.year if x.paid_date else x.write_date.year) == payslip_date_year)
+                x.paid_date.year if x.paid_date else x.write_date.year) == payslip_date_year).line_ids
         payslip_with_irregular_payment_amount = 0.0
-        if payslip_with_irregular_payment:
+        if payslip_with_irregular_payment_line_ids:
             payslip_with_irregular_payment_amount = sum(
-                payslip_with_irregular_payment.input_line_ids.mapped('amount')) / paycycle
+                payslip_with_irregular_payment_line_ids.filtered(lambda x: x.category_id.code in ["ADD_ALLOWANCE"]).mapped("total"))
 
         return payslip_with_irregular_payment_amount
 
