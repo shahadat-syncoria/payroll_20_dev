@@ -114,7 +114,7 @@ class InheritedResPartner(models.Model):
         res = super(InheritedResPartner, self).create(vals_list)
         for contract in res:
             try:
-                if contract.structure_type_id:
+                if not contract.salary_pay_cycle:
                     paycycle = contract.structure_type_id.default_pay_cycle
                     if contract.structure_type_id.default_struct_id and contract.structure_type_id.default_struct_id.structure_pay_cycle:
                         paycycle = contract.structure_type_id.default_struct_id.structure_pay_cycle
