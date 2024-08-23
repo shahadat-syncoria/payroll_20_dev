@@ -83,9 +83,16 @@ class IrregularPayslip(models.Model):
 
     def action_payslip_paid(self):
 
-        # [FIX ME] Must optimise code(Very bad  coding)
+
 
         res = super(IrregularPayslip, self).action_payslip_paid()
+        for rec in self:
+            rec.irregular_payment_paid()
+
+        return res
+
+    def irregular_payment_paid(self):
+        # [FIX ME] Must optimise code(Very bad  coding)
         bonus_input_type = self.env.ref('syncoria_can_irregular_payment.input_ca_bonus_pay').id
         retro_input_type = self.env.ref('syncoria_can_irregular_payment.input_ca_retro_pay').id
         employee_wise_irregular_pay_req = self.env['employee.wise.irregular.pay']
@@ -112,5 +119,3 @@ class IrregularPayslip(models.Model):
                         ir_id.write({
                             'pay_status': True
                         })
-
-        return res
