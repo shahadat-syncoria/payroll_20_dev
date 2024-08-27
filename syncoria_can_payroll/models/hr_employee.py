@@ -38,6 +38,27 @@ class InhertitedHrEmployee(models.Model):
     ytd_pi_erp = fields.Float("Year To Date PI/IE ERP", default=0, store=True)
     ytd_previous_pi = fields.Float("Previous Year To Date PI/IE", default=0, store=True)
 
+    # YTDIrregularPaymentFedTax
+    ytd_irre_fed_tax = fields.Float("Year To Date Irregular Payment Fed Tax", default=0, store=True, compute='_compute_ytd_irre_fed_tax')
+    ytd_irre_fed_tax_erp = fields.Float("Year To Date Irregular Payment Fed Tax ERP", default=0, store=True)
+    ytd_previous_irre_fed_tax = fields.Float("Previous Year To Date Irregular Payment Fed Tax", default=0, store=True)
+
+    # YTDIrregularPaymentProvTax
+    ytd_irre_prov_tax = fields.Float("Year To Date Irregular Payment Prov Tax", default=0, store=True,
+                                    compute='_compute_ytd_irre_prov_tax')
+    ytd_irre_prov_tax_erp = fields.Float("Year To Date Irregular Payment Prov Tax ERP", default=0, store=True)
+    ytd_previous_irre_prov_tax = fields.Float("Previous Year To Date Irregular Payment Prov Tax", default=0, store=True)
+
+    @api.depends("ytd_irre_prov_tax_erp", "ytd_previous_irre_prov_tax")
+    def _compute_ytd_irre_prov_tax(self):
+        for rec in self:
+            rec.ytd_irre_prov_tax = rec.ytd_irre_prov_tax_erp + rec.ytd_previous_irre_prov_tax
+
+    @api.depends("ytd_irre_fed_tax_erp", "ytd_previous_irre_fed_tax")
+    def _compute_ytd_irre_fed_tax(self):
+        for rec in self:
+            rec.ytd_irre_fed_tax = rec.ytd_irre_fed_tax_erp + rec.ytd_previous_irre_fed_tax
+
     @api.depends("ytd_pi_erp", "ytd_previous_pi")
     def _compute_ytd_pi(self):
         for rec in self:
@@ -101,6 +122,21 @@ class InhertitedHrEmployee(models.Model):
             else:
                 rec._update_ytd_cpp_pi_ei(payslip_ytd,rec.env.context.get('type'))
 
+
+
+    def _update_ytd_irregular_payments_tax(self,payslip_ytd,req_type):
+
+            ytd_total_amount = payslip_ytd.filtered(lambda x: x.category_id.code in ["ADD_ALLOWANCE"])
+            self.ytd_pi_erp = ytd_total_amount
+
+    def update_ytd_irregular_payments_tax(self):
+        for rec in self:
+            payslip_ytd_tax = self.slip_ids.filtered(
+            lambda x: x.state == 'paid' and (
+                x.paid_date.year if x.paid_date else x.write_date.year) == int(
+                self.contract_id.deductions.slab_year or 0) and (x.irre_fed_tax > 0.0 or x.irre_prov_tax > 0.0 ))
+            rec.ytd_irre_fed_tax_erp = sum(payslip_ytd_tax.mapped("irre_fed_tax"))
+            rec.ytd_irre_prov_tax_erp = sum(payslip_ytd_tax.mapped("irre_prov_tax"))
 
 
 

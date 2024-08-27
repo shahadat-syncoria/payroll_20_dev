@@ -29,6 +29,9 @@ class InheritedHrPayslip(models.Model):
         store=False)
     is_manual_input = fields.Boolean(compute='_compute_is_manual_input')
 
+    irre_fed_tax = fields.Float("Irregular Fed Tax",default=0)
+    irre_prov_tax = fields.Float("Irregular Prov Tax",default=0)
+
 
 
 
@@ -85,11 +88,13 @@ class InheritedHrPayslip(models.Model):
         # ================= YTD Information Update =========
         for slip in self:
             slip.employee_id.with_context({"type":"ALL"}).update_ytd_erp() # "ALL" is for update YTD of CPP,CPP2,PI
+            slip.employee_id.update_ytd_irregular_payments_tax() # "ALL" is for update YTD of CPP,CPP2,PI
 
     def action_payslip_cancel(self):
         super(InheritedHrPayslip,self).action_payslip_cancel()
         for slip in self:
             slip.employee_id.with_context({"type":"ALL"}).update_ytd_erp() # "ALL" is for update YTD of CPP,CPP2,PI
+            slip.employee_id.update_ytd_irregular_payments_tax() # "ALL" is for update YTD of CPP,CPP2,PI
 
     def get_previous_irregular_payment(self, id, paycycle):
         payslip = self.browse(id)
@@ -113,6 +118,7 @@ class InheritedHrPayslip(models.Model):
                 rec.payslip_run_id._check_paid_status()
             if 'state' in vals and vals.get('state') == 'paid':
                 rec.employee_id.with_context({"type": "ALL"}).update_ytd_erp()
+                rec.employee_id.update_ytd_irregular_payments_tax()
         return res
 
     # ================== Report ======================
