@@ -42,11 +42,10 @@ if is_pay_cycle:
     if irregular_gross>0.0:
         previous_irregular_payment=payslip.env['hr.payslip'].get_previous_irregular_payment(payslip.id,pay_cycle)
         if previous_irregular_payment > 0.00:
-            previous_annual_irr_pay_tax,previous_tax_amount_gross_without_irr = calculate_irr_bonuses_annual_tax(payslip,claim_code,year,pay_cycle,paycycle_gross,irregular_gross=previous_irregular_payment)
             irregular_gross +=  previous_irregular_payment
         annual_irr_pay_tax,tax_amount_gross_without_irr = calculate_irr_bonuses_annual_tax(payslip,claim_code,year,pay_cycle,paycycle_gross,irregular_gross)
-        if previous_annual_irr_pay_tax:
-            current_irr_tax_amount = abs(previous_annual_irr_pay_tax - annual_irr_pay_tax)
+        if previous_irregular_payment>0.0:
+            current_irr_tax_amount = abs(employee.ytd_irre_fed_tax - annual_irr_pay_tax)
             annual_irr_pay_tax = current_irr_tax_amount
         payslip.write({'irre_fed_tax': annual_irr_pay_tax})
         result = tax_amount_gross_without_irr + annual_irr_pay_tax
@@ -98,11 +97,10 @@ if is_pay_cycle:
     if irregular_gross>0.0:
         previous_irregular_payment=payslip.env['hr.payslip'].get_previous_irregular_payment(payslip.id,pay_cycle)
         if previous_irregular_payment > 0.00:
-            previous_annual_irr_pay_tax,previous_tax_amount_gross_without_irr = calculate_irr_bonuses_annual_tax(payslip,claim_code,year,pay_cycle,paycycle_gross,irregular_gross=previous_irregular_payment)
             irregular_gross +=  previous_irregular_payment
         annual_irr_pay_tax,tax_amount_gross_without_irr = calculate_irr_bonuses_annual_tax(payslip,claim_code,year,pay_cycle,paycycle_gross,irregular_gross)
-        if previous_annual_irr_pay_tax:
-            current_irr_tax_amount = abs(previous_annual_irr_pay_tax - annual_irr_pay_tax)
+        if previous_irregular_payment > 0.00:
+            current_irr_tax_amount = abs(employee.ytd_irre_prov_tax - annual_irr_pay_tax)
             annual_irr_pay_tax = current_irr_tax_amount
         payslip.write({'irre_prov_tax': annual_irr_pay_tax})
         result = tax_amount_gross_without_irr + annual_irr_pay_tax
@@ -154,11 +152,10 @@ if is_pay_cycle:
     if irregular_gross>0.0:
         previous_irregular_payment=payslip.env['hr.payslip'].get_previous_irregular_payment(payslip.id,pay_cycle)
         if previous_irregular_payment > 0.00:
-            previous_annual_irr_pay_tax,previous_tax_amount_gross_without_irr = calculate_irr_bonuses_annual_tax(payslip,claim_code,year,pay_cycle,paycycle_gross,irregular_gross=previous_irregular_payment)
             irregular_gross +=  previous_irregular_payment
         annual_irr_pay_tax,tax_amount_gross_without_irr = calculate_irr_bonuses_annual_tax(payslip,claim_code,year,pay_cycle,paycycle_gross,irregular_gross)
-        if previous_annual_irr_pay_tax:
-            current_irr_tax_amount = abs(previous_annual_irr_pay_tax - annual_irr_pay_tax)
+        if previous_irregular_payment>0.0:
+            current_irr_tax_amount = abs(employee.ytd_irre_fed_tax - annual_irr_pay_tax)
             annual_irr_pay_tax = current_irr_tax_amount
         payslip.write({'irre_fed_tax': annual_irr_pay_tax})
         result = tax_amount_gross_without_irr + annual_irr_pay_tax
@@ -210,11 +207,10 @@ if is_pay_cycle:
     if irregular_gross>0.0:
         previous_irregular_payment=payslip.env['hr.payslip'].get_previous_irregular_payment(payslip.id,pay_cycle)
         if previous_irregular_payment > 0.00:
-            previous_annual_irr_pay_tax,previous_tax_amount_gross_without_irr = calculate_irr_bonuses_annual_tax(payslip,claim_code,year,pay_cycle,paycycle_gross,irregular_gross=previous_irregular_payment)
             irregular_gross +=  previous_irregular_payment
         annual_irr_pay_tax,tax_amount_gross_without_irr = calculate_irr_bonuses_annual_tax(payslip,claim_code,year,pay_cycle,paycycle_gross,irregular_gross)
-        if previous_annual_irr_pay_tax:
-            current_irr_tax_amount = abs(previous_annual_irr_pay_tax - annual_irr_pay_tax)
+        if previous_irregular_payment > 0.00:
+            current_irr_tax_amount = abs(employee.ytd_irre_prov_tax - annual_irr_pay_tax)
             annual_irr_pay_tax = current_irr_tax_amount
         payslip.write({'irre_prov_tax': annual_irr_pay_tax})
         result = tax_amount_gross_without_irr + annual_irr_pay_tax
