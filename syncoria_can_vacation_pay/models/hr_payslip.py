@@ -63,15 +63,14 @@ class VacationPayslip(models.Model):
                 payslip.message_post(body=f"Vacation Pay Error:{e}")
 
         return super(VacationPayslip, self).compute_sheet()
-
-    def action_payslip_paid(self):
-        res = super(VacationPayslip, self).action_payslip_paid()
+    def vacation_pay_paid(self):
         input_type = self.env.ref('syncoria_can_vacation_pay.input_ca_vac_pay').id
         vacation_pay_req = self.env['hr.vacation.pay']
         for rec in self:
             if rec.state == 'paid':
                 vacation_pay_input_line_ids = rec.input_line_ids.filtered(lambda x: x.input_type_id.id == input_type)
-                vacation_pay_req_ids = vacation_pay_input_line_ids.vacation_pay_req_ref.split(',') if vacation_pay_input_line_ids.vacation_pay_req_ref else []
+                vacation_pay_req_ids = vacation_pay_input_line_ids.vacation_pay_req_ref.split(
+                    ',') if vacation_pay_input_line_ids.vacation_pay_req_ref else []
 
                 for vpr in vacation_pay_req_ids:
                     vpr_id = vacation_pay_req.search([('name', '=', vpr)], limit=1)
@@ -79,6 +78,13 @@ class VacationPayslip(models.Model):
                         vpr_id.vacation_pay_amount = vacation_pay_input_line_ids.amount
                         vpr_id.payslip_id = rec.id
                         vpr_id.action_paid()
+
+
+    def action_payslip_paid(self):
+        res = super(VacationPayslip, self).action_payslip_paid()
+        for rec in self:
+            rec.vacation_pay_paid()
+
 
         return res
 
@@ -99,3 +105,13 @@ class VacationPayslip(models.Model):
         total_amount = round(hourly_rate * (total_taken_leave * contract.resource_calendar_id.hours_per_day),3) or 0.0
 
         return total_amount
+
+class AccountPaymentRegister(models.TransientModel):
+    _inherit = "account.payment.register"
+
+    def _reconcile_payments(self, to_process, edit_mode=False):
+        res = super()._reconcile_payments(to_process, edit_mode=edit_mode)
+        if self.env.context.get('hr_payroll_payment_register'):
+            payslip = self.env['hr.payslip'].browse(self.env.context['hr_payroll_payment_register'])
+            payslip.vacation_pay_paid()
+        return res
