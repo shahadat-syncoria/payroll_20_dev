@@ -52,20 +52,23 @@ class HrVacationPay(models.Model):
 
     # =========================
     def _get_remaining_vacation_employee(self,employee_id):
-        vac_pay_by_employee = self.search([('employee_id', '=', employee_id.id)])
-        vacation_leave_type = self.env['hr.leave.type'].sudo().search([('allow_vacation_pay', '=', True)])
-        vac_remain = 0.0
-        taken_vacation_leave = sum(vac_pay_by_employee.filtered(
-            lambda x: x.state == 'validate').mapped('duration'))
-        try:
-            for vac_type in vacation_leave_type:
-                data = vac_type.get_allocation_data(employee_id)
-                if data.get(employee_id):
-                    if data.get(employee_id)[0][1]:
-                        vac_remain = data.get(employee_id)[0][1].get(
-                            'virtual_remaining_leaves') - taken_vacation_leave
-        except Exception as e:
-            pass
+        if self.env["ir.config_parameter"].sudo().get_param('syncoria_can_vacation_pay.vac_pay_type') == 'time_wise':
+            vac_pay_by_employee = self.search([('employee_id', '=', employee_id.id)])
+            vacation_leave_type = self.env['hr.leave.type'].sudo().search([('allow_vacation_pay', '=', True)])
+            vac_remain = 0.0
+            taken_vacation_leave = sum(vac_pay_by_employee.filtered(
+                lambda x: x.state == 'validate').mapped('duration'))
+            try:
+                for vac_type in vacation_leave_type:
+                    data = vac_type.get_allocation_data(employee_id)
+                    if data.get(employee_id):
+                        if data.get(employee_id)[0][1]:
+                            vac_remain = data.get(employee_id)[0][1].get(
+                                'virtual_remaining_leaves') - taken_vacation_leave
+            except Exception as e:
+                pass
+        else:
+            vac_remain= 0.0
 
         return vac_remain
 
@@ -90,18 +93,21 @@ class HrVacationPay(models.Model):
     @api.depends('employee_id')
     def _compute_remaining_vacation_employee(self):
         for vac in self:
-            vac.vacation_remain = vac._get_remaining_vacation_employee(vac.employee_id)
+            if self.env["ir.config_parameter"].sudo().get_param(
+                    'syncoria_can_vacation_pay.vac_pay_type') == 'time_wise':
+                vac.vacation_remain = vac._get_remaining_vacation_employee(vac.employee_id)
 
 
     def action_confirm(self):
-        if self.duration <= 0.0:
-            raise UserError(_("Duration must be grater than zero!"))
-        elif round(self.vacation_remain,2) < self.duration:
-            raise UserError(_("Duration can not be greater than remaining days."))
-        self.write({'state': 'confirm'})
+        if self.env["ir.config_parameter"].sudo().get_param('syncoria_can_vacation_pay.vac_pay_type') == 'time_wise':
+            if self.duration <= 0.0:
+                raise UserError(_("Duration must be grater than zero!"))
+            elif round(self.vacation_remain,2) < self.duration:
+                raise UserError(_("Duration can not be greater than remaining days."))
+            self.write({'state': 'confirm'})
 
-        if self.name == 'Draft':
-            self.name = self.env['ir.sequence'].next_by_code('hr.vacation.pay')
+            if self.name == 'Draft':
+                self.name = self.env['ir.sequence'].next_by_code('hr.vacation.pay')
 
     def action_approve(self):
         self.write({'state': 'validate','date':fields.Date.today()})

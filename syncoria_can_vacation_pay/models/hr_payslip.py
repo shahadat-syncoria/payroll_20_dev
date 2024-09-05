@@ -40,27 +40,27 @@ class VacationPayslip(models.Model):
         return final_vac_amount
 
     def compute_sheet(self):
-
-        input_type = self.env.ref('syncoria_can_vacation_pay.input_ca_vac_pay').id
-        payslips = self.filtered(lambda slip: slip.state in ['draft', 'verify'])
-        for payslip in payslips:
-            try:
-                des_name = ","
-                employee_id = payslip.employee_id
-                vacation_pay_ids = payslip.env['hr.vacation.pay'].search(
-                    [('employee_id', '=', employee_id.id)]).filtered(
-                    lambda x: x.state == 'validate' and  payslip.date_to >= x.date)
-                calculate_vacation_pay = payslip._calculate_vacation_pay(sum(vacation_pay_ids.mapped('duration')),payslip.contract_id)
-                if vacation_pay_ids and calculate_vacation_pay > 0.0:
-                    payslip.input_line_ids.filtered(lambda x: x.input_type_id.id == input_type).unlink()
-                    payslip.write({'input_line_ids': [(0, 0, {
-                        'input_type_id': input_type,
-                        'name': des_name.join(vacation_pay_ids.mapped('name')) or "",
-                        'vacation_pay_req_ref': des_name.join(vacation_pay_ids.mapped('name')),
-                        'amount': abs(calculate_vacation_pay),
-                    })]})
-            except Exception as e:
-                payslip.message_post(body=f"Vacation Pay Error:{e}")
+        if self.env["ir.config_parameter"].sudo().get_param('syncoria_can_vacation_pay.vac_pay_type') == 'time_wise':
+            input_type = self.env.ref('syncoria_can_vacation_pay.input_ca_vac_pay').id
+            payslips = self.filtered(lambda slip: slip.state in ['draft', 'verify'])
+            for payslip in payslips:
+                try:
+                    des_name = ","
+                    employee_id = payslip.employee_id
+                    vacation_pay_ids = payslip.env['hr.vacation.pay'].search(
+                        [('employee_id', '=', employee_id.id)]).filtered(
+                        lambda x: x.state == 'validate' and  payslip.date_to >= x.date)
+                    calculate_vacation_pay = payslip._calculate_vacation_pay(sum(vacation_pay_ids.mapped('duration')),payslip.contract_id)
+                    if vacation_pay_ids and calculate_vacation_pay > 0.0:
+                        payslip.input_line_ids.filtered(lambda x: x.input_type_id.id == input_type).unlink()
+                        payslip.write({'input_line_ids': [(0, 0, {
+                            'input_type_id': input_type,
+                            'name': des_name.join(vacation_pay_ids.mapped('name')) or "",
+                            'vacation_pay_req_ref': des_name.join(vacation_pay_ids.mapped('name')),
+                            'amount': abs(calculate_vacation_pay),
+                        })]})
+                except Exception as e:
+                    payslip.message_post(body=f"Vacation Pay Error:{e}")
 
         return super(VacationPayslip, self).compute_sheet()
     def vacation_pay_paid(self):
@@ -82,8 +82,9 @@ class VacationPayslip(models.Model):
 
     def action_payslip_paid(self):
         res = super(VacationPayslip, self).action_payslip_paid()
-        for rec in self:
-            rec.vacation_pay_paid()
+        if self.env["ir.config_parameter"].sudo().get_param('syncoria_can_vacation_pay.vac_pay_type') == 'time_wise':
+            for rec in self:
+                rec.vacation_pay_paid()
 
 
         return res

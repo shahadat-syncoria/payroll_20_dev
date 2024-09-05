@@ -47,7 +47,10 @@ class VacationPayslip(models.Model):
         return taken_vacation_leave
 
     def get_vacation_pay(self):
-        self.vacation_pay_taken = self._get_vacation_pay_calculation()
+        if self.env["ir.config_parameter"].sudo().get_param('syncoria_can_vacation_pay.vac_pay_type')=='time_wise':
+            self.vacation_pay_taken = self._get_vacation_pay_calculation()
+        else:
+            self.vacation_pay_taken = 0.0
 
     def get_employee_years(self):
         for employee in self:
@@ -66,28 +69,31 @@ class VacationPayslip(models.Model):
 
     def _calculated_vacation_pay_allocated(self):
         for rec in self:
-            today_date = datetime.today().date()
+            if self.env["ir.config_parameter"].sudo().get_param('syncoria_can_vacation_pay.vac_pay_type')=='time_wise':
+                today_date = datetime.today().date()
 
-            def _is_leap_year():
-                return 366 if calendar.isleap(today_date.year) else 365
+                def _is_leap_year():
+                    return 366 if calendar.isleap(today_date.year) else 365
 
-            rec.allocated_vacation_leave = 0.0
-            if rec.sync_first_contract_date:
-                today_month_from_first_contract = relativedelta(datetime.today().date(), rec.sync_first_contract_date)
-                if today_month_from_first_contract.months >= int(rec.vacation_pay_allocation_start):
-                    vacation_slab_id = rec.env['hr.vacation.slab'].search(
-                        [
-                            ('start_year', '<=', today_month_from_first_contract.years),
-                            ('end_year', '>=', today_month_from_first_contract.years)
-                        ], limit=1
-                    )
-                    start_date = (
-                                     rec.sync_first_contract_date if rec.sync_first_contract_date.year == today_date.year else datetime(
-                                         today_date.year, 1, 1).date())
-                    rec.allocated_vacation_leave += (((vacation_slab_id.allocated_leave / _is_leap_year()) * (
-                            (today_date-timedelta(days=1)) - start_date).days + rec.previous_allocated_vacation_leave) - rec._get_vacation_pay_calculation())
-                    if rec.allocated_vacation_leave < 0.0:
-                        rec.allocated_vacation_leave = 0.0
+                rec.allocated_vacation_leave = 0.0
+                if rec.sync_first_contract_date:
+                    today_month_from_first_contract = relativedelta(datetime.today().date(), rec.sync_first_contract_date)
+                    if today_month_from_first_contract.months >= int(rec.vacation_pay_allocation_start):
+                        vacation_slab_id = rec.env['hr.vacation.slab'].search(
+                            [
+                                ('start_year', '<=', today_month_from_first_contract.years),
+                                ('end_year', '>=', today_month_from_first_contract.years)
+                            ], limit=1
+                        )
+                        start_date = (
+                                         rec.sync_first_contract_date if rec.sync_first_contract_date.year == today_date.year else datetime(
+                                             today_date.year, 1, 1).date())
+                        rec.allocated_vacation_leave += (((vacation_slab_id.allocated_leave / _is_leap_year()) * (
+                                (today_date-timedelta(days=1)) - start_date).days + rec.previous_allocated_vacation_leave) - rec._get_vacation_pay_calculation())
+                        if rec.allocated_vacation_leave < 0.0:
+                            rec.allocated_vacation_leave = 0.0
+                else:
+                    rec.allocated_vacation_leave = 0.0
     def _get_allocated_vacation_pay(self):
 
         self._calculated_vacation_pay_allocated()
