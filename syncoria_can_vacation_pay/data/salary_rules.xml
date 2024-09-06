@@ -8,6 +8,11 @@
             <field name="code">Vacation_Pay</field>
             <field name="country_id" eval="False"/>
         </record>
+        <record id="input_ca_adjusted_vac_pay" model="hr.payslip.input.type">
+            <field name="name">Adjusted Vacation Pay</field>
+            <field name="code">Adjusted_Vacation_Pay</field>
+            <field name="country_id" eval="False"/>
+        </record>
 
 
         <record id="rule_ca_vacation_pay" model="hr.salary.rule">
@@ -25,6 +30,25 @@
             <field name="amount_python_compute">
 result = inputs['Vacation_Pay'].amount
 result_name = inputs['Vacation_Pay'].name
+            </field>
+
+
+        </record>
+         <record id="rule_ca_adjusted_vacation_pay" model="hr.salary.rule">
+            <field name="name">Adjusted Vacation Pay</field>
+            <field name="sequence" eval="32"/>
+            <field name="code">ADJUST_VP</field>
+            <field name="category_id" ref="syncoria_can_payroll.additional_allowance"/>
+            <field name="appears_on_payslip" eval='True'/>
+            <field name="active" eval="1"/>
+            <field name="amount_select">code</field>
+            <field name="struct_id" ref="syncoria_can_payroll.structure_can_employee"/>
+            <field name="condition_select">python</field>
+                    <field name="condition_python">result = 'Adjusted_Vacation_Pay' in inputs</field>
+
+            <field name="amount_python_compute">
+result = inputs['Adjusted_Vacation_Pay'].amount
+result_name = inputs['Adjusted_Vacation_Pay'].name
             </field>
 
 
@@ -48,6 +72,25 @@ result_name = inputs['Vacation_Pay'].name
             <field name="amount_python_compute">
 result = inputs['Vacation_Pay'].amount
 result_name = inputs['Vacation_Pay'].name
+            </field>
+
+
+        </record>
+        <record id="rule_ca_adjusted_vacation_pay_worker" model="hr.salary.rule">
+            <field name="name">Vacation Pay</field>
+            <field name="sequence" eval="32"/>
+            <field name="code">ADJUST_VP</field>
+            <field name="category_id" ref="syncoria_can_payroll.additional_allowance"/>
+            <field name="appears_on_payslip" eval='True'/>
+            <field name="active" eval="1"/>
+            <field name="amount_select">code</field>
+            <field name="struct_id" ref="syncoria_can_payroll.structure_can_worker"/>
+            <field name="condition_select">python</field>
+                    <field name="condition_python">result = 'Adjusted_Vacation_Pay' in inputs</field>
+
+            <field name="amount_python_compute">
+result = inputs['Adjusted_Vacation_Pay'].amount
+result_name = inputs['Adjusted_Vacation_Pay'].name
             </field>
 
 

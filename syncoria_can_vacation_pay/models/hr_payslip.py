@@ -82,12 +82,30 @@ class VacationPayslip(models.Model):
                         'vacation_pay_req_ref': des_name.join(vacation_pay_ids.mapped('name')),
                         'amount': abs(calculate_vacation_pay),
                     })]})
+
+                # ==================== Ajusted Vacation Pay ==============================
+                if payslip.employee_id.is_adjust_vacation_pay_leave:
+                    unpaid_days = sum(payslip.worked_days_line_ids.filtered(
+                        lambda x: x.work_entry_type_id.deduct_from_gross and x.work_entry_type_id.is_leave).mapped(
+                        'number_of_days'))
+                    vacation_pay_one_day_hour = payslip.contract_id.resource_calendar_id.hours_per_day
+                    hourly_rate = round((payslip.contract_id.wage * 12) / (
+                            payslip.contract_id.resource_calendar_id.full_time_required_hours * 52), 2)
+                    adjust_vac_pay_amount = (unpaid_days * vacation_pay_one_day_hour) * hourly_rate
+
+                    adjusted_input_type = self.env.ref('syncoria_can_vacation_pay.input_ca_adjusted_vac_pay').id
+                    payslip.write({'input_line_ids': [(0, 0, {
+                        'input_type_id': adjusted_input_type,
+                        'name': "Adjusted Vacation Pay With Leave",
+                        'amount': adjust_vac_pay_amount,
+                    })]})
             except Exception as e:
                 payslip.message_post(body=f"Vacation Pay Error:{e}")
 
         return super(VacationPayslip, self).compute_sheet()
     def vacation_pay_paid(self):
         input_type = self.env.ref('syncoria_can_vacation_pay.input_ca_vac_pay').id
+        adjusted_input_type = self.env.ref('syncoria_can_vacation_pay.input_ca_adjusted_vac_pay').id
         vacation_pay_req = self.env['hr.vacation.pay']
         for rec in self:
             vacation_pay_input_line_ids = rec.input_line_ids.filtered(lambda x: x.input_type_id.id == input_type)
@@ -105,6 +123,9 @@ class VacationPayslip(models.Model):
 
                 rec.vac_pay_earned_taken = total_amount
 
+            adjusted_vacation_pay_input_line_ids = rec.input_line_ids.filtered(lambda x: x.input_type_id.id == adjusted_input_type)
+            if rec.state == 'paid' and adjusted_vacation_pay_input_line_ids:
+                rec.vac_pay_earned_taken = sum(adjusted_vacation_pay_input_line_ids.mapped("amount"))
 
     def action_payslip_paid(self):
         res = super(VacationPayslip, self).action_payslip_paid()

@@ -34,6 +34,8 @@
                          <field name="allocated_vacation_leave"/>
                         <span class="text-muted">days</span>
                     </div>
+
+                        <field name="is_adjust_vacation_pay_leave"/>
                      </group>
 
 
