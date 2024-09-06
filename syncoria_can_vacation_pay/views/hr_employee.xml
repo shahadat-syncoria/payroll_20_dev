@@ -42,5 +42,30 @@
 
             </field>
         </record>
+
+<!--        ========================== Syncoria Canada Payroll Employee View  ================================-->
+          <record id="view_employee_form_vac_pay" model="ir.ui.view">
+            <field name="model">hr.employee</field>
+            <field name="inherit_id" ref="syncoria_can_payroll.view_employee_form_sync_can_view"/>
+            <field name="arch" type="xml">
+                <xpath expr="//page[@name='sync_payroll_info']/group" position="inside">
+                    <group string='Vacation Pay(Earned Pay)' name="vacation_pay">
+                        <group>
+                            <field name="ytd_vac_pay_amount_erp" readonly="1"/>
+                            <field name="previous_vac_pay_amount"/>
+                            <field name="ytd_vac_pay_amount"/>
+                            <field name="vac_pay_amount_taken"/>
+                        </group>
+                        <group>
+                                            <button name="update_vac_pay_amount_erp" type="object"
+                                                    help="Update Vacation Amount" title="Update Vacation Amount" icon="fa-refresh"/>
+
+                                        </group>
+
+
+                    </group>
+                </xpath>
+            </field>
+          </record>
     </data>
 </odoo>

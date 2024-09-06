@@ -2,6 +2,7 @@
 
 from odoo import fields, models, api, _
 from odoo.exceptions import UserError
+from odoo.tools.populate import compute
 
 
 class HrVacationPay(models.Model):
@@ -21,6 +22,9 @@ class HrVacationPay(models.Model):
 
     def _get_default_remaining_vacation(self):
         return self._get_remaining_vacation_employee(self.env.user.employee_id)
+    def _get_default_remaining_vacation_pay_amount(self):
+
+        return self.env.user.employee_id.ytd_vac_pay_amount
 
 
     name = fields.Char(string='Reference', required=True, copy=False, default='Draft', readonly=True)
@@ -28,6 +32,7 @@ class HrVacationPay(models.Model):
     employee_id = fields.Many2one('hr.employee', required=True, default=_get_default_employee)
     duration = fields.Float("Duration")
     vacation_remain = fields.Float('Remaining Vacation', store=True,compute='_compute_remaining_vacation_employee',default=_get_default_remaining_vacation)
+    vacation_pay_amount_remaining =  fields.Float('Remaining Vacation Pay Amount', store=True,compute='_compute_remaining_vacation_pay_amount_employee',default=_get_default_remaining_vacation_pay_amount)
     vacation_pay_amount = fields.Float('Amount')
     payslip_id = fields.Many2one('hr.payslip')
     paid_date = fields.Date(related='payslip_id.paid_date')
@@ -46,11 +51,25 @@ class HrVacationPay(models.Model):
     department_id = fields.Many2one(related="employee_id.department_id",string="Department", store=True)
     job_id = fields.Many2one(related="employee_id.job_id",string="Job")
     contract_id = fields.Many2one(related="employee_id.contract_id",string="Contract")
+    vacation_type = fields.Selection([('time_wise',"Time Store"),('cash_wise',"Cash Store"),
+                                      ],string="Vacation Type",default='cash_wise',compute='_compute_vacation_type',store=True)
 
+
+
+    def _compute_vacation_type(self):
+        for rec in self:
+            if rec.state == 'draft':
+                rec.vacation_type = self.env["ir.config_parameter"].sudo().get_param('syncoria_can_vacation_pay.vac_pay_type')
 
 
 
     # =========================
+    @api.depends('employee_id')
+    def _compute_remaining_vacation_pay_amount_employee(self):
+        for rec in self:
+            rec.vacation_pay_amount_remaining = rec.employee_id.ytd_vac_pay_amount
+
+
     def _get_remaining_vacation_employee(self,employee_id):
         if self.env["ir.config_parameter"].sudo().get_param('syncoria_can_vacation_pay.vac_pay_type') == 'time_wise':
             vac_pay_by_employee = self.search([('employee_id', '=', employee_id.id)])
@@ -106,8 +125,16 @@ class HrVacationPay(models.Model):
                 raise UserError(_("Duration can not be greater than remaining days."))
             self.write({'state': 'confirm'})
 
-            if self.name == 'Draft':
-                self.name = self.env['ir.sequence'].next_by_code('hr.vacation.pay')
+        if self.vacation_type =='cash_wise':
+            if self.vacation_pay_amount <= 0.0:
+                raise UserError(_("Amount must be grater than zero!"))
+            elif round(self.vacation_pay_amount_remaining,2) < self.vacation_pay_amount:
+                raise UserError(_("Amount can not be greater than remaining Amount."))
+            self.write({'state': 'confirm'})
+
+        if self.name == 'Draft':
+            self.name = self.env['ir.sequence'].next_by_code('hr.vacation.pay')
+
 
     def action_approve(self):
         self.write({'state': 'validate','date':fields.Date.today()})

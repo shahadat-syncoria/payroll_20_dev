@@ -34,6 +34,56 @@ class VacationPayslip(models.Model):
                                             groups='hr_holidays.group_hr_holidays_manager' )
     vacation_leave_write_date = fields.Datetime(string="Last Updated at", groups='hr.group_hr_user')
 
+    # =================================================== Cash Wise store Vacation Pay(Earned Vacation Pay) ========================================
+    ytd_vac_pay_amount = fields.Float("Vacation Pay Amount", default=0.0,compute="_compute_vac_pay_amount",store=True)
+    ytd_vac_pay_amount_erp = fields.Float("Vacation Pay Amount Erp", default=0.0)
+    previous_vac_pay_amount = fields.Float("Previous Vacation Pay Amount", default=0.0)
+    vac_pay_amount_taken = fields.Float("Vacation Pay Amount Taken", default=0.0,store=True,readonly=True)
+
+    allocated_vac_leave = fields.Float("Allocated Vacation Leave Per year",store=True, default=0.0,compute='_get_employee_allocated_leave')
+    allocated_vac_percentage = fields.Float("Allocated Vacation Percentage",store=True, default=0.0,compute='_get_employee_allocated_leave')
+
+    @api.depends("ytd_vac_pay_amount_erp", "previous_vac_pay_amount")
+    def _compute_vac_pay_amount(self):
+        for rec in self:
+            rec.ytd_vac_pay_amount = (rec.ytd_vac_pay_amount_erp + rec.previous_vac_pay_amount) - rec.vac_pay_amount_taken
+
+    def _get_vac_pay_slip_ids(self):
+        """
+            This is helper function to get YTD paid payslips compute line ids
+        """
+        payslip = self.slip_ids.filtered(
+            lambda x: x.state == 'paid' )
+
+        return payslip
+
+    def update_vac_pay_amount_erp(self):
+        for rec in self:
+            payslips = rec._get_vac_pay_slip_ids()
+            rec.ytd_vac_pay_amount_erp = sum(payslips.mapped('vac_pay_earned_amount'))
+            rec.vac_pay_amount_taken = sum(payslips.mapped('vac_pay_earned_taken'))
+
+    def _get_employee_allocated_leave(self):
+        for rec in self:
+            allocated_leave = 0
+            allocated_percentage = 0
+            if rec.sync_first_contract_date:
+                today_month_from_first_contract = relativedelta(datetime.today().date(), rec.sync_first_contract_date)
+                if today_month_from_first_contract.months >= int(rec.vacation_pay_allocation_start):
+                    vacation_slab_id = rec.env['hr.vacation.slab'].search(
+                        [
+                            ('start_year', '<=', today_month_from_first_contract.years),
+                            ('end_year', '>=', today_month_from_first_contract.years)
+                        ], limit=1
+                    )
+                    allocated_leave = vacation_slab_id.allocated_leave
+                    allocated_percentage = vacation_slab_id.leave_percentage
+
+            rec.allocated_vac_leave = allocated_leave
+            rec.allocated_vac_percentage = allocated_percentage
+
+
+
 
     @api.constrains('previous_allocated_vacation_leave')
     def _constraint_previous_allocated_leave(self):

@@ -16,6 +16,7 @@
                         <field name="state" statusbar_visible="confirm,validate" widget="statusbar"/>
                     </header>
                     <sheet>
+
                         <div class="oe_title">
                             <label for="name" string="Reference"/>
                             <h1>
@@ -31,10 +32,12 @@
                                 <field name="description"/>
                             </group>
                             <group string="Vacation Pay Request Information">
-                                <field name="date" readonly="1"/>
-                                <field invisible="1" name="vacation_pay_amount"/>
-                                <field name="duration" readonly="state != 'draft'"/>
-                                <field name="vacation_remain"/>
+                                <field name="date" readonly="0"/>
+                                <field name="vacation_type"/>
+                                <field invisible="vacation_type != 'cash_wise'" readonly="state != 'draft'" name="vacation_pay_amount_remaining"/>
+                                <field invisible="vacation_type != 'cash_wise'" readonly="state != 'draft'" name="vacation_pay_amount"/>
+                                <field name="duration" readonly="state != 'draft'" invisible="vacation_type != 'time_wise'"/>
+                                <field name="vacation_remain" invisible="vacation_type != 'time_wise' "/>
                                 <field groups="hr_holidays.group_hr_holidays_manager,hr_holidays.group_hr_holidays_user" name="is_last_pay" string="Is employee Quitting?"/>
                             </group>
                         </group>
