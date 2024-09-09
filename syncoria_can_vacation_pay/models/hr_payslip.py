@@ -20,8 +20,9 @@ class VacationPayslip(models.Model):
         """
         for rec in self:
             employee = rec.employee_id
-            gross_amount = rec.line_ids.filtered(lambda x: x.code=="GROSS").total
-            stored_vac_pay_amount = (gross_amount*(employee.allocated_vac_percentage/100))
+            insurable_amount = rec.line_ids.filtered(lambda x: x.code=="I_Earning").total
+            insurable_amount -=  rec.line_ids.filtered(lambda x: x.code=="ADJUST_VP").total
+            stored_vac_pay_amount = (insurable_amount*(employee.allocated_vac_percentage/100))
             employee.ytd_vac_pay_amount_erp += stored_vac_pay_amount
             rec.vac_pay_earned_amount = stored_vac_pay_amount
 
