@@ -36,7 +36,7 @@ class VacationPayslip(models.Model):
 
     # =================================================== Cash Wise store Vacation Pay(Earned Vacation Pay) ========================================
     ytd_vac_pay_amount = fields.Float("Vacation Pay Amount", default=0.0,compute="_compute_vac_pay_amount",store=True)
-    ytd_vac_pay_amount_erp = fields.Float("Vacation Pay Amount Erp", default=0.0)
+    ytd_vac_pay_amount_erp = fields.Float("Vacation Pay Amount ERP", default=0.0)
     previous_vac_pay_amount = fields.Float("Previous Vacation Pay Amount", default=0.0)
     vac_pay_amount_taken = fields.Float("Vacation Pay Amount Taken", default=0.0,store=True,readonly=True)
 
@@ -44,6 +44,7 @@ class VacationPayslip(models.Model):
     allocated_vac_percentage = fields.Float("Allocated Vacation Percentage",store=True, default=0.0,compute='_get_employee_allocated_leave')
 
     is_adjust_vacation_pay_leave = fields.Boolean("Adjust Vacation Pay With Unpaid Leaves",default=False)
+    payout_vacation_pay_paycycle = fields.Boolean("Payout Vacation Amount Per Pay Cycle",default=False)
     @api.depends("ytd_vac_pay_amount_erp", "previous_vac_pay_amount")
     def _compute_vac_pay_amount(self):
         for rec in self:

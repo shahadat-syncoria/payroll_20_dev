@@ -84,7 +84,7 @@ class VacationPayslip(models.Model):
                         'amount': abs(calculate_vacation_pay),
                     })]})
 
-                # ==================== Ajusted Vacation Pay ==============================
+                # ==================== Adjusted Vacation Pay ==============================
                 if payslip.employee_id.is_adjust_vacation_pay_leave:
                     unpaid_days = sum(payslip.worked_days_line_ids.filtered(
                         lambda x: x.work_entry_type_id.deduct_from_gross and x.work_entry_type_id.is_leave).mapped(
@@ -93,6 +93,9 @@ class VacationPayslip(models.Model):
                     hourly_rate = round((payslip.contract_id.wage * 12) / (
                             payslip.contract_id.resource_calendar_id.full_time_required_hours * 52), 2)
                     adjust_vac_pay_amount = (unpaid_days * vacation_pay_one_day_hour) * hourly_rate
+                    if adjust_vac_pay_amount > payslip.employee_id.ytd_vac_pay_amount:
+                        payslip.message_post(body=f"Full leave Could not Adjusted.Remaining amount is {payslip.employee_id.ytd_vac_pay_amount}")
+                        adjust_vac_pay_amount = payslip.employee_id.ytd_vac_pay_amount
 
                     adjusted_input_type = self.env.ref('syncoria_can_vacation_pay.input_ca_adjusted_vac_pay').id
                     payslip.write({'input_line_ids': [(0, 0, {
@@ -100,6 +103,19 @@ class VacationPayslip(models.Model):
                         'name': "Adjusted Vacation Pay With Leave",
                         'amount': adjust_vac_pay_amount,
                     })]})
+
+                if payslip.employee_id.payout_vacation_pay_paycycle:
+                    adjusted_input_type = self.env.ref('syncoria_can_vacation_pay.input_ca_adjusted_vac_pay').id
+                    payslip.store_vacation_pay_amount()
+                    payslip.employee_id.update_vac_pay_amount_erp()
+
+                    payslip.write({'input_line_ids': [(0, 0, {
+                        'input_type_id': adjusted_input_type,
+                        'name': "Current Vacation Pay",
+                        'amount': payslip.employee_id.ytd_vac_pay_amount,
+                    })]})
+
+
             except Exception as e:
                 payslip.message_post(body=f"Vacation Pay Error:{e}")
 
@@ -133,8 +149,9 @@ class VacationPayslip(models.Model):
         for rec in self:
             rec.vacation_pay_paid()
             if self.env["ir.config_parameter"].sudo().get_param('syncoria_can_vacation_pay.vac_pay_type') == 'cash_wise':
-                rec.store_vacation_pay_amount()
-                rec.employee_id.update_vac_pay_amount_erp()
+                if not rec.employee_id.payout_vacation_pay_paycycle:
+                    rec.store_vacation_pay_amount()
+                    rec.employee_id.update_vac_pay_amount_erp()
 
 
         return res
