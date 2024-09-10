@@ -112,7 +112,7 @@ class VacationPayslip(models.Model):
 
         super(VacationPayslip, self).compute_sheet()
         for payslip in payslips:
-            if payslip.employee_id.payout_vacation_pay_paycycle and payslip.employee_id.is_adjust_vacation_pay_leave:
+            if payslip.employee_id.payout_vacation_pay_paycycle and not payslip.employee_id.is_adjust_vacation_pay_leave:
                 # Don't want this because if we are in waiting state amount stored but we will only store if state
                 # paid.But in this case we will not store anything just disbursed the amount
 
@@ -131,7 +131,7 @@ class VacationPayslip(models.Model):
                 vac_pay_amount_need_to_disbursed = stored_vac_pay_amount
 
                 payslip.employee_id.ytd_vac_pay_amount_erp += vac_pay_amount_need_to_disbursed
-                # payslip.vac_pay_earned_amount = vac_pay_amount_need_to_disbursed
+                payslip.vac_pay_earned_amount = vac_pay_amount_need_to_disbursed
                 if vac_pay_amount_need_to_disbursed > 0.0:
                     # if other_adjusted_amount_input:
                     # else:
