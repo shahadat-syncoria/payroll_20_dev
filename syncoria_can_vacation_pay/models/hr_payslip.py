@@ -165,7 +165,7 @@ class VacationPayslip(models.Model):
 
             adjusted_vacation_pay_input_line_ids = rec.input_line_ids.filtered(lambda x: x.input_type_id.id == adjusted_input_type)
             if rec.state == 'paid' and adjusted_vacation_pay_input_line_ids:
-                rec.vac_pay_earned_taken = sum(adjusted_vacation_pay_input_line_ids.mapped("amount"))
+                rec.vac_pay_earned_taken += sum(adjusted_vacation_pay_input_line_ids.mapped("amount"))
 
     def action_payslip_paid(self):
         res = super(VacationPayslip, self).action_payslip_paid()
