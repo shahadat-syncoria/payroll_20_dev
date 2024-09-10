@@ -89,7 +89,7 @@ class VacationPayslip(models.Model):
                 # ==================== Adjusted Vacation Pay ==============================
                 payslip.input_line_ids.filtered(
                     lambda x: x.input_type_id.id in [adjusted_input_type]).unlink()
-                if payslip.employee_id.is_adjust_vacation_pay_leave:
+                if payslip.employee_id.is_adjust_vacation_pay_leave and not payslip.employee_id.payout_vacation_pay_paycycle:
                     unpaid_days = sum(payslip.worked_days_line_ids.filtered(
                         lambda x: x.work_entry_type_id.deduct_from_gross and x.work_entry_type_id.is_leave).mapped(
                         'number_of_days'))
@@ -112,7 +112,7 @@ class VacationPayslip(models.Model):
 
         super(VacationPayslip, self).compute_sheet()
         for payslip in payslips:
-            if payslip.employee_id.payout_vacation_pay_paycycle:
+            if payslip.employee_id.payout_vacation_pay_paycycle and payslip.employee_id.is_adjust_vacation_pay_leave:
                 # Don't want this because if we are in waiting state amount stored but we will only store if state
                 # paid.But in this case we will not store anything just disbursed the amount
 
@@ -123,12 +123,12 @@ class VacationPayslip(models.Model):
                 insurable_amount = payslip.line_ids.filtered(lambda x: x.code == "I_Earning").total
                 insurable_amount -= payslip.line_ids.filtered(lambda x: x.code == "ADJUST_VP").total
                 stored_vac_pay_amount = (insurable_amount * (payslip.employee_id.allocated_vac_percentage / 100))
-                other_adjusted_amount_input = payslip.input_line_ids.filtered(
-                    lambda x: x.input_type_id.id in [adjusted_input_type])
-                other_adjusted_amount = 0.0
-                if other_adjusted_amount_input:
-                    other_adjusted_amount = sum(other_adjusted_amount_input.mapped("amount"))
-                vac_pay_amount_need_to_disbursed = (stored_vac_pay_amount + payslip.employee_id.ytd_vac_pay_amount) - other_adjusted_amount
+                # other_adjusted_amount_input = payslip.input_line_ids.filtered(
+                #     lambda x: x.input_type_id.id in [adjusted_input_type])
+                # other_adjusted_amount = 0.0
+                # if other_adjusted_amount_input:
+                #     other_adjusted_amount = sum(other_adjusted_amount_input.mapped("amount"))
+                vac_pay_amount_need_to_disbursed = stored_vac_pay_amount
 
                 payslip.employee_id.ytd_vac_pay_amount_erp += vac_pay_amount_need_to_disbursed
                 # payslip.vac_pay_earned_amount = vac_pay_amount_need_to_disbursed

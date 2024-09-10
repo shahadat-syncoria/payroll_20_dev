@@ -45,6 +45,14 @@ class VacationPayslip(models.Model):
 
     is_adjust_vacation_pay_leave = fields.Boolean("Adjust Vacation Pay With Unpaid Leaves",default=False)
     payout_vacation_pay_paycycle = fields.Boolean("Payout Vacation Amount Per Pay Cycle",default=False)
+
+
+    @api.constrains("is_adjust_vacation_pay_leave","payout_vacation_pay_paycycle")
+    def _constrain_on_vacation_pay_bool(self):
+        for rec in self:
+            if rec.is_adjust_vacation_pay_leave and rec.payout_vacation_pay_paycycle:
+                raise UserError("Adjust Vacation Pay With Unpaid Leaves and Payout Vacation Amount Per Pay Cycle Both Can't Enable Same Time!!")
+
     @api.depends("ytd_vac_pay_amount_erp", "previous_vac_pay_amount")
     def _compute_vac_pay_amount(self):
         for rec in self:
