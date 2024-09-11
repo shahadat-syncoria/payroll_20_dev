@@ -20,6 +20,7 @@ class VacationPayslip(models.Model):
         """
         for rec in self:
             employee = rec.employee_id
+            employee._get_employee_allocated_leave()
             insurable_amount = rec.line_ids.filtered(lambda x: x.code=="I_Earning").total
             insurable_amount -=  sum(rec.line_ids.filtered(lambda x: x.code in ["ADJUST_VP","VP"]).mapped("total"))
             stored_vac_pay_amount = (insurable_amount*(employee.allocated_vac_percentage/100))
