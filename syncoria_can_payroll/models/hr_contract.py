@@ -51,7 +51,7 @@ class InheritedResPartner(models.Model):
         ('CC10', 'CC 10'),
     ], string="Federal Claim Code From TD1")
 
-    proviancial_claim_code_from_td1 = fields.Selection([
+    provincial_claim_code_from_td1 = fields.Selection([
         ('CC0', 'CC0'),
         ('CC1', 'CC 1'),
         ('CC2', 'CC 2'),
