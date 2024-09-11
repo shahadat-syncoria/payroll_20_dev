@@ -45,6 +45,14 @@ class VacationPayslip(models.Model):
 
     is_adjust_vacation_pay_leave = fields.Boolean("Adjust Vacation Pay With Unpaid Leaves",default=False)
     payout_vacation_pay_paycycle = fields.Boolean("Payout Vacation Amount Per Pay Cycle",default=False)
+    is_vacation_pay_adjust_negative = fields.Boolean(" Vacation pay amount be negative",default=False)
+
+
+    @api.onchange("is_adjust_vacation_pay_leave")
+    def _onchange_is_adjust_vacation_pay_leave(self):
+        for rec in self:
+            if not rec.is_adjust_vacation_pay_leave:
+                rec.is_vacation_pay_adjust_negative = False
 
 
     @api.constrains("is_adjust_vacation_pay_leave","payout_vacation_pay_paycycle")

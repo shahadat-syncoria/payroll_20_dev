@@ -98,9 +98,20 @@ class VacationPayslip(models.Model):
                     hourly_rate = round((payslip.contract_id.wage * 12) / (
                             payslip.contract_id.resource_calendar_id.full_time_required_hours * 52), 2)
                     adjust_vac_pay_amount = (unpaid_days * vacation_pay_one_day_hour) * hourly_rate
-                    if adjust_vac_pay_amount > payslip.employee_id.ytd_vac_pay_amount:
-                        payslip.message_post(body=f"Full leave Could not Adjusted.Remaining amount is {payslip.employee_id.ytd_vac_pay_amount}")
-                        adjust_vac_pay_amount = payslip.employee_id.ytd_vac_pay_amount
+
+                    # ==========================================================================================
+                    vac_pay_neg = payslip.employee_id.is_vacation_pay_adjust_negative
+                    if not vac_pay_neg:
+                        if adjust_vac_pay_amount > payslip.employee_id.ytd_vac_pay_amount:
+                            adjust_vac_pay_amount = 0.0
+
+
+
+
+                    # if adjust_vac_pay_amount > payslip.employee_id.ytd_vac_pay_amount:
+                    #     payslip.message_post(body=f"Full leave Could not Adjusted.Remaining amount is {payslip.employee_id.ytd_vac_pay_amount}")
+                    #     adjust_vac_pay_amount = payslip.employee_id.ytd_vac_pay_amount
+                        # ==========================================================================================
 
                     if adjust_vac_pay_amount > 0.0:
                         payslip.write({'input_line_ids': [(0, 0, {
