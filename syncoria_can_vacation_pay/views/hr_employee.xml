@@ -35,8 +35,9 @@
                         <span class="text-muted">days</span>
                     </div>
 
-                        <field name="is_adjust_vacation_pay_leave" widget="boolean_toggle"/>
-                        <field name="payout_vacation_pay_paycycle" widget="boolean_toggle"/>
+                        <field name="is_adjust_vacation_pay_leave"/>
+                        <field name="is_vacation_pay_adjust_negative" invisible="not is_adjust_vacation_pay_leave"/>
+                        <field name="payout_vacation_pay_paycycle" />
                      </group>
 
 
