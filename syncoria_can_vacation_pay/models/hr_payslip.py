@@ -99,10 +99,13 @@ class VacationPayslip(models.Model):
                             payslip.contract_id.resource_calendar_id.full_time_required_hours * 52), 2)
                     adjust_vac_pay_amount = (unpaid_days * vacation_pay_one_day_hour) * hourly_rate
 
+
+                    # ========================== Reserved Vacation =================================
+                    currently_stored_vac_amount = payslip.employee_id.ytd_vac_pay_amount - abs(calculate_vacation_pay)
                     # ==========================================================================================
                     vac_pay_neg = payslip.employee_id.is_vacation_pay_adjust_negative
                     if not vac_pay_neg:
-                        if adjust_vac_pay_amount > payslip.employee_id.ytd_vac_pay_amount:
+                        if adjust_vac_pay_amount > currently_stored_vac_amount:
                             adjust_vac_pay_amount = 0.0
 
 

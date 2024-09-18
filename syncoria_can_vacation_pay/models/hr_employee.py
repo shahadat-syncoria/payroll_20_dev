@@ -35,7 +35,7 @@ class VacationPayslip(models.Model):
     vacation_leave_write_date = fields.Datetime(string="Last Updated at", groups='hr.group_hr_user')
 
     # =================================================== Cash Wise store Vacation Pay(Earned Vacation Pay) ========================================
-    ytd_vac_pay_amount = fields.Float("Vacation Pay Amount", default=0.0,compute="_compute_vac_pay_amount",store=True)
+    ytd_vac_pay_amount = fields.Float("Remaining Vacation Pay Amount", default=0.0,compute="_compute_vac_pay_amount",store=True)
     ytd_vac_pay_amount_erp = fields.Float("Vacation Pay Amount ERP", default=0.0)
     previous_vac_pay_amount = fields.Float("Previous Vacation Pay Amount", default=0.0)
     vac_pay_amount_taken = fields.Float("Vacation Pay Amount Taken", default=0.0,store=True,readonly=True)
