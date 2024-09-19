@@ -1,8 +1,11 @@
 import json
+from collections import defaultdict
+from markupsafe import Markup
 
 from odoo import fields, models, _, api
 from odoo.exceptions import UserError, ValidationError
 from odoo.tools import date_utils
+from odoo.tools import float_compare, float_is_zero, plaintext2html
 from ..helper.helper_functions import year_selection
 
 PAYGROUP = {
@@ -216,3 +219,13 @@ class InheritedHrPayslip(models.Model):
             if warnings:
                 warnings = [_("This payslip can be erroneous :")] + warnings
                 slip.warning_message = "\n  ・ ".join(warnings)
+
+    def _action_create_account_move(self):
+        res = super(InheritedHrPayslip, self)._action_create_account_move()
+
+        for slip in self:
+            if slip.date_to:
+                slip.date = slip.date_to
+                slip.move_id.date = slip.date_to
+
+        return res
