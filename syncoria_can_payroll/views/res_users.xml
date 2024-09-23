@@ -12,35 +12,35 @@
                         <group>
                             <group string='CPP' name="cpp">
                                 <group>
-                                    <field name="ytd_cpp" readonly="not can_edit"/>
+                                    <field name="ytd_cpp" readonly="1"/>
                                 </group>
                             </group>
                             <group string='CPP2' name="cpp2">
                                 <group>
-                                    <field name="ytd_cpp2" readonly="not can_edit"/>
+                                    <field name="ytd_cpp2" readonly="1"/>
                                 </group>
                             </group>
                             <group string='EI' name="ei">
                                 <group>
-                                    <field name="ytd_ei" readonly="not can_edit"/>
+                                    <field name="ytd_ei" readonly="1"/>
                                 </group>
                             </group>
                             <group string='Employer EI ' name="ei">
                                 <group>
-                                    <field name="ytd_ei_employer" readonly="not can_edit"/>
+                                    <field name="ytd_ei_employer" readonly="1"/>
                                 </group>
                             </group>
                             <group string='PI/IE' name="pi">
                                 <group>
-                                    <field name="ytd_pi" readonly="not can_edit"/>
+                                    <field name="ytd_pi" readonly="1"/>
                                 </group>
                             </group>
                             <group string='YTD Irregular Tax' name="irre">
                                 <group>
-                                    <field name="ytd_irre_fed_tax" readonly="not can_edit"/>
+                                    <field name="ytd_irre_fed_tax" readonly="1"/>
                                 </group>
                                 <group>
-                                    <field name="ytd_irre_prov_tax" readonly="not can_edit"/>
+                                    <field name="ytd_irre_prov_tax" readonly="1"/>
                                 </group>
                             </group>
                         </group>
