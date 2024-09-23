@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <record id="view_res_users_form_sync_can_view" model="ir.ui.view">
+            <field name="model">res.users</field>
+            <field name="inherit_id" ref="hr.res_users_view_form_profile"/>
+            <field name="arch" type="xml">
+
+                <notebook position="inside">
+                    <page name="sync_payroll_info" string="Syncoria Payroll Information" groups="hr.group_hr_user">
+                        <group>
+                            <group string='CPP' name="cpp">
+                                <group>
+                                    <field name="ytd_cpp" readonly="not can_edit"/>
+                                </group>
+                            </group>
+                            <group string='CPP2' name="cpp2">
+                                <group>
+                                    <field name="ytd_cpp2" readonly="not can_edit"/>
+                                </group>
+                            </group>
+                            <group string='EI' name="ei">
+                                <group>
+                                    <field name="ytd_ei" readonly="not can_edit"/>
+                                </group>
+                            </group>
+                            <group string='Employer EI ' name="ei">
+                                <group>
+                                    <field name="ytd_ei_employer" readonly="not can_edit"/>
+                                </group>
+                            </group>
+                            <group string='PI/IE' name="pi">
+                                <group>
+                                    <field name="ytd_pi" readonly="not can_edit"/>
+                                </group>
+                            </group>
+                            <group string='YTD Irregular Tax' name="irre">
+                                <group>
+                                    <field name="ytd_irre_fed_tax" readonly="not can_edit"/>
+                                </group>
+                                <group>
+                                    <field name="ytd_irre_prov_tax" readonly="not can_edit"/>
+                                </group>
+                            </group>
+                        </group>
+                    </page>
+                </notebook>
+            </field>
+        </record>
+    </data>
+</odoo>

@@ -15,6 +15,7 @@ from . import hr_payslip_work_days
 from . import res_company
 from . import hr_payslip_run
 from . import hr_work_entry_type
+from . import res_users
 
 
 

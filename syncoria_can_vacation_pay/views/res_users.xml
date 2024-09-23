@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <record id="view_res_users_form_sync_vac_can_view" model="ir.ui.view">
+            <field name="model">res.users</field>
+            <field name="inherit_id" ref="hr.res_users_view_form_profile"/>
+            <field name="arch" type="xml">
+
+                <div name="button_box" position="inside">
+
+                    <button name="%(syncoria_can_vacation_pay.hr_vacation_pay_act_window)d"
+                            type="action"
+                            class="oe_stat_button"
+                            context="{'search_default_state': 'paid'}"
+                            icon="fa-money" >
+                        <field name="ytd_vac_pay_amount" icon="fa-money" widget="statinfo"/>
+                    </button>
+                </div>
+            </field>
+        </record>
+    </data>
+</odoo>

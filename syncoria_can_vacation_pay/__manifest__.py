@@ -34,6 +34,7 @@
         'views/hr_vacation_pay_view.xml',
         'views/hr_employee.xml',
         'views/vacation_pay_slab.xml',
+        'views/res_users.xml',
         #Report
         'report/payslip.xml'
     ],

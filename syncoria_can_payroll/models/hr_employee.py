@@ -17,35 +17,35 @@ class InhertitedHrEmployee(models.Model):
     # ========================================== YTD Information ===================================
     ytd_cpp_erp = fields.Float("Year To Date CPP contribution in ERP")
     ytd_previous_cpp = fields.Float("Previous CPP",tracking=True,default=0)
-    ytd_cpp = fields.Float("Year To Date CPP",default=0,store=True,compute='_compute_ytd_cpp')
+    ytd_cpp = fields.Float("Year To Date CPP",default=0,store=True,compute='_compute_ytd_cpp', groups="hr.group_hr_user")
 
     #CPP2
     ytd_cpp2_erp = fields.Float("Year To Date CPP2 contribution in ERP")
     ytd_previous_cpp2 = fields.Float("Previous CPP2", tracking=True, default=0)
-    ytd_cpp2 = fields.Float("Year To Date CPP2", default=0, store=True, compute='_compute_ytd_cpp2')
+    ytd_cpp2 = fields.Float("Year To Date CPP2", default=0, store=True, compute='_compute_ytd_cpp2',groups="hr.group_hr_user")
     # EI
     ytd_ei_erp = fields.Float("Year To Date EI contribution in ERP")
     ytd_previous_ei = fields.Float("Previous EI", tracking=True, default=0)
-    ytd_ei = fields.Float("Year To Date EI", default=0, store=True, compute='_compute_ytd_ei')
+    ytd_ei = fields.Float("Year To Date EI", default=0, store=True, compute='_compute_ytd_ei',groups="hr.group_hr_user")
 
     # EI Employer
     ytd_ei_employer_erp = fields.Float("Year To Date Employer EI  contribution in ERP")
     ytd_previous_ei_employer = fields.Float("Previous Employer EI ", tracking=True, default=0)
-    ytd_ei_employer = fields.Float("Year To Date Employer EI", default=0, store=True, compute='_compute_ytd_ei_employer')
+    ytd_ei_employer = fields.Float("Year To Date Employer EI", default=0, store=True, compute='_compute_ytd_ei_employer',groups="hr.group_hr_user")
 
     #PIYTD
-    ytd_pi = fields.Float("Year To Date PI/IE", default=0, store=True, compute='_compute_ytd_pi')
+    ytd_pi = fields.Float("Year To Date PI/IE", default=0, store=True, compute='_compute_ytd_pi',groups="hr.group_hr_user")
     ytd_pi_erp = fields.Float("Year To Date PI/IE ERP", default=0, store=True)
     ytd_previous_pi = fields.Float("Previous Year To Date PI/IE", default=0, store=True)
 
     # YTDIrregularPaymentFedTax
-    ytd_irre_fed_tax = fields.Float("Year To Date Irregular Payment Fed Tax", default=0, store=True, compute='_compute_ytd_irre_fed_tax')
+    ytd_irre_fed_tax = fields.Float("Year To Date Irregular Payment Fed Tax", default=0, store=True, compute='_compute_ytd_irre_fed_tax',groups="hr.group_hr_user")
     ytd_irre_fed_tax_erp = fields.Float("Year To Date Irregular Payment Fed Tax ERP", default=0, store=True)
     ytd_previous_irre_fed_tax = fields.Float("Previous Year To Date Irregular Payment Fed Tax", default=0, store=True)
 
     # YTDIrregularPaymentProvTax
     ytd_irre_prov_tax = fields.Float("Year To Date Irregular Payment Prov Tax", default=0, store=True,
-                                    compute='_compute_ytd_irre_prov_tax')
+                                    compute='_compute_ytd_irre_prov_tax',groups="hr.group_hr_user")
     ytd_irre_prov_tax_erp = fields.Float("Year To Date Irregular Payment Prov Tax ERP", default=0, store=True)
     ytd_previous_irre_prov_tax = fields.Float("Previous Year To Date Irregular Payment Prov Tax", default=0, store=True)
 
