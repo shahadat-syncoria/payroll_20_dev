@@ -57,7 +57,7 @@
                                     <group string='Employer EI ' name="ei">
                                         <group>
                                             <field name="ytd_ei_employer_erp"/>
-                                            <field name="ytd_previous_ei"/>
+                                            <field name="ytd_previous_ei_employer"/>
                                             <field name="ytd_ei_employer"/>
                                         </group>
                                         <group>
@@ -80,6 +80,13 @@
                                             </group>
                                     </group>
                                     <group string='YTD Irregular Tax' name="irre">
+                                           <group>
+                                               <field name="ytd_previous_irre_prov_amount"/>
+                                           </group>
+                                        <group></group>
+
+
+
                                         <group>
                                             <field name="ytd_irre_fed_tax"/>
                                             <field name="ytd_irre_fed_tax_erp" readonly="1"/>
@@ -94,8 +101,9 @@
                                         <button name="update_ytd_irregular_payments_tax" type="object"
                                                     help="Update ERP YTD Irr Tax"  title="Update ERP YTIRRTAX" icon="fa-refresh"/>
                                             </group>
+                                            </group>
 
-                                    </group>
+
 
 
                                 </group>

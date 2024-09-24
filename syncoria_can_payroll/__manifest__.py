@@ -20,7 +20,7 @@
     'version': '17.0.3.1',
 
     # any module necessary for this one to work correctly
-    'depends': ['base','hr_payroll','hr_work_entry'],
+    'depends': ['base','hr_payroll','hr_work_entry','hr_payroll_account'],
 
     # always loaded
     'data': [

@@ -111,7 +111,7 @@ class InheritedHrPayslip(models.Model):
             payslip_with_irregular_payment_amount = sum(
                 payslip_with_irregular_payment_line_ids.filtered(lambda x: x.category_id.code in ["ADD_ALLOWANCE"]).mapped("total"))
 
-        return payslip_with_irregular_payment_amount
+        return payslip_with_irregular_payment_amount + payslip_employee.ytd_previous_irre_prov_amount
 
 
     def write(self, vals):
