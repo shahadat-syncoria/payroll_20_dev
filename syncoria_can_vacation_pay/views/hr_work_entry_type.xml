@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="hr_hr_work_entry_type_form_inherit_vacation_pay" model="ir.ui.view">
+            <field name="name">syncoria_can_vacation_pay.hr_work_entry_type.form</field>
+            <field name="model">hr.work.entry.type</field>
+            <field name="inherit_id" ref="syncoria_can_payroll.hr_hr_work_entry_type_form_inherit"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='deduct_from_gross']" position="after">
+                    <field name="is_adjusted_with_vacation_pay" invisible="code in ['WORK100','TIMESHEET_WORK100']"/>
+
+
+                </xpath>
+            </field>
+
+        </record>
+    </data>
+</odoo>
