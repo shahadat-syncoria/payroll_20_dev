@@ -83,7 +83,9 @@
                                            <group>
                                                <field name="ytd_previous_irre_prov_amount"/>
                                            </group>
-                                        <group></group>
+                                        <group>
+                                            <field name="last_paycycle_gross"/>
+                                        </group>
 
 
 

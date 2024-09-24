@@ -49,6 +49,7 @@ class InhertitedHrEmployee(models.Model):
     ytd_irre_prov_tax_erp = fields.Float("Year To Date Irregular Payment Prov Tax ERP", default=0, store=True)
     ytd_previous_irre_prov_tax = fields.Float("Previous Year To Date Irregular Payment Prov Tax", default=0, store=True, compute='compute_ytd_previous_irre_prov_tax')
     ytd_previous_irre_prov_amount = fields.Float("Previous Year To Date Irregular Amount", default=0, store=True)
+    last_paycycle_gross = fields.Float("Last Paycycle Wage",help="Last paycycle wage for which the previous bonus was given ",  default=0, store=True)
 
     @api.depends("ytd_irre_prov_tax_erp", "ytd_previous_irre_prov_tax")
     def _compute_ytd_irre_prov_tax(self):
@@ -139,10 +140,10 @@ class InhertitedHrEmployee(models.Model):
             rec.ytd_irre_fed_tax_erp = sum(payslip_ytd_tax.mapped("irre_fed_tax"))
             rec.ytd_irre_prov_tax_erp = sum(payslip_ytd_tax.mapped("irre_prov_tax"))
 
-    @api.depends('ytd_previous_irre_prov_amount')
+    @api.depends('ytd_previous_irre_prov_amount', 'last_paycycle_gross')
     def compute_ytd_previous_irre_fed_tax(self):
         is_pay_cycle = self.contract_id.salary_pay_cycle.pay_cycle
-        paycycle_gross = self.contract_id.paycycle_wage
+        paycycle_gross = self.last_paycycle_gross
         # paycycle_gross = self.contract_id.paycyle_wage - categories['PRE_TAX_DEDUCTION'] FIX
         if is_pay_cycle:
             pay_cycle = int(is_pay_cycle)
@@ -158,10 +159,10 @@ class InhertitedHrEmployee(models.Model):
             irr_pay_tax = tax_amount_gross_with_irr - tax_amount_gross_without_irr
             self.ytd_previous_irre_fed_tax = irr_pay_tax * pay_cycle
 
-    @api.depends('ytd_previous_irre_prov_amount')
+    @api.depends('ytd_previous_irre_prov_amount','last_paycycle_gross')
     def compute_ytd_previous_irre_prov_tax(self):
         is_pay_cycle = self.contract_id.salary_pay_cycle.pay_cycle
-        paycycle_gross = self.contract_id.paycycle_wage
+        paycycle_gross = self.last_paycycle_gross
         # paycycle_gross = self.contract_id.paycyle_wage - categories['PRE_TAX_DEDUCTION'] FIX
         if is_pay_cycle:
             pay_cycle = int(is_pay_cycle)
