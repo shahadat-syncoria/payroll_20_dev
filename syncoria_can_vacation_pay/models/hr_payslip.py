@@ -92,7 +92,7 @@ class VacationPayslip(models.Model):
                     lambda x: x.input_type_id.id in [adjusted_input_type]).unlink()
                 if payslip.employee_id.is_adjust_vacation_pay_leave and not payslip.employee_id.payout_vacation_pay_paycycle:
                     unpaid_days = sum(payslip.worked_days_line_ids.filtered(
-                        lambda x: x.work_entry_type_id.deduct_from_gross and x.work_entry_type_id.is_leave).mapped(
+                        lambda x: x.work_entry_type_id.deduct_from_gross and x.work_entry_type_id.is_leave and x.work_entry_type_id.is_adjusted_with_vacation_pay).mapped(
                         'number_of_days'))
                     vacation_pay_one_day_hour = payslip.contract_id.resource_calendar_id.hours_per_day
                     hourly_rate = round((payslip.contract_id.wage * 12) / (

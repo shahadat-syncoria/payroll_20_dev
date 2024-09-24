@@ -13,7 +13,7 @@
     'website': "https://www.syncoria.com",
 
     'category': 'Human Resources/Payroll',
-    'version': '17.0.0.5',
+    'version': '17.0.0.6',
     'installable': True,
     'application': True,
 
@@ -35,6 +35,7 @@
         'views/hr_employee.xml',
         'views/vacation_pay_slab.xml',
         'views/res_users.xml',
+        'views/hr_work_entry_type.xml',
         #Report
         'report/payslip.xml'
     ],
