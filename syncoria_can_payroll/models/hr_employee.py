@@ -142,41 +142,43 @@ class InhertitedHrEmployee(models.Model):
 
     @api.depends('ytd_previous_irre_prov_amount', 'last_paycycle_gross')
     def compute_ytd_previous_irre_fed_tax(self):
-        is_pay_cycle = self.contract_id.salary_pay_cycle.pay_cycle
-        paycycle_gross = self.last_paycycle_gross
-        # paycycle_gross = self.contract_id.paycyle_wage - categories['PRE_TAX_DEDUCTION'] FIX
-        if is_pay_cycle:
-            pay_cycle = int(is_pay_cycle)
-            claim_code = self.contract_id.federal_claim_code_from_td1
-            year = self.contract_id.deductions.slab_year
-            total_gross_with_irr = (self.ytd_previous_irre_prov_amount / pay_cycle) + paycycle_gross
+        for rec in self:
+            is_pay_cycle = rec.contract_id.salary_pay_cycle.pay_cycle
+            paycycle_gross = rec.last_paycycle_gross
+            # paycycle_gross = self.contract_id.paycyle_wage - categories['PRE_TAX_DEDUCTION'] FIX
+            if is_pay_cycle:
+                pay_cycle = int(is_pay_cycle)
+                claim_code = rec.contract_id.federal_claim_code_from_td1
+                year = rec.contract_id.deductions.slab_year
+                total_gross_with_irr = (rec.ytd_previous_irre_prov_amount / pay_cycle) + paycycle_gross
 
-            tax_amount_gross_without_irr = self.env['fed.tax'].get_tax_amount(paycycle_gross, claim_code, year,
-                                                                               pay_cycle)
-            tax_amount_gross_with_irr = self.env['fed.tax'].get_tax_amount(total_gross_with_irr, claim_code, year,
-                                                                            pay_cycle)
+                tax_amount_gross_without_irr = rec.env['fed.tax'].get_tax_amount(paycycle_gross, claim_code, year,
+                                                                                   pay_cycle)
+                tax_amount_gross_with_irr = rec.env['fed.tax'].get_tax_amount(total_gross_with_irr, claim_code, year,
+                                                                                pay_cycle)
 
-            irr_pay_tax = tax_amount_gross_with_irr - tax_amount_gross_without_irr
-            self.ytd_previous_irre_fed_tax = irr_pay_tax * pay_cycle
+                irr_pay_tax = tax_amount_gross_with_irr - tax_amount_gross_without_irr
+                rec.ytd_previous_irre_fed_tax = irr_pay_tax * pay_cycle
 
     @api.depends('ytd_previous_irre_prov_amount','last_paycycle_gross')
     def compute_ytd_previous_irre_prov_tax(self):
-        is_pay_cycle = self.contract_id.salary_pay_cycle.pay_cycle
-        paycycle_gross = self.last_paycycle_gross
-        # paycycle_gross = self.contract_id.paycyle_wage - categories['PRE_TAX_DEDUCTION'] FIX
-        if is_pay_cycle:
-            pay_cycle = int(is_pay_cycle)
-            claim_code = self.contract_id.federal_claim_code_from_td1
-            year = self.contract_id.deductions.slab_year
-            total_gross_with_irr = (self.ytd_previous_irre_prov_amount / pay_cycle) + paycycle_gross
+        for rec in self:
+            is_pay_cycle = rec.contract_id.salary_pay_cycle.pay_cycle
+            paycycle_gross = rec.last_paycycle_gross
+            # paycycle_gross = self.contract_id.paycyle_wage - categories['PRE_TAX_DEDUCTION'] FIX
+            if is_pay_cycle:
+                pay_cycle = int(is_pay_cycle)
+                claim_code = rec.contract_id.federal_claim_code_from_td1
+                year = rec.contract_id.deductions.slab_year
+                total_gross_with_irr = (rec.ytd_previous_irre_prov_amount / pay_cycle) + paycycle_gross
 
-            tax_amount_gross_without_irr = self.env['prov.tax'].get_tax_amount(paycycle_gross, claim_code, year,
-                                                                                 pay_cycle)
-            tax_amount_gross_with_irr = self.env['prov.tax'].get_tax_amount(total_gross_with_irr, claim_code, year,
-                                                                              pay_cycle)
+                tax_amount_gross_without_irr = rec.env['prov.tax'].get_tax_amount(paycycle_gross, claim_code, year,
+                                                                                     pay_cycle)
+                tax_amount_gross_with_irr = rec.env['prov.tax'].get_tax_amount(total_gross_with_irr, claim_code, year,
+                                                                                  pay_cycle)
 
-            irr_pay_tax = tax_amount_gross_with_irr - tax_amount_gross_without_irr
-            self.ytd_previous_irre_prov_tax = irr_pay_tax * pay_cycle
+                irr_pay_tax = tax_amount_gross_with_irr - tax_amount_gross_without_irr
+                rec.ytd_previous_irre_prov_tax = irr_pay_tax * pay_cycle
 
 
 
