@@ -42,6 +42,7 @@ class VacationPayslip(models.Model):
 
     allocated_vac_leave = fields.Float("Allocated Vacation Leave Per year",store=True, default=0.0,compute='_get_employee_allocated_leave')
     allocated_vac_percentage = fields.Float("Allocated Vacation Percentage",store=True, default=0.0,compute='_get_employee_allocated_leave')
+    overwrite_allocated_vac_percentage = fields.Float("Overwrite Allocated Vacation Percentage",store=True, default=0.0)
 
     is_adjust_vacation_pay_leave = fields.Boolean("Adjust Vacation Pay With Unpaid Leaves",default=False)
     payout_vacation_pay_paycycle = fields.Boolean("Payout Vacation Amount Per Pay Cycle",default=False)
