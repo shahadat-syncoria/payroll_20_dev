@@ -88,7 +88,7 @@ class VacationPayslip(models.Model):
             payslips = rec._get_vac_pay_slip_ids()
             rec.ytd_vac_pay_amount_erp = sum(payslips.mapped('vac_pay_earned_amount'))
             rec.vac_pay_amount_taken = sum(payslips.mapped('vac_pay_earned_taken'))
-
+    @api.depends('sync_first_contract_date')
     def _get_employee_allocated_leave(self):
         for rec in self:
             allocated_leave = 0
