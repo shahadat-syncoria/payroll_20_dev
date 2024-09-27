@@ -55,6 +55,33 @@ result_name = inputs['Retro_Pay'].name
 
         </record>
 
+        <record id="input_ca_commission" model="hr.payslip.input.type">
+            <field name="name">Commission</field>
+            <field name="code">COMMISSION</field>
+            <field name="country_id" eval="False"/>
+        </record>
+
+
+        <record id="rule_ca_commission" model="hr.salary.rule">
+            <field name="name">Commission</field>
+            <field name="sequence" eval="72"/>
+            <field name="code">COMMISSION</field>
+            <field name="category_id" ref="syncoria_can_payroll.additional_allowance"/>
+            <field name="appears_on_payslip" eval='True'/>
+            <field name="active" eval="1"/>
+            <field name="amount_select">code</field>
+            <field name="struct_id" ref="syncoria_can_payroll.structure_can_employee"/>
+            <field name="condition_select">python</field>
+            <field name="condition_python">result = 'COMMISSION' in inputs</field>
+
+            <field name="amount_python_compute">
+result = inputs['COMMISSION'].amount
+result_name = inputs['COMMISSION'].name
+            </field>
+
+
+        </record>
+
 
 <!--        ===================== Worker =========================-->
 
@@ -94,6 +121,28 @@ result_name = inputs['Bonus_Pay'].name
             <field name="amount_python_compute">
 result = inputs['Retro_Pay'].amount
 result_name = inputs['Retro_Pay'].name
+            </field>
+
+
+        </record>
+
+
+
+         <record id="rule_ca_commission_worker" model="hr.salary.rule">
+            <field name="name">Commission</field>
+            <field name="sequence" eval="72"/>
+            <field name="code">COMMISSION</field>
+            <field name="category_id" ref="syncoria_can_payroll.additional_allowance"/>
+            <field name="appears_on_payslip" eval='True'/>
+            <field name="active" eval="1"/>
+            <field name="amount_select">code</field>
+            <field name="struct_id" ref="syncoria_can_payroll.structure_can_worker"/>
+            <field name="condition_select">python</field>
+            <field name="condition_python">result = 'COMMISSION' in inputs</field>
+
+            <field name="amount_python_compute">
+result = inputs['COMMISSION'].amount
+result_name = inputs['COMMISSION'].name
             </field>
 
 
