@@ -54,6 +54,20 @@
 
 
                 </xpath>
+                <xpath expr="//notebook" position="inside">
+                    <page name="sync_payroll_vac_info" string="Syncoria Vacation Pay Information" groups="hr.group_hr_manager">
+                                    <group name="vacation_slab">
+                                        <field name="vacation_slab_ids" >
+                                            <tree>
+                                                <field name="start_year" />
+                                                <field name="end_year" />
+                                                <field name="allocated_leave" />
+                                                <field name="leave_percentage" />
+                                            </tree>
+                                        </field>
+                                </group>
+                            </page>
+                </xpath>
 
             </field>
         </record>
