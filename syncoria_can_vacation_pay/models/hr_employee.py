@@ -54,24 +54,23 @@ class VacationPayslip(models.Model):
 
     vacation_slab_ids = fields.One2many('hr.vacation.slab.employee', 'employee_id', string='Vacation Slab')
 
-    def default_get(self, fields):
-        # Call the original default_get to avoid losing defaults on other fields
-        defaults = super(VacationPayslip, self).default_get(fields)
-
-        # Fetch all the vacation slab records to be set as defaults
+    def create(self, vals_list):
+        employees = super().create(vals_list)
         slabs = self.env['hr.vacation.slab'].search([])
 
-        # If there are slabs, add them to the defaults for vacation_slab_ids
         if slabs:
-            defaults['vacation_slab_ids'] = [(0, 0, {
-                'start_year': slab.start_year,
-                'end_year': slab.end_year,
-                'allocated_leave': slab.allocated_leave,
-                'leave_percentage': slab.leave_percentage,
-                'employee_id': self.id  # Set the current employee ID
-            }) for slab in slabs]
+            for slab in slabs:
+                employees.write({
+                    'vacation_slab_ids': [(0, 0, {
+                        'start_year': slab.start_year,
+                        'end_year': slab.end_year,
+                        'allocated_leave': slab.allocated_leave,
+                        'leave_percentage': slab.leave_percentage,
+                        'employee_id': employees.id
+                    })]
+                })
 
-        return defaults
+        return employees
 
     def update_vacation_slab(self):
         # Fetch the vacation slab records to be set as defaults
