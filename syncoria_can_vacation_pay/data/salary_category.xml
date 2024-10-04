@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <record id="vac_accrued" model="hr.salary.rule.category">
+            <field name="code">ACCRUED</field>
+            <field name="name">Accrued</field>
+        </record>
+
+    </data>
+</odoo>

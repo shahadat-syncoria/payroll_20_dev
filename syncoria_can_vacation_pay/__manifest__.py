@@ -28,6 +28,7 @@
         # Data
         'data/ir_sequence.xml',
         'data/salary_rules.xml',
+        'data/salary_category.xml',
         # Views
         'views/vacation_pay_conf.xml',
         'views/hr_leave_type_view.xml',

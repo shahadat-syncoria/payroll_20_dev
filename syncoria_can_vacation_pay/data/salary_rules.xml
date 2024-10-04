@@ -54,6 +54,31 @@ result_name = inputs['Adjusted_Vacation_Pay'].name
 
         </record>
 
+        <record id="rule_ca_accrued_vacation_pay" model="hr.salary.rule">
+            <field name="name">Accrued Vacation Pay</field>
+            <field name="sequence" eval="400"/>
+            <field name="code">ACCRUED_VP</field>
+            <field name="category_id" ref="syncoria_can_vacation_pay.vac_accrued"/>
+            <field name="appears_on_payslip" eval='True'/>
+            <field name="active" eval="1"/>
+            <field name="amount_select">code</field>
+            <field name="struct_id" ref="syncoria_can_payroll.structure_can_employee"/>
+            <field name="condition_select">none</field>
+
+            <field name="amount_python_compute">
+employee._get_employee_allocated_leave()
+insurable_amount = I_Earning
+adjust_vp =ADJUST_VP if 'ADJUST_VP' in rules else 0
+vp =VP if 'VP' in rules else 0
+insurable_amount -= (adjust_vp+vp)
+vac_percentage = employee.overwrite_allocated_vac_percentage if employee.overwrite_allocated_vac_percentage > 0.0 else employee.allocated_vac_percentage
+result= (insurable_amount*(vac_percentage/100))
+            </field>
+
+
+        </record>
+
+
         <!--        ======================== Worker ====================-->
 
 
@@ -91,6 +116,28 @@ result_name = inputs['Vacation_Pay'].name
             <field name="amount_python_compute">
 result = inputs['Adjusted_Vacation_Pay'].amount
 result_name = inputs['Adjusted_Vacation_Pay'].name
+            </field>
+
+
+        </record>
+        <record id="rule_ca_accrued_vacation_pay_worker" model="hr.salary.rule">
+            <field name="name">Accrued Vacation Pay</field>
+            <field name="sequence" eval="400"/>
+            <field name="code">ACCRUED_VP</field>
+            <field name="category_id" ref="syncoria_can_vacation_pay.vac_accrued"/>
+            <field name="appears_on_payslip" eval='True'/>
+            <field name="active" eval="1"/>
+            <field name="amount_select">code</field>
+            <field name="struct_id" ref="syncoria_can_payroll.structure_can_worker"/>
+            <field name="condition_select">none</field>
+            <field name="amount_python_compute">
+employee._get_employee_allocated_leave()
+insurable_amount = I_Earning
+adjust_vp =ADJUST_VP if 'ADJUST_VP' in rules else 0
+vp =VP if 'VP' in rules else 0
+insurable_amount -= (adjust_vp+vp)
+vac_percentage = employee.overwrite_allocated_vac_percentage if employee.overwrite_allocated_vac_percentage > 0.0 else employee.allocated_vac_percentage
+result= (insurable_amount*(vac_percentage/100))
             </field>
 
 
