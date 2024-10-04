@@ -32,6 +32,9 @@
         <menuitem id="employee_net_menu"
                   sequence="39"
                   name="Employee Net Pay Report" action="action_employee_net_pay_wizard" parent="hr_payroll.menu_hr_payroll_report"/>
+<menuitem id="payroll_earning_menu"
+                  sequence="41"
+                  name="Payroll Earning Report" action="action_payroll_earning_wizard" parent="hr_payroll.menu_hr_payroll_report"/>
 
 
         <!--        ================= Configuration ============================-->

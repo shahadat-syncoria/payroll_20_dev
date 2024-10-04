@@ -71,6 +71,7 @@
         'wizards/t4_wizard_view.xml',
         'wizards/hr_payroll_payslip_by_employee_views.xml',
         'wizards/employee_net_pay_wizard_views.xml',
+        'wizards/payroll_earning_wizard_views.xml',
 
 
         # ======== Reports =============
@@ -78,6 +79,7 @@
         'reports/remittance_summary_report_view.xml',
         'reports/rgr_report_view.xml',
         'reports/employee_net_pay_report.xml',
+        'reports/payroll_earning_report.xml',
 
         # ======== Menus ===============
         'views/menus.xml',

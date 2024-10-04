@@ -7,3 +7,4 @@ from . import receiver_general_wizard
 from . import hr_payslip_by_employee
 from . import employee_net_pay_wizard
 from . import account_payment_register
+from . import payroll_earning_wizard
