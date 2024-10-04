@@ -272,14 +272,14 @@ class HrVacationSlabEmployee(models.Model):
 
     @api.constrains('start_year', 'end_year')
     def _check_date_range_overlap(self):
-        active_id = self.env.context.get('active_id')
         for rec in self:
             overlapping_slabs = self.env['hr.vacation.slab.employee'].search([
                 ('employee_id', '=',rec.employee_id.id),
+                ('id', '!=', rec.id),
                 ('start_year', '<=', rec.end_year),
                 ('end_year', '>=', rec.start_year),
             ])
-            if not active_id  and overlapping_slabs:
+            if overlapping_slabs:
                 raise ValidationError("Date range overlaps with an existing slab!")
 
 
