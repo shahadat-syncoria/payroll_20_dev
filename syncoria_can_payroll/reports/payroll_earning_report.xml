@@ -26,82 +26,47 @@
                             </table>
                             <table class="table mt-5" name="body">
                                 <tr style="text-align: center;">
-                                    <th>
-                                        Pay Cycle
-                                    </th>
-                                    <th>
-                                        Employee Name
-                                    </th>
-                                    <th>
-                                        Total Gross
-                                    </th>
-                                    <th>
-                                        Total Insurable Earnings
-                                    </th>
-                                    <th>
-                                        Net Pay
-                                    </th>
-                                    <th>
-                                        Federal Tax Deductions
-                                    </th>
-                                    <th>
-                                        Provincial Tax Deductions
-                                    </th>
-                                    <th>
-                                        CPP Deductions
-                                    </th>
-                                    <th>
-                                        CPP2 Deductions
-                                    </th>
-                                    <th>
-                                        EI Deductions
-                                    </th>
-                                    <th>
-                                        Employer EI Deductions
-                                    </th>
-
-
+                                    <th>Pay Cycle</th>
+                                    <th>Employee Name</th>
+                                    <th>Total Gross</th>
+                                    <th>Total Insurable Earnings</th>
+                                    <th>Net Pay</th>
+                                    <th>Federal Tax Deductions</th>
+                                    <th>Provincial Tax Deductions</th>
+                                    <th>CPP Deductions</th>
+                                    <th>CPP2 Deductions</th>
+                                    <th>EI Deductions</th>
+                                    <th>Employer EI Deductions</th>
                                 </tr>
-                                <t t-set="lines"
-                                   t-value="payslips"/>
-                                <t t-foreach="lines" t-as="line">
-                                    <tr>
-                                        <td>
-                                            <span t-esc="line['pay_period']"/>
-                                        </td>
-                                        <td>
-                                            <span t-esc="line['employee_name']"/>
-                                        </td>
-                                        <td>
-                                            <span t-esc="line['total_gross']"/>
-                                        </td>
-                                        <td>
-                                            <span t-esc="line['total_insurable_earnings']"/>
-                                        </td>
-                                        <td>
-                                            <span t-esc="line['net_pay']"/>
-                                        </td>
-                                        <td>
-                                            <span t-esc="line['fed_tax']"/>
-                                        </td>
-                                        <td>
-                                            <span t-esc="line['prov_tax']"/>
-                                        </td>
-                                        <td>
-                                            <span t-esc="line['cpp']"/>
-                                        </td>
-                                        <td>
-                                            <span t-esc="line['cpp2']"/>
-                                        </td>
-                                        <td>
-                                            <span t-esc="line['ei']"/>
-                                        </td>
-                                        <td>
-                                            <span t-esc="line['employer_ei']"/>
-                                        </td>
+
+                                <t t-foreach="grouped_payslips.items()" t-as="cycle">
+                                    <t t-set="pay_cycle" t-value="cycle[0]"/>
+                                    <t t-set="data" t-value="cycle[1]"/>
+
+                                    <tr style="font-weight: bold;">
+                                        <td t-esc="pay_cycle"/>
                                     </tr>
+
+                                    <t t-foreach="data['payslips']" t-as="line">
+                                        <tr>
+                                            <td t-esc="line['pay_period']"/> <!-- Empty cell for alignment -->
+                                            <td t-esc="line['employee_name']"/>
+                                            <td t-esc="round(line['total_gross'], 2)"/>
+                                            <td t-esc="round(line['total_insurable_earnings'], 2)"/>
+                                            <td t-esc="round(line['net_pay'], 2)"/>
+                                            <td t-esc="round(line['fed_tax'], 2)"/>
+                                            <td t-esc="round(line['prov_tax'], 2)"/>
+                                            <td t-esc="round(line['cpp'], 2)"/>
+                                            <td t-esc="round(line['cpp2'], 2)"/>
+                                            <td t-esc="round(line['ei'], 2)"/>
+                                            <td t-esc="round(line['employer_ei'], 2)"/>
+                                        </tr>
+                                    </t>
+
+                                    <!-- Totals for the current pay cycle -->
+
                                 </t>
-                                <t t-set="line"
+                                 <t t-set="line"
                                    t-value="totals"/>
 
                                     <tr>
@@ -139,7 +104,6 @@
                                             <span t-esc="round(line['employer_ei'],2)"/>
                                         </td>
                                     </tr>
-
                             </table>
 
 
