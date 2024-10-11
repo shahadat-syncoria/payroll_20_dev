@@ -23,7 +23,7 @@ class VacationPayslip(models.Model):
             employee._get_employee_allocated_leave()
             insurable_amount = rec.line_ids.filtered(lambda x: x.code=="I_Earning").total
             insurable_amount -=  sum(rec.line_ids.filtered(lambda x: x.code in ["ADJUST_VP","VP"]).mapped("total"))
-            vac_percentage = employee.overwrite_allocated_vac_percentage if employee.overwrite_allocated_vac_percentage > 0.0 else employee.allocated_vac_percentage
+            vac_percentage = employee.allocated_vac_percentage
             stored_vac_pay_amount = (insurable_amount*(vac_percentage/100))
             employee.ytd_vac_pay_amount_erp += stored_vac_pay_amount
             rec.vac_pay_earned_amount = stored_vac_pay_amount
@@ -138,7 +138,7 @@ class VacationPayslip(models.Model):
 
                 insurable_amount = payslip.line_ids.filtered(lambda x: x.code == "I_Earning").total
                 insurable_amount -= sum(payslip.line_ids.filtered(lambda x: x.code in ["ADJUST_VP","VP"]).mapped("total"))
-                vac_percentage = payslip.employee_id.overwrite_allocated_vac_percentage if payslip.employee_id.overwrite_allocated_vac_percentage > 0.0 else payslip.employee_id.allocated_vac_percentage
+                vac_percentage =  payslip.employee_id.allocated_vac_percentage
                 stored_vac_pay_amount = (insurable_amount * (vac_percentage / 100))
                 # other_adjusted_amount_input = payslip.input_line_ids.filtered(
                 #     lambda x: x.input_type_id.id in [adjusted_input_type])

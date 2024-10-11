@@ -43,7 +43,7 @@ class VacationPayslip(models.Model):
 
     allocated_vac_leave = fields.Float("Allocated Vacation Leave Per year",store=True, default=0.0,compute='_get_employee_allocated_leave', groups='hr.group_hr_user')
     allocated_vac_percentage = fields.Float("Allocated Vacation Percentage",store=True, default=0.0,compute='_get_employee_allocated_leave',groups='hr.group_hr_user')
-    overwrite_allocated_vac_percentage = fields.Float("Overwrite Allocated Vacation Percentage",store=True, default=0.0,groups='hr.group_hr_user')
+    overwrite_allocated_vac_percentage = fields.Float("Overwrite Allocated Vacation Percentage",store=True, default=0.0,groups='hr.group_hr_user') #Need to delete this field
 
     is_adjust_vacation_pay_leave = fields.Boolean("Adjust Vacation Pay With Unpaid Leaves",default=False, groups='hr.group_hr_user')
     payout_vacation_pay_paycycle = fields.Boolean("Payout Vacation Amount Per Pay Cycle",default=False, groups='hr.group_hr_user')
@@ -146,7 +146,7 @@ class VacationPayslip(models.Model):
             payslips = rec._get_vac_pay_slip_ids()
             rec.ytd_vac_pay_amount_erp = sum(payslips.mapped('vac_pay_earned_amount'))
             rec.vac_pay_amount_taken = sum(payslips.mapped('vac_pay_earned_taken'))
-    @api.depends('sync_first_contract_date')
+    @api.depends('sync_first_contract_date','vacation_slab_ids')
     def _get_employee_allocated_leave(self):
         for rec in self:
             allocated_leave = 0
