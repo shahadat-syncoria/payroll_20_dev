@@ -41,6 +41,7 @@
                             <field name="last_day_worked"/>
                             <field name="final_pay_period_ending_date"/>
                             <field name="expected_date_of_recall"/>
+                            <field name="expected_date" invisible="expected_date_of_recall != 'expected_date_recall'"/>
                         </group>
                         <group string="Insurable hour and earning Information">
                             <field name="total_insurable_hours"/>
@@ -95,7 +96,7 @@
         <field name="name">record.of.employee.tree</field>
         <field name="model">record.of.employee</field>
         <field name="arch" type="xml">
-            <tree create="0">
+            <tree>
                 <field name="employee_id"/>
                 <field name="company_id"/>
                 <!--                <field name="serial_no"/>-->

@@ -17,7 +17,7 @@
     # Check https://github.com/odoo/odoo/blob/16.0/odoo/addons/base/data/ir_module_category_data.xml
     # for the full list
     'category': 'Payroll',
-    'version': '17.0.0.2',
+    'version': '17.0.0.3',
 
     # any module necessary for this one to work correctly
     'depends': ['base', 'hr', 'syncoria_can_payroll','syncoria_can_vacation_pay'],

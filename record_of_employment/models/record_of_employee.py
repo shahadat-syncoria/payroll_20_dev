@@ -75,6 +75,7 @@ class RecordOfEmployee(models.Model):
     expected_date_of_recall = fields.Selection([("not_returning", "N-Not Returning"), ("unknown", "U-Unknown"),
                                                 ("expected_date_recall", "Y-Expected Date Of Recall")],
                                                default="not_returning", string="14.Expected Date Of Recall")
+    expected_date = fields.Date(string="Date Of Recall" ,default=fields.Date.today())
     # is_returning = fields.Boolean(string="Is Returning?")
     social_insurance_number = fields.Char(string="8-Social Insurance Number")
     first_day_worked = fields.Date(string="10-First Day Worked")
@@ -252,6 +253,8 @@ class RecordOfEmployee(models.Model):
         ET.SubElement(b14, "CD").text = str(
             dict(self._fields['expected_date_of_recall'].selection).get(self.expected_date_of_recall).split("-")[
                 0]) or " "
+        ET.SubElement(b14, "DT").text = "" if self.expected_date_of_recall != 'expected_date_recall' else str(self.expected_date)
+
 
         ET.SubElement(roe, "B15A").text = str(round(self.total_insurable_hours)) or " "
 
@@ -356,13 +359,13 @@ class RecordOfEmployee(models.Model):
                         'employer_payroll_ref': rec.employer_payroll_ref or '',
                         'sl_issue_no': rec.social_insurance_number or '',
                         'first_day': rec.first_day_worked.strftime('%d-%m-%Y') or '',
-                        'last_day_paid': rec.last_day_worked.strftime('%d-%m-%Y') or '',
+                        'last_day_paid': rec.last_day_worked.strftime('%d-%m-%Y') if rec.last_day_worked else '' or '',
                         'final_pay_period': rec.final_pay_period_ending_date.strftime('%d-%m-%Y') or '',
                         'occupation': rec.occupation or '',
                         'total_insurance_hour': round(rec._get_insurable_hour(), 2) or '',
                         'total_insurance_earning': rec._get_insurable_earning() or '',
                         'exp_date_recall': dict(rec._fields['expected_date_of_recall'].selection).get(
-                            rec.expected_date_of_recall) or '',
+                            rec.expected_date_of_recall) or '' if rec.expected_date_of_recall != 'expected_date_recall' else rec.expected_date.strftime('%d-%m-%Y'),
                         'reason': dict(rec._fields['reason_for_issuing_roe'].selection).get(rec.reason_for_issuing_roe) or '',
                         'telephone1': rec.telephone_no or '',
                     'telephone2': rec.telephone_no or '',
