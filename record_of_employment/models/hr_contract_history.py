@@ -10,7 +10,7 @@ class InheritedHrContractHistory(models.Model):
         """
         Working but need to change the process. because everytime the function called.
         """
-        if round(self.employee_id.allocated_vacation_leave, 2) == 0.0:
+        if self.employee_id.ytd_vac_pay_amount == 0.0:
             self.is_vacation_pay_paid = True
         else:
             self.is_vacation_pay_paid = False
