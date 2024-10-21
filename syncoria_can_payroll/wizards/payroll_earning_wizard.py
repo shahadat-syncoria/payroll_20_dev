@@ -40,12 +40,12 @@ class EmployeeNetPay(models.TransientModel):
             pay_cycle = rec.pay_cycle.paystub_group_name
             if pay_cycle not in grouped_payslip_data:
                 grouped_payslip_data[pay_cycle] = {
-                    "pay_period": rec.pay_cycle_period.name.split(' Pay')[0],
+                    "pay_period": rec.pay_cycle_period.name.split(' Pay')[0] if rec.pay_cycle_period.name.split(' Pay') else '',
                     "payslips": []
                 }
 
             payslip_data = {
-                "pay_period": rec.pay_cycle_period.name.split(' Pay')[0],
+                "pay_period": rec.pay_cycle_period.name.split(' Pay')[0] if rec.pay_cycle_period.name.split(' Pay') else '',
                 "employee_name": rec.employee_id.name,
                 "total_gross": rec.line_ids.search([("slip_id", "=", rec.id), ("code", "=", "GROSS")]).amount,
                 "total_insurable_earnings": rec.line_ids.search(
