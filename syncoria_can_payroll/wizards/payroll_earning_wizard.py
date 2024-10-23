@@ -40,12 +40,12 @@ class EmployeeNetPay(models.TransientModel):
             pay_cycle = rec.pay_cycle.paystub_group_name
             if pay_cycle not in grouped_payslip_data:
                 grouped_payslip_data[pay_cycle] = {
-                    "pay_period": rec.pay_cycle_period.name.split(' Pay')[0] if rec.pay_cycle_period.name.split(' Pay') else '',
+                    "pay_period": rec.pay_cycle_period.name if rec.pay_cycle_period else '',
                     "payslips": []
                 }
 
             payslip_data = {
-                "pay_period": rec.pay_cycle_period.name.split(' Pay')[0] if rec.pay_cycle_period.name.split(' Pay') else '',
+                "pay_period": rec.pay_cycle_period.name if rec.pay_cycle_period else '',
                 "employee_name": rec.employee_id.name,
                 "total_gross": rec.line_ids.search([("slip_id", "=", rec.id), ("code", "=", "GROSS")]).amount,
                 "total_insurable_earnings": rec.line_ids.search(
@@ -102,7 +102,7 @@ class EmployeeNetPay(models.TransientModel):
         txt = workbook.add_format({'font_size': '10px', 'align': 'center'})
         bold = workbook.add_format({'bold': True})
         sheet.set_column('B:B', 15)
-        sheet.set_column('C:C', 20)
+        sheet.set_column('C:C', 25)
         sheet.set_column('D:L', 20)
 
         sheet.merge_range('B2:L3', 'Payroll Earning Report', head)
