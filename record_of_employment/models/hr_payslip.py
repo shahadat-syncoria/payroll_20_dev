@@ -17,7 +17,7 @@ class InsurablePayslip(models.Model):
         return amount
 
     def get_insurable_hour(self):
-
+        insurable_hour = 0.0
 
         # vacation_amount = sum(self.input_line_ids.filtered(lambda x: x.code=="Vacation_pay" ).amount)
         # timesheet_amount = self.worked_days_line_ids.filtered(lambda x: x.number_of_hours if x.work_entry_type_id.code=="TIMESHEET_WORK100" else 0.0)
@@ -33,19 +33,10 @@ class InsurablePayslip(models.Model):
         #                 vacation_amount += (vpr_id.duration*self.contract_id.resource_calendar_id.hours_per_day)
         # gross_hour = sum(self.worked_days_line_ids.mapped(lambda x: x.number_of_hours if x.work_entry_type_id.is_gross else 0.0))
         # deduct_gross_hour = sum(self.worked_days_line_ids.mapped(lambda x: x.number_of_hours if x.work_entry_type_id.deduct_from_gross else 0.0))
-        overtime_hour = self.worked_days_line_ids.filtered(lambda x:x.work_entry_type_id.code == "CAN_OVERTIME" ).number_of_hours
-        statutory_hour = self.worked_days_line_ids.filtered(lambda x:x.work_entry_type_id.code == "CAN_STAT_OVERTIME" ).number_of_hours
-        attendance_hour = self.worked_days_line_ids.filtered(lambda x:x.work_entry_type_id.code == "WORK100" ).number_of_hours
-        timesheet_hour = self.worked_days_line_ids.filtered(lambda x:x.work_entry_type_id.code == "TIMESHEET_WORK100" ).number_of_hours
-        unpaid_hour = sum(
-            self.worked_days_line_ids.mapped(lambda x: x.number_of_hours if x.work_entry_type_id.is_leave and not x.work_entry_type_id.is_gross else 0.0))
-        paid_hour = sum(
-            self.worked_days_line_ids.mapped(lambda x: x.number_of_hours if x.work_entry_type_id.is_gross and x.work_entry_type_id.is_leave else 0.0))
 
-        if self.employee_id.contract_id.is_fixed:
-            insurable_hour = attendance_hour + overtime_hour + statutory_hour - unpaid_hour
-        else:
-            insurable_hour = attendance_hour + overtime_hour + statutory_hour + paid_hour
+        insurable_hour += sum(
+            self.worked_days_line_ids.mapped(lambda x: x.number_of_hours if x.work_entry_type_id.is_insurable_hour else 0.0))
+
 
 
         # for work_entry in self.worked_days_line_ids:

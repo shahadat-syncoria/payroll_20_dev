@@ -9,6 +9,7 @@
                 <xpath expr="//field[@name='color']" position="after">
                     <field name="is_gross" invisible="code in ['WORK100','TIMESHEET_WORK100']"/>
                     <field name="deduct_from_gross" invisible="code in ['WORK100','TIMESHEET_WORK100']"/>
+                    <field name="is_insurable_hour"/>
 
                 </xpath>
             </field>

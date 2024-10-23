@@ -7,6 +7,7 @@ class SyncoriaHrWorkEntryType(models.Model):
 
     is_gross = fields.Boolean("Calculate as gross",default=False)
     deduct_from_gross = fields.Boolean("Deduct From Gross",default=False)
+    is_insurable_hour = fields.Boolean("Calculate as Insurable Hour",default=False)
 
     @api.constrains("is_gross","deduct_from_gross")
     def _constrain_is_gross_deduct_gross(self):
