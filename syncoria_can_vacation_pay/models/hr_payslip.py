@@ -129,36 +129,45 @@ class VacationPayslip(models.Model):
         super(VacationPayslip, self).compute_sheet()
         for payslip in payslips:
             if payslip.employee_id.payout_vacation_pay_paycycle and not payslip.employee_id.is_adjust_vacation_pay_leave:
-                # Don't want this because if we are in waiting state amount stored but we will only store if state
-                # paid.But in this case we will not store anything just disbursed the amount
+               payslip.create_adjusted_vac_pay()
+            last_vac_pay = payslip.env['hr.vacation.pay'].search(
+                [('employee_id', '=', employee_id.id)]).filtered(
+                lambda x: x.state == 'validate' and payslip.date_to >= x.date and x.is_last_pay)
+            if last_vac_pay and not payslip.employee_id.payout_vacation_pay_paycycle:
+                payslip.create_adjusted_vac_pay()
 
-                # payslip.store_vacation_pay_amount()
-                # payslip.employee_id.update_vac_pay_amount_erp()
 
-
-                insurable_amount = payslip.line_ids.filtered(lambda x: x.code == "I_Earning").total
-                insurable_amount -= sum(payslip.line_ids.filtered(lambda x: x.code in ["ADJUST_VP","VP"]).mapped("total"))
-                vac_percentage =  payslip.employee_id.allocated_vac_percentage
-                stored_vac_pay_amount = (insurable_amount * (vac_percentage / 100))
-                # other_adjusted_amount_input = payslip.input_line_ids.filtered(
-                #     lambda x: x.input_type_id.id in [adjusted_input_type])
-                # other_adjusted_amount = 0.0
-                # if other_adjusted_amount_input:
-                #     other_adjusted_amount = sum(other_adjusted_amount_input.mapped("amount"))
-                vac_pay_amount_need_to_disbursed = stored_vac_pay_amount
-
-                payslip.employee_id.ytd_vac_pay_amount_erp += vac_pay_amount_need_to_disbursed
-                payslip.vac_pay_earned_amount = vac_pay_amount_need_to_disbursed
-                if vac_pay_amount_need_to_disbursed > 0.0:
-                    # if other_adjusted_amount_input:
-                    # else:
-                    payslip.write({'input_line_ids': [(0, 0, {
-                        'input_type_id': adjusted_input_type,
-                        'name': "Current Vacation Pay",
-                        'amount': vac_pay_amount_need_to_disbursed,
-                    })]})
         return super(VacationPayslip, self).compute_sheet()
 
+    def create_adjusted_vac_pay(self):
+        adjusted_input_type = self.env.ref('syncoria_can_vacation_pay.input_ca_adjusted_vac_pay').id
+        # Don't want this because if we are in waiting state amount stored but we will only store if state
+        # paid.But in this case we will not store anything just disbursed the amount
+
+        # payslip.store_vacation_pay_amount()
+        # payslip.employee_id.update_vac_pay_amount_erp()
+
+        insurable_amount = self.line_ids.filtered(lambda x: x.code == "I_Earning").total
+        insurable_amount -= sum(self.line_ids.filtered(lambda x: x.code in ["ADJUST_VP", "VP"]).mapped("total"))
+        vac_percentage = self.employee_id.allocated_vac_percentage
+        stored_vac_pay_amount = (insurable_amount * (vac_percentage / 100))
+        # other_adjusted_amount_input = payslip.input_line_ids.filtered(
+        #     lambda x: x.input_type_id.id in [adjusted_input_type])
+        # other_adjusted_amount = 0.0
+        # if other_adjusted_amount_input:
+        #     other_adjusted_amount = sum(other_adjusted_amount_input.mapped("amount"))
+        vac_pay_amount_need_to_disbursed = stored_vac_pay_amount
+
+        self.employee_id.ytd_vac_pay_amount_erp += vac_pay_amount_need_to_disbursed
+        self.vac_pay_earned_amount = vac_pay_amount_need_to_disbursed
+        if vac_pay_amount_need_to_disbursed > 0.0:
+            # if other_adjusted_amount_input:
+            # else:
+            self.write({'input_line_ids': [(0, 0, {
+                'input_type_id': adjusted_input_type,
+                'name': "Current Vacation Pay",
+                'amount': vac_pay_amount_need_to_disbursed,
+            })]})
 
     def vacation_pay_paid(self):
         input_type = self.env.ref('syncoria_can_vacation_pay.input_ca_vac_pay').id
