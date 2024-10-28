@@ -111,6 +111,18 @@
                                 </group>
                             </page>
                 </xpath>
+                <xpath expr="//group[@name='identification_group']" position="after">
+                    <group string="T4 Information">
+                        <field name="employee_cpp_qpp_xmpt_cd" />
+                        <field name="employee_ei_xmpt_cd" />
+                        <field name="empr_dntl_ben_rpt_cd" />
+                        <field name="employee_empt_cd" />
+
+                     </group>
+
+
+
+                </xpath>
             </field>
         </record>
 

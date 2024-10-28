@@ -1,5 +1,20 @@
-from odoo import models, api, fields, _
+from email.policy import default
 
+from odoo import models, api, fields, _
+CODE = [
+    ('0', '0'),
+    ('1', '1'),
+]
+
+EMPLOYMENT_CODE = [
+    ('11', "Placement or employment agency workers"),
+    ('12', "Drivers of taxis or other passenger-carrying vehicles"),
+    ('13', "Barbers or hairdressers"),
+    ('14', "Withdrawal from a prescribed salary deferral arrangement plan"),
+    ('15', "Seasonal Agricultural Workers Program"),
+    ('16', "Detached employee - Social security agreement."),
+    ('17', "Fishers - Self-employed"),
+]
 
 class InhertitedHrEmployee(models.Model):
     _inherit = 'hr.employee'
@@ -50,6 +65,43 @@ class InhertitedHrEmployee(models.Model):
     ytd_previous_irre_prov_tax = fields.Float("Previous Year To Date Irregular Payment Prov Tax", default=0, store=True, compute='compute_ytd_previous_irre_prov_tax')
     ytd_previous_irre_prov_amount = fields.Float("Previous Year To Date Irregular Amount", default=0, store=True)
     last_paycycle_gross = fields.Float("Last Paycycle Wage",help="Last paycycle wage for which the previous bonus was given ",  default=0, store=True)
+    #==================================T4 INFORMATION======================================
+    employee_cpp_qpp_xmpt_cd = fields.Selection(selection=CODE,default="0",
+                                                string="Canada Pension Plan or Quebec Pension Plan exempt code", help="- T4 slip, box 28\
+       - 0 if no exemption applies or if the employee is exempt for a portion of the period\
+       - 1 if the employee has been exempt from CPP or QPP for the entire period of employment due to age, nature of payment, etc.")
+    employee_ei_xmpt_cd = fields.Selection(selection=CODE,default='0', string="Employment Insurance exempt code", help="- T4 slip, box 28\
+       - 0 if no exemption applies or if the employee is exempt for a portion of the period\
+       - 1 if the employee has been exempt from EI premiums for the entire period of employment due to age, nature of employment, etc.")
+    empr_dntl_ben_rpt_cd = fields.Selection(
+        selection=[('1', 'Not eligible to access any dental care insurance, or coverage of dental service of any kind'),
+                   ('2', 'Payee only'),
+                   ('3', 'Payee, spouse and dependent children'),
+                   ('4', 'Payee and their spouse'),
+                   ('5', 'Payee and their dependent children'), ], string="Employer-offered dental benefits", help="""- Required, 1 numeric
+           - T4 slip, box 45
+           For 2023 and subsequent calendar years, it is mandatory to indicate whether the employee or any of their family members were eligible or not, on December 31 of that year, to access any dental care insurance, or coverage of dental services of any kind, that you offered.
+
+           1 - Not eligible to access any dental care insurance, or coverage of dental service of any kind
+           2 - Payee only
+           3 - Payee, spouse and dependent children
+           4 - Payee and their spouse
+           5 - Payee and their dependent children""", default='1')
+    employee_empt_cd = fields.Selection(selection=EMPLOYMENT_CODE, default="11",string="Employment code", help="- T4 slip, box 29\
+        - Do not complete Box 14 - Employment income, if you are using employment codes 11, 12, 13, or 17.\
+        11 - Placement or employment agency workers\
+        12 - Drivers of taxis or other passenger-carrying vehicles\
+        13 - Barbers or hairdressers\
+        14 - Withdrawal from a prescribed salary deferral arrangement plan\
+        15 - Seasonal Agricultural Workers Program\
+        16 - Detached employee - Social security agreement.\
+        Note: When CPP is paid by the employer on behalf of detached employees under employment code 16, box 14 is left blank if no other type of income is reported. Boxes 16 and 26 are completed with the appropriate amounts and boxes 18 and 24 are left blank.\
+        17 - Fishers - Self-employed")
+
+
+
+
+
 
     @api.depends("ytd_irre_prov_tax_erp", "ytd_previous_irre_prov_tax")
     def _compute_ytd_irre_prov_tax(self):

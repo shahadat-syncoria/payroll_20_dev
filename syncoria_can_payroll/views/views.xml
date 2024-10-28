@@ -227,13 +227,13 @@
        </field>
     </record>
         <record model="ir.actions.server" id="action_download_merged_t4_xml">
-       <field name="name">Send Batch T4 XML via Email</field>
+       <field name="name">Download Batch T4 XML</field>
        <field name="model_id" ref="syncoria_can_payroll.model_statement_remuneration"/>
        <field name="binding_model_id" ref="syncoria_can_payroll.model_statement_remuneration"/>
         <field name="binding_view_types">list</field>
        <field name="state">code</field>
        <field name="code">
-            action = records.send_t4_xml_batch()
+            action = model.download_t4_xml()
        </field>
     </record>
         <!-- server action to the one above -->
