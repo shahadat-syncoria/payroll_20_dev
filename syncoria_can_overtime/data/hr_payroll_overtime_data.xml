@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <odoo noupdate="1">
     <!-- Work Entry Type -->
+
+     <!-- Work Entry Type -->
     <record id="sync_overtime_work_entry_type" model="hr.work.entry.type">
         <field name="name">Canada Overtime Hours</field>
         <field name="color">0</field>
@@ -33,4 +35,18 @@
         <field name="rule_parameter_id" ref="syncoria_can_overtime.sync_rule_parameter_stat_overtime_pay"/>
         <field name="date_from" eval="datetime(2000, 1, 1).date()"/>
     </record>
+
+
+  <record id="input_ca_bank_overtime" model="hr.payslip.input.type">
+            <field name="name">Banked Overtime</field>
+            <field name="code">BNK_OVERTIME</field>
+            <field name="country_id" eval="False"/>
+        </record>
+
+     <record id="sync_banked_overtime_work_entry_type" model="hr.work.entry.type">
+        <field name="name">Banked Over Time</field>
+        <field name="color">0</field>
+        <field name="code">BNK_OVERTIME</field>
+     </record>
+
 </odoo>

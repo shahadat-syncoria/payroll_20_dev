@@ -1,28 +1,41 @@
-from odoo import fields,models,api
+from odoo import fields,models,api,_
+from odoo.exceptions import UserError
 
 
 class SyncoriaWorkedDays(models.Model):
     _inherit = 'hr.payslip.worked_days'
 
+
+    # @api.constrains("number_of_hours")
+    # def _check_overtime_hour(self):
+    #     overtime_work_entry = self.env.ref('syncoria_can_overtime.sync_overtime_work_entry_type')
+    #     for rec in self:
+    #         if rec.code == overtime_work_entry.code and rec.number_of_hours > rec.payslip_id.total_stored_overtime:
+    #             raise UserError(_("Overtime can not be greater then stored overtime."))
+
     @api.depends('is_paid', 'number_of_hours', 'payslip_id', 'contract_id.wage', 'payslip_id.sum_worked_hours')
     def _compute_amount(self):
 
-        super(SyncoriaWorkedDays,self)._compute_amount()
+        super(SyncoriaWorkedDays, self)._compute_amount()
 
         for rec in self:
             # ================================== Calculation for manually input overtime =================
-            if rec.code==self.env.ref('syncoria_can_overtime.sync_overtime_work_entry_type').code  and not rec.payslip_id.contract_id.is_hourly:
+            if rec.code in [self.env.ref(
+                    'syncoria_can_overtime.sync_overtime_work_entry_type').code,self.env.ref(
+                    'syncoria_can_overtime.sync_banked_overtime_work_entry_type').code] and not rec.payslip_id.contract_id.is_hourly:
                 overtime_pay_percent = self.env['hr.rule.parameter'].sudo()._get_parameter_from_code(
                     'can_overtime_pay_percent', raise_if_not_found=False)
                 current_hourly_rate = (rec.payslip_id.contract_id.wage * 12) / (
-                            rec.payslip_id.contract_id.resource_calendar_id.full_time_required_hours * 52)
-                overtime_hour_rate = (current_hourly_rate*(overtime_pay_percent/100))
+                        rec.payslip_id.contract_id.resource_calendar_id.full_time_required_hours * 52)
+                overtime_hour_rate = (current_hourly_rate * (overtime_pay_percent / 100))
                 rec.amount = rec.number_of_hours * overtime_hour_rate
-            if rec.code==self.env.ref('syncoria_can_overtime.sync_overtime_work_entry_type').code  and  rec.payslip_id.contract_id.is_hourly:
+            if rec.code in [self.env.ref(
+                    'syncoria_can_overtime.sync_overtime_work_entry_type').code,self.env.ref(
+                    'syncoria_can_overtime.sync_banked_overtime_work_entry_type').code] and rec.payslip_id.contract_id.is_hourly:
                 overtime_pay_percent = self.env['hr.rule.parameter'].sudo()._get_parameter_from_code(
                     'can_overtime_pay_percent', raise_if_not_found=False)
                 current_hourly_rate = rec.payslip_id.contract_id.hourly_rate
-                overtime_hour_rate = (current_hourly_rate*(overtime_pay_percent/100))
+                overtime_hour_rate = (current_hourly_rate * (overtime_pay_percent / 100))
                 rec.amount = rec.number_of_hours * overtime_hour_rate
 
                 # ================================== Calculation for manually input Statutory overtime =================
