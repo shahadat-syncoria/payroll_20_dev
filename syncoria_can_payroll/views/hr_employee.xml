@@ -117,6 +117,7 @@
                         <field name="employee_ei_xmpt_cd" />
                         <field name="empr_dntl_ben_rpt_cd" />
                         <field name="employee_empt_cd" />
+                        <field name="employee_prov_pip_xmpt_cd" />
 
                      </group>
 

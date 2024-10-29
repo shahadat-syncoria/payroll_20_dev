@@ -96,7 +96,11 @@ class InhertitedHrEmployee(models.Model):
         15 - Seasonal Agricultural Workers Program\
         16 - Detached employee - Social security agreement.\
         Note: When CPP is paid by the employer on behalf of detached employees under employment code 16, box 14 is left blank if no other type of income is reported. Boxes 16 and 26 are completed with the appropriate amounts and boxes 18 and 24 are left blank.\
-        17 - Fishers - Self-employed")
+        17 - Fishers - Self-employed",)
+
+    employee_prov_pip_xmpt_cd = fields.Selection(selection=CODE,  string="PPIP exempt code", help="- T4 slip, box 28\
+    - 0 if no exemption applies\
+    - 1 if the employee has been exempt", default='0')
 
 
 

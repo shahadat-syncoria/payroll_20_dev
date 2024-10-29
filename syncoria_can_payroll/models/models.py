@@ -160,7 +160,7 @@ class StatementOfRemuneration(models.Model):
     employee_ei_xmpt_cd = fields.Selection(related="employee_id.employee_ei_xmpt_cd",string="Employment Insurance exempt code", help="- T4 slip, box 28\
     - 0 if no exemption applies or if the employee is exempt for a portion of the period\
     - 1 if the employee has been exempt from EI premiums for the entire period of employment due to age, nature of employment, etc.")
-    employee_prov_pip_xmpt_cd = fields.Selection(related=employee_id.employee_prov_pip_xmpt_cd, string="PPIP exempt code", help="- T4 slip, box 28\
+    employee_prov_pip_xmpt_cd = fields.Selection(related="employee_id.employee_prov_pip_xmpt_cd", string="PPIP exempt code", help="- T4 slip, box 28\
     - 0 if no exemption applies\
     - 1 if the employee has been exempt")
     employee_empt_cd = fields.Selection(related="employee_id.employee_empt_cd", string="Employment code", help="- T4 slip, box 29\
