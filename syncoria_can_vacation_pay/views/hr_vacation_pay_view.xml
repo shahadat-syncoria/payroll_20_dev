@@ -38,7 +38,7 @@
                                 <field invisible="vacation_type != 'cash_wise'" readonly="state != 'draft'" name="vacation_pay_amount"/>
                                 <field name="duration" readonly="state != 'draft'" invisible="vacation_type != 'time_wise'"/>
                                 <field name="vacation_remain" invisible="vacation_type != 'time_wise' "/>
-                                <field groups="hr_holidays.group_hr_holidays_manager,hr_holidays.group_hr_holidays_user" name="is_last_pay" string="Is employee Quitting?"/>
+                                <field groups="hr_holidays.group_hr_holidays_manager,hr_holidays.group_hr_holidays_user" name="is_last_pay" string="Is Employee Quitting?"/>
                             </group>
                         </group>
                     </sheet>

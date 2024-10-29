@@ -68,13 +68,15 @@ class InheritedResPartner(models.Model):
     deductions = fields.Many2one('tax.slab', string='Payroll Deductions',
                                  default=lambda self: self.env['tax.slab'].search([], limit=1))
 
-    salary_pay_cycle = fields.Many2one('paycycle.config', string='Salary Pay Cycle', help="For default value leave "
-                                                                                          "blank", )
+    salary_pay_cycle = fields.Many2one('paycycle.config',
+                                       string='Salary Pay Cycle',
+                                       tracking=True,
+                                       help="For default value leave blank", )
     # ========================= Hourly Configuration =======================
     is_hourly = fields.Boolean(string="Is Hourly?", compute="_compute_is_hourly", store=True)
     is_fixed = fields.Boolean(string="Is Fixed Salary?", default=True,help="Salary will be fixed according to Pay cycle wage regardless worked hour")
     hourly_rate = fields.Float(string="Hourly Rate")
-    paycycle_wage = fields.Float(string="Pay Cycle Wage")
+    paycycle_wage = fields.Float(string="Pay Cycle Wage", tracking=True)
 
     # =========================== Deductions ===================================
     rrsp_amount = fields.Integer("RRSP Contribution")

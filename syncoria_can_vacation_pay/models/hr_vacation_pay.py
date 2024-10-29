@@ -130,6 +130,8 @@ class HrVacationPay(models.Model):
                 raise UserError(_("Amount must be grater than zero!"))
             elif round(self.vacation_pay_amount_remaining,2) < self.vacation_pay_amount:
                 raise UserError(_("Amount can not be greater than remaining Amount."))
+            elif self.is_last_pay and round(self.vacation_pay_amount_remaining,2) != self.vacation_pay_amount:
+                raise UserError(_("As employee is quitting , you should request for all the remaining amount."))
             self.write({'state': 'confirm'})
 
         if self.name == 'Draft':

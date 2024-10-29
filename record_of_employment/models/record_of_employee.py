@@ -94,7 +94,11 @@ class RecordOfEmployee(models.Model):
     language = fields.Selection([("english", "English"), ("french", "French")], default="english",
                                 string="20-Communication Preferred In")
     telephone_no = fields.Char(string="21-Telephone No", unaccent=False)
-    name_of_issuer_id = fields.Many2one("hr.employee", string="22-Name of Issuer")
+    name_of_issuer_id = fields.Many2one(
+        "res.users",
+        string="22-Name of Issuer",
+        default=lambda self: self.env['res.users'].search([('id', '=', self.env.uid)], limit=1).id
+    )
     payslip_ids = fields.One2many("hr.payslip", "roe_id", string="15c-PaySlip")
     vacation_pay_ids = fields.One2many("hr.vacation.pay", "roe_id", string="Vacation Pay")
 

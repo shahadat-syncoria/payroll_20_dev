@@ -14,7 +14,7 @@
                     <!--                     <button name="vacation_pay" string="Vacation Pay" type="object" class="btn-primary"-->
                     <!--                             attrs="{'invisible': ['|', ('state', 'in', ['draft','open']), '&amp;', ('state', 'not in', ['draft','open']), ('is_vacation_pay_paid','=', True)]}"/>-->
                     <button class="btn-primary" invisible="state in ['draft', 'open'] or (state not in ['draft', 'open'] and is_vacation_pay_paid == True)" name="vacation_pay" string="Vacation Pay" type="object"/>
-                    <button class="btn-primary" invisible="state in [False, 'draft', 'open'] or (state not in ['draft', 'open'] and is_vacation_pay_paid == False)" name="roe_generation" string="Roe Generation" type="object"/>
+                    <button class="btn-primary" invisible="state in [False, 'draft', 'open'] or (state not in ['draft', 'open'] and is_vacation_pay_paid == False)" name="roe_generation" string="ROE Generation" type="object"/>
                 </xpath></field>
         </record>
     </data>
