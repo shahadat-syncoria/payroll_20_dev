@@ -95,9 +95,9 @@ class RecordOfEmployee(models.Model):
                                 string="20-Communication Preferred In")
     telephone_no = fields.Char(string="21-Telephone No", unaccent=False)
     name_of_issuer_id = fields.Many2one(
-        "res.users",
+        "hr.employee",
         string="22-Name of Issuer",
-        default=lambda self: self.env['res.users'].search([('id', '=', self.env.uid)], limit=1).id
+
     )
     payslip_ids = fields.One2many("hr.payslip", "roe_id", string="15c-PaySlip")
     vacation_pay_ids = fields.One2many("hr.vacation.pay", "roe_id", string="Vacation Pay")
@@ -164,6 +164,7 @@ class RecordOfEmployee(models.Model):
 
             self.write({
                 "company_id": employee.company_id,
+                "name_of_issuer_id" : self.env['hr.employee'].search([('user_id', '=', self.env.uid)], limit=1).id,
                 "pay_period_id": employee.contract_id.salary_pay_cycle,
                 "social_insurance_number": employee.identification_id,
                 "first_day_worked": employee.contract_id.date_start,
