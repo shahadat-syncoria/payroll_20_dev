@@ -101,6 +101,7 @@ class RecordOfEmployee(models.Model):
     )
     payslip_ids = fields.One2many("hr.payslip", "roe_id", string="15c-PaySlip")
     vacation_pay_ids = fields.One2many("hr.vacation.pay", "roe_id", string="Vacation Pay")
+    vacation_amount_ids = fields.One2many("vacation.amount", "roe_id", string="Vacation Pay")
 
     issuing_date = fields.Date.today()
 
@@ -134,6 +135,35 @@ class RecordOfEmployee(models.Model):
                                                                                         key=lambda x: x.paid_date)
         return employee_vacation_pay_ids
 
+    def _get_vacation_amount(self):
+        self.write({'vacation_amount_ids': [(5, 0, 0)]})
+
+        payslips = self.get_payslip_ids()
+        adjusted_input_type = self.env.ref('syncoria_can_vacation_pay.input_ca_adjusted_vac_pay').id
+        input_type = self.env.ref('syncoria_can_vacation_pay.input_ca_vac_pay').id
+        vacation_data = []
+
+        for payslip in payslips:
+            # Retrieve vacation input lines
+            vac_info = payslip.input_line_ids.search([
+                ("payslip_id", "=", payslip.id),
+                ("input_type_id", "in", [adjusted_input_type, input_type])
+            ])
+
+            # Sum up the vacation amounts if needed
+            total_vacation_amount = sum(line.amount for line in vac_info)
+            if vac_info:
+
+                vacation_data.append((0, 0, {
+                    "payslip_id": payslip.id,
+                    "reference":payslip.number,
+                    "vacation_pay_type": [(6, 0, vac_info.ids)],  # Use Many2many relation with the input records
+                    "amount": total_vacation_amount,
+                }))
+
+        # Insert data into the One2many field
+        return vacation_data
+
     def _get_insurable_earning(self):
         employee_payslip_ids = self.get_payslip_ids()
 
@@ -160,7 +190,8 @@ class RecordOfEmployee(models.Model):
         if self.employee_id:
             employee = self.employee_id
             payslip_ids = self.get_payslip_ids()
-            has_last_payment = self.vacation_pay_ids.filtered(lambda x: x.is_last_pay)
+            has_last_payment = self.vacation_amount_ids.sorted(key=lambda r: r.reference, reverse=True)[:1]
+
 
             self.write({
                 "company_id": employee.company_id,
@@ -176,8 +207,8 @@ class RecordOfEmployee(models.Model):
                 "total_insurable_hours": self._get_insurable_hour(),
                 "total_insurable_earnings": self.employee_id.ytd_pi,
                 "payslip_ids": payslip_ids,
-                "vacation_pay_ids": self.get_vacation_pay_ids(),
-                "vacation_pay_amount": round(has_last_payment[0].vacation_pay_amount,2) if has_last_payment else ''
+                "vacation_amount_ids": self._get_vacation_amount(),
+                "vacation_pay_amount": round(has_last_payment.amount,2) if has_last_payment else ''
             })
 
         # ======================== Generate and download T4 xml ===========================
@@ -284,12 +315,12 @@ class RecordOfEmployee(models.Model):
         b17a = ET.SubElement(roe, "B17A")
         vp = ET.SubElement(b17a, "VP")
         vp.set("nbr", "1")
-        has_last_payment = self.vacation_pay_ids.filtered(lambda x: x.is_last_pay)
+        has_last_payment =  self.vacation_amount_ids.sorted(key=lambda r: r.reference, reverse=True)[:1]
 
         ET.SubElement(vp, "CD").text = '2' if has_last_payment else '1'
         ET.SubElement(vp, "SDT").text = ''
         ET.SubElement(vp, "EDT").text = ''
-        ET.SubElement(vp, "AMT").text = f'{has_last_payment[0].vacation_pay_amount:.2f}' if has_last_payment else ''
+        ET.SubElement(vp, "AMT").text = f'{has_last_payment.amount:.2f}' if has_last_payment else ''
 
         # STATUTORY HOLIDAY INFORMATION
         b17b = ET.SubElement(roe, "B17B")
@@ -353,8 +384,8 @@ class RecordOfEmployee(models.Model):
                     writer.append(reader)
                     rec.compute_roe()
 
-                    has_last_payment = rec.vacation_pay_ids.filtered(lambda x: x.is_last_pay)
-                    rec.vacation_pay_amount = f'{has_last_payment[0].vacation_pay_amount:.2f}' if has_last_payment else ''
+                    has_last_payment =  self.vacation_amount_ids.sorted(key=lambda r: r.reference, reverse=True)[:1]
+                    rec.vacation_pay_amount = f'{has_last_payment.amount:.2f}' if has_last_payment else ''
                     data = {
                         'sl_no': rec.serial_no or '',
                         'employee_info': f'{rec.employee_id.name}\n{rec.employee_id.private_street or ""},{rec.employee_id.private_street2 or ""},{rec.employee_id.private_city or ""},{rec.employee_id.private_country_id.name or ""}' or '',
@@ -470,3 +501,16 @@ class RecordOfEmployee(models.Model):
                 'sticky': True,
             }
         }
+
+
+class VacationAmount(models.Model):
+    _name = "vacation.amount"
+    _inherit = ['mail.thread', 'mail.activity.mixin']
+    _description = "Vacation Amount"
+
+    roe_id = fields.Many2one("record.of.employee")
+    payslip_id = fields.Many2one("hr.payslip")
+    reference= fields.Char()
+    vacation_pay_type = fields.Many2many("hr.payslip.input")
+    amount = fields.Float(string="Amount")
+
