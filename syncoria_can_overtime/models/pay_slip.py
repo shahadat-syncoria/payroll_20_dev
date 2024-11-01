@@ -43,7 +43,7 @@ class InheritedHrPayslipOvertime(models.Model):
 
     def calculate_overtime(self):
         overtime_hours = 0
-        full_week_hours = 40
+        full_week_hours = self.contract_id.overtime_threshold
         # Get the start and end date of the payslip
         payslip_start_date = self.date_from
         payslip_end_date = self.date_to
