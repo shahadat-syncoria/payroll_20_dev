@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="hr_hr_salary_rule_form_inherit" model="ir.ui.view">
+            <field name="name">syncoria_can_payroll.hr_salary_rule.form</field>
+            <field name="model">hr.salary.rule</field>
+            <field name="inherit_id" ref="hr_payroll.hr_salary_rule_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='appears_on_payroll_report']" position="after">
+                    <field name="is_insurable_earning"/>
+                    <field name="is_pensionable"/>
+                    <field name="is_vacation_pay"/>
+
+                </xpath>
+            </field>
+
+        </record>
+    </data>
+</odoo>

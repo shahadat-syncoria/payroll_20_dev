@@ -60,6 +60,7 @@
         'views/hr_work_entry_type_view.xml',
         'views/res_company_views.xml',
         'views/res_users.xml',
+        'views/hr_salary_rule.xml',
 
 
         # 'views/templates.xml',
