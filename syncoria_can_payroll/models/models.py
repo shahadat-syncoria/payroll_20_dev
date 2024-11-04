@@ -1076,12 +1076,10 @@ class StatementOfRemuneration(models.Model):
                     output_folder_path = os.path.expanduser(os.getenv("HOME")) + "/outPdf/"
                     if not os.path.isdir(output_folder_path):
                         os.mkdir(output_folder_path)
-                    if is_bulk:  # Change the PDF name if called from the action
-                        pdf_name = "Merged_T4.pdf"
-                    else:
-                        pdf_name = str(
-                            datetime.datetime.now().strftime(f"{rec.employee_id.name.replace(' ', '')}-{rec.year}-")) + str(
-                            datetime.datetime.now().strftime("%m%d%Y%H%M%S%f")) + ".pdf"
+
+                    pdf_name = str(
+                        datetime.datetime.now().strftime(f"{rec.employee_id.name.replace(' ', '')}-{rec.year}-")) + str(
+                        datetime.datetime.now().strftime("%m%d%Y%H%M%S%f")) + ".pdf"
                     filename = output_folder_path + pdf_name
 
                     reader = PdfReader(get_path + '/' + "t4-fill-23e.pdf")
@@ -1136,6 +1134,8 @@ class StatementOfRemuneration(models.Model):
                     raise UserError(_(f"Internal Error:{e}"))
 
                 kwrgs.append((filename, pdf_name))
+                if is_bulk:
+                    pdf_name = "Merged_T4.pdf"
 
         return {
             'type': 'ir.actions.act_url',

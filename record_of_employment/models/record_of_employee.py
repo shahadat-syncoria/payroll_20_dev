@@ -366,12 +366,10 @@ class RecordOfEmployee(models.Model):
                     output_folder_path = os.path.expanduser(os.getenv("HOME")) + "/outPdf/"
                     if not os.path.isdir(output_folder_path):
                         os.mkdir(output_folder_path)
-                    if is_bulk:  # Change the PDF name if called from the action
-                        pdf_name = "Merged_ROE.pdf"
-                    else:
-                        pdf_name = str(
-                            datetime.datetime.now().strftime(f"{rec.employee_id.name.replace(' ', '')}-")) + str(
-                            datetime.datetime.now().strftime("%m%d%Y%H%M%S%f")) + ".pdf"
+
+                    pdf_name = str(
+                        datetime.datetime.now().strftime(f"{rec.employee_id.name.replace(' ', '')}-")) + str(
+                        datetime.datetime.now().strftime("%m%d%Y%H%M%S%f")) + ".pdf"
 
                     filename = output_folder_path + pdf_name
 
@@ -451,6 +449,8 @@ class RecordOfEmployee(models.Model):
 
 
                 kwrgs.append((filename,pdf_name))
+                if is_bulk:  # Change the PDF name if called from the action
+                    pdf_name = "Merged_ROE.pdf"
 
         return {
             'type': 'ir.actions.act_url',
