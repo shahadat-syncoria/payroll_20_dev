@@ -33,10 +33,12 @@ class EmployeeNetPay(models.TransientModel):
             'net_pay': 0.0,
             'prov_tax': 0.0,
             'total_gross': 0.0,
-            'total_insurable_earnings': 0.0
+            'total_insurable_earnings': 0.0,
+            'wsib': 0.0
         }
 
         for rec in payslip_ids:
+            wsib = rec.company_id.wsib
             pay_cycle = rec.pay_cycle.paystub_group_name
             if pay_cycle not in grouped_payslip_data:
                 grouped_payslip_data[pay_cycle] = {
@@ -57,6 +59,8 @@ class EmployeeNetPay(models.TransientModel):
                 "cpp2": rec.line_ids.search([("slip_id", "=", rec.id), ("code", "=", "CPP2")]).amount,
                 "ei": rec.line_ids.search([("slip_id", "=", rec.id), ("code", "=", "EI")]).amount,
                 "employer_ei": rec.line_ids.search([("slip_id", "=", rec.id), ("code", "=", "EI_EMPLOYER")]).amount,
+                "wsib": (rec.line_ids.search(
+                    [("slip_id", "=", rec.id), ("code", "=", "I_Earning")]).amount * wsib) /100
             }
             totals['total_gross'] += rec.line_ids.search([("slip_id", "=", rec.id), ("code", "=", "GROSS")]).amount
             totals['total_insurable_earnings'] += rec.line_ids.search(
@@ -72,7 +76,9 @@ class EmployeeNetPay(models.TransientModel):
                 [("slip_id", "=", rec.id), ("code", "=", "CPP2")]).amount  # CPP2 Deduction
             totals['ei'] += rec.line_ids.search([("slip_id", "=", rec.id), ("code", "=", "EI")]).amount  # EI Deduction
             totals['employer_ei'] += rec.line_ids.search(
-                [("slip_id", "=", rec.id), ("code", "=", "EI_EMPLOYER")]).amount  # Employer EI Deduction
+                [("slip_id", "=", rec.id), ("code", "=", "EI_EMPLOYER")]).amount
+            totals['wsib'] += (rec.line_ids.search(
+                    [("slip_id", "=", rec.id), ("code", "=", "I_Earning")]).amount * wsib) /100
 
             # Append the payslip data to the appropriate pay_cycle group
             grouped_payslip_data[pay_cycle]['payslips'].append(payslip_data)
@@ -125,6 +131,7 @@ class EmployeeNetPay(models.TransientModel):
         sheet.write(row, col + 9, 'CPP2 Deduction', bold)
         sheet.write(row, col + 10, 'EI Deduction', bold)
         sheet.write(row, col + 11, 'Employer EI Deduction', bold)
+        sheet.write(row, col + 12, 'WSIB Premium', bold)
 
         totals = {
             'total_gross': 0.0,
@@ -135,7 +142,8 @@ class EmployeeNetPay(models.TransientModel):
             'cpp': 0.0,
             'cpp2': 0.0,
             'ei': 0.0,
-            'employer_ei': 0.0
+            'employer_ei': 0.0,
+            'wsib': 0.0
         }
 
         for pay_cycle, cycle_data in data['grouped_payslips'].items():
@@ -156,6 +164,7 @@ class EmployeeNetPay(models.TransientModel):
                 sheet.write(row, col + 9, payslip['cpp2'])
                 sheet.write(row, col + 10, payslip['ei'])
                 sheet.write(row, col + 11, payslip['employer_ei'])
+                sheet.write(row, col + 12, payslip['wsib'])
 
                 # Update totals
                 totals['total_gross'] += payslip['total_gross']
@@ -167,6 +176,7 @@ class EmployeeNetPay(models.TransientModel):
                 totals['cpp2'] += payslip['cpp2']
                 totals['ei'] += payslip['ei']
                 totals['employer_ei'] += payslip['employer_ei']
+                totals['wsib'] += payslip['wsib']
 
         row += 1  # Leave a blank row between different pay cycles
         sheet.write(row, col, 'Total', bold)  # Total label
@@ -181,6 +191,7 @@ class EmployeeNetPay(models.TransientModel):
         sheet.write(row, col + 9, totals['cpp2'])
         sheet.write(row, col + 10, totals['ei'])
         sheet.write(row, col + 11, totals['employer_ei'])
+        sheet.write(row, col + 12, totals['wsib'])
 
 
 

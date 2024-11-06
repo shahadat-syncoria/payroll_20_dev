@@ -11,6 +11,7 @@
                            <group>
                                 <field name="payroll_account_number"/>
                                 <field name="employer_payroll_ref"/>
+                                <field name="wsib"/>
                            </group>
 
                        </page>
