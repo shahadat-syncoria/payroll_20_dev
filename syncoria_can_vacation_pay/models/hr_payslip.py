@@ -1,4 +1,5 @@
 from odoo import fields, models, api, _
+from odoo.exceptions import UserError
 
 
 class VacationHrPayslipInput(models.Model):
@@ -12,6 +13,24 @@ class VacationPayslip(models.Model):
 
     vac_pay_earned_amount = fields.Float("Vacation Pay Earned Amount",default=0.0)
     vac_pay_earned_taken = fields.Float("Vacation Pay Earned Amount Taken",default=0.0)
+    payout_vacation_pay_paycycle = fields.Boolean("Payout Vacation Amount Per Pay Cycle", default=False,
+                                                  groups='hr.group_hr_user')
+
+
+    @api.onchange('employee_id')
+    def _onchange_payout_vacation_pay_paycycle(self):
+        for rec in self:
+            if rec.employee_id.payout_vacation_pay_paycycle:
+                rec.payout_vacation_pay_paycycle = True
+            else:
+                rec.payout_vacation_pay_paycycle = False
+
+    @api.constrains("employee_id.is_adjust_vacation_pay_leave", "payout_vacation_pay_paycycle")
+    def _constrain_on_vacation_pay_bool(self):
+        for rec in self:
+            if rec.employee_id.is_adjust_vacation_pay_leave and rec.payout_vacation_pay_paycycle:
+                raise UserError(
+                    "Adjust Vacation Pay With Unpaid Leaves and Payout Vacation Amount Per Pay Cycle Both Can't Enable Same Time!!")
 
     def store_vacation_pay_amount(self):
         """
@@ -91,7 +110,7 @@ class VacationPayslip(models.Model):
                 # ==================== Adjusted Vacation Pay ==============================
                 payslip.input_line_ids.filtered(
                     lambda x: x.input_type_id.id in [adjusted_input_type]).unlink()
-                if payslip.employee_id.is_adjust_vacation_pay_leave and not payslip.employee_id.payout_vacation_pay_paycycle:
+                if payslip.employee_id.is_adjust_vacation_pay_leave and not payslip.payout_vacation_pay_paycycle:
                     unpaid_days = sum(payslip.worked_days_line_ids.filtered(
                         lambda x: x.work_entry_type_id.deduct_from_gross and x.work_entry_type_id.is_leave and x.work_entry_type_id.is_adjusted_with_vacation_pay).mapped(
                         'number_of_days'))
@@ -128,12 +147,12 @@ class VacationPayslip(models.Model):
 
         super(VacationPayslip, self).compute_sheet()
         for payslip in payslips:
-            if payslip.employee_id.payout_vacation_pay_paycycle and not payslip.employee_id.is_adjust_vacation_pay_leave:
+            if payslip.payout_vacation_pay_paycycle and not payslip.employee_id.is_adjust_vacation_pay_leave:
                payslip.create_adjusted_vac_pay()
             last_vac_pay = payslip.env['hr.vacation.pay'].search(
                 [('employee_id', '=', employee_id.id)]).filtered(
                 lambda x: x.state == 'validate' and payslip.date_to >= x.date and x.is_last_pay)
-            if last_vac_pay and not payslip.employee_id.payout_vacation_pay_paycycle:
+            if last_vac_pay and not payslip.payout_vacation_pay_paycycle:
                 payslip.create_adjusted_vac_pay()
 
 
@@ -198,7 +217,7 @@ class VacationPayslip(models.Model):
         for rec in self:
             rec.vacation_pay_paid()
             if self.env["ir.config_parameter"].sudo().get_param('syncoria_can_vacation_pay.vac_pay_type') == 'cash_wise':
-                if not rec.employee_id.payout_vacation_pay_paycycle:
+                if not rec.payout_vacation_pay_paycycle:
                     rec.store_vacation_pay_amount()
                     rec.employee_id.update_vac_pay_amount_erp()
 
@@ -264,7 +283,7 @@ class AccountPaymentRegister(models.TransientModel):
             payslip = self.env['hr.payslip'].browse(self.env.context['hr_payroll_payment_register'])
             payslip.vacation_pay_paid()
             if self.env["ir.config_parameter"].sudo().get_param('syncoria_can_vacation_pay.vac_pay_type') == 'cash_wise':
-                if not payslip.employee_id.payout_vacation_pay_paycycle:
+                if not payslip.payout_vacation_pay_paycycle:
                     payslip.store_vacation_pay_amount()
             payslip.employee_id.update_vac_pay_amount_erp()
         return res
