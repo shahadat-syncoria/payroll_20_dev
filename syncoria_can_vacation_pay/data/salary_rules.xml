@@ -68,8 +68,16 @@ result_name = inputs['Adjusted_Vacation_Pay'].name
             <field name="amount_python_compute">
 employee._get_employee_allocated_leave()
 insurable_amount = I_Earning
-adjust_vp =ADJUST_VP if 'ADJUST_VP' in rules else 0
-vp =VP if 'VP' in rules else 0
+vp = 0.0
+adjust_vp = 0.0
+for rule in rules:
+    if rules[rule].is_vacation_pay:
+       rule_code = rules[rule].code
+       if rule_code == 'ADJUST_VP':
+          adjust_vp = ADJUST_VP
+       elif rule_code == 'VP':
+          vp = VP
+
 insurable_amount -= (adjust_vp+vp)
 vac_percentage = employee.allocated_vac_percentage
 result= (insurable_amount*(vac_percentage/100))
@@ -133,8 +141,16 @@ result_name = inputs['Adjusted_Vacation_Pay'].name
             <field name="amount_python_compute">
 employee._get_employee_allocated_leave()
 insurable_amount = I_Earning
-adjust_vp =ADJUST_VP if 'ADJUST_VP' in rules else 0
-vp =VP if 'VP' in rules else 0
+vp = 0.0
+adjust_vp = 0.0
+for rule in rules:
+    if rules[rule].is_vacation_pay:
+       rule_code = rules[rule].code
+       if rule_code == 'ADJUST_VP':
+          adjust_vp = ADJUST_VP
+       elif rule_code == 'VP':
+          vp = VP
+
 insurable_amount -= (adjust_vp+vp)
 vac_percentage = employee.allocated_vac_percentage
 result= (insurable_amount*(vac_percentage/100))

@@ -13,6 +13,11 @@ class InheritedResPartner(models.Model):
     employeer_pprtr_1_sin = fields.Integer(string="Proprietor #1 Social Insurance Number (SIN)",)
     employeer_pprtr_2_sin = fields.Integer(string="Proprietor #2 Social Insurance Number (SIN)",)
     employeer_cra_number = fields.Char(string="Employer CRA Number",default="")
+    cntc_extn_nbr = fields.Char(
+        "Contact Extension",
+        size=5,
+        help="- 5 numeric\n- Extension of the contact."
+    )
 
 
 class InheritedResPartnerBank(models.Model):

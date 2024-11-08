@@ -8,6 +8,7 @@ class SyncoriaHrWorkEntryType(models.Model):
     is_insurable_earning = fields.Boolean("Calculate as Insurable Earning",default=False)
     is_pensionable = fields.Boolean("Calculate as Pensionable",default=False)
     is_vacation_pay = fields.Boolean("Calculate as Vacation Pay",default=False)
+    cat_code = fields.Char(related="category_id.code", string="Category Code")
 
 
 

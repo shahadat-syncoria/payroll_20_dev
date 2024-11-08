@@ -67,10 +67,10 @@ class InhertitedHrEmployee(models.Model):
     last_paycycle_gross = fields.Float("Last Paycycle Wage",help="Last paycycle wage for which the previous bonus was given ",  default=0, store=True)
     #==================================T4 INFORMATION======================================
     employee_cpp_qpp_xmpt_cd = fields.Selection(selection=CODE,default="0",
-                                                string="Canada Pension Plan or Quebec Pension Plan exempt code", help="- T4 slip, box 28\
+                                                string="Canada Pension Plan Or Quebec Pension Plan Exempt Code", help="- T4 slip, box 28\
        - 0 if no exemption applies or if the employee is exempt for a portion of the period\
        - 1 if the employee has been exempt from CPP or QPP for the entire period of employment due to age, nature of payment, etc.")
-    employee_ei_xmpt_cd = fields.Selection(selection=CODE,default='0', string="Employment Insurance exempt code", help="- T4 slip, box 28\
+    employee_ei_xmpt_cd = fields.Selection(selection=CODE,default='0', string="Employment Insurance Exempt Code", help="- T4 slip, box 28\
        - 0 if no exemption applies or if the employee is exempt for a portion of the period\
        - 1 if the employee has been exempt from EI premiums for the entire period of employment due to age, nature of employment, etc.")
     empr_dntl_ben_rpt_cd = fields.Selection(
@@ -78,7 +78,7 @@ class InhertitedHrEmployee(models.Model):
                    ('2', 'Payee only'),
                    ('3', 'Payee, spouse and dependent children'),
                    ('4', 'Payee and their spouse'),
-                   ('5', 'Payee and their dependent children'), ], string="Employer-offered dental benefits", help="""- Required, 1 numeric
+                   ('5', 'Payee and their dependent children'), ], string="Employer-offered Dental Benefits", help="""- Required, 1 numeric
            - T4 slip, box 45
            For 2023 and subsequent calendar years, it is mandatory to indicate whether the employee or any of their family members were eligible or not, on December 31 of that year, to access any dental care insurance, or coverage of dental services of any kind, that you offered.
 
@@ -87,7 +87,7 @@ class InhertitedHrEmployee(models.Model):
            3 - Payee, spouse and dependent children
            4 - Payee and their spouse
            5 - Payee and their dependent children""", default='1')
-    employee_empt_cd = fields.Selection(selection=EMPLOYMENT_CODE, default="11",string="Employment code", help="- T4 slip, box 29\
+    employee_empt_cd = fields.Selection(selection=EMPLOYMENT_CODE, default="11",string="Employment Code", help="- T4 slip, box 29\
         - Do not complete Box 14 - Employment income, if you are using employment codes 11, 12, 13, or 17.\
         11 - Placement or employment agency workers\
         12 - Drivers of taxis or other passenger-carrying vehicles\
@@ -98,7 +98,7 @@ class InhertitedHrEmployee(models.Model):
         Note: When CPP is paid by the employer on behalf of detached employees under employment code 16, box 14 is left blank if no other type of income is reported. Boxes 16 and 26 are completed with the appropriate amounts and boxes 18 and 24 are left blank.\
         17 - Fishers - Self-employed",)
 
-    employee_prov_pip_xmpt_cd = fields.Selection(selection=CODE,  string="PPIP exempt code", help="- T4 slip, box 28\
+    employee_prov_pip_xmpt_cd = fields.Selection(selection=CODE,  string="PPIP Exempt Code", help="- T4 slip, box 28\
     - 0 if no exemption applies\
     - 1 if the employee has been exempt", default='0')
 
@@ -245,3 +245,13 @@ class InhertitedHrEmployee(models.Model):
         for rec in self:
             if rec.first_contract_date:
                 rec.sync_first_contract_date = rec.first_contract_date
+
+    @api.model
+    def action_statement_remuneration_wizard(self):
+        return {
+            'type': 'ir.actions.act_window',
+            'name': 'T4 Batch Generation',
+            'res_model': 'statement.remuneration.wizard',
+            'view_mode': 'form',
+            'target': 'new',
+        }

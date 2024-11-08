@@ -21,6 +21,7 @@
                             </group>
                             <group>
                                 <field name="employeer_cra_number"/>
+                                <field name="cntc_extn_nbr"/>
                             </group>
                         </group>
                     </page>

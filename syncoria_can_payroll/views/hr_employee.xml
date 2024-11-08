@@ -141,5 +141,16 @@
             </field>
         </record>
 
+                <!--   Action for batch generate T4     -->
+        <record id="action_T4_batch_gen" model="ir.actions.server">
+        <field name="name">Batch Generate T4</field>
+        <field name="model_id" ref="model_hr_employee"/>
+        <field name="binding_model_id" ref="hr.model_hr_employee"/>
+        <field name="state">code</field>
+        <field name="code">
+            action = model.action_statement_remuneration_wizard()
+        </field>
+    </record>
+
     </data>
 </odoo>
