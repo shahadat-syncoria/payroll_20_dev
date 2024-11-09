@@ -20,7 +20,7 @@
     'version': '17.0.3.8',
 
     # any module necessary for this one to work correctly
-    'depends': ['base','hr_payroll','hr_work_entry','hr_payroll_account'],
+    'depends': ['base','hr_payroll','hr_work_entry','hr_payroll_account','project','portal'],
 
     # always loaded
     'data': [
@@ -61,6 +61,7 @@
         'views/res_company_views.xml',
         'views/res_users.xml',
         'views/hr_salary_rule.xml',
+        'views/payroll_portal_templates.xml',
 
 
         # 'views/templates.xml',
