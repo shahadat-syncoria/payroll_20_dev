@@ -15,7 +15,9 @@ class VacationPayslip(models.Model):
     vac_pay_earned_taken = fields.Float("Vacation Pay Earned Amount Taken",default=0.0)
     payout_vacation_pay_paycycle = fields.Boolean("Payout Vacation Amount Per Pay Cycle", default=False,
                                                   groups='hr.group_hr_user')
-
+    ytd_vac_pay_amount = fields.Float(related="employee_id.ytd_vac_pay_amount")
+    vacation_type = fields.Selection(related="employee_id.vacation_type", string="Vacation Type")
+    vacation_pay_taken = fields.Float(related="employee_id.vacation_pay_taken")
 
     @api.onchange('employee_id')
     def _onchange_payout_vacation_pay_paycycle(self):
