@@ -10,7 +10,7 @@
                     <field name="cat_code" invisible="1"/>
                     <field name="is_insurable_earning" invisible="cat_code not in ['GROSS','ADD_ALLOWANCE','ALW']"/>
                     <field name="is_pensionable" invisible="cat_code not in ['GROSS','ADD_ALLOWANCE','ALW']"/>
-                    <field name="is_vacation_pay" invisible="code not in ['ADJUST_VP','VP']"/>
+                    <field name="is_vacation_pay" invisible="cat_code not in ['GROSS','ADD_ALLOWANCE','ALW']"/>
 
                 </xpath>
             </field>

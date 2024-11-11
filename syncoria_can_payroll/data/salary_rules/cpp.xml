@@ -28,6 +28,7 @@ if is_pay_cycle:
     com = 0.0
     stat_ot = 0.0
     final_result = 0.0
+    exp = 0.0
 
     for rule in rules:
         if rules[rule].is_pensionable:
@@ -50,8 +51,10 @@ if is_pay_cycle:
                 com = COMMISSION
             elif rule_code == 'STAT_OVERTIME':
                 stat_ot = STAT_OVERTIME
+            elif rule_code == 'EXPENSE':
+                exp = EXPENSE
 
-            final_result = gross+ vp+ ad_vp+ bonus+ ot+ retro+ b_ot+ com+ stat_ot
+            final_result = gross+ vp+ ad_vp+ bonus+ ot+ retro+ b_ot+ com+ stat_ot + exp
 
 
 
@@ -124,6 +127,7 @@ if is_pay_cycle:
     com = 0.0
     stat_ot = 0.0
     final_result = 0.0
+    exp =0.0
 
     for rule in rules:
         if rules[rule].is_pensionable:
@@ -146,8 +150,10 @@ if is_pay_cycle:
                 com = COMMISSION
             elif rule_code == 'STAT_OVERTIME':
                 stat_ot = STAT_OVERTIME
+            elif rule_code == 'EXPENSE':
+                exp = EXPENSE
 
-            final_result = gross+ vp+ ad_vp+ bonus+ ot+ retro+ b_ot+ com+ stat_ot
+            final_result = gross+ vp+ ad_vp+ bonus+ ot+ retro+ b_ot+ com+ stat_ot +exp
 
     main_gross = final_result
     PM= 12

@@ -59,8 +59,8 @@ result = (categories['GROSS'] + categories['ALW']+categories['ADD_ALLOWANCE']) -
             <field name="condition_select">python</field>
             <field name="condition_python">result = 'EXPENSES' in inputs</field>
             <field name="amount_python_compute">
-result = inputs.['EXPENSES'].amount
-result_name = inputs.['EXPENSES'].name
+result = inputs['EXPENSES'].amount
+result_name = inputs['EXPENSES'].name
             </field>
 
 
@@ -87,6 +87,7 @@ ot =0.0
 b_ot = 0.0
 com = 0.0
 stat_ot = 0.0
+exp = 0.0
 
 for rule in rules:
     if rules[rule].is_insurable_earning:
@@ -109,8 +110,10 @@ for rule in rules:
             com = COMMISSION
         elif rule_code == 'STAT_OVERTIME':
             stat_ot = STAT_OVERTIME
+        elif rule_code == 'EXPENSE':
+            exp = EXPENSE
 
-        final_result = gross+ vp+ ad_vp+ bonus+ ot+ retro+ b_ot+ com+ stat_ot
+        final_result = gross+ vp+ ad_vp+ bonus+ ot+ retro+ b_ot+ com+ stat_ot + exp
 
 result = final_result
             </field>
@@ -337,6 +340,7 @@ ot =0.0
 b_ot = 0.0
 com = 0.0
 stat_ot = 0.0
+exp = 0.0
 
 for rule in rules:
     if rules[rule].is_insurable_earning:
@@ -359,8 +363,11 @@ for rule in rules:
             com = COMMISSION
         elif rule_code == 'STAT_OVERTIME':
             stat_ot = STAT_OVERTIME
+        elif rule_code == 'EXPENSE':
+            exp = EXPENSE
 
-        final_result = gross+ vp+ ad_vp+ bonus+ ot+ retro+ b_ot+ com+ stat_ot
+
+        final_result = gross+ vp+ ad_vp+ bonus+ ot+ retro+ b_ot+ com+ stat_ot + exp
 
 result = final_result
 
