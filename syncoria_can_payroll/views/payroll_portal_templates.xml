@@ -63,7 +63,7 @@
                 <tbody>
                     <tr t-foreach="payslips" t-as="payslip">
                         <td>
-                            From: (<span t-field="payslip.date_from"/> To: <span t-field="payslip.date_to"/>)
+                            Period: <span t-field="payslip.date_from"/> To: <span t-field="payslip.date_to"/>
                         </td>
                         <td>
                             <span t-field="payslip.number"/>
@@ -90,6 +90,9 @@
             <t t-call="portal.portal_searchbar">
                 <t t-set="title">Payslip</t>
             </t>
+
+            <p><b>Slip Number:</b> <span t-field="payslip.number"/></p>
+            <p style="margin-bottom: 20px">Period: <span t-field="payslip.name"/></p>
 
             <t t-if="not detailed_payslip">
                 <div class="alert alert-warning" role="alert">

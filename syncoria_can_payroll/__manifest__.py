@@ -36,6 +36,7 @@
         'data/salary_rules/tax.xml',
         'data/emails/reminder_email.xml',
         'data/emails/batch_xml_send_email.xml',
+        # 'data/emails/payslip_mail_template_data.xml',
         # Wizard
         'wizards/manual_input_generate_payslip.xml',
         'wizards/t4_xml_wiz.xml',
