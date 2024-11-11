@@ -10,7 +10,7 @@
                     <attribute name="string">Employee Social Insurance Number (SIN)</attribute>
                 </field>
                 <xpath expr="//notebook" position="inside">
-                    <page name="sync_payroll_info" string="Syncoria Payroll Information" groups="hr.group_hr_manager">
+                    <page name="sync_payroll_info" string="Payroll Information" groups="hr.group_hr_manager">
                                 <group>
                                     <group string='CPP' name="cpp">
                                         <group>

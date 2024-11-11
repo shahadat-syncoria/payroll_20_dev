@@ -94,6 +94,19 @@ class T4WizardController(http.Controller):
 
         # return response
 
+    @http.route('/t4/download_xml', type='http', auth='user')
+    def download_t4_batch_xml(self, field, id, filename=None, content_type='application/xml', **kwargs):
+        if field == 'xml_content' and id:
+            record = request.env['statement.remuneration'].sudo().browse(int(id))
+            xml_content = record.xml_content
+            if xml_content:
+                headers = [
+                    ('Content-Type', content_type),
+                    ('Content-Disposition', self.content_disposition(filename)),
+                ]
+                return request.make_response(xml_content, headers)
+        return request.not_found()
+
 # class SyncoriaCanPayroll(http.Controller):
 #     @http.route('/syncoria_can_payroll/syncoria_can_payroll', auth='public')
 #     def index(self, **kw):

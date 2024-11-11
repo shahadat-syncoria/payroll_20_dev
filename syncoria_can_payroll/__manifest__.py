@@ -17,7 +17,7 @@
     # Check https://github.com/odoo/odoo/blob/16.0/odoo/addons/base/data/ir_module_category_data.xml
     # for the full list
     'category': 'Human Resources/Payroll',
-    'version': '17.0.3.9',
+    'version': '17.0.3.10',
 
     # any module necessary for this one to work correctly
     'depends': ['base','hr_payroll','hr_work_entry','hr_payroll_account','project','portal'],
@@ -38,6 +38,7 @@
         'data/emails/batch_xml_send_email.xml',
         # Wizard
         'wizards/manual_input_generate_payslip.xml',
+        'wizards/t4_xml_wiz.xml',
 
         # Notification
         'views/notification/payroll_reminder_conf.xml',
