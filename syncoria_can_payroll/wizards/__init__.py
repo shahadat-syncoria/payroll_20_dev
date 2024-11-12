@@ -8,3 +8,5 @@ from . import hr_payslip_by_employee
 from . import employee_net_pay_wizard
 from . import account_payment_register
 from . import payroll_earning_wizard
+from . import t4_xml_wiz
+from . import payslip_email_wiz

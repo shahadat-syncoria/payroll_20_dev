@@ -54,7 +54,7 @@
 
                 </xpath>
                 <xpath expr="//notebook" position="inside">
-                    <page name="sync_payroll_vac_info" string="Syncoria Vacation Pay Information" groups="hr.group_hr_manager">
+                    <page name="sync_payroll_vac_info" string="Vacation Slab Information" groups="hr.group_hr_manager">
                                     <group name="vacation_slab">
                                         <field name="vacation_slab_ids" >
                                             <tree>

@@ -6,7 +6,7 @@
             <field name="inherit_id" ref="base.view_partner_form"/>
             <field name="arch" type="xml">
                 <xpath expr="//page[@name='internal_notes']" position="after">
-                    <page invisible="is_company == False" name="employer_info" string="Employeer Info">
+                    <page invisible="is_company == False" name="employer_info" string="Employer Info">
                         <group>
                             <group>
                                 <field name="company_name1"/>

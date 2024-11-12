@@ -264,7 +264,7 @@ class StatementOfRemuneration(models.Model):
         4 - Payee and their spouse
         5 - Payee and their dependent children""")
     # hm_brd_lodg_amt
-    hm_brd_lodg_amt = fields.Float("Housing, Board and Lodging Amount", help="- Other Income Amount - Code 30")
+    hm_brd_lodg_amt = fields.Float("Housing, Board And Lodging Amount", help="- Other Income Amount - Code 30")
 
     # spcl_wrk_site_amt
     spcl_wrk_site_amt = fields.Float("Special Work Site Amount", help="- Other Income Amount - Code 31")
@@ -279,7 +279,7 @@ class StatementOfRemuneration(models.Model):
     prsnl_vhcl_amt = fields.Float("Personal Use Of Employer Automobile Amount", help="- Other Income Amount - Code 34")
 
     # rsn_per_km_amt
-    rsn_per_km_amt = fields.Float("Total Reasonable Per-Kilometre Allowance amount",
+    rsn_per_km_amt = fields.Float("Total Reasonable Per-Kilometre Allowance Amount",
                                   help="- Other Income amount - Code 35, applies to year 2000 and prior")
 
     # low_int_loan_amt
@@ -416,7 +416,7 @@ class StatementOfRemuneration(models.Model):
                                                   help="- Other Income Amount - Code 87\n- Valid for 2011 and subsequent tax years only\nNote: Do not include this amount in box 14.")
 
     # indn_txmpt_sei_amt
-    indn_txmpt_sei_amt = fields.Float("Indian (exempt income) – Self-employment",
+    indn_txmpt_sei_amt = fields.Float("Indian (Exempt Income) – Self-employment",
                                       help="- Other Income Amount - Code 88\nNote: Do not include this amount in box 14.")
 
     # ==================================== T4 Summary ===================================================
@@ -486,7 +486,7 @@ class StatementOfRemuneration(models.Model):
     )
 
     # pstl_cd
-    employer_pstl_cd = fields.Char("- 10 alphanumeric\n- Employer postal code", size=10,
+    employer_pstl_cd = fields.Char("Employer postal code", size=10,
                                    help="Employer's Canadian postal code (format: alpha, numeric, alpha, numeric, alpha, numeric, example: A9A9A9) or the employer's USA zip code. When the employer's country code is neither CAN nor USA, enter the foreign postal code.")
 
     # cntc_nm
@@ -823,6 +823,7 @@ class StatementOfRemuneration(models.Model):
                 "cntc_nm": employeer_contact_id.name or '',
                 "cntc_area_cd": employeer_contact_id.zip or '',
                 "cntc_phn_nbr": employeer_contact_id.phone or '',
+                "cntc_extn_nbr": employeer.cntc_extn_nbr or '',
                 # "cntc_phn_nbr": employeer_contact_id.phone or '',
                 "slp_cnt": '1',
                 "tx_yr": self.year,
@@ -841,34 +842,22 @@ class StatementOfRemuneration(models.Model):
         # Generate the T4 XML content
         kwrgs=[]
         domain = []
-        if self.env.context.get('active_ids'):
-            domain = [('id', 'in', self.env.context.get('active_ids', []))]
-            employees = self.search(domain)
-            employee =  self.search([('id', '=', self.env.context.get('active_id'))])
-            filename = 'Merged T4' + str(datetime.datetime.now().strftime("%m%d%Y%H%M%S%f")) + '.xml'
-        else:
-            employees=self
-            employee = self
+        for employee in self:
             filename = f'{employee.employee_id.name}'+ f'{employee.year}'+ '_T4' + '.xml'
-        # for rec in self:
-        xml_content = self.generate_t4_xml(employees)
-        employee.xml_content = xml_content
+            # for rec in self:
+            xml_content = employee.generate_t4_xml(employee)
+            employee.xml_content = xml_content
 
+            content_type = 'application/xml'
 
-        # Prepare the file for download
-        # filename = f'{rec.employee_id.name}' + '_T4' + '.xml'
+            kwrgs.append((xml_content,filename, content_type))
 
-        content_type = 'application/xml'
-
-        kwrgs.append((xml_content,filename, content_type))
-
-        # Return the file as a response
-        return {
-            'type': 'ir.actions.act_url',
-            'url': '/web/content/?model=statement.remuneration&field=xml_content&id=%s&filename=%s&content_type=%s' % (
-                employee.id, filename, content_type),
-            'target': 'self',
-        }
+            return {
+                'type': 'ir.actions.act_url',
+                'url': '/web/content/?model=statement.remuneration&field=xml_content&id=%s&filename=%s&content_type=%s' % (
+                    employee.id, filename, content_type),
+                'target': 'self',
+            }
 
     def create_t4_xml(self,employees):
         tot_empt_incamt_sum = 0
@@ -892,8 +881,9 @@ class StatementOfRemuneration(models.Model):
         t4 = ET.SubElement(root, "T4")
 
         # Create the T4Slip element
-        t4_slip = ET.SubElement(t4, "T4Slip")
+
         for employee in employees:
+            t4_slip = ET.SubElement(t4, "T4Slip")
             # Add EMPE_NM subelement
             empe_nm = ET.SubElement(t4_slip, "EMPE_NM")
             ET.SubElement(empe_nm, "snm").text = employee.employee_snm
@@ -1184,5 +1174,16 @@ class StatementOfRemuneration(models.Model):
     #             'sticky': True,
     #         }
     #     }
+
+    def action_open_t4_message_wizard(self):
+        # This method will be called when the server action is executed
+        return {
+            'name': 'T4 Batch Message Wizard',
+            'type': 'ir.actions.act_window',
+            'res_model': 't4.messeage.wizard',
+            'view_mode': 'form',
+            'view_id': self.env.ref('syncoria_can_payroll.view_t4_messeage_wizard_form').id,
+            'target': 'new',  # This opens the wizard in a popup
+        }
 
 

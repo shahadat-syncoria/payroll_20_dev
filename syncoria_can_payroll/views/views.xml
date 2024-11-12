@@ -185,9 +185,12 @@
             <field name="name">statement.remuneration.tree</field>
             <field name="model">statement.remuneration</field>
             <field name="arch" type="xml">
-                <tree multi_edit="1" string="T4 Form">
+                <tree multi_edit="1" string="T4 Form" decoration-info="state == 'draft'"
+                     decoration-success="state == 'done'">
                     <field name="employee_id"/>
                     <field name="year"/>
+                    <field name="state"
+                     />
                 </tree></field>
         </record>
         <record id="t4_form_view_search" model="ir.ui.view">
@@ -233,7 +236,7 @@
         <field name="binding_view_types">list</field>
        <field name="state">code</field>
        <field name="code">
-            action = model.download_t4_xml()
+            action = model.action_open_t4_message_wizard()
        </field>
     </record>
         <!-- server action to the one above -->

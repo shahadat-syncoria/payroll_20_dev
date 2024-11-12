@@ -10,7 +10,7 @@
                     <attribute name="string">Employee Social Insurance Number (SIN)</attribute>
                 </field>
                 <xpath expr="//notebook" position="inside">
-                    <page name="sync_payroll_info" string="Syncoria Payroll Information" groups="hr.group_hr_manager">
+                    <page name="sync_payroll_info" string="Payroll Information" groups="hr.group_hr_manager">
                                 <group>
                                     <group string='CPP' name="cpp">
                                         <group>
@@ -84,7 +84,7 @@
                                                <field name="ytd_previous_irre_prov_amount"/>
                                            </group>
                                         <group>
-                                            <field name="last_paycycle_gross"/>
+<!--                                            <field name="last_paycycle_gross"/>-->
                                         </group>
 
 
@@ -110,6 +110,10 @@
 
                                 </group>
                             </page>
+                </xpath>
+
+                <xpath expr="//group[@name='active_group']" position="inside">
+                    <field name="territory_of_employment" />
                 </xpath>
                 <xpath expr="//group[@name='identification_group']" position="after">
                     <group string="T4 Information">
