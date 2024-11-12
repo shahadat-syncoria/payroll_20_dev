@@ -28,7 +28,7 @@ class InhertitedHrEmployee(models.Model):
     sync_first_contract_date = fields.Date("Sync First Contract Date", compute='compute_first_contract_date', store=True, groups='hr.group_hr_user')
     payroll_account_number = fields.Char('Payroll Account Number', groups="hr.group_hr_user", related= "company_id.payroll_account_number")
     identification_id = fields.Char(string='Identification No', groups="hr.group_hr_user", tracking=True, required=True)
-
+    territory_of_employment = fields.Many2one("res.country.state", groups="hr.group_hr_user", default=lambda self: self.env.company.state_id)
     # ========================================== YTD Information ===================================
     ytd_cpp_erp = fields.Float("Year To Date CPP contribution in ERP")
     ytd_previous_cpp = fields.Float("Previous CPP",tracking=True,default=0)
