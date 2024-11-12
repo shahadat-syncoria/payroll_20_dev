@@ -1,7 +1,4 @@
-import json
-from collections import defaultdict
-from markupsafe import Markup
-from odoo.tools.safe_eval import safe_eval
+import requests
 from odoo import fields, models, _, api
 from odoo.exceptions import UserError, ValidationError
 from odoo.tools import date_utils
@@ -231,21 +228,21 @@ class InheritedHrPayslip(models.Model):
         return res
 
     # email send to customer --------------------
-    def _get_payslip_pdf_reports(self):
-        classic_report = self.env.ref('hr_payroll.action_report_payslip')
-        result = defaultdict(lambda: self.env['hr.payslip'])
-        for payslip in self:
-            if not payslip.struct_id or not payslip.struct_id.report_id:
-                result[classic_report] |= payslip
-            else:
-                result[payslip.struct_id.report_id] |= payslip
-        return result
-
-    @api.model
-    def _get_email_template(self):
-        return self.env.ref(
-            'hr_payroll.mail_template_new_payslip', raise_if_not_found=False
-        )
+    # def _get_payslip_pdf_reports(self):
+    #     classic_report = self.env.ref('hr_payroll.action_report_payslip')
+    #     result = defaultdict(lambda: self.env['hr.payslip'])
+    #     for payslip in self:
+    #         if not payslip.struct_id or not payslip.struct_id.report_id:
+    #             result[classic_report] |= payslip
+    #         else:
+    #             result[payslip.struct_id.report_id] |= payslip
+    #     return result
+    #
+    # @api.model
+    # def _get_email_template(self):
+    #     return self.env.ref(
+    #         'hr_payroll.mail_template_new_payslip', raise_if_not_found=False
+    #     )
 
     # def action_payslip_email_send(self):
     #     mapped_reports = self._get_payslip_pdf_reports()
@@ -280,9 +277,7 @@ class InheritedHrPayslip(models.Model):
         self.ensure_one()
         ir_model_data = self.env['ir.model.data']
         try:
-            print('111111')
-            template_id = ir_model_data._xmlid_lookup('syncoria_can_payroll.email_template_for_payslip4')[1]
-            print(template_id)
+            template_id = ir_model_data._xmlid_lookup('syncoria_can_payroll.email_template_for_payslip')[1]
         except ValueError:
             template_id = False
         try:
@@ -298,22 +293,9 @@ class InheritedHrPayslip(models.Model):
             'default_composition_mode': 'comment',
             'default_email_layout_xmlid': "mail.mail_notification_layout_with_responsible_signature",
             'force_email': True,
-            'mark_rfq_as_sent': True,
         })
-        print('ctx', ctx)
 
-        # In the case of a RFQ or a PO, we want the "View..." button in line with the state of the
-        # object. Therefore, we pass the model description in the context, in the language in which
-        # the template is rendered.
-        # lang = self.env.context.get('lang')
-        # if {'default_template_id', 'default_model', 'default_res_id'} <= ctx.keys():
-        #     template = self.env['mail.template'].browse(ctx['default_template_id'])
-        #     if template and template.lang:
-        #         lang = template._render_lang([ctx['default_res_id']])[ctx['default_res_id']]
-        #
-        # self = self.with_context(lang=lang)
         ctx['model_description'] = _('Payslip')
-        print('ctx', ctx)
         return {
             'name': _('Compose Email'),
             'type': 'ir.actions.act_window',
@@ -324,3 +306,176 @@ class InheritedHrPayslip(models.Model):
             'target': 'new',
             'context': ctx,
         }
+
+    def compute_sheet(self):
+        payslips = self.filtered(lambda slip: slip.state in ['draft', 'verify'])
+        # delete old payslip lines
+        payslips.line_ids.unlink()
+        # this guarantees consistent results
+        self.env.flush_all()
+        today = fields.Date.today()
+        for payslip in payslips:
+            number = payslip.number or self.env['ir.sequence'].next_by_code('salary.slip')
+            payslip.write({
+                'number': number,
+                'state': 'verify',
+                'compute_date': today
+            })
+            # Customised code start *****************************************************
+            # API endpoint
+            url = "http://127.0.0.1:8000/api/v1/payroll_info/calculate-tax/"
+            pay_lines = payslips._get_payslip_lines()
+            I = 0
+            F = 0
+            # print('pay_lines', pay_lines)
+            for x in pay_lines:
+                if x['code'] == 'GROSS':
+                    I = x['amount']
+                if x['code'] == 'RRSP':
+                    F = x['amount']
+            # Parameters for the API request
+            print('III', I)
+            P = payslip.pay_cycle.pay_cycle
+            D = payslip.employee_id.ytd_cpp
+            D1 = payslip.employee_id.ytd_ei
+            date_of_birth = str(payslip.employee_id.birthday)
+            payroll_year = payslip.date_to.year
+            payload = {
+                    "I": I,
+                    "P": P,
+                    "B": 10000,
+                    "B1": 0,
+                    "D": D,
+                    "F": F,
+                    "F1": 0,
+                    "F2": 0,
+                    "F3": 0,
+                    "F4": 0,
+                    "D1": D1,
+                    "D2": 0,
+                    "YTD_PI": 0,
+                    "TC": 0,
+                    "TCP": 0,
+                    "LCF": 0,
+                    "U1": 0,
+                    "HD": 0,
+                    "LCP": 0,
+                    "num_of_disabled_dep": 0,
+                    "num_of_dep_19": 0,
+                    "payroll_year": payroll_year,
+                    "emp_province": "ON",
+                    "date_of_birth": date_of_birth
+                }
+            # {
+            #     "I": 1000,
+            #     "P": 24,
+            #     "B": 10000,
+            #     "B1": 0,
+            #     "D": 0,
+            #     "F": 0,
+            #     "F1": 0,
+            #     "F2": 0,
+            #     "F3": 0,
+            #     "F4": 0,
+            #     "D1": 0,
+            #     "D2": 0,
+            #     "YTD_PI": 0,
+            #     "TC": 15705,
+            #     "TCP": 12399,
+            #     "LCF": 0,
+            #     "U1": 0,
+            #     "HD": 0,
+            #     "LCP": 0,
+            #     "num_of_disabled_dep": 0,
+            #     "num_of_dep_19": 0,
+            #     "payroll_year": 2024,
+            #     "emp_province": "ON",
+            #     "date_of_birth": "1991-02-24"
+            # }
+
+
+            # Make the API call
+            try:
+                response = requests.post(url, json=payload)
+                response_data = response.json()
+                print('response_data------', response_data)
+                # Store the response in fields
+
+            except Exception as e:
+                # Handle any exceptions (like network errors)
+                raise Warning(f"Failed to call the API: {str(e)}")
+
+            # Add FTAX and OTAX in Lines ************
+            positive_amount_cat_list = ["GROSS", "ADD_ALLOWANCE", "ALW"]
+            neg_amount_cat_list = ["DED", "PRE_TAX_DEDUCTION", "POST_TAX_DEDUCTION"]
+            positive_amount = 0
+            neg_amount = 0
+            for x in pay_lines:
+                category_code = self.env['hr.salary.rule'].sudo().browse(x['salary_rule_id']).category_id.code
+                print('category_code', category_code)
+                if x['code'] == 'FTAX':
+                    x['amount'] = response_data['FTAX'] if response_data else 0
+                if x['code'] == 'OTAX':
+                    x['amount'] = response_data['OTAX'] if response_data else 0
+
+                if category_code in positive_amount_cat_list:
+                    positive_amount += x['amount']
+                elif category_code in neg_amount_cat_list:
+                    neg_amount += x['amount']
+
+                if x['code'] == 'NET':
+                    x['amount'] = positive_amount - neg_amount
+
+            print(positive_amount)
+            print(neg_amount)
+            print(positive_amount - neg_amount)
+            self.env['hr.payslip.line'].create(pay_lines)
+        return True
+
+    # inherit compute sheet
+    # def compute_sheet(self):
+    #     # API endpoint
+    #     url = "http://127.0.0.1:8000/api/v1/payroll_info/calculate-tax/"
+    #
+    #     # Parameters for the API request
+    #     payload = {
+    #                 {
+    #                     "I": 100,
+    #                     "P": 24,
+    #                     "B": 10000,
+    #                     "B1": 10000,
+    #                     "D": 0,
+    #                     "F": 0,
+    #                     "F1": 0,
+    #                     "F2": 0,
+    #                     "F3": 0,
+    #                     "F4": 0,
+    #                     "D1": 0,
+    #                     "D2": 0,
+    #                     "YTD_PI": 0,
+    #                     "TC":0,
+    #                     "TCP": 0,
+    #                     "LCF":0,
+    #                     "U1": 0,
+    #                     "HD": 0,
+    #                     "LCP": 0,
+    #                     "num_of_disabled_dep": 0,
+    #                     "num_of_dep_19": 0,
+    #                     "payroll_year": 2024,
+    #                     "emp_province": "ON",
+    #                     "date_of_birth": "1996-04-05"
+    #                 }
+    #             }
+    #
+    #     # Make the API call
+    #     try:
+    #         response = requests.post(url, json=payload)
+    #         response_data = response.json()
+    #         print('response_data------', response_data)
+    #         # Store the response in fields
+    #
+    #     except Exception as e:
+    #         # Handle any exceptions (like network errors)
+    #         raise Warning(f"Failed to call the API: {str(e)}")
+    #
+    #     return super(InheritedHrPayslip, self).compute_sheet()

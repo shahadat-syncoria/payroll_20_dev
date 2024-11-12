@@ -20,7 +20,7 @@
     'version': '17.0.3.9',
 
     # any module necessary for this one to work correctly
-    'depends': ['base','hr_payroll','hr_work_entry','hr_payroll_account','project','portal'],
+    'depends': ['base','hr_payroll','hr_work_entry','hr_payroll_account','portal'],
 
     # always loaded
     'data': [
@@ -36,14 +36,13 @@
         'data/salary_rules/tax.xml',
         'data/emails/reminder_email.xml',
         'data/emails/batch_xml_send_email.xml',
-        # 'data/emails/payslip_mail_template_data.xml',
+        'data/emails/payslip_mail_template_data.xml',
         # Wizard
         'wizards/manual_input_generate_payslip.xml',
 
         # Notification
         'views/notification/payroll_reminder_conf.xml',
         'views/notification/reminder_mail_schedule_action.xml',
-
 
         'views/paycycle_configuration.xml',
         # 'views/res_company.xml',
@@ -63,7 +62,6 @@
         'views/res_users.xml',
         'views/hr_salary_rule.xml',
         'views/payroll_portal_templates.xml',
-
 
         # 'views/templates.xml',
 
