@@ -2,8 +2,6 @@ import requests
 from odoo import fields, models, _, api
 from odoo.exceptions import UserError, ValidationError
 from odoo.tools import date_utils
-from odoo.tools import float_compare, float_is_zero, plaintext2html
-from ..helper.helper_functions import year_selection
 
 PAYGROUP = {
     'monthly': 'Monthly',
@@ -157,7 +155,6 @@ class InheritedHrPayslip(models.Model):
         return result
 
 
-
     # ================== Work days line based on manual input ==============
     def compute_workdays_manual_input(self,manual_input_ids):
         """
@@ -309,9 +306,7 @@ class InheritedHrPayslip(models.Model):
 
     def compute_sheet(self):
         payslips = self.filtered(lambda slip: slip.state in ['draft', 'verify'])
-        # delete old payslip lines
         payslips.line_ids.unlink()
-        # this guarantees consistent results
         self.env.flush_all()
         today = fields.Date.today()
         for payslip in payslips:
@@ -321,30 +316,42 @@ class InheritedHrPayslip(models.Model):
                 'state': 'verify',
                 'compute_date': today
             })
+
             # Customised code start *****************************************************
             # API endpoint
             url = "http://127.0.0.1:8000/api/v1/payroll_info/calculate-tax/"
             pay_lines = payslips._get_payslip_lines()
             I = 0
             F = 0
-            # print('pay_lines', pay_lines)
+            B = 0
             for x in pay_lines:
+                if self.env['hr.salary.rule'].sudo().browse(x['salary_rule_id']).is_irregular_payment:
+                    B += x['amount']
                 if x['code'] == 'GROSS':
                     I = x['amount']
                 if x['code'] == 'RRSP':
                     F = x['amount']
+
             # Parameters for the API request
-            print('III', I)
             P = payslip.pay_cycle.pay_cycle
             D = payslip.employee_id.ytd_cpp
             D1 = payslip.employee_id.ytd_ei
+            D2 = payslip.employee_id.ytd_cpp2
+            ytd_pi = payslip.employee_id.ytd_pi
+            emp_province = payslip.employee_id.territory_of_employment.code
+            # B1 = payslip.employee_id.year_to_date_irregular_payment
+            B1 = 0 #TODO place the real data
+            federal_amount_from_td1 = payslip.contract_id.federal_amount_from_td1
+            proviancial_amount_from_td1 = payslip.contract_id.proviancial_amount_from_td1
             date_of_birth = str(payslip.employee_id.birthday)
+            if date_of_birth == 'False':
+                raise ValidationError("Employee Date of Birth Mandatory")
             payroll_year = payslip.date_to.year
             payload = {
                     "I": I,
                     "P": P,
-                    "B": 10000,
-                    "B1": 0,
+                    "B": B,
+                    "B1": B1,
                     "D": D,
                     "F": F,
                     "F1": 0,
@@ -352,10 +359,10 @@ class InheritedHrPayslip(models.Model):
                     "F3": 0,
                     "F4": 0,
                     "D1": D1,
-                    "D2": 0,
-                    "YTD_PI": 0,
-                    "TC": 0,
-                    "TCP": 0,
+                    "D2": D2,
+                    "YTD_PI": ytd_pi,
+                    "TC": federal_amount_from_td1,
+                    "TCP": proviancial_amount_from_td1,
                     "LCF": 0,
                     "U1": 0,
                     "HD": 0,
@@ -363,47 +370,16 @@ class InheritedHrPayslip(models.Model):
                     "num_of_disabled_dep": 0,
                     "num_of_dep_19": 0,
                     "payroll_year": payroll_year,
-                    "emp_province": "ON",
+                    "emp_province": emp_province,
                     "date_of_birth": date_of_birth
                 }
-            # {
-            #     "I": 1000,
-            #     "P": 24,
-            #     "B": 10000,
-            #     "B1": 0,
-            #     "D": 0,
-            #     "F": 0,
-            #     "F1": 0,
-            #     "F2": 0,
-            #     "F3": 0,
-            #     "F4": 0,
-            #     "D1": 0,
-            #     "D2": 0,
-            #     "YTD_PI": 0,
-            #     "TC": 15705,
-            #     "TCP": 12399,
-            #     "LCF": 0,
-            #     "U1": 0,
-            #     "HD": 0,
-            #     "LCP": 0,
-            #     "num_of_disabled_dep": 0,
-            #     "num_of_dep_19": 0,
-            #     "payroll_year": 2024,
-            #     "emp_province": "ON",
-            #     "date_of_birth": "1991-02-24"
-            # }
-
-
             # Make the API call
             try:
                 response = requests.post(url, json=payload)
                 response_data = response.json()
-                print('response_data------', response_data)
-                # Store the response in fields
 
             except Exception as e:
-                # Handle any exceptions (like network errors)
-                raise Warning(f"Failed to call the API: {str(e)}")
+                raise ValidationError(f"Failed to call the API: {str(e)}")
 
             # Add FTAX and OTAX in Lines ************
             positive_amount_cat_list = ["GROSS", "ADD_ALLOWANCE", "ALW"]
@@ -412,70 +388,20 @@ class InheritedHrPayslip(models.Model):
             neg_amount = 0
             for x in pay_lines:
                 category_code = self.env['hr.salary.rule'].sudo().browse(x['salary_rule_id']).category_id.code
-                print('category_code', category_code)
                 if x['code'] == 'FTAX':
                     x['amount'] = response_data['FTAX'] if response_data else 0
                 if x['code'] == 'OTAX':
                     x['amount'] = response_data['OTAX'] if response_data else 0
 
+                # add category wise amounts for net calculation******************
                 if category_code in positive_amount_cat_list:
                     positive_amount += x['amount']
                 elif category_code in neg_amount_cat_list:
                     neg_amount += x['amount']
 
+                # place the net amount
                 if x['code'] == 'NET':
                     x['amount'] = positive_amount - neg_amount
 
-            print(positive_amount)
-            print(neg_amount)
-            print(positive_amount - neg_amount)
             self.env['hr.payslip.line'].create(pay_lines)
         return True
-
-    # inherit compute sheet
-    # def compute_sheet(self):
-    #     # API endpoint
-    #     url = "http://127.0.0.1:8000/api/v1/payroll_info/calculate-tax/"
-    #
-    #     # Parameters for the API request
-    #     payload = {
-    #                 {
-    #                     "I": 100,
-    #                     "P": 24,
-    #                     "B": 10000,
-    #                     "B1": 10000,
-    #                     "D": 0,
-    #                     "F": 0,
-    #                     "F1": 0,
-    #                     "F2": 0,
-    #                     "F3": 0,
-    #                     "F4": 0,
-    #                     "D1": 0,
-    #                     "D2": 0,
-    #                     "YTD_PI": 0,
-    #                     "TC":0,
-    #                     "TCP": 0,
-    #                     "LCF":0,
-    #                     "U1": 0,
-    #                     "HD": 0,
-    #                     "LCP": 0,
-    #                     "num_of_disabled_dep": 0,
-    #                     "num_of_dep_19": 0,
-    #                     "payroll_year": 2024,
-    #                     "emp_province": "ON",
-    #                     "date_of_birth": "1996-04-05"
-    #                 }
-    #             }
-    #
-    #     # Make the API call
-    #     try:
-    #         response = requests.post(url, json=payload)
-    #         response_data = response.json()
-    #         print('response_data------', response_data)
-    #         # Store the response in fields
-    #
-    #     except Exception as e:
-    #         # Handle any exceptions (like network errors)
-    #         raise Warning(f"Failed to call the API: {str(e)}")
-    #
-    #     return super(InheritedHrPayslip, self).compute_sheet()
