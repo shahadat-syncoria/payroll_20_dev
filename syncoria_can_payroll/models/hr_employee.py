@@ -53,18 +53,25 @@ class InhertitedHrEmployee(models.Model):
     ytd_pi_erp = fields.Float("Year To Date PI/IE ERP", default=0, store=True)
     ytd_previous_pi = fields.Float("Previous Year To Date PI/IE", default=0, store=True)
 
-    # YTDIrregularPaymentFedTax
+    # YTDIrregularPaymentFedTaxAmount
+    year_to_date_irregular_payment = fields.Float("Year To Date Irregular Payment", default=0, store=True)
+    ytd_previous_irre_payment = fields.Float("Previous Year To Date Irregular Payment", default=0, store=True,
+                                             compute='compute_ytd_previous_irre_fed_tax')
+    ytd_previous_irre_payment_erp = fields.Float("Year To Date Irregular Payment ERP", default=0, store=True,
+                                             compute='compute_ytd_previous_irre_fed_tax')
+
+    #========================================== need to remove this fields=====================================
     ytd_irre_fed_tax = fields.Float("Year To Date Irregular Payment Fed Tax", default=0, store=True, compute='_compute_ytd_irre_fed_tax',groups="hr.group_hr_user")
     ytd_irre_fed_tax_erp = fields.Float("Year To Date Irregular Payment Fed Tax ERP", default=0, store=True)
     ytd_previous_irre_fed_tax = fields.Float("Previous Year To Date Irregular Payment Fed Tax", default=0, store=True,compute='compute_ytd_previous_irre_fed_tax')
-
-    # YTDIrregularPaymentProvTax
     ytd_irre_prov_tax = fields.Float("Year To Date Irregular Payment Prov Tax", default=0, store=True,
                                     compute='_compute_ytd_irre_prov_tax',groups="hr.group_hr_user")
     ytd_irre_prov_tax_erp = fields.Float("Year To Date Irregular Payment Prov Tax ERP", default=0, store=True)
     ytd_previous_irre_prov_tax = fields.Float("Previous Year To Date Irregular Payment Prov Tax", default=0, store=True, compute='compute_ytd_previous_irre_prov_tax')
     ytd_previous_irre_prov_amount = fields.Float("Previous Year To Date Irregular Amount", default=0, store=True)
     last_paycycle_gross = fields.Float("Last Paycycle Wage",help="Last paycycle wage for which the previous bonus was given ",  default=0, store=True)
+    #============================================================================================================
+
     #==================================T4 INFORMATION======================================
     employee_cpp_qpp_xmpt_cd = fields.Selection(selection=CODE,default="0",
                                                 string="Canada Pension Plan Or Quebec Pension Plan Exempt Code", help="- T4 slip, box 28\
