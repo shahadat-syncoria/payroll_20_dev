@@ -79,9 +79,11 @@
                                                     help="Update ERP YTDPI" context="{'type':'PI'}" title="Update ERP YTDPI" icon="fa-refresh"/>
                                             </group>
                                     </group>
-                                    <group string='YTD Irregular Tax' name="irre">
+                                    <group string='YTD Irregular Amount' name="irre">
                                            <group>
-                                               <field name="ytd_previous_irre_prov_amount"/>
+                                               <field name="ytd_previous_irre_payment"/>
+                                               <field name="ytd_previous_irre_payment_erp"/>
+                                               <field name="year_to_date_irregular_payment"/>
                                            </group>
                                         <group>
 <!--                                            <field name="last_paycycle_gross"/>-->
@@ -89,16 +91,16 @@
 
 
 
-                                        <group>
-                                            <field name="ytd_irre_fed_tax"/>
-                                            <field name="ytd_irre_fed_tax_erp" readonly="1"/>
-                                            <field name="ytd_previous_irre_fed_tax" />
-                                        </group>
-                                        <group>
-                                            <field name="ytd_irre_prov_tax"/>
-                                            <field name="ytd_irre_prov_tax_erp" readonly="1"/>
-                                            <field name="ytd_previous_irre_prov_tax" />
-                                        </group>
+<!--                                        <group>-->
+<!--                                            <field name="ytd_irre_fed_tax"/>-->
+<!--                                            <field name="ytd_irre_fed_tax_erp" readonly="1"/>-->
+<!--                                            <field name="ytd_previous_irre_fed_tax" />-->
+<!--                                        </group>-->
+<!--                                        <group>-->
+<!--                                            <field name="ytd_irre_prov_tax"/>-->
+<!--                                            <field name="ytd_irre_prov_tax_erp" readonly="1"/>-->
+<!--                                            <field name="ytd_previous_irre_prov_tax" />-->
+<!--                                        </group>-->
                                         <group>
                                         <button name="update_ytd_irregular_payments_tax" type="object"
                                                     help="Update ERP YTD Irr Tax"  title="Update ERP YTIRRTAX" icon="fa-refresh"/>
