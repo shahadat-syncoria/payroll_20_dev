@@ -388,6 +388,8 @@ class InheritedHrPayslip(models.Model):
             try:
                 with_user = self.env['ir.config_parameter'].sudo()
                 url = with_user.get_param('syncoria_can_payroll.base_url')
+                if not url:
+                    raise ValidationError(f"Failed to call the API, Need to configure a base url from the settings.")
                 token = with_user.get_param('syncoria_can_payroll.token')
                 header={
                     'Authorization': f'Token {token}'
@@ -487,6 +489,8 @@ class HrPayrollEditPayslipLinesWizardInheritSynPayroll(models.TransientModel):
             with_user = self.env['ir.config_parameter'].sudo()
             token = with_user.get_param('syncoria_can_payroll.token')
             url = with_user.get_param('syncoria_can_payroll.base_url')
+            if not url:
+                raise ValidationError(f"Failed to call the API, need to configure a base url from the settings.")
             header = {
                 'Authorization': f'Token {token}'
             }
