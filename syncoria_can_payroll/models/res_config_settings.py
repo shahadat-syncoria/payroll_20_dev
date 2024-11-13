@@ -13,6 +13,7 @@ def day_selection(self):
         day_list.append((str(day), str(day)))
         day += 1
     return day_list
+
 class PayrollResConfigSettings(models.TransientModel):
     _inherit = 'res.config.settings'
 
@@ -23,6 +24,8 @@ class PayrollResConfigSettings(models.TransientModel):
         default='1',
         config_parameter='syncoria_can_payroll.reminder_days_before_payroll'
     )
+    base_url = fields.Char(string='API Base URL',store=True,config_parameter='syncoria_can_payroll.base_url')
+    token = fields.Char(string='Authentication Token', store=True,config_parameter='syncoria_can_payroll.token')
 
     attendance_manual_input= fields.Boolean(store=True,config_parameter='syncoria_can_payroll.attendance_manual_input')
     overtime_manual_input= fields.Boolean(store=True,config_parameter='syncoria_can_payroll.overtime_manual_input')

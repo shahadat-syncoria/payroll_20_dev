@@ -1,7 +1,10 @@
 import requests
+from docutils.nodes import header
+
 from odoo import fields, models, _, api
 from odoo.exceptions import UserError, ValidationError
 from odoo.tools import date_utils
+from requests.auth import HTTPBasicAuth
 
 PAYGROUP = {
     'monthly': 'Monthly',
@@ -18,7 +21,7 @@ class InheritedHrPayslip(models.Model):
     _inherit = 'hr.payslip'
 
     paid_date = fields.Date(string="Paid Date", readonly=True, store=True, copy=False,
-                            )
+                  )
 
     pay_cycle = fields.Many2one('paycycle.config', related='contract_id.salary_pay_cycle', readonly=True)
     pay_cycle_period = fields.Many2one('paycycle.period')
@@ -32,6 +35,8 @@ class InheritedHrPayslip(models.Model):
     #====================need to remove=====================
     irre_fed_tax = fields.Float("Irregular Fed Tax",default=0)
     irre_prov_tax = fields.Float("Irregular Prov Tax",default=0)
+    api_response_json = fields.Json()
+    api_payload_json = fields.Json()
 
 
 
@@ -134,7 +139,6 @@ class InheritedHrPayslip(models.Model):
         return self.env.ref('syncoria_can_payroll.action_report_rgr').report_action(self)
 
     # ================= Salry Rules ==========================
-
     def get_gross_amount(self,pay_slip):
         rec = self.browse(pay_slip)
         result = 0.0
@@ -160,7 +164,6 @@ class InheritedHrPayslip(models.Model):
             pass
 
         return result
-
 
     # ================== Work days line based on manual input ==============
     def compute_workdays_manual_input(self,manual_input_ids):
@@ -311,6 +314,7 @@ class InheritedHrPayslip(models.Model):
             'context': ctx,
         }
 
+    # inherited compute_sheet method for tax api call
     def compute_sheet(self):
         payslips = self.filtered(lambda slip: slip.state in ['draft', 'verify'])
         payslips.line_ids.unlink()
@@ -326,7 +330,6 @@ class InheritedHrPayslip(models.Model):
 
             # Customised code start *****************************************************
             # API endpoint
-            url = "http://127.0.0.1:8000/api/v1/payroll_info/calculate-tax/"
             pay_lines = payslips._get_payslip_lines()
             I = 0
             F = 0
@@ -346,8 +349,8 @@ class InheritedHrPayslip(models.Model):
             D2 = payslip.employee_id.ytd_cpp2
             ytd_pi = payslip.employee_id.ytd_pi
             emp_province = payslip.employee_id.territory_of_employment.code
-            # B1 = payslip.employee_id.year_to_date_irregular_payment
-            B1 = 0 #TODO place the real data
+            B1 = payslip.employee_id.year_to_date_irregular_payment
+            # B1 = 0 #TODO place the real data
             federal_amount_from_td1 = payslip.contract_id.federal_amount_from_td1
             proviancial_amount_from_td1 = payslip.contract_id.proviancial_amount_from_td1
             date_of_birth = str(payslip.employee_id.birthday)
@@ -380,19 +383,31 @@ class InheritedHrPayslip(models.Model):
                     "emp_province": emp_province,
                     "date_of_birth": date_of_birth
                 }
-            # Make the API call
+
+            # Make the API call ******************************************************************
             try:
-                response = requests.post(url, json=payload)
+                with_user = self.env['ir.config_parameter'].sudo()
+                url = with_user.get_param('syncoria_can_payroll.base_url')
+                token = with_user.get_param('syncoria_can_payroll.token')
+                header={
+                    'Authorization': f'Token {token}'
+                }
+                response = requests.post(url, json=payload, headers=header)
                 response_data = response.json()
+                if 'FTAX' not in response_data:
+                    raise ValidationError(f"Failed to call the API: {response_data['detail']}")
+                payslip.api_response_json = response_data
+                payslip.api_payload_json = payload
 
             except Exception as e:
-                raise ValidationError(f"Failed to call the API: {str(e)}")
+                raise ValidationError(f"{str(e)}")
 
             # Add FTAX and OTAX in Lines ************
             positive_amount_cat_list = ["GROSS", "ADD_ALLOWANCE", "ALW"]
             neg_amount_cat_list = ["DED", "PRE_TAX_DEDUCTION", "POST_TAX_DEDUCTION"]
             positive_amount = 0
             neg_amount = 0
+
             for x in pay_lines:
                 category_code = self.env['hr.salary.rule'].sudo().browse(x['salary_rule_id']).category_id.code
                 if x['code'] == 'FTAX':
@@ -412,3 +427,100 @@ class InheritedHrPayslip(models.Model):
 
             self.env['hr.payslip.line'].create(pay_lines)
         return True
+
+# this portion is for edit payslip line wizard *******************************
+class HrPayrollEditPayslipLinesWizardInheritSynPayroll(models.TransientModel):
+    _inherit = 'hr.payroll.edit.payslip.lines.wizard'
+    
+    def recompute_following_lines(self, line_id):
+        self.ensure_one()
+        wizard_line = self.env['hr.payroll.edit.payslip.line'].browse(line_id)
+        reload_wizard = {
+            'type': 'ir.actions.act_window',
+            'res_model': 'hr.payroll.edit.payslip.lines.wizard',
+            'view_mode': 'form',
+            'res_id': self.id,
+            'views': [(False, 'form')],
+            'target': 'new',
+        }
+        if not wizard_line.salary_rule_id:
+            return reload_wizard
+        localdict = self.payslip_id._get_localdict()
+        rules_dict = localdict['rules']
+        result_rules_dict = localdict['result_rules']
+        remove_lines = False
+        lines_to_remove = []
+        blacklisted_rule_ids = []
+        for line in sorted(self.line_ids, key=lambda x: x.sequence):
+            if remove_lines and line.code in self.payslip_id.line_ids.mapped('code'):
+                lines_to_remove.append((2, line.id, 0))
+            else:
+                rules_dict[line.code] = line.salary_rule_id
+                if line == wizard_line:
+                    line._compute_total()
+                    remove_lines = True
+                blacklisted_rule_ids.append(line.salary_rule_id.id)
+                localdict[line.code] = line.total
+                result_rules_dict[line.code] = {'total': line.total, 'amount': line.amount, 'quantity': line.quantity, 'rate': line.rate}
+                localdict = line.salary_rule_id.category_id._sum_salary_rule_category(localdict, line.total)
+
+        payslip = self.payslip_id.with_context(force_payslip_localdict=localdict, prevent_payslip_computation_line_ids=blacklisted_rule_ids)
+
+        # Customised code start **********************************
+        pay_lines =  payslip._get_payslip_lines()
+
+        # api_payload_json update with onchange amount
+        positive_amount = 0
+        neg_amount = 0
+        api_payload_json = self.payslip_id.api_payload_json
+        if wizard_line.code == 'GROSS':
+            api_payload_json['I'] = wizard_line.amount
+            positive_amount = wizard_line.amount
+        if wizard_line.code == 'RRSP':
+            api_payload_json['F'] = wizard_line.amount
+            neg_amount = wizard_line.amount
+        if wizard_line.code == 'BONUS':
+            api_payload_json['B'] = wizard_line.amount
+            positive_amount = wizard_line.amount
+
+        try:
+            with_user = self.env['ir.config_parameter'].sudo()
+            token = with_user.get_param('syncoria_can_payroll.token')
+            url = with_user.get_param('syncoria_can_payroll.base_url')
+            header = {
+                'Authorization': f'Token {token}'
+            }
+            response = requests.post(url, json=api_payload_json, headers=header)
+            response_data = response.json()
+            self.payslip_id.api_response_json = response_data
+            self.payslip_id.api_payload_json = api_payload_json
+            if 'FTAX' not in response_data:
+                raise ValidationError(f"Failed to call the API: {response_data['detail']}")
+
+        except Exception as e:
+            raise ValidationError(f"{str(e)}")
+
+        # Add FTAX and OTAX in Lines ************
+        positive_amount_cat_list = ["GROSS", "ADD_ALLOWANCE", "ALW"]
+        neg_amount_cat_list = ["DED", "PRE_TAX_DEDUCTION", "POST_TAX_DEDUCTION"]
+
+        for x in pay_lines:
+            category_code = self.env['hr.salary.rule'].sudo().browse(x['salary_rule_id']).category_id.code
+            if x['code'] == 'FTAX':
+                x['amount'] = response_data['FTAX'] if response_data else 0
+            if x['code'] == 'OTAX':
+                x['amount'] = response_data['OTAX'] if response_data else 0
+
+            # add category wise amounts for net calculation ******************
+            if category_code in positive_amount_cat_list:
+                positive_amount += x['amount']
+            elif category_code in neg_amount_cat_list:
+                neg_amount += x['amount']
+
+            # place the net amount
+            if x['code'] == 'NET':
+                x['amount'] = positive_amount - neg_amount
+        # Customised code end **********************************
+
+        self.line_ids = lines_to_remove + [(0, 0, line) for line in pay_lines]
+        return reload_wizard

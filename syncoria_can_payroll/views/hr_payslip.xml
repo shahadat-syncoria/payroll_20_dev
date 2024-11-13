@@ -27,14 +27,16 @@
                     <attribute name="readonly">1</attribute>
                 </xpath>
                 <xpath expr="//field[@name='payslip_run_id']" position="after">
-                    <!--                     <group name="syncoria_can_paycycle">-->
                     <field name="pay_cycle" required="1"/>
+                    <field name="api_response_json" invisible="1"/>
                     <field invisible="1" name="is_manual_input"/>
-                    <!--                         <field name="pay_cycle_period_ids_domain" />-->
                     <field domain="[('id','in',pay_cycle_period_ids_domain)]" invisible="pay_cycle == False" name="pay_cycle_period" readonly="payslip_run_id != False or state == 'done'" required="pay_cycle != False"/>
                     <field invisible="1" name="pay_cycle_period_ids_domain"/>
-                    <!--                     </group>-->
-                </xpath></field>
+                </xpath>
+<!--                <xpath expr="//field[@name='move_id']" position="after">-->
+<!--                    <field name="api_response_json" force_save="1"/>-->
+<!--                </xpath>-->
+            </field>
         </record>
         <record id="hr_payslip_tree_inherit" model="ir.ui.view">
             <field name="name">syncoria_can_payroll.hr_payslip.tree</field>
