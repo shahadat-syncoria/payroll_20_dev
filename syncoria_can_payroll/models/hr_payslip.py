@@ -32,6 +32,9 @@ class InheritedHrPayslip(models.Model):
         store=False)
     is_manual_input = fields.Boolean(compute='_compute_is_manual_input')
 
+    irre_amount = fields.Float("Irregular Amount",default=0)
+
+    #====================need to remove=====================
     irre_fed_tax = fields.Float("Irregular Fed Tax",default=0)
     irre_prov_tax = fields.Float("Irregular Prov Tax",default=0)
 
@@ -121,6 +124,10 @@ class InheritedHrPayslip(models.Model):
                 rec.payslip_run_id._check_paid_status()
             if 'state' in vals and vals.get('state') == 'paid':
                 rec.employee_id.with_context({"type": "ALL"}).update_ytd_erp()
+                rec.write({
+                    'irre_amount': sum([line.amount for line in rec.line_ids if line.salary_rule_id.is_irregular_payment])
+
+                })
                 rec.employee_id.update_ytd_irregular_payments_tax()
         return res
 
