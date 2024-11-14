@@ -179,8 +179,8 @@ class VacationPayslip(models.Model):
         #     other_adjusted_amount = sum(other_adjusted_amount_input.mapped("amount"))
         vac_pay_amount_need_to_disbursed = stored_vac_pay_amount
 
-        self.employee_id.ytd_vac_pay_amount_erp += vac_pay_amount_need_to_disbursed
-        self.vac_pay_earned_amount = vac_pay_amount_need_to_disbursed
+        # self.employee_id.ytd_vac_pay_amount_erp += vac_pay_amount_need_to_disbursed
+        # self.vac_pay_earned_amount = vac_pay_amount_need_to_disbursed
         if vac_pay_amount_need_to_disbursed > 0.0:
             # if other_adjusted_amount_input:
             # else:
@@ -212,7 +212,10 @@ class VacationPayslip(models.Model):
 
             adjusted_vacation_pay_input_line_ids = rec.input_line_ids.filtered(lambda x: x.input_type_id.id == adjusted_input_type)
             if rec.state == 'paid' and adjusted_vacation_pay_input_line_ids:
-                rec.vac_pay_earned_taken += sum(adjusted_vacation_pay_input_line_ids.mapped("amount"))
+                vac_pay_amount = sum(adjusted_vacation_pay_input_line_ids.mapped("amount"))
+                rec.vac_pay_earned_taken += vac_pay_amount
+                rec.employee_id.ytd_vac_pay_amount_erp += vac_pay_amount
+                rec.vac_pay_earned_amount = vac_pay_amount
 
     def action_payslip_paid(self):
         res = super(VacationPayslip, self).action_payslip_paid()
