@@ -5,20 +5,22 @@
         <field name="arch" type="xml">
             <form string="Message">
                 <group colspan="6">
-                    <field name="employee_ids" widget="many2many_tags"/>
+                    <field name="employee_ids" readonly="1" force_save="1" widget="many2many_tags"/>
+                    <field name="payslip_ids" readonly="1" force_save="1" widget="many2many_tags"/>
                 </group>
                 <footer>
-                    <button string="Send" class="oe_highlight" type="object" name="action_send"/>
+                    <button string="Send" class="oe_highlight" type="object" name="action_payslip_email_send"/>
                      <button string="Cancel" special="cancel"/>
                 </footer>
             </form>
         </field>
     </record>
+
     <record id="payslip_email_wizard_action" model="ir.actions.act_window">
-            <field name="name">Payslip Email Send</field>
-            <field name="res_model">payslip.email.wizard</field>
-            <field name="view_mode">form</field>
-            <field name="target">new</field>
-            <field name="binding_model_id" ref="model_hr_payslip"/>
-        </record>
+        <field name="name">Payslip Email Send</field>
+        <field name="res_model">payslip.email.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+        <field name="binding_model_id" ref="model_hr_payslip"/>
+    </record>
 </odoo>
