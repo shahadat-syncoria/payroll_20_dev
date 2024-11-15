@@ -370,8 +370,10 @@ class InheritedHrPayslip(models.Model):
                 category_code = self.env['hr.salary.rule'].sudo().browse(x['salary_rule_id']).category_id.code
                 if x['code'] == 'FTAX':
                     x['amount'] = response_data['FTAX'] if response_data else 0
+                    x['total'] = response_data['FTAX'] if response_data else 0
                 if x['code'] == 'OTAX':
                     x['amount'] = response_data['OTAX'] if response_data else 0
+                    x['total'] = response_data['OTAX'] if response_data else 0
 
                 # add category wise amounts for net calculation******************
                 if category_code in positive_amount_cat_list:
@@ -469,8 +471,10 @@ class HrPayrollEditPayslipLinesWizardInheritSynPayroll(models.TransientModel):
             category_code = self.env['hr.salary.rule'].sudo().browse(x['salary_rule_id']).category_id.code
             if x['code'] == 'FTAX':
                 x['amount'] = response_data['FTAX'] if response_data else 0
+                x['total'] = response_data['FTAX'] if response_data else 0
             if x['code'] == 'OTAX':
                 x['amount'] = response_data['OTAX'] if response_data else 0
+                x['total'] = response_data['OTAX'] if response_data else 0
 
             # add category wise amounts for net calculation ******************
             if category_code in positive_amount_cat_list:
