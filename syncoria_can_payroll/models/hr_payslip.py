@@ -234,9 +234,6 @@ class InheritedHrPayslip(models.Model):
         return res
 
     def action_payslip_email_send(self):
-        '''
-        This function opens a window to compose an email, with the edi purchase template message loaded by default
-        '''
         self.ensure_one()
         ir_model_data = self.env['ir.model.data']
         try:
@@ -289,14 +286,17 @@ class InheritedHrPayslip(models.Model):
             I = 0
             F = 0
             B = 0
+            V = 0
+            V_list = ['ADJUST_VP','VP']
             for x in pay_lines:
                 if self.env['hr.salary.rule'].sudo().browse(x['salary_rule_id']).is_irregular_payment:
                     B += x['amount']
                 if x['code'] == 'GROSS':
                     I = x['amount']
+                if x['code'] in V_list:
+                    V += x['amount']
                 if x['code'] == 'RRSP':
                     F = x['amount']
-
             # Parameters for the API request
             P = payslip.pay_cycle.pay_cycle
             D = payslip.employee_id.ytd_cpp
@@ -330,6 +330,7 @@ class InheritedHrPayslip(models.Model):
                     "TCP": proviancial_amount_from_td1,
                     "LCF": 0,
                     "U1": 0,
+                    "V": V,
                     "HD": 0,
                     "LCP": 0,
                     "num_of_disabled_dep": 0,
@@ -430,34 +431,35 @@ class HrPayrollEditPayslipLinesWizardInheritSynPayroll(models.TransientModel):
         positive_amount = 0
         neg_amount = 0
         api_payload_json = self.payslip_id.api_payload_json
-        if wizard_line.code == 'GROSS':
-            api_payload_json['I'] = wizard_line.amount
-            positive_amount = wizard_line.amount
-        if wizard_line.code == 'RRSP':
-            api_payload_json['F'] = wizard_line.amount
-            neg_amount = wizard_line.amount
-        if wizard_line.code == 'BONUS':
-            api_payload_json['B'] = wizard_line.amount
-            positive_amount = wizard_line.amount
+        if api_payload_json:
+            if wizard_line.code == 'GROSS':
+                api_payload_json['I'] = wizard_line.amount
+                positive_amount = wizard_line.amount
+            if wizard_line.code == 'RRSP':
+                api_payload_json['F'] = wizard_line.amount
+                neg_amount = wizard_line.amount
+            if wizard_line.code == 'BONUS':
+                api_payload_json['B'] = wizard_line.amount
+                positive_amount = wizard_line.amount
 
-        try:
-            with_user = self.env['ir.config_parameter'].sudo()
-            token = with_user.get_param('syncoria_can_payroll.token')
-            url = with_user.get_param('syncoria_can_payroll.base_url')
-            if not url:
-                raise ValidationError(f"Failed to call the API, need to configure a base url from the settings.")
-            header = {
-                'Authorization': f'Token {token}'
-            }
-            response = requests.post(url, json=api_payload_json, headers=header)
-            response_data = response.json()
-            self.payslip_id.api_response_json = response_data
-            self.payslip_id.api_payload_json = api_payload_json
-            if 'FTAX' not in response_data:
-                raise ValidationError(f"Failed to call the API: {response_data['detail']}")
+            try:
+                with_user = self.env['ir.config_parameter'].sudo()
+                token = with_user.get_param('syncoria_can_payroll.token')
+                url = with_user.get_param('syncoria_can_payroll.base_url')
+                if not url:
+                    raise ValidationError(f"Failed to call the API, need to configure a base url from the settings.")
+                header = {
+                    'Authorization': f'Token {token}'
+                }
+                response = requests.post(url, json=api_payload_json, headers=header)
+                response_data = response.json()
+                self.payslip_id.api_response_json = response_data
+                self.payslip_id.api_payload_json = api_payload_json
+                if 'FTAX' not in response_data:
+                    raise ValidationError(f"Failed to call the API: {response_data['detail']}")
 
-        except Exception as e:
-            raise ValidationError(f"{str(e)}")
+            except Exception as e:
+                raise ValidationError(f"{str(e)}")
 
         # Add FTAX and OTAX in Lines ************
         positive_amount_cat_list = ["GROSS", "ADD_ALLOWANCE", "ALW"]
