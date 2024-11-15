@@ -102,9 +102,6 @@ for rule in rules:
 
         final_result = gross+ vp+ ad_vp+ bonus+ ot+ retro+ b_ot+ com+ stat_ot
 insurable_amount = final_result
-adjust_vp =ADJUST_VP if 'ADJUST_VP' in rules else 0
-vp =VP if 'VP' in rules else 0
-insurable_amount -= (adjust_vp+vp)
 vac_percentage = employee.allocated_vac_percentage
 result= (insurable_amount*(vac_percentage/100))
             </field>
@@ -201,9 +198,6 @@ for rule in rules:
 
         final_result = gross+ vp+ ad_vp+ bonus+ ot+ retro+ b_ot+ com+ stat_ot
 insurable_amount = final_result
-adjust_vp =ADJUST_VP if 'ADJUST_VP' in rules else 0
-vp =VP if 'VP' in rules else 0
-insurable_amount -= (adjust_vp+vp)
 vac_percentage = employee.allocated_vac_percentage
 result= (insurable_amount*(vac_percentage/100))
             </field>

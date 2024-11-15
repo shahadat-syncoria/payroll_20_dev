@@ -88,6 +88,7 @@ b_ot = 0.0
 com = 0.0
 stat_ot = 0.0
 exp = 0.0
+final_result =0.0
 
 for rule in rules:
     if rules[rule].is_insurable_earning:
@@ -341,6 +342,7 @@ b_ot = 0.0
 com = 0.0
 stat_ot = 0.0
 exp = 0.0
+final_result = 0.0
 
 for rule in rules:
     if rules[rule].is_insurable_earning:
