@@ -8,7 +8,7 @@
             <!--            <field name="priority" eval="8"/>-->
             <field name="arch" type="xml">
                 <xpath expr="//button[@name='action_print_payslip']" position="after">
-                    <button string="Send by Email" name="action_payslip_email_send" type="object"/>
+                    <button invisible="state not in ['verify', 'done', 'paid']" string="Send by Email" name="action_payslip_email_send" type="object"/>
                 </xpath>
                 <xpath expr="//field[@name='contract_domain_ids']" position="after">
                     <field name="paid_date"/>

@@ -30,14 +30,12 @@ class InheritedHrPayslip(models.Model):
     is_manual_input = fields.Boolean(compute='_compute_is_manual_input')
 
     irre_amount = fields.Float("Irregular Amount",default=0)
+    api_response_json = fields.Json()
+    api_payload_json = fields.Json()
 
     #====================need to remove=====================
     irre_fed_tax = fields.Float("Irregular Fed Tax",default=0)
     irre_prov_tax = fields.Float("Irregular Prov Tax",default=0)
-    api_response_json = fields.Json()
-    api_payload_json = fields.Json()
-
-
 
 
     def _compute_is_manual_input(self):
@@ -235,6 +233,8 @@ class InheritedHrPayslip(models.Model):
 
     def action_payslip_email_send(self):
         self.ensure_one()
+        if not self.state in ('verify', 'done', 'paid'):
+            raise UserError("Email can not be sent in this state!")
         ir_model_data = self.env['ir.model.data']
         try:
             template_id = ir_model_data._xmlid_lookup('syncoria_can_payroll.email_template_for_payslip')[1]

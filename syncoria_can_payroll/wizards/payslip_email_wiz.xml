@@ -4,6 +4,8 @@
         <field name="model">payslip.email.wizard</field>
         <field name="arch" type="xml">
             <form string="Message">
+                <field name="is_show_warning" invisible="1"/>
+                <p invisible="not is_show_warning" style="color: #6e6e16;text-align: center">Warning: Draft and Canceled entries are not eligible to be sent.</p>
                 <group colspan="6">
                     <field name="employee_ids" readonly="1" force_save="1" widget="many2many_tags"/>
                     <field name="payslip_ids" readonly="1" force_save="1" widget="many2many_tags"/>

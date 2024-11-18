@@ -57,6 +57,7 @@
                         <th>Date</th>
                         <th>Payslip Number</th>
                         <th>Amount</th>
+                        <th>State</th>
                         <th></th>
                     </tr>
                 </thead>
@@ -70,6 +71,9 @@
                         </td>
                         <td>
                             <span t-field="payslip.net_wage"/>
+                        </td>
+                        <td>
+                            <span t-field="payslip.state"/>
                         </td>
                          <td>
                             <a t-attf-href="/my/payslip/#{payslip.id}"><span t-field="payslip.name"/></a>
@@ -91,8 +95,8 @@
                 <t t-set="title">Payslip</t>
             </t>
 
-            <p><b>Slip Number:</b> <span t-field="payslip.number"/></p>
-            <p style="margin-bottom: 20px">Period: <span t-field="payslip.name"/></p>
+            <p><b>Slip Number:</b> <span t-field="payslip.number"/> (<span t-field="payslip.state"/>)</p>
+            <p style="margin-bottom: 20px">Period: <span t-field="payslip.name"/> </p>
 
             <t t-if="not detailed_payslip">
                 <div class="alert alert-warning" role="alert">

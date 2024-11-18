@@ -1,7 +1,7 @@
 from odoo import models, fields, api
 import base64
 from collections import defaultdict
-
+from odoo.exceptions import UserError
 
 class PayslipEmailWizard(models.TransientModel):
     _name = 'payslip.email.wizard'
@@ -9,6 +9,7 @@ class PayslipEmailWizard(models.TransientModel):
 
     employee_ids = fields.Many2many('hr.employee',string="Employee(s)")
     payslip_ids = fields.Many2many('hr.payslip',string="Payslip(s)")
+    is_show_warning = fields.Boolean()
 
     def default_get(self, fields):
         defaults = super(PayslipEmailWizard, self).default_get(fields)
@@ -16,9 +17,18 @@ class PayslipEmailWizard(models.TransientModel):
 
         if active_ids:
             payslip_records = self.env['hr.payslip'].browse(active_ids)
-            employee_ids = list(set(payslip_records.mapped('employee_id.id')))
-            defaults['employee_ids'] = [(6, 0, employee_ids)]
-            defaults['payslip_ids'] = [(6, 0, active_ids)]
+            payslip_ids = []
+            employee_ids = []
+            if not any(c.state in ('verify', 'done', 'paid') for c in payslip_records):
+                raise UserError("No eligible payslip found to be sent!")
+            if any(c.state in ('draft', 'cancel') for c in payslip_records):
+                defaults['is_show_warning'] = True
+            for x in payslip_records:
+                if x.state not in ('draft', 'cancel'):
+                    payslip_ids.append(x.id)
+                    employee_ids.append(x.employee_id.id)
+                defaults['employee_ids'] = [(6, 0, employee_ids)]
+                defaults['payslip_ids'] = [(6, 0, payslip_ids)]
 
         return defaults
 
