@@ -330,7 +330,7 @@ class InheritedHrPayslip(models.Model):
                     "TCP": proviancial_amount_from_td1,
                     "LCF": 0,
                     "U1": 0,
-                    # "V": V,
+                    "V": V,
                     "HD": 0,
                     "LCP": 0,
                     "num_of_disabled_dep": 0,
