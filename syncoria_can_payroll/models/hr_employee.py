@@ -1,5 +1,5 @@
 from email.policy import default
-
+from odoo.exceptions import UserError
 from odoo import models, api, fields, _
 CODE = [
     ('0', '0'),
@@ -23,6 +23,9 @@ class InhertitedHrEmployee(models.Model):
         ('identification_id_len', 'CHECK (LENGTH(identification_id) = 9)', ('Social Insurance Number Must be of 9 digits.')),
         # ('registration_number_verification', 'CHECK (registration_number SIMILAR TO ^[178][0-9]{8}(RP|RW)[0-9]{4}$)', ('Payroll Account Number Must Match patterns.')),
     ]
+
+    is_portal_user = fields.Boolean()
+    portal_user_id = fields.Many2one("res.users")
 
     employee_prpp_dpsp_rgst_nbr = fields.Integer(string="RPP or DPSP Registration Number Registration Number",default=0, groups='hr.group_hr_user',required=True)
     sync_first_contract_date = fields.Date("Sync First Contract Date", compute='compute_first_contract_date', store=True, groups='hr.group_hr_user')
@@ -244,8 +247,21 @@ class InhertitedHrEmployee(models.Model):
                 irr_pay_tax = tax_amount_gross_with_irr - tax_amount_gross_without_irr
                 rec.ytd_previous_irre_prov_tax = irr_pay_tax * pay_cycle
 
+    @api.onchange('is_portal_user')
+    def _onchage_is_portal_user(self):
+        for x in self:
+            x.portal_user_id = None
 
-
+    @api.onchange('portal_user_id')
+    def _onchage_portal_user_id(self):
+        for x in self:
+            print(x)
+            if x.portal_user_id:
+                existing_user = self.search([
+                    ('portal_user_id', '=', x.portal_user_id.id),('id', '!=', x._origin.id)
+                ], limit=1)
+                if existing_user:
+                    raise UserError("This User is already mapped with another employee!")
 
 
     @api.depends('first_contract_date')

@@ -10,7 +10,7 @@ class PayrollCustomerPortal(CustomerPortal):
     def home(self, **kw):
         values = self._prepare_portal_layout_values()
         payslip = request.env['hr.payslip'].sudo()
-        emp_id = request.env["hr.employee"].sudo().search([("user_id", "=", request.env.user.id)], limit=1)
+        emp_id = request.env["hr.employee"].sudo().search([("portal_user_id", "=", request.env.user.id)], limit=1)
         domain = [('employee_id', '=', emp_id.id), ('state', 'not in', ('draft', 'cancel'))]
         payslip_count = payslip.search_count(domain)
         values['payslip_count'] = payslip_count
@@ -29,7 +29,7 @@ class PayrollCustomerPortal(CustomerPortal):
     def portal_my_payrolls(self, page=1, date_begin=None, date_end=None, sortby=None, **kw):
         values = self._prepare_portal_layout_values()
         payslip = request.env['hr.payslip'].sudo()
-        emp_id = request.env["hr.employee"].sudo().search([("user_id", "=", request.env.user.id)], limit=1)
+        emp_id = request.env["hr.employee"].sudo().search([("portal_user_id", "=", request.env.user.id)], limit=1)
         domain = [('employee_id', '=', emp_id.id),('state', 'not in', ('draft', 'cancel'))]
 
         # projects count

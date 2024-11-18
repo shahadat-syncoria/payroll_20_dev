@@ -116,6 +116,8 @@
 
                 <xpath expr="//group[@name='active_group']" position="inside">
                     <field name="territory_of_employment" />
+                    <field name="is_portal_user" />
+                    <field name="portal_user_id" invisible="not is_portal_user"/>
                 </xpath>
                 <xpath expr="//group[@name='identification_group']" position="after">
                     <group string="T4 Information">

@@ -330,7 +330,7 @@ class InheritedHrPayslip(models.Model):
                     "TCP": proviancial_amount_from_td1,
                     "LCF": 0,
                     "U1": 0,
-                    "V": V,
+                    # "V": V,
                     "HD": 0,
                     "LCP": 0,
                     "num_of_disabled_dep": 0,
@@ -353,7 +353,8 @@ class InheritedHrPayslip(models.Model):
                 response = requests.post(url, json=payload, headers=header)
                 response_data = response.json()
                 if 'FTAX' not in response_data:
-                    raise ValidationError(f"Failed to call the API: {response_data['detail']}")
+                    print('response_data', response_data)
+                    raise ValidationError(f"Failed to call the API: {response_data['detail'] if 'detail' in response_data else response_data['results']}")
                 payslip.api_response_json = response_data
                 payslip.api_payload_json = payload
 
