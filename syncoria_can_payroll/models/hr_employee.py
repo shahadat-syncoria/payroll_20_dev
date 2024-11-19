@@ -26,6 +26,7 @@ class InhertitedHrEmployee(models.Model):
 
     is_portal_user = fields.Boolean()
     portal_user_id = fields.Many2one("res.users")
+    is_vacation_pay_carry_over = fields.Boolean(default=True, string='Vacation Pay Carry Over?')
 
     employee_prpp_dpsp_rgst_nbr = fields.Integer(string="RPP or DPSP Registration Number Registration Number",default=0, groups='hr.group_hr_user',required=True)
     sync_first_contract_date = fields.Date("Sync First Contract Date", compute='compute_first_contract_date', store=True, groups='hr.group_hr_user')

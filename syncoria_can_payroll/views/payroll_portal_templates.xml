@@ -95,7 +95,10 @@
                 <t t-set="title">Payslip</t>
             </t>
 
-            <p><b>Slip Number:</b> <span t-field="payslip.number"/> (<span t-field="payslip.state"/>)</p>
+            <p><b>Slip Number:</b> <span t-field="payslip.number"/>
+                <t t-if="payslip.state == 'paid'"> (<span style="color:green" t-field="payslip.state"/>) </t>
+                <t t-else=""> (<span style="color:#705fc4" t-field="payslip.state"/>) </t>
+            </p>
             <p style="margin-bottom: 20px">Period: <span t-field="payslip.name"/> </p>
 
             <t t-if="not detailed_payslip">

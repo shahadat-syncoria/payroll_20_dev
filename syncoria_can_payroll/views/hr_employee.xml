@@ -118,6 +118,7 @@
                     <field name="territory_of_employment" />
                     <field name="is_portal_user" />
                     <field name="portal_user_id" invisible="not is_portal_user"/>
+                    <field name="is_vacation_pay_carry_over" />
                 </xpath>
                 <xpath expr="//group[@name='identification_group']" position="after">
                     <group string="T4 Information">

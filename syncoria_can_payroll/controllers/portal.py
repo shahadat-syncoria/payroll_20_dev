@@ -1,5 +1,4 @@
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
-from odoo.http import  route
 from odoo import conf, http, _
 from odoo.addons.portal.controllers.portal import CustomerPortal, pager as portal_pager
 from odoo.http import  request, route, content_disposition
@@ -16,11 +15,6 @@ class PayrollCustomerPortal(CustomerPortal):
         values['payslip_count'] = payslip_count
         return request.render("portal.portal_my_home", values)
 
-    # def _prepare_home_portal_values(self, counters):
-    #     values = super()._prepare_home_portal_values(counters)
-    #     values['payslip_count'] = 10
-    #     return values
-
     # ------------------------------------------------------------
     # My Payroll
     # ------------------------------------------------------------
@@ -30,9 +24,9 @@ class PayrollCustomerPortal(CustomerPortal):
         values = self._prepare_portal_layout_values()
         payslip = request.env['hr.payslip'].sudo()
         emp_id = request.env["hr.employee"].sudo().search([("portal_user_id", "=", request.env.user.id)], limit=1)
-        domain = [('employee_id', '=', emp_id.id),('state', 'not in', ('draft', 'cancel'))]
+        domain = [('employee_id', '=', emp_id.id),('state', 'in', ('done', 'paid'))]
 
-        # projects count
+        # payslip count
         payslip_count = payslip.search_count(domain)
         # pager
         pager = portal_pager(
