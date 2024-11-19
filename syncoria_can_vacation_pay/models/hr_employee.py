@@ -54,6 +54,12 @@ class VacationPayslip(models.Model):
 
     vacation_slab_ids = fields.One2many('hr.vacation.slab.employee', 'employee_id', string='Vacation Slab')
 
+    # ===============================Accounting for Accrued Vacation=========================================
+    account_debit = fields.Many2one(
+        'account.account', 'Debit Account', company_dependent=True, domain=[('deprecated', '=', False)])
+    account_credit = fields.Many2one(
+        'account.account', 'Credit Account', company_dependent=True, domain=[('deprecated', '=', False)])
+
     def create(self, vals_list):
         employees = super().create(vals_list)
         slabs = self.env['hr.vacation.slab'].search([])

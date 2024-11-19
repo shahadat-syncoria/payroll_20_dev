@@ -18,7 +18,7 @@
     'application': True,
 
     # any module necessary for this one to work correctly
-    'depends': ['base', 'syncoria_can_payroll', 'hr_holidays'],
+    'depends': ['base', 'syncoria_can_payroll', 'hr_holidays', 'hr_payroll_account'],
 
     # always loaded
     'data': [

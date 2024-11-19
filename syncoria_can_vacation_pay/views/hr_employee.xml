@@ -65,6 +65,10 @@
                                             </tree>
                                         </field>
                                 </group>
+                        <group>
+                            <field name="account_debit" />
+                            <field name="account_credit"/>
+                        </group>
                             </page>
                 </xpath>
 
