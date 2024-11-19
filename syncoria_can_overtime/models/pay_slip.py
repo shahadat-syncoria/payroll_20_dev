@@ -57,7 +57,7 @@ class InheritedHrPayslipOvertime(models.Model):
             ('employee_id', '=', self.employee_id.id),
             ('date_start', '>=', first_monday),
             ('date_stop', '<=', last_sunday),
-            ('state','=','draft')
+            ('state','in',['draft','validated'])
         ])
 
         # Initialize week tracking
