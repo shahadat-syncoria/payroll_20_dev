@@ -42,8 +42,10 @@ class VacationPayslip(models.Model):
         for rec in self:
             employee = rec.employee_id
             employee._get_employee_allocated_leave()
-            insurable_amount = rec.line_ids.filtered(lambda x: x.code=="I_Earning").total
-            insurable_amount -=  sum(rec.line_ids.filtered(lambda x: x.code in ["ADJUST_VP","VP"]).mapped("total"))
+
+
+            insurable_amount = sum(rec.line_ids.filtered(lambda x: x.salary_rule_id.is_vacation_pay).mapped("total"))
+            # insurable_amount -=  sum(rec.line_ids.filtered(lambda x: x.code in ["ADJUST_VP","VP"]).mapped("total"))
             vac_percentage = employee.allocated_vac_percentage
             stored_vac_pay_amount = (insurable_amount*(vac_percentage/100))
             employee.ytd_vac_pay_amount_erp += stored_vac_pay_amount
@@ -101,13 +103,19 @@ class VacationPayslip(models.Model):
                         'syncoria_can_vacation_pay.vac_pay_type') == 'cash_wise':
                     calculate_vacation_pay = sum(vacation_pay_ids.mapped('vacation_pay_amount'))
                 if vacation_pay_ids and calculate_vacation_pay > 0.0:
-                    payslip.input_line_ids.filtered(lambda x: x.input_type_id.id == input_type).unlink()
-                    payslip.write({'input_line_ids': [(0, 0, {
-                        'input_type_id': input_type,
-                        'name': des_name.join(vacation_pay_ids.mapped('name')) or "",
-                        'vacation_pay_req_ref': des_name.join(vacation_pay_ids.mapped('name')),
-                        'amount': abs(calculate_vacation_pay),
-                    })]})
+                    vacation_pay_ref = des_name.join(vacation_pay_ids.mapped('name'))
+                    payslip.input_line_ids.filtered(
+                        lambda x: x.input_type_id.id == input_type and x.vacation_pay_req_ref == vacation_pay_ref
+                    ).unlink()
+
+                    payslip.write({
+                        'input_line_ids': [(0, 0, {
+                            'input_type_id': input_type,
+                            'name': vacation_pay_ref,
+                            'vacation_pay_req_ref': vacation_pay_ref,
+                            'amount': abs(calculate_vacation_pay),
+                        })]
+                    })
 
                 # ==================== Adjusted Vacation Pay ==============================
                 payslip.input_line_ids.filtered(
@@ -200,13 +208,17 @@ class VacationPayslip(models.Model):
                 vacation_pay_req_ids = vacation_pay_input_line_ids.vacation_pay_req_ref.split(
                     ',') if vacation_pay_input_line_ids.vacation_pay_req_ref else []
                 total_amount = 0.0
-                for vpr in vacation_pay_req_ids:
-                    vpr_id = vacation_pay_req.search([('name', '=', vpr)], limit=1)
-                    if vpr_id:
-                        vpr_id.vacation_pay_amount = vacation_pay_input_line_ids.amount
-                        vpr_id.payslip_id = rec.id
-                        vpr_id.action_paid()
-                        total_amount += vpr_id.vacation_pay_amount
+                if not vacation_pay_req_ids:
+                    total_amount =sum(vacation_pay_input_line_ids.mapped("amount"))
+                else:
+                    for vpr in vacation_pay_req_ids:
+                        vpr_id = vacation_pay_req.search([('name', '=', vpr)], limit=1)
+                        if vpr_id:
+                            vpr_id.vacation_pay_amount = vacation_pay_input_line_ids.amount
+                            vpr_id.payslip_id = rec.id
+                            vpr_id.action_paid()
+                            total_amount += vpr_id.vacation_pay_amount
+
 
                 rec.vac_pay_earned_taken = total_amount
 

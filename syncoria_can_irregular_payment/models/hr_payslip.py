@@ -63,36 +63,36 @@ class IrregularPayslip(models.Model):
                             irregular_type_wise['commission']['amount'] += abs(ir_pay.amount)
 
 
-                    if not irregular_employee_wise_pay_ids:
-                        payslip.input_line_ids.filtered(
-                            lambda x: x.input_type_id.id in [bonus_input_type, retro_input_type,commission_input_type]).unlink()
-                    else:
-                        inputs_line = []
-                        if irregular_type_wise['bonus']['amount']>0.0:
-                            inputs_line.append((0, 0, {
-                            'input_type_id': bonus_input_type,
-                            'name': irregular_type_wise['bonus']['name'].rstrip(',') or "",
-                            'irregular_pay_req_ref': irregular_type_wise['bonus']['irregular_pay_req_ref'] or "",
-                            'amount': irregular_type_wise['bonus']['amount'] or 0.0,
-                        }))
-                        if irregular_type_wise['retro']['amount'] > 0.0:
-                            inputs_line.append((0, 0, {
-                            'input_type_id': retro_input_type,
-                            'name': irregular_type_wise['retro']['name'].rstrip(',') or "",
-                            'irregular_pay_req_ref': irregular_type_wise['retro']['irregular_pay_req_ref'] or "",
-                            'amount': irregular_type_wise['retro']['amount'] or "",
-                        }))
+                    # if not irregular_employee_wise_pay_ids:
+                    #     payslip.input_line_ids.filtered(
+                    #         lambda x: x.input_type_id.id in [bonus_input_type, retro_input_type,commission_input_type]).unlink()
+                    # else:
+                    inputs_line = []
+                    if irregular_type_wise['bonus']['amount']>0.0:
+                        inputs_line.append((0, 0, {
+                        'input_type_id': bonus_input_type,
+                        'name': irregular_type_wise['bonus']['name'].rstrip(',') or "",
+                        'irregular_pay_req_ref': irregular_type_wise['bonus']['irregular_pay_req_ref'] or "",
+                        'amount': irregular_type_wise['bonus']['amount'] or 0.0,
+                    }))
+                    if irregular_type_wise['retro']['amount'] > 0.0:
+                        inputs_line.append((0, 0, {
+                        'input_type_id': retro_input_type,
+                        'name': irregular_type_wise['retro']['name'].rstrip(',') or "",
+                        'irregular_pay_req_ref': irregular_type_wise['retro']['irregular_pay_req_ref'] or "",
+                        'amount': irregular_type_wise['retro']['amount'] or "",
+                    }))
 
-                        if irregular_type_wise['commission']['amount'] > 0.0:
-                            inputs_line.append((0, 0, {
-                            'input_type_id': commission_input_type,
-                            'name': irregular_type_wise['commission']['name'].rstrip(',') or "",
-                            'irregular_pay_req_ref': irregular_type_wise['commission']['irregular_pay_req_ref'] or "",
-                            'amount': irregular_type_wise['commission']['amount'] or "",
-                        }))
+                    if irregular_type_wise['commission']['amount'] > 0.0:
+                        inputs_line.append((0, 0, {
+                        'input_type_id': commission_input_type,
+                        'name': irregular_type_wise['commission']['name'].rstrip(',') or "",
+                        'irregular_pay_req_ref': irregular_type_wise['commission']['irregular_pay_req_ref'] or "",
+                        'amount': irregular_type_wise['commission']['amount'] or "",
+                    }))
 
 
-                        payslip.write({'input_line_ids': inputs_line})
+                    payslip.write({'input_line_ids': inputs_line})
                 except Exception as e:
                     payslip.message_post(body=f"Irregular Pay Error:{e}")
 
