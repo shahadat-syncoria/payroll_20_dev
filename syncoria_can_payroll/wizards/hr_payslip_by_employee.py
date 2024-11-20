@@ -192,4 +192,17 @@ class SyncoriaEmployeeManualInputLine(models.TransientModel):
 
     manual_input_wizard_id= fields.Many2one("hr.payslip.employee.manual.wizard")
     employee_id = fields.Many2one("hr.employee", string="Employee Name")
+
     attendance_hours = fields.Float(string="Attendance Number of Hours")
+    overtime_hours = fields.Float(string="Overtime Number of Hours")
+    stat_overtime_hours = fields.Float(string="Statutory Overtime Number of Hours")
+
+    payout_vacation_pay_paycycle = fields.Boolean("Payout Vacation Amount Per Pay Cycle", default=False,
+                                                  groups='hr.group_hr_user')
+
+    ytd_vac_pay_amount = fields.Float()
+
+    vac_pay = fields.Float("Vacation Pay Amount")
+    commission = fields.Float("Commission Amount")
+    bonus = fields.Float("Bonus Amount")
+    retro = fields.Float("Retro Amount")

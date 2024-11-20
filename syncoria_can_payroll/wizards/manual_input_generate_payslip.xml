@@ -9,20 +9,27 @@
                     <group name="file_upload">
 
                     </group>
-                    <group name="manual_input">
+
                         <field name="manual_input_ids"
-                               groups="hr_payroll.group_hr_payroll_employee_manager"
-                        >
+                               groups="hr_payroll.group_hr_payroll_employee_manager">
                             <tree editable="bottom" create="0" delete="0" edit="1">
 
 
                                 <field name="employee_id"/>
                                 <field name="attendance_hours"/>
+                                <field name="overtime_hours"/>
+                                <field name="stat_overtime_hours"/>
+                                <field name="payout_vacation_pay_paycycle"/>
+                                <field name="ytd_vac_pay_amount"/>
+                                <field name="vac_pay"/>
+                                <field name="commission"/>
+                                <field name="bonus"/>
+                                <field name="retro"/>
 
 
                             </tree>
                         </field>
-                    </group>
+
 
                     <footer>
                         <button string="Generate" name="compute_sheet" type="object" class="oe_highlight" data-hotkey="q"/>
