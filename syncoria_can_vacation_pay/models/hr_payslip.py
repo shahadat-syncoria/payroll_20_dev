@@ -46,7 +46,8 @@ class VacationPayslip(models.Model):
             insurable_amount -=  sum(rec.line_ids.filtered(lambda x: x.code in ["ADJUST_VP","VP"]).mapped("total"))
             vac_percentage = employee.allocated_vac_percentage
             stored_vac_pay_amount = (insurable_amount*(vac_percentage/100))
-            employee.ytd_vac_pay_amount_erp += stored_vac_pay_amount
+            line_obj = employee.payroll_line_ids.filtered(lambda x: x.year == str(rec.date_to.year))
+            line_obj.ytd_vac_pay_amount_erp += stored_vac_pay_amount
             rec.vac_pay_earned_amount = stored_vac_pay_amount
 
 
@@ -86,7 +87,9 @@ class VacationPayslip(models.Model):
         payslips = self.filtered(lambda slip: slip.state in ['draft', 'verify'])
         adjusted_input_type = self.env.ref('syncoria_can_vacation_pay.input_ca_adjusted_vac_pay').id
         for payslip in payslips:
-            payslip.employee_id.update_vac_pay_amount_erp()
+            line_obj = payslip.employee_id.payroll_line_ids.filtered(lambda x: x.year == str(self.date_to.year))
+            line_obj.update_vac_pay_amount_erp()
+            # payslip.employee_id.update_vac_pay_amount_erp()
             try:
                 des_name = ","
                 calculate_vacation_pay = 0.00
@@ -290,5 +293,6 @@ class AccountPaymentRegister(models.TransientModel):
             if self.env["ir.config_parameter"].sudo().get_param('syncoria_can_vacation_pay.vac_pay_type') == 'cash_wise':
                 if not payslip.payout_vacation_pay_paycycle:
                     payslip.store_vacation_pay_amount()
-            payslip.employee_id.update_vac_pay_amount_erp()
+            emp_line_obj = payslip.employee_id.payroll_line_ids.filtered(lambda x: x.year == str(payslip.date_to.year))
+            emp_line_obj.update_vac_pay_amount_erp()
         return res

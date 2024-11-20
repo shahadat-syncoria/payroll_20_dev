@@ -78,7 +78,7 @@
                          <td>
                             <a t-attf-href="/my/payslip/#{payslip.id}"><span t-field="payslip.name"/></a>
                         </td>
-                         <td>
+                         <td style="width:200px">
                              <a class="btn btn-secondary d-block o_download_btn" t-attf-href="/action_print_payslip?payslip_id=#{payslip.id}" title="Download"><i class="fa fa-download"/> Download</a>
                         </td>
                     </tr>

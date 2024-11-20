@@ -1,9 +1,21 @@
 from email.policy import default
+
+from billiard.five import string
 from odoo.exceptions import UserError
 from odoo import models, api, fields, _
 CODE = [
     ('0', '0'),
     ('1', '1'),
+]
+
+YEAR = [
+    ('2021', '2021'),
+    ('2022', '2022'),
+    ('2023', '2023'),
+    ('2024', '2024'),
+    ('2025', '2025'),
+    ('2026', '2026'),
+    ('2027', '2027'),
 ]
 
 EMPLOYMENT_CODE = [
@@ -27,7 +39,8 @@ class InhertitedHrEmployee(models.Model):
     is_portal_user = fields.Boolean()
     portal_user_id = fields.Many2one("res.users")
     is_vacation_pay_carry_over = fields.Boolean(default=True, string='Vacation Pay Carry Over?')
-
+    payroll_line_ids = fields.One2many('hr.employee.ytd.payroll.information', 'head_id')
+    
     employee_prpp_dpsp_rgst_nbr = fields.Integer(string="RPP or DPSP Registration Number Registration Number",default=0, groups='hr.group_hr_user',required=True)
     sync_first_contract_date = fields.Date("Sync First Contract Date", compute='compute_first_contract_date', store=True, groups='hr.group_hr_user')
     payroll_account_number = fields.Char('Payroll Account Number', groups="hr.group_hr_user", related= "company_id.payroll_account_number")
@@ -154,47 +167,74 @@ class InhertitedHrEmployee(models.Model):
             rec.ytd_ei_employer = rec.ytd_ei_employer_erp + rec.ytd_previous_ei_employer
 
 
-    def _get_ytd_payslip_line_ids(self):
+    def _get_ytd_payslip_line_ids(self, year):
         """
             This is helper function to get YTD paid payslips compute line ids
         """
-        payslip_ytd = self.slip_ids.filtered(
-            lambda x: x.state == 'paid' and (
-                x.paid_date.year if x.paid_date else x.write_date.year) == int(
-                self.contract_id.deductions.slab_year or 0))
-
+        # payslip_ytd = self.slip_ids.filtered(lambda x: x.state == 'paid' and (x.paid_date.year if x.paid_date else x.write_date.year) == int(self.contract_id.deductions.slab_year or 0))
+        payslip_ytd = self.slip_ids.filtered(lambda x: x.state == 'paid' and
+        (x.paid_date.year if x.paid_date else x.write_date.year) == int(year))
         return payslip_ytd.line_ids
 
-    def _update_ytd_cpp_pi_ei(self,payslip_ytd,req_type):
+    def _update_ytd_cpp_pi_ei(self,payslip_ytd,req_type, year):
+        line_obj = self.payroll_line_ids.filtered(lambda x: x.year == str(year))
         if req_type in ['CPP', "CPP2","EI","EI_EMPLOYER"]:
             ytd_total_amount = sum(
                 payslip_ytd.filtered(lambda x: x.code == req_type).mapped("total"))
-            if req_type == 'CPP':
-                self.ytd_cpp_erp = ytd_total_amount
-            elif req_type == 'CPP2':
-                self.ytd_cpp2_erp = ytd_total_amount
-            elif req_type == 'EI':
-                self.ytd_ei_erp = ytd_total_amount
-            elif req_type == 'EI_EMPLOYER':
-                self.ytd_ei_employer_erp = ytd_total_amount
+            if not line_obj:
+                self.env["hr.employee.ytd.payroll.information"].create(
+                    {
+                        "head_id": self.id,
+                        "year": str(year),
+                        "ytd_cpp_erp": ytd_total_amount if req_type == 'CPP' else 0,
+                        "ytd_cpp2_erp": ytd_total_amount if req_type == 'CPP2' else 0,
+                        "ytd_ei_erp": ytd_total_amount if req_type == 'EI' else 0,
+                        "ytd_ei_employer_erp": ytd_total_amount if req_type == 'EI_EMPLOYER' else 0,
+                    }
+                )
+            else:
+                line_obj.ytd_cpp_erp = ytd_total_amount if req_type == 'CPP' else line_obj.ytd_cpp_erp
+                line_obj.ytd_cpp2_erp = ytd_total_amount if req_type == 'CPP2' else line_obj.ytd_cpp2_erp
+                line_obj.ytd_ei_erp = ytd_total_amount if req_type == 'EI' else line_obj.ytd_ei_erp
+                line_obj.ytd_ei_employer_erp = ytd_total_amount if req_type == 'EI_EMPLOYER' else line_obj.ytd_ei_employer_erp
+
+            # if req_type == 'CPP':
+            #     self.ytd_cpp_erp = ytd_total_amount
+            # elif req_type == 'CPP2':
+            #     self.ytd_cpp2_erp = ytd_total_amount
+            # elif req_type == 'EI':
+            #     self.ytd_ei_erp = ytd_total_amount
+            # elif req_type == 'EI_EMPLOYER':
+            #     self.ytd_ei_employer_erp = ytd_total_amount
+
         elif req_type in ['PI']:
             ytd_total_amount = sum(
                 payslip_ytd.filtered(lambda x: x.category_id.code in ["GROSS", "ADD_ALLOWANCE", "ALW"]).mapped("total"))
-            self.ytd_pi_erp = ytd_total_amount
-
-    def update_ytd_erp(self):
-        for rec in self:
-            payslip_ytd = rec._get_ytd_payslip_line_ids()
-            if self.env.context['type'] == "ALL":
-                for i in ["CPP", "CPP2", "PI","EI","EI_EMPLOYER"]:
-                    rec._update_ytd_cpp_pi_ei(payslip_ytd,i)
+            # self.ytd_pi_erp = ytd_total_amount
+            if not line_obj:
+                self.env["hr.employee.ytd.payroll.information"].create(
+                    {
+                        "head_id": self.id,
+                        "year": str(year),
+                        "ytd_pi_erp": ytd_total_amount,
+                    }
+                )
             else:
-                rec._update_ytd_cpp_pi_ei(payslip_ytd,rec.env.context.get('type'))
+                line_obj.ytd_pi_erp = ytd_total_amount
+
+    # def update_ytd_erp(self):
+    #     for rec in self:
+    #         year = self.env.context['year']
+    #         payslip_ytd = rec._get_ytd_payslip_line_ids(year)
+    #         if self.env.context['type'] == "ALL":
+    #             for i in ["CPP", "CPP2", "PI","EI","EI_EMPLOYER"]:
+    #                 rec._update_ytd_cpp_pi_ei(payslip_ytd,i,year)
+    #         else:
+    #             rec._update_ytd_cpp_pi_ei(payslip_ytd,rec.env.context.get('type'),year)
 
 
 
     def _update_ytd_irregular_payments_tax(self,payslip_ytd,req_type):
-
             ytd_total_amount = payslip_ytd.filtered(lambda x: x.category_id.code in ["ADD_ALLOWANCE"])
             self.ytd_pi_erp = ytd_total_amount
 
@@ -280,3 +320,134 @@ class InhertitedHrEmployee(models.Model):
             'view_mode': 'form',
             'target': 'new',
         }
+
+class HrEmployeeYTDPayrollInformation(models.Model):
+    _name = 'hr.employee.ytd.payroll.information'
+    _description = 'Hr Employee YTD Payroll Information'
+
+    head_id = fields.Many2one('hr.employee')
+    contract_id = fields.Many2one('hr.contract',related='head_id.contract_id', store=True)
+    last_paycycle_gross = fields.Float(related='head_id.last_paycycle_gross', store=True)
+    ytd_previous_irre_prov_amount = fields.Float(related='head_id.ytd_previous_irre_prov_amount', store=True)
+    year = fields.Selection(selection=YEAR, default="2024")
+    ytd_previous_irre_fed_tax = fields.Float("Previous Year To Date Irregular Payment Fed Tax", default=0, store=True,
+                                             compute='compute_ytd_previous_irre_fed_tax')
+
+    ytd_cpp_erp = fields.Float("Year To Date CPP contribution in ERP")
+    ytd_previous_cpp = fields.Float("Previous CPP", tracking=True, default=0)
+    ytd_cpp = fields.Float("Year To Date CPP", default=0, store=True, compute='_compute_ytd_cpp',
+                           groups="hr.group_hr_user")
+
+    # CPP2
+    ytd_cpp2_erp = fields.Float("Year To Date CPP2 contribution in ERP")
+    ytd_previous_cpp2 = fields.Float("Previous CPP2", tracking=True, default=0)
+    ytd_cpp2 = fields.Float("Year To Date CPP2", default=0, store=True, compute='_compute_ytd_cpp2',
+                            groups="hr.group_hr_user")
+    # EI
+    ytd_ei_erp = fields.Float("Year To Date EI contribution in ERP")
+    ytd_previous_ei = fields.Float("Previous EI", tracking=True, default=0)
+    ytd_ei = fields.Float("Year To Date EI", default=0, store=True, compute='_compute_ytd_ei',
+                          groups="hr.group_hr_user")
+
+    # EI Employer
+    ytd_ei_employer_erp = fields.Float("Year To Date Employer EI  contribution in ERP")
+    ytd_previous_ei_employer = fields.Float("Previous Employer EI ", tracking=True, default=0)
+    ytd_ei_employer = fields.Float("Year To Date Employer EI", default=0, store=True,
+                                   compute='_compute_ytd_ei_employer', groups="hr.group_hr_user")
+
+    # PIYTD
+    ytd_pi = fields.Float("Year To Date PI/IE", default=0, store=True, compute='_compute_ytd_pi',
+                          groups="hr.group_hr_user")
+    ytd_pi_erp = fields.Float("Year To Date PI/IE ERP", default=0, store=True)
+    ytd_previous_pi = fields.Float("Previous Year To Date PI/IE", default=0, store=True)
+
+    # YTDIrregularPaymentFedTaxAmount
+    year_to_date_irregular_payment = fields.Float("Year To Date Irregular Payment", default=0, store=True,
+                                                  compute="_compute_ytd_irre_payment")
+    ytd_previous_irre_payment = fields.Float("Previous Year To Date Irregular Payment", default=0, store=True,
+                                             )
+    ytd_previous_irre_payment_erp = fields.Float("Year To Date Irregular Payment ERP", default=0, store=True,
+                                                 compute='compute_ytd_previous_irre_fed_tax')
+
+    # _sql_constraints = [
+    #     ('name_year_unique', 'unique (head_id, year)', 'The combination code/payment type already exists!'),
+    # ]
+
+    @api.constrains('year')
+    def _check_year(self):
+        self.ensure_one()
+        records_count = self.search_count([('year', '=', self.year),('head_id', '=', self.head_id.id)])
+        if records_count > 1:
+            raise UserError(_("Duplicate Error: Year already exists."))
+
+    @api.depends("ytd_cpp_erp","ytd_previous_cpp")
+    def _compute_ytd_cpp(self):
+        for rec in self:
+            rec.ytd_cpp = rec.ytd_cpp_erp + rec.ytd_previous_cpp
+
+    @api.depends("ytd_cpp2_erp", "ytd_previous_cpp2")
+    def _compute_ytd_cpp2(self):
+        for rec in self:
+            rec.ytd_cpp2 = rec.ytd_cpp2_erp + rec.ytd_previous_cpp2
+
+    @api.depends("ytd_ei_erp", "ytd_previous_ei")
+    def _compute_ytd_ei(self):
+        for rec in self:
+            rec.ytd_ei = rec.ytd_ei_erp + rec.ytd_previous_ei
+
+    @api.depends("ytd_ei_employer_erp", "ytd_previous_ei_employer")
+    def _compute_ytd_ei_employer(self):
+        for rec in self:
+            rec.ytd_ei_employer = rec.ytd_ei_employer_erp + rec.ytd_previous_ei_employer
+
+    @api.depends("ytd_pi_erp", "ytd_previous_pi")
+    def _compute_ytd_pi(self):
+        for rec in self:
+            rec.ytd_pi = rec.ytd_pi_erp + rec.ytd_previous_pi
+
+    @api.depends("ytd_previous_irre_payment", "ytd_previous_irre_payment_erp")
+    def _compute_ytd_irre_payment(self):
+        for rec in self:
+            rec.year_to_date_irregular_payment = rec.ytd_previous_irre_payment + rec.ytd_previous_irre_payment_erp
+
+    @api.depends('ytd_previous_irre_prov_amount', 'last_paycycle_gross')
+    def compute_ytd_previous_irre_fed_tax(self):
+        for rec in self:
+            is_pay_cycle = rec.contract_id.salary_pay_cycle.pay_cycle
+            paycycle_gross = rec.last_paycycle_gross
+            # paycycle_gross = self.contract_id.paycyle_wage - categories['PRE_TAX_DEDUCTION'] FIX
+            if is_pay_cycle:
+                pay_cycle = int(is_pay_cycle)
+                claim_code = rec.contract_id.federal_claim_code_from_td1
+                year = rec.contract_id.deductions.slab_year
+                total_gross_with_irr = (rec.ytd_previous_irre_prov_amount / pay_cycle) + paycycle_gross
+
+                tax_amount_gross_without_irr = rec.env['fed.tax'].get_tax_amount(paycycle_gross, claim_code, year,
+                                                                                   pay_cycle)
+                tax_amount_gross_with_irr = rec.env['fed.tax'].get_tax_amount(total_gross_with_irr, claim_code, year,
+                                                                                pay_cycle)
+
+                irr_pay_tax = tax_amount_gross_with_irr - tax_amount_gross_without_irr
+                rec.ytd_previous_irre_fed_tax = irr_pay_tax * pay_cycle
+
+    def update_ytd_erp(self):
+        for rec in self:
+            year = self.env.context['year'] if 'year' in self.env.context else self.year
+            payslip_ytd = rec.head_id._get_ytd_payslip_line_ids(year)
+            if self.env.context['type'] == "ALL":
+                for i in ["CPP", "CPP2", "PI","EI","EI_EMPLOYER"]:
+                    rec.head_id._update_ytd_cpp_pi_ei(payslip_ytd,i,year)
+            else:
+                rec.head_id._update_ytd_cpp_pi_ei(payslip_ytd,rec.env.context.get('type'),year)
+
+    def _update_ytd_irregular_payments_tax(self,payslip_ytd,req_type):
+            ytd_total_amount = payslip_ytd.filtered(lambda x: x.category_id.code in ["ADD_ALLOWANCE"])
+            self.ytd_pi_erp = ytd_total_amount
+
+    def update_ytd_irregular_payments_tax(self):
+        for rec in self:
+            payslip_ytd_tax = self.head_id.slip_ids.filtered(
+            lambda x: x.state == 'paid' and (
+                x.paid_date.year if x.paid_date else x.write_date.year) == int(
+                self.contract_id.deductions.slab_year or 0) and (x.irre_fed_tax > 0.0 or x.irre_prov_tax > 0.0 ))
+            rec.ytd_previous_irre_payment_erp = sum(payslip_ytd_tax.mapped("irre_amount"))
