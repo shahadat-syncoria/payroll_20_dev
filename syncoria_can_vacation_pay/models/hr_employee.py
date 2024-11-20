@@ -133,25 +133,29 @@ class VacationPayslip(models.Model):
             if not rec.is_adjust_vacation_pay_leave:
                 rec.is_vacation_pay_adjust_negative = False
 
-    @api.depends("ytd_vac_pay_amount_erp", "previous_vac_pay_amount")
-    def _compute_vac_pay_amount(self):
-        for rec in self:
-            rec.ytd_vac_pay_amount = (rec.ytd_vac_pay_amount_erp + rec.previous_vac_pay_amount) - rec.vac_pay_amount_taken
+    # @api.depends("ytd_vac_pay_amount_erp", "previous_vac_pay_amount")
+    # def _compute_vac_pay_amount(self):
+    #     for rec in self:
+    #         rec.ytd_vac_pay_amount = (rec.ytd_vac_pay_amount_erp + rec.previous_vac_pay_amount) - rec.vac_pay_amount_taken
 
-    def _get_vac_pay_slip_ids(self):
+    def _get_vac_pay_slip_ids(self, year):
         """
             This is helper function to get YTD paid payslips compute line ids
         """
-        payslip = self.slip_ids.filtered(
-            lambda x: x.state == 'paid' )
+        payslip = self.slip_ids.filtered(lambda x: x.state == 'paid' and
+                                         (x.paid_date.year if x.paid_date else x.write_date.year) == int(year))
+
+        # payslip = self.slip_ids.filtered(
+        #     lambda x: x.state == 'paid' )
 
         return payslip
 
-    def update_vac_pay_amount_erp(self):
-        for rec in self:
-            payslips = rec._get_vac_pay_slip_ids()
-            rec.ytd_vac_pay_amount_erp = sum(payslips.mapped('vac_pay_earned_amount'))
-            rec.vac_pay_amount_taken = sum(payslips.mapped('vac_pay_earned_taken'))
+    # def update_vac_pay_amount_erp(self):
+    #     for rec in self:
+    #         payslips = rec._get_vac_pay_slip_ids()
+    #         rec.ytd_vac_pay_amount_erp = sum(payslips.mapped('vac_pay_earned_amount'))
+    #         rec.vac_pay_amount_taken = sum(payslips.mapped('vac_pay_earned_taken'))
+
     @api.depends('sync_first_contract_date','vacation_slab_ids')
     def _get_employee_allocated_leave(self):
         for rec in self:
@@ -289,3 +293,21 @@ class HrVacationSlabEmployee(models.Model):
                 raise ValidationError("Date range overlaps with an existing slab!")
 
 
+class InheritHrEmployeeYTDPayrollInformation(models.Model):
+    _inherit = 'hr.employee.ytd.payroll.information'
+
+    ytd_vac_pay_amount = fields.Float("Remaining Vacation Pay Amount", default=0.0,compute="_compute_vac_pay_amount", groups='hr.group_hr_user',store=True)
+    ytd_vac_pay_amount_erp = fields.Float("Vacation Pay Amount ERP", default=0.0, groups='hr.group_hr_user')
+    previous_vac_pay_amount = fields.Float("Previous Vacation Pay Amount", default=0.0, groups='hr.group_hr_user')
+    vac_pay_amount_taken = fields.Float("Vacation Pay Amount Taken", default=0.0,store=True,readonly=True, groups="hr.group_hr_user")
+
+    @api.depends("ytd_vac_pay_amount_erp", "previous_vac_pay_amount")
+    def _compute_vac_pay_amount(self):
+        for rec in self:
+            rec.ytd_vac_pay_amount = (rec.ytd_vac_pay_amount_erp + rec.previous_vac_pay_amount) - rec.vac_pay_amount_taken
+
+    def update_vac_pay_amount_erp(self):
+        for rec in self:
+            payslips = rec.head_id._get_vac_pay_slip_ids(self.year)
+            rec.ytd_vac_pay_amount_erp = sum(payslips.mapped('vac_pay_earned_amount'))
+            rec.vac_pay_amount_taken = sum(payslips.mapped('vac_pay_earned_taken'))

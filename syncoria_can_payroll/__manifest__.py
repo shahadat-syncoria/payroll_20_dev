@@ -91,11 +91,12 @@
     'demo': [
         'demo/demo.xml',
     ],
-'assets': {
+     'assets': {
         'web.assets_frontend': [
             'syncoria_can_payroll/static/src/css/table.css',
         ],
     },
+
     'license': 'LGPL-3',
     'installable': True,
     'application': True,

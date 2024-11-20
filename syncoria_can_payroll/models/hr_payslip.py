@@ -120,7 +120,8 @@ class InheritedHrPayslip(models.Model):
             if rec.payslip_run_id and res and 'state' in vals and vals.get('state') == 'paid':
                 rec.payslip_run_id._check_paid_status()
             if 'state' in vals and vals.get('state') == 'paid':
-                rec.employee_id.with_context({"type": "ALL"}).update_ytd_erp()
+                emp_line_obj = rec.employee_id.payroll_line_ids.filtered(lambda x: x.year == str(rec.date_to.year))
+                emp_line_obj.with_context({"type": "ALL","year": rec.date_to.year}).update_ytd_erp()
                 rec.write({
                     'irre_amount': sum([line.amount for line in rec.line_ids if line.salary_rule_id.is_irregular_payment])
 
@@ -298,13 +299,14 @@ class InheritedHrPayslip(models.Model):
                 if x['code'] == 'RRSP':
                     F = x['amount']
             # Parameters for the API request
+            emp_line_obj = payslip.employee_id.payroll_line_ids.filtered(lambda x: x.year == str(self.date_to.year))
             P = payslip.pay_cycle.pay_cycle
-            D = payslip.employee_id.ytd_cpp
-            D1 = payslip.employee_id.ytd_ei
-            D2 = payslip.employee_id.ytd_cpp2
-            ytd_pi = payslip.employee_id.ytd_pi
+            D = emp_line_obj.ytd_cpp
+            D1 = emp_line_obj.ytd_ei
+            D2 = emp_line_obj.ytd_cpp2
+            ytd_pi = emp_line_obj.ytd_pi
             emp_province = payslip.employee_id.territory_of_employment.code
-            B1 = payslip.employee_id.year_to_date_irregular_payment
+            B1 = emp_line_obj.year_to_date_irregular_payment
             # B1 = 0 #TODO place the real data
             federal_amount_from_td1 = payslip.contract_id.federal_amount_from_td1
             proviancial_amount_from_td1 = payslip.contract_id.proviancial_amount_from_td1
@@ -343,6 +345,7 @@ class InheritedHrPayslip(models.Model):
             # Make the API call ******************************************************************
             try:
                 with_user = self.env['ir.config_parameter'].sudo()
+                endpoint = '/api/v1/payroll_info/calculate-tax/'
                 url = with_user.get_param('syncoria_can_payroll.base_url')
                 if not url:
                     raise ValidationError(f"Failed to call the API, Need to configure a base url from the settings.")
@@ -350,7 +353,7 @@ class InheritedHrPayslip(models.Model):
                 header={
                     'Authorization': f'Token {token}'
                 }
-                response = requests.post(url, json=payload, headers=header)
+                response = requests.post(url+endpoint, json=payload, headers=header)
                 response_data = response.json()
                 if 'FTAX' not in response_data:
                     print('response_data', response_data)
@@ -448,13 +451,14 @@ class HrPayrollEditPayslipLinesWizardInheritSynPayroll(models.TransientModel):
             try:
                 with_user = self.env['ir.config_parameter'].sudo()
                 token = with_user.get_param('syncoria_can_payroll.token')
+                endpoint = '/api/v1/payroll_info/calculate-tax/'
                 url = with_user.get_param('syncoria_can_payroll.base_url')
                 if not url:
                     raise ValidationError(f"Failed to call the API, need to configure a base url from the settings.")
                 header = {
                     'Authorization': f'Token {token}'
                 }
-                response = requests.post(url, json=api_payload_json, headers=header)
+                response = requests.post(url+endpoint, json=api_payload_json, headers=header)
                 response_data = response.json()
                 self.payslip_id.api_response_json = response_data
                 self.payslip_id.api_payload_json = api_payload_json
