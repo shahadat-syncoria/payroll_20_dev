@@ -1057,9 +1057,22 @@ class StatementOfRemuneration(models.Model):
         return xml_content
 
     # ======================== Generate and download T4 PDF ===========================
-    def download_t4_pdf(self, is_bulk=False):
-        kwrgs=[]
-        for rec in self:
+    def download_t4_pdf(self):
+
+       for rec in self:
+            kwrgs = rec.generate_data_for_pdf(rec)
+            pdf_name = str(
+                datetime.datetime.now().strftime(f"{rec.employee_id.name.replace(' ', '')}-{rec.year}-")) + str(
+                datetime.datetime.now().strftime("%m%d%Y%H%M%S%f")) + ".pdf"
+
+       return {
+            'type': 'ir.actions.act_url',
+            'url': '/download/pdf?file_path=%s&file_name=%s&file_paths=%s' % ('', pdf_name, kwrgs),
+            'target': 'new',
+        }
+    def generate_data_for_pdf(self,employees):
+        kwrgs = []
+        for rec in employees:
             if rec.state == 'done':
                 try:
                     get_path = get_module_resource('syncoria_can_payroll', 'utils')
@@ -1075,24 +1088,24 @@ class StatementOfRemuneration(models.Model):
                     reader = PdfReader(get_path + '/' + "t4-fill-23e.pdf")
                     writer = PdfWriter()
 
-                    page = reader.pages[0]
-                    fields = reader.get_fields()
-
                     writer.append(reader)
 
+                    # Constructing the data dictionary
                     data = {'Slip1Year[0]': rec.year,
                             'Slip1EmployersName[0]': f'{rec.employer_l1_nm}\n{rec.employer_addr_l1_txt}\n{rec.employer_cty_nm},{rec.employer_prov_cd} {rec.employer_pstl_cd}',
                             'Slip1Box54[0]': rec.employee_bn,
-                            'Slip1Box12[0]': rec.employee_sin, 'Slip1Box14[0]': round(rec.employee_empt_incamt,2),
-                            'Slip1Box22[0]': round(rec.income_itx_ddct_amt, 2), 'Slip1Box10[0]': 'ON','DropDownList[0]': rec.empr_dntl_ben_rpt_cd or "1",
-                            'Slip1Box16[0]': round(rec.employee_cpp_cntrb_amt,2),
+                            'Slip1Box12[0]': rec.employee_sin, 'Slip1Box14[0]': round(rec.employee_empt_incamt, 2),
+                            'Slip1Box22[0]': round(rec.income_itx_ddct_amt, 2), 'Slip1Box10[0]': 'ON',
+                            'DropDownList[0]': rec.empr_dntl_ben_rpt_cd or "1",
+                            'Slip1Box16[0]': round(rec.employee_cpp_cntrb_amt, 2),
                             'Slip1Box29[0]': rec.employee_empt_cd or "11",
                             'Slip1CPP[0]': int(rec.employee_cpp_qpp_xmpt_cd),
                             'Slip1EI[0]': int(rec.employee_ei_xmpt_cd),
                             'Slip1PPIP[0]': int(rec.employee_prov_pip_xmpt_cd),
-                            'Slip1Box16A[0]': round(rec.employee_cppe_cntrb_amt,2),
-                            'Slip1Box24[0]': round(rec.employee_ei_insu_ern_amt,2), 'Slip1Box17[0]': 0.0,
-                            'Slip1Box26[0]': round(rec.canada_cpp_qpp_ern_amt,2), 'Slip1Box18[0]': rec.employee_empe_eip_amt,
+                            'Slip1Box16A[0]': round(rec.employee_cppe_cntrb_amt, 2),
+                            'Slip1Box24[0]': round(rec.employee_ei_insu_ern_amt, 2), 'Slip1Box17[0]': 0.0,
+                            'Slip1Box26[0]': round(rec.canada_cpp_qpp_ern_amt, 2),
+                            'Slip1Box18[0]': rec.employee_empe_eip_amt,
                             'Slip1Box44[0]': rec.union_unn_dues_amt, 'Slip1Box20[0]': 0.0,
                             'Slip1Box46[0]': rec.charitable_chrty_dons_amt, 'Slip1Box52[0]': rec.pension_padj_amt,
                             'Slip1Box50[0]': rec.employee_rpp_dpsp_rgst_nbr, 'Slip1Box55[0]': rec.PPIP_prov_pip_amt,
@@ -1100,38 +1113,40 @@ class StatementOfRemuneration(models.Model):
                             'Slip1FirstName[0]': rec.employee_gvn_nm, 'Slip1Initial[0]': rec.employee_init,
                             'Slip1Address[0]': f'{rec.employee_addr_l1_txt}\n{rec.employee_addr_l2_txt}\n{rec.employee_cty_nm}\n{rec.employee_prov_cd} {rec.employee_pstl_cd}',
                             'Slip1Amount1[0]': None,
-                            'Slip1Amount2[0]': None, 'Slip1Amount3[0]': None, 'Slip1Amount4[0]': None, 'Slip1Amount5[0]': None,
+                            'Slip1Amount2[0]': None, 'Slip1Amount3[0]': None, 'Slip1Amount4[0]': None,
+                            'Slip1Amount5[0]': None,
                             'Slip1Amount6[0]': None, 'Slip1EmployersName[0].2': None,
-                            'Slip1Year[0].2': None, 'Slip1Box54[0].2': None, 'Slip1Box12[0].2': None, 'Slip1Box14[0].2': None,
-                            'Slip1Box22[0].2': None, 'Slip1Box16[0].2': None, 'Slip1Box24[0].2': None, 'Slip1Box17[0].2': None,'Slip1Box17A[0].2': None,
-                            'Slip1Box26[0].2': None, 'Slip1Box18[0].2': None, 'Slip1Box44[0].2': None, 'Slip1Box20[0].2': None,
-                            'Slip1Box46[0].2': None, 'Slip1Box52[0].2': None, 'Slip1Box50[0].2': None, 'Slip1Box55[0].2': None,
+                            'Slip1Year[0].2': None, 'Slip1Box54[0].2': None, 'Slip1Box12[0].2': None,
+                            'Slip1Box14[0].2': None,
+                            'Slip1Box22[0].2': None, 'Slip1Box16[0].2': None, 'Slip1Box24[0].2': None,
+                            'Slip1Box17[0].2': None, 'Slip1Box17A[0].2': None,
+                            'Slip1Box26[0].2': None, 'Slip1Box18[0].2': None, 'Slip1Box44[0].2': None,
+                            'Slip1Box20[0].2': None,
+                            'Slip1Box46[0].2': None, 'Slip1Box52[0].2': None, 'Slip1Box50[0].2': None,
+                            'Slip1Box55[0].2': None,
                             'Slip1Box56[0].2': None, 'Slip1LastName[0].2': None, 'Slip1FirstName[0].2': None,
                             'Slip1Initial[0].2': None, 'Slip1Address[0].2': None, 'Slip1Amount1[0].2': None,
                             'Slip1Amount2[0].2': None, 'Slip1Amount3[0].2': None, 'Slip1Amount4[0].2': None,
                             'Slip1Amount5[0].2': None, 'Slip1Amount6[0].2': None}
 
+                    # Handle None values
+                    data = {key: str(value) if value is not None else "" for key, value in data.items()}
+
                     writer.update_page_form_field_values(writer.pages[0], data)
 
-                    # write "output" to pypdf-output.pdf
+                    # Write the updated PDF to a file
                     with open(filename, "wb") as output_stream:
                         writer.write(output_stream)
                 except PermissionError as pe:
-                    raise UserError(_(f"Permission Error:{pe}"))
+                    raise UserError(_(f"Permission Error: {pe}"))
                 except IOError as ie:
-                    raise UserError(_(f'IO Error:{ie}'))
+                    raise UserError(_(f"IO Error: {ie}"))
+                # Uncomment for general error handling if needed
                 except Exception as e:
-                    raise UserError(_(f"Internal Error:{e}"))
+                    raise UserError(_(f"Internal Error: {e}"))
 
                 kwrgs.append((filename, pdf_name))
-                if is_bulk:
-                    pdf_name = "Merged_T4.pdf"
-
-        return {
-            'type': 'ir.actions.act_url',
-            'url': '/download/pdf?file_path=%s&file_name=%s&file_paths=%s' % ('', pdf_name,kwrgs),
-            'target': 'new',
-        }
+        return kwrgs
 
     # def send_t4_xml_batch(self):
     #     files_list=[]

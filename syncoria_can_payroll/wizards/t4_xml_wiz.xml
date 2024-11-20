@@ -8,7 +8,8 @@
                     <field name="message" readonly="1" nolabel="1" colspan="2"/>
                 </group>
                 <footer>
-                    <button string="Confirm" class="oe_highlight" type="object" name="action_confirm"/>
+                    <button string="XML Generate" class="oe_highlight" type="object" name="action_download_t4_xml"/>
+                    <button string="PDF Generate" class="oe_highlight" type="object" name="action_download_t4_pdf"/>
                      <button string="Cancel" special="cancel"/>
                 </footer>
             </form>
