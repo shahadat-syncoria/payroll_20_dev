@@ -240,8 +240,8 @@ class VacationPayslip(models.Model):
             if self.env["ir.config_parameter"].sudo().get_param('syncoria_can_vacation_pay.vac_pay_type') == 'cash_wise':
                 if not rec.payout_vacation_pay_paycycle:
                     rec.store_vacation_pay_amount()
-                    rec.employee_id.update_vac_pay_amount_erp()
-
+                    emp_line_obj = rec.employee_id.payroll_line_ids.filtered(lambda x: x.year == str(self.date_to.year))
+                    emp_line_obj.update_vac_pay_amount_erp()
 
         return res
 
@@ -273,7 +273,8 @@ class VacationPayslip(models.Model):
                 rec.vac_pay_earned_amount = 0.00
                 rec.vac_pay_earned_taken = 0.00
                 rec._cancel_vacation_pay_request()
-                rec.employee_id.update_vac_pay_amount_erp()
+                emp_line_obj = rec.employee_id.payroll_line_ids.filtered(lambda x: x.year == str(self.date_to.year))
+                emp_line_obj.update_vac_pay_amount_erp()
                 rec.message_post(body="Related Vacation Pay Request Cancelled")
         return res
 

@@ -172,17 +172,31 @@ class InhertitedHrEmployee(models.Model):
             This is helper function to get YTD paid payslips compute line ids
         """
         # payslip_ytd = self.slip_ids.filtered(lambda x: x.state == 'paid' and (x.paid_date.year if x.paid_date else x.write_date.year) == int(self.contract_id.deductions.slab_year or 0))
+        # year = 2025
         payslip_ytd = self.slip_ids.filtered(lambda x: x.state == 'paid' and
         (x.paid_date.year if x.paid_date else x.write_date.year) == int(year))
         return payslip_ytd.line_ids
 
     def _update_ytd_cpp_pi_ei(self,payslip_ytd,req_type, year):
+        # year = 2025
+        print(type(year))
         line_obj = self.payroll_line_ids.filtered(lambda x: x.year == str(year))
         if req_type in ['CPP', "CPP2","EI","EI_EMPLOYER"]:
             ytd_total_amount = sum(
                 payslip_ytd.filtered(lambda x: x.code == req_type).mapped("total"))
+
+            prev_line_obj = self.payroll_line_ids.filtered(lambda x: x.year == str(year - 1))
+            if prev_line_obj:
+                if req_type == 'CPP':
+                    ytd_total_amount += prev_line_obj.ytd_cpp_erp
+                elif req_type == 'CPP2':
+                    ytd_total_amount += prev_line_obj.ytd_cpp2_erp
+                elif req_type == 'EI':
+                    ytd_total_amount += prev_line_obj.ytd_ei_erp
+                elif req_type == 'EI_EMPLOYER':
+                    ytd_total_amount += prev_line_obj.ytd_ei_employer_erp
             if not line_obj:
-                self.env["hr.employee.ytd.payroll.information"].create(
+                abc = self.env["hr.employee.ytd.payroll.information"].create(
                     {
                         "head_id": self.id,
                         "year": str(year),
@@ -190,6 +204,7 @@ class InhertitedHrEmployee(models.Model):
                         "ytd_cpp2_erp": ytd_total_amount if req_type == 'CPP2' else 0,
                         "ytd_ei_erp": ytd_total_amount if req_type == 'EI' else 0,
                         "ytd_ei_employer_erp": ytd_total_amount if req_type == 'EI_EMPLOYER' else 0,
+                        "ytd_pi_erp": prev_line_obj.ytd_pi_erp if prev_line_obj else 0,
                     }
                 )
             else:
@@ -210,6 +225,9 @@ class InhertitedHrEmployee(models.Model):
         elif req_type in ['PI']:
             ytd_total_amount = sum(
                 payslip_ytd.filtered(lambda x: x.category_id.code in ["GROSS", "ADD_ALLOWANCE", "ALW"]).mapped("total"))
+            prev_line_obj = self.payroll_line_ids.filtered(lambda x: x.year == str(year - 1))
+            if prev_line_obj:
+                ytd_total_amount += prev_line_obj.ytd_pi_erp
             # self.ytd_pi_erp = ytd_total_amount
             if not line_obj:
                 self.env["hr.employee.ytd.payroll.information"].create(
@@ -222,16 +240,15 @@ class InhertitedHrEmployee(models.Model):
             else:
                 line_obj.ytd_pi_erp = ytd_total_amount
 
-    # def update_ytd_erp(self):
-    #     for rec in self:
-    #         year = self.env.context['year']
-    #         payslip_ytd = rec._get_ytd_payslip_line_ids(year)
-    #         if self.env.context['type'] == "ALL":
-    #             for i in ["CPP", "CPP2", "PI","EI","EI_EMPLOYER"]:
-    #                 rec._update_ytd_cpp_pi_ei(payslip_ytd,i,year)
-    #         else:
-    #             rec._update_ytd_cpp_pi_ei(payslip_ytd,rec.env.context.get('type'),year)
-
+    def update_ytd_erp(self):
+        for rec in self:
+            year = self.env.context['year']
+            payslip_ytd = rec._get_ytd_payslip_line_ids(year)
+            if self.env.context['type'] == "ALL":
+                for i in ["CPP", "CPP2", "PI","EI","EI_EMPLOYER"]:
+                    rec._update_ytd_cpp_pi_ei(payslip_ytd,i,year)
+            else:
+                rec._update_ytd_cpp_pi_ei(payslip_ytd,rec.env.context.get('type'),year)
 
 
     def _update_ytd_irregular_payments_tax(self,payslip_ytd,req_type):
@@ -296,7 +313,6 @@ class InhertitedHrEmployee(models.Model):
     @api.onchange('portal_user_id')
     def _onchage_portal_user_id(self):
         for x in self:
-            print(x)
             if x.portal_user_id:
                 existing_user = self.search([
                     ('portal_user_id', '=', x.portal_user_id.id),('id', '!=', x._origin.id)
@@ -433,12 +449,12 @@ class HrEmployeeYTDPayrollInformation(models.Model):
     def update_ytd_erp(self):
         for rec in self:
             year = self.env.context['year'] if 'year' in self.env.context else self.year
-            payslip_ytd = rec.head_id._get_ytd_payslip_line_ids(year)
+            payslip_ytd = rec.head_id._get_ytd_payslip_line_ids(int(year))
             if self.env.context['type'] == "ALL":
                 for i in ["CPP", "CPP2", "PI","EI","EI_EMPLOYER"]:
-                    rec.head_id._update_ytd_cpp_pi_ei(payslip_ytd,i,year)
+                    rec.head_id._update_ytd_cpp_pi_ei(payslip_ytd,i,int(year))
             else:
-                rec.head_id._update_ytd_cpp_pi_ei(payslip_ytd,rec.env.context.get('type'),year)
+                rec.head_id._update_ytd_cpp_pi_ei(payslip_ytd,rec.env.context.get('type'),int(year))
 
     def _update_ytd_irregular_payments_tax(self,payslip_ytd,req_type):
             ytd_total_amount = payslip_ytd.filtered(lambda x: x.category_id.code in ["ADD_ALLOWANCE"])
