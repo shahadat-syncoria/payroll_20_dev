@@ -336,6 +336,43 @@ class InhertitedHrEmployee(models.Model):
             'target': 'new',
         }
 
+    # todo wizard upcoming task =====
+    def update_payroll_info(self):
+        for x in self.employee_ids:
+            line_obj = self.payroll_line_ids.filtered(lambda x: x.year == str(2024))
+            if not line_obj:
+                line_obj = self.env["hr.employee.ytd.payroll.information"].create(
+                    {
+                        "head_id": self.id,
+                        "year": str(2024),
+                    }
+                )
+
+            line_obj.ytd_cpp_erp = x.ytd_cpp_erp
+            line_obj.ytd_previous_cpp = x.ytd_previous_cpp
+            line_obj.ytd_cpp = x.ytd_cpp
+
+            line_obj.ytd_cpp2_erp = x.ytd_cpp2_erp
+            line_obj.ytd_previous_cpp2 = x.ytd_previous_cpp2
+            line_obj.ytd_cpp2 = x.ytd_cpp2
+
+            line_obj.ytd_ei_erp = x.ytd_ei_erp
+            line_obj.ytd_previous_ei = x.ytd_previous_ei
+            line_obj.ytd_ei = x.ytd_ei
+
+            line_obj.ytd_ei_employer_erp = x.ytd_ei_employer_erp
+            line_obj.ytd_previous_ei_employer = x.ytd_previous_ei_employer
+            line_obj.ytd_ei_employer = x.ytd_ei_employer
+
+            line_obj.ytd_pi_erp = x.ytd_pi_erp
+            line_obj.ytd_pi = x.ytd_pi
+            line_obj.ytd_previous_pi = x.ytd_previous_pi
+
+            line_obj.year_to_date_irregular_payment = x.year_to_date_irregular_payment
+            line_obj.ytd_previous_irre_payment = x.ytd_previous_irre_payment
+            line_obj.ytd_previous_irre_payment_erp = x.ytd_previous_irre_payment_erp
+
+
 class HrEmployeeYTDPayrollInformation(models.Model):
     _name = 'hr.employee.ytd.payroll.information'
     _description = 'Hr Employee YTD Payroll Information'

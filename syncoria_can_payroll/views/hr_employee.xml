@@ -12,7 +12,7 @@
                 <xpath expr="//notebook" position="inside">
                     <page name="sync_payroll_info" string="Payroll Information" groups="hr.group_hr_manager">
                              <field name="payroll_line_ids" nolabel="1">
-                                <tree >
+                                <tree>
                                     <field name="year"/>
                                     <field name="ytd_cpp_erp"/>
                                     <field name="ytd_cpp2"/>
@@ -24,7 +24,7 @@
                                  <form>
                                      <group>
                                          <group>
-                                             <field name="year"/>
+                                             <field name="year" readonly="1" force_save="1"/>
                                          </group>
                                      </group>
                                      <group >
