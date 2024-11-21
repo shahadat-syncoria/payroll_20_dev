@@ -1,6 +1,3 @@
-from email.policy import default
-
-from billiard.five import string
 from odoo.exceptions import UserError
 from odoo import models, api, fields, _
 CODE = [
