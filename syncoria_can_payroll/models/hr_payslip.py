@@ -282,7 +282,7 @@ class InheritedHrPayslip(models.Model):
 
             # Customised code start *****************************************************
             # API endpoint
-            pay_lines = payslips._get_payslip_lines()
+            pay_lines = payslip._get_payslip_lines()
             I = 0
             F = 0
             B = 0
