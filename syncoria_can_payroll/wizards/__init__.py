@@ -10,3 +10,4 @@ from . import account_payment_register
 from . import payroll_earning_wizard
 from . import t4_xml_wiz
 from . import payslip_email_wiz
+from . import batch_create_draft_entry

@@ -294,6 +294,7 @@ class VacationPayslip(models.Model):
 
     def _prepare_slip_lines(self, date, line_ids):
         super(VacationPayslip,self)._prepare_slip_lines(date, line_ids)
+        self.ensure_one()
         precision = self.env['decimal.precision'].precision_get('Payroll')
         new_lines = []
         for line in self.line_ids.filtered(lambda line: line.category_id):

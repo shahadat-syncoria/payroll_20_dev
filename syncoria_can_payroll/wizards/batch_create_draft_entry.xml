@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <record id="view_hr_payslip_create_draft_wizard_form" model="ir.ui.view">
+        <field name="name">hr.payslip.create.draft.wizard.form</field>
+        <field name="model">hr.payslip.create.draft.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Create Draft Payslips Wizard">
+
+                    <field name="draft_line_ids" widget="one2many_list" nolabel="1">
+                        <tree editable="bottom">
+                            <field name="slip_id"/>
+                            <field name="employee_id"/>
+                            <field name="attendance_hours" widget="float_time"/>
+                            <field name="insurable_hour"/>
+                            <field name="gross" optional="show"/>
+                            <field name="vac_pay" optional="hide"/>
+                            <field name="insurable_earning" optional="hide"/>
+                            <field name="cpp" optional="hide"/>
+                            <field name="cpp2" optional="hide"/>
+                            <field name="ei" optional="hide"/>
+                            <field name="e_cpp" optional="hide"/>
+                            <field name="e_cpp2" optional="hide"/>
+                            <field name="e_ei" optional="hide"/>
+                            <field name="fed_tax" optional="hide"/>
+                            <field name="prov_tax" optional="hide"/>
+                            <field name="net" optional="show"/>
+                            <field name="acc_vac" optional="hide"/>
+                        </tree>
+                    </field>
+
+                <footer>
+                    <button string="Generate Draft Payslips" type="object" name="action_generate_draft_payslips" class="btn-primary"/>
+                    <button string="Cancel" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_hr_payslip_create_draft_wizard" model="ir.actions.act_window">
+        <field name="name">Create Draft Payslips</field>
+        <field name="res_model">hr.payslip.create.draft.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+<!--         <field name="dialog_size">large</field>-->
+    </record>
+</odoo>

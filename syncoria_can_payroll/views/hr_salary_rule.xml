@@ -12,6 +12,8 @@
                     <field name="is_pensionable" invisible="cat_code not in ['GROSS','ADD_ALLOWANCE','ALW']"/>
                     <field name="is_vacation_pay" invisible="cat_code not in ['GROSS','ADD_ALLOWANCE','ALW']"/>
                     <field name="is_irregular_payment" invisible="cat_code not in ['ADD_ALLOWANCE','ALW']"/>
+                    <field name="is_batch_modifiable"/>
+<!--                           invisible="cat_code not in ['GROSS','ADD_ALLOWANCE','ALW','POST_TAX_DEDUCTION','PRE_TAX_DEDUCTION']"/>-->
 
                 </xpath>
             </field>
