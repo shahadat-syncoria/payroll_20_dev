@@ -1,7 +1,6 @@
 from odoo import fields, models, api, _
-from datetime import datetime,timedelta
+from datetime import datetime
 from dateutil.relativedelta import relativedelta
-import calendar
 from odoo.exceptions import UserError
 from odoo.exceptions import ValidationError
 
@@ -36,7 +35,7 @@ class VacationPayslip(models.Model):
     vacation_leave_write_date = fields.Datetime(string="Last Updated at", groups='hr.group_hr_user')
 
     # =================================================== Cash Wise store Vacation Pay(Earned Vacation Pay) ========================================
-    ytd_vac_pay_amount = fields.Float("Remaining Vacation Pay Amount", default=0.0,compute="_compute_vac_pay_amount", groups='hr.group_hr_user',store=True)
+    ytd_vac_pay_amount = fields.Float("Remaining Vacation Pay Amount", default=0.0, groups='hr.group_hr_user',store=True)
     ytd_vac_pay_amount_erp = fields.Float("Vacation Pay Amount ERP", default=0.0, groups='hr.group_hr_user')
     previous_vac_pay_amount = fields.Float("Previous Vacation Pay Amount", default=0.0, groups='hr.group_hr_user')
     vac_pay_amount_taken = fields.Float("Vacation Pay Amount Taken", default=0.0,store=True,readonly=True, groups="hr.group_hr_user")
