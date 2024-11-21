@@ -172,31 +172,29 @@ class InhertitedHrEmployee(models.Model):
             This is helper function to get YTD paid payslips compute line ids
         """
         # payslip_ytd = self.slip_ids.filtered(lambda x: x.state == 'paid' and (x.paid_date.year if x.paid_date else x.write_date.year) == int(self.contract_id.deductions.slab_year or 0))
-        # year = 2025
-        payslip_ytd = self.slip_ids.filtered(lambda x: x.state == 'paid' and
-        (x.paid_date.year if x.paid_date else x.write_date.year) == int(year))
+        payslip_ytd = self.slip_ids.filtered(lambda x: x.state == 'paid' and x.date_to.year == int(year))
         return payslip_ytd.line_ids
 
     def _update_ytd_cpp_pi_ei(self,payslip_ytd,req_type, year):
         # year = 2025
-        print(type(year))
         line_obj = self.payroll_line_ids.filtered(lambda x: x.year == str(year))
         if req_type in ['CPP', "CPP2","EI","EI_EMPLOYER"]:
             ytd_total_amount = sum(
                 payslip_ytd.filtered(lambda x: x.code == req_type).mapped("total"))
-
-            prev_line_obj = self.payroll_line_ids.filtered(lambda x: x.year == str(year - 1))
-            if prev_line_obj:
-                if req_type == 'CPP':
-                    ytd_total_amount += prev_line_obj.ytd_cpp_erp
-                elif req_type == 'CPP2':
-                    ytd_total_amount += prev_line_obj.ytd_cpp2_erp
-                elif req_type == 'EI':
-                    ytd_total_amount += prev_line_obj.ytd_ei_erp
-                elif req_type == 'EI_EMPLOYER':
-                    ytd_total_amount += prev_line_obj.ytd_ei_employer_erp
+            
+            if self.is_vacation_pay_carry_over:
+                prev_line_obj = self.payroll_line_ids.filtered(lambda x: x.year == str(year - 1))
+                if prev_line_obj:
+                    if req_type == 'CPP':
+                        ytd_total_amount += prev_line_obj.ytd_cpp_erp
+                    elif req_type == 'CPP2':
+                        ytd_total_amount += prev_line_obj.ytd_cpp2_erp
+                    elif req_type == 'EI':
+                        ytd_total_amount += prev_line_obj.ytd_ei_erp
+                    elif req_type == 'EI_EMPLOYER':
+                        ytd_total_amount += prev_line_obj.ytd_ei_employer_erp
             if not line_obj:
-                abc = self.env["hr.employee.ytd.payroll.information"].create(
+                self.env["hr.employee.ytd.payroll.information"].create(
                     {
                         "head_id": self.id,
                         "year": str(year),
@@ -204,9 +202,10 @@ class InhertitedHrEmployee(models.Model):
                         "ytd_cpp2_erp": ytd_total_amount if req_type == 'CPP2' else 0,
                         "ytd_ei_erp": ytd_total_amount if req_type == 'EI' else 0,
                         "ytd_ei_employer_erp": ytd_total_amount if req_type == 'EI_EMPLOYER' else 0,
-                        "ytd_pi_erp": prev_line_obj.ytd_pi_erp if prev_line_obj else 0,
+                        "ytd_pi_erp": prev_line_obj.ytd_pi_erp if self.is_vacation_pay_carry_over and prev_line_obj else 0,
                     }
                 )
+
             else:
                 line_obj.ytd_cpp_erp = ytd_total_amount if req_type == 'CPP' else line_obj.ytd_cpp_erp
                 line_obj.ytd_cpp2_erp = ytd_total_amount if req_type == 'CPP2' else line_obj.ytd_cpp2_erp

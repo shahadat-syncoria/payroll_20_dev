@@ -96,7 +96,7 @@ class InheritedHrPayslip(models.Model):
     def action_payslip_cancel(self):
         super(InheritedHrPayslip,self).action_payslip_cancel()
         for slip in self:
-            slip.employee_id.with_context({"type":"ALL", "year": self.date_to.year}).update_ytd_erp() # "ALL" is for update YTD of CPP,CPP2,PI
+            slip.employee_id.with_context({"type":"ALL", "year": slip.date_to.year}).update_ytd_erp() # "ALL" is for update YTD of CPP,CPP2,PI
             slip.employee_id.update_ytd_irregular_payments_tax() # "ALL" is for update YTD of CPP,CPP2,PI
 
     def get_previous_irregular_payment(self, id, paycycle):
@@ -268,6 +268,7 @@ class InheritedHrPayslip(models.Model):
 
     # inherited compute_sheet method for tax api call
     def compute_sheet(self):
+        print('2222')
         payslips = self.filtered(lambda slip: slip.state in ['draft', 'verify'])
         payslips.line_ids.unlink()
         self.env.flush_all()
@@ -282,7 +283,7 @@ class InheritedHrPayslip(models.Model):
 
             # Customised code start *****************************************************
             # API endpoint
-            pay_lines = payslips._get_payslip_lines()
+            pay_lines = payslip._get_payslip_lines()
             I = 0
             F = 0
             B = 0
@@ -298,7 +299,7 @@ class InheritedHrPayslip(models.Model):
                 if x['code'] == 'RRSP':
                     F = x['amount']
             # Parameters for the API request
-            emp_line_obj = payslip.employee_id.payroll_line_ids.filtered(lambda x: x.year == str(self.date_to.year))
+            emp_line_obj = payslip.employee_id.payroll_line_ids.filtered(lambda x: x.year == str(payslip.date_to.year))
             P = payslip.pay_cycle.pay_cycle
             D = emp_line_obj.ytd_cpp
             D1 = emp_line_obj.ytd_ei

@@ -90,7 +90,7 @@ class VacationPayslip(models.Model):
         payslips = self.filtered(lambda slip: slip.state in ['draft', 'verify'])
         adjusted_input_type = self.env.ref('syncoria_can_vacation_pay.input_ca_adjusted_vac_pay').id
         for payslip in payslips:
-            line_obj = payslip.employee_id.payroll_line_ids.filtered(lambda x: x.year == str(self.date_to.year))
+            line_obj = payslip.employee_id.payroll_line_ids.filtered(lambda x: x.year == str(payslip.date_to.year))
             line_obj.update_vac_pay_amount_erp()
             # payslip.employee_id.update_vac_pay_amount_erp()
             try:
@@ -273,7 +273,7 @@ class VacationPayslip(models.Model):
                 rec.vac_pay_earned_amount = 0.00
                 rec.vac_pay_earned_taken = 0.00
                 rec._cancel_vacation_pay_request()
-                emp_line_obj = rec.employee_id.payroll_line_ids.filtered(lambda x: x.year == str(self.date_to.year))
+                emp_line_obj = rec.employee_id.payroll_line_ids.filtered(lambda x: x.year == str(rec.date_to.year))
                 emp_line_obj.update_vac_pay_amount_erp()
                 rec.message_post(body="Related Vacation Pay Request Cancelled")
         return res
