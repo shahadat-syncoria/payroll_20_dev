@@ -68,7 +68,7 @@ class InheritedHrPayslip(models.Model):
     def _onchange_pay_cycle_period(self):
         for rec in self:
             if rec.pay_cycle_period:
-                rec.update({
+                rec.write({
                     'name': rec.pay_cycle_period.name + f'-{fields.Date.today().year}',
                     'date_from': rec.pay_cycle_period.start_date,
                     'date_to': rec.pay_cycle_period.end_date
