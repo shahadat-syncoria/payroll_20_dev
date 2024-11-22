@@ -75,6 +75,7 @@
         'wizards/hr_payroll_payslip_by_employee_views.xml',
         'wizards/employee_net_pay_wizard_views.xml',
         'wizards/payroll_earning_wizard_views.xml',
+        'wizards/payroll_update_wizard_views.xml',
 
 
         # ======== Reports =============

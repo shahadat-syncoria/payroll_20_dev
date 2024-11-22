@@ -1,10 +1,13 @@
 from odoo.exceptions import UserError
 from odoo import models, api, fields, _
+from datetime import datetime
+
 CODE = [
     ('0', '0'),
     ('1', '1'),
 ]
 
+# old code need to remove
 YEAR = [
     ('2021', '2021'),
     ('2022', '2022'),
@@ -14,6 +17,14 @@ YEAR = [
     ('2026', '2026'),
     ('2027', '2027'),
 ]
+
+# use this one
+def get_years():
+    current_year = datetime.now().year
+    start_year = current_year - 3  # 3 years before the current year
+    end_year = current_year + 7  # 7 years after the current year
+    return [(str(year), str(year)) for year in range(start_year, end_year + 1)]
+
 
 EMPLOYMENT_CODE = [
     ('11', "Placement or employment agency workers"),
@@ -333,41 +344,15 @@ class InhertitedHrEmployee(models.Model):
             'target': 'new',
         }
 
-    # todo wizard upcoming task =====
-    def update_payroll_info(self):
-        for x in self.employee_ids:
-            line_obj = self.payroll_line_ids.filtered(lambda x: x.year == str(2024))
-            if not line_obj:
-                line_obj = self.env["hr.employee.ytd.payroll.information"].create(
-                    {
-                        "head_id": self.id,
-                        "year": str(2024),
-                    }
-                )
-
-            line_obj.ytd_cpp_erp = x.ytd_cpp_erp
-            line_obj.ytd_previous_cpp = x.ytd_previous_cpp
-            line_obj.ytd_cpp = x.ytd_cpp
-
-            line_obj.ytd_cpp2_erp = x.ytd_cpp2_erp
-            line_obj.ytd_previous_cpp2 = x.ytd_previous_cpp2
-            line_obj.ytd_cpp2 = x.ytd_cpp2
-
-            line_obj.ytd_ei_erp = x.ytd_ei_erp
-            line_obj.ytd_previous_ei = x.ytd_previous_ei
-            line_obj.ytd_ei = x.ytd_ei
-
-            line_obj.ytd_ei_employer_erp = x.ytd_ei_employer_erp
-            line_obj.ytd_previous_ei_employer = x.ytd_previous_ei_employer
-            line_obj.ytd_ei_employer = x.ytd_ei_employer
-
-            line_obj.ytd_pi_erp = x.ytd_pi_erp
-            line_obj.ytd_pi = x.ytd_pi
-            line_obj.ytd_previous_pi = x.ytd_previous_pi
-
-            line_obj.year_to_date_irregular_payment = x.year_to_date_irregular_payment
-            line_obj.ytd_previous_irre_payment = x.ytd_previous_irre_payment
-            line_obj.ytd_previous_irre_payment_erp = x.ytd_previous_irre_payment_erp
+    @api.model
+    def action_update_batch_payroll_info(self):
+        return {
+            'type': 'ir.actions.act_window',
+            'name': 'Batch Update Payroll Info',
+            'res_model': 'payroll.update.wizard',
+            'view_mode': 'form',
+            'target': 'new',
+        }
 
 
 class HrEmployeeYTDPayrollInformation(models.Model):
@@ -378,7 +363,7 @@ class HrEmployeeYTDPayrollInformation(models.Model):
     contract_id = fields.Many2one('hr.contract',related='head_id.contract_id', store=True)
     last_paycycle_gross = fields.Float(related='head_id.last_paycycle_gross', store=True)
     ytd_previous_irre_prov_amount = fields.Float(related='head_id.ytd_previous_irre_prov_amount', store=True)
-    year = fields.Selection(selection=YEAR, default="2024")
+    year = fields.Selection(selection=get_years(), default=lambda self: str(datetime.now().year))
     ytd_previous_irre_fed_tax = fields.Float("Previous Year To Date Irregular Payment Fed Tax", default=0, store=True,
                                              compute='compute_ytd_previous_irre_fed_tax')
 

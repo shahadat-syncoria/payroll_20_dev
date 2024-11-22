@@ -96,7 +96,7 @@ class InheritedHrPayslip(models.Model):
     def action_payslip_cancel(self):
         super(InheritedHrPayslip,self).action_payslip_cancel()
         for slip in self:
-            slip.employee_id.with_context({"type":"ALL"}).update_ytd_erp() # "ALL" is for update YTD of CPP,CPP2,PI
+            slip.employee_id.with_context({"type":"ALL", "year": slip.date_to.year}).update_ytd_erp() # "ALL" is for update YTD of CPP,CPP2,PI
             slip.employee_id.update_ytd_irregular_payments_tax() # "ALL" is for update YTD of CPP,CPP2,PI
 
     def get_previous_irregular_payment(self, id, paycycle):
@@ -120,7 +120,7 @@ class InheritedHrPayslip(models.Model):
             if rec.payslip_run_id and res and 'state' in vals and vals.get('state') == 'paid':
                 rec.payslip_run_id._check_paid_status()
             if 'state' in vals and vals.get('state') == 'paid':
-                rec.employee_id.with_context({"type": "ALL"}).update_ytd_erp()
+                rec.employee_id.with_context({"type": "ALL", "year": rec.date_to.year}).update_ytd_erp()
                 rec.write({
                     'irre_amount': sum([line.amount for line in rec.line_ids if line.salary_rule_id.is_irregular_payment])
 
@@ -344,16 +344,16 @@ class InheritedHrPayslip(models.Model):
             try:
                 with_user = self.env['ir.config_parameter'].sudo()
                 url = with_user.get_param('syncoria_can_payroll.base_url')
+                end_point = '/api/v1/payroll_info/calculate-tax/'
                 if not url:
                     raise ValidationError(f"Failed to call the API, Need to configure a base url from the settings.")
                 token = with_user.get_param('syncoria_can_payroll.token')
                 header={
                     'Authorization': f'Token {token}'
                 }
-                response = requests.post(url, json=payload, headers=header)
+                response = requests.post(url+end_point, json=payload, headers=header)
                 response_data = response.json()
                 if 'FTAX' not in response_data:
-                    print('response_data', response_data)
                     raise ValidationError(f"Failed to call the API: {response_data['detail'] if 'detail' in response_data else response_data['results']}")
                 payslip.api_response_json = response_data
                 payslip.api_payload_json = payload
@@ -449,12 +449,13 @@ class HrPayrollEditPayslipLinesWizardInheritSynPayroll(models.TransientModel):
                 with_user = self.env['ir.config_parameter'].sudo()
                 token = with_user.get_param('syncoria_can_payroll.token')
                 url = with_user.get_param('syncoria_can_payroll.base_url')
+                end_point = '/api/v1/payroll_info/calculate-tax/'
                 if not url:
                     raise ValidationError(f"Failed to call the API, need to configure a base url from the settings.")
                 header = {
                     'Authorization': f'Token {token}'
                 }
-                response = requests.post(url, json=api_payload_json, headers=header)
+                response = requests.post(url+end_point, json=api_payload_json, headers=header)
                 response_data = response.json()
                 self.payslip_id.api_response_json = response_data
                 self.payslip_id.api_payload_json = api_payload_json

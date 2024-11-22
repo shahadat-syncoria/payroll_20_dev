@@ -233,16 +233,26 @@
             </field>
         </record>
 
-                <!--   Action for batch generate T4     -->
+        <!--   Action for batch generate T4     -->
         <record id="action_T4_batch_gen" model="ir.actions.server">
-        <field name="name">Batch Generate T4</field>
-        <field name="model_id" ref="model_hr_employee"/>
-        <field name="binding_model_id" ref="hr.model_hr_employee"/>
-        <field name="state">code</field>
-        <field name="code">
-            action = model.action_statement_remuneration_wizard()
-        </field>
-    </record>
+            <field name="name">Batch Generate T4</field>
+            <field name="model_id" ref="model_hr_employee"/>
+            <field name="binding_model_id" ref="hr.model_hr_employee"/>
+            <field name="state">code</field>
+            <field name="code">
+                action = model.action_statement_remuneration_wizard()
+            </field>
+        </record>
+
+        <record id="action_update_batch_payroll_info" model="ir.actions.server">
+            <field name="name">Batch Update Payroll Info</field>
+            <field name="model_id" ref="model_hr_employee"/>
+            <field name="binding_model_id" ref="hr.model_hr_employee"/>
+            <field name="state">code</field>
+            <field name="code">
+                action = model.action_update_batch_payroll_info()
+            </field>
+        </record>
 
     </data>
 </odoo>
