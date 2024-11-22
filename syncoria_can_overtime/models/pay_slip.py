@@ -2,6 +2,8 @@ import json
 import logging
 from datetime import timedelta
 
+from dateutil.relativedelta import relativedelta
+
 from odoo import fields, models, _, api, Command
 from odoo.exceptions import UserError, ValidationError
 _logger = logging.getLogger(__name__)
@@ -50,6 +52,8 @@ class InheritedHrPayslipOvertime(models.Model):
         # Get the start and end date of the payslip
         payslip_start_date = self.date_from
         payslip_end_date = self.date_to
+        payslip_start_date += relativedelta(hour=0, minute=0, second=0)
+        payslip_end_date += relativedelta(hour=23, minute=59, second=59)
         _logger.info(f"Start date:{payslip_start_date} and End Date: {payslip_end_date}")
 
         # Find the Monday of the start week and Sunday of the end week
@@ -80,6 +84,7 @@ class InheritedHrPayslipOvertime(models.Model):
             weekly_work_entries = work_entries.filtered(
                 lambda we: we.date_start.date() >= current_week_start and we.date_stop.date() <= current_week_end
             )
+            _logger.info(f"Weekly Work entries:{weekly_hours[-1].date_start} and {weekly_hours[-1].date_stop}\n")
 
             # Calculate weekly hours
             weekly_hours = sum(
