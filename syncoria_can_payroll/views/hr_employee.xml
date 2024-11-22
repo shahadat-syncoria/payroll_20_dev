@@ -14,7 +14,7 @@
                              <field name="payroll_line_ids" nolabel="1">
                                 <tree>
                                     <field name="year"/>
-                                    <field name="ytd_cpp_erp"/>
+                                    <field name="ytd_cpp"/>
                                     <field name="ytd_cpp2"/>
                                     <field name="ytd_ei"/>
                                     <field name="ytd_ei_employer"/>

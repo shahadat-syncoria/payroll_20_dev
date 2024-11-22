@@ -1,6 +1,7 @@
 from odoo import fields, models, api, _
 from odoo.exceptions import UserError
 from odoo.tools import float_compare, float_is_zero, plaintext2html
+from datetime import datetime
 
 
 class VacationHrPayslipInput(models.Model):
@@ -16,10 +17,16 @@ class VacationPayslip(models.Model):
     vac_pay_earned_taken = fields.Float("Vacation Pay Earned Amount Taken",default=0.0)
     payout_vacation_pay_paycycle = fields.Boolean("Payout Vacation Amount Per Pay Cycle", default=False,
                                                   groups='hr.group_hr_user')
-    ytd_vac_pay_amount = fields.Float(related="employee_id.ytd_vac_pay_amount")
+    ytd_vac_pay_amount = fields.Float(compute='_compute_ytd_vac',)
     vacation_type = fields.Selection(related="employee_id.vacation_type", string="Vacation Type")
     vacation_pay_taken = fields.Float(related="employee_id.vacation_pay_taken")
-
+    
+    @api.depends('employee_id.payroll_line_ids')
+    def _compute_ytd_vac(self):
+        for record in self:
+            line_obj = record.employee_id.payroll_line_ids.filtered(lambda x: x.year == str(self.date_to.year))
+            record.ytd_vac_pay_amount = line_obj.ytd_vac_pay_amount if line_obj else 0  # Assuming default is 0 if no line is found
+            
     @api.onchange('employee_id')
     def _onchange_payout_vacation_pay_paycycle(self):
         for rec in self:
@@ -230,7 +237,8 @@ class VacationPayslip(models.Model):
             if rec.state == 'paid' and adjusted_vacation_pay_input_line_ids:
                 vac_pay_amount = sum(adjusted_vacation_pay_input_line_ids.mapped("amount"))
                 rec.vac_pay_earned_taken += vac_pay_amount
-                rec.employee_id.ytd_vac_pay_amount_erp += vac_pay_amount
+                line_obj = rec.employee_id.payroll_line_ids.filtered(lambda x: x.year == str(self.date_to.year))
+                line_obj.ytd_vac_pay_amount_erp += vac_pay_amount
                 rec.vac_pay_earned_amount = vac_pay_amount
 
     def action_payslip_paid(self):

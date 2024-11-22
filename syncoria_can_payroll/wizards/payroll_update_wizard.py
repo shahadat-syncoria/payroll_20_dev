@@ -1,12 +1,4 @@
-import os
-import base64
-import urllib
-
-import werkzeug
-
 from odoo import models, fields, api
-from ..helper.helper_functions import year_selection
-
 
 class PayrollUpdateWizard(models.TransientModel):
     _name = 'payroll.update.wizard'
@@ -27,6 +19,8 @@ class PayrollUpdateWizard(models.TransientModel):
     def update_payroll_info(self):
         for x in self.employee_ids:
             line_obj = x.payroll_line_ids.filtered(lambda x: x.year == str(2024))
+            if line_obj:
+                continue
             if not line_obj:
                 line_obj = self.env["hr.employee.ytd.payroll.information"].create(
                     {

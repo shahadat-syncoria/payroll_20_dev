@@ -6,7 +6,7 @@ from lxml import etree
 from odoo.exceptions import UserError
 
 from odoo.modules.module import get_module_resource
-import datetime
+from datetime import datetime
 
 from pypdf import PdfReader, PdfWriter
 
@@ -192,7 +192,7 @@ class RecordOfEmployee(models.Model):
             payslip_ids = self.get_payslip_ids()
             has_last_payment = self.vacation_amount_ids.sorted(key=lambda r: r.reference, reverse=True)[:1]
 
-
+            line_obj = self.employee_id.payroll_line_ids.filtered(lambda x: x.year == datetime.now().year)
             self.write({
                 "company_id": employee.company_id,
                 "name_of_issuer_id" : self.env['hr.employee'].search([('user_id', '=', self.env.uid)], limit=1).id,
@@ -205,7 +205,7 @@ class RecordOfEmployee(models.Model):
                 "cra_payroll_acc_num": employee.company_id.payroll_account_number,
                 "employer_payroll_ref": self.company_id.employer_payroll_ref or '',
                 "total_insurable_hours": self._get_insurable_hour(),
-                "total_insurable_earnings": self.employee_id.ytd_pi,
+                "total_insurable_earnings": line_obj.ytd_pi,
                 "payslip_ids": payslip_ids,
                 "vacation_amount_ids": self._get_vacation_amount(),
                 "vacation_pay_amount": round(has_last_payment.amount,2) if has_last_payment else ''

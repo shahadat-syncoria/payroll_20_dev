@@ -104,6 +104,9 @@
             <field name="model">hr.employee</field>
             <field name="inherit_id" ref="syncoria_can_payroll.view_employee_form_sync_can_view"/>
             <field name="arch" type="xml">
+                <xpath expr="//field[@name='payroll_line_ids']/tree/field[@name='ytd_pi']" position="after">
+                    <field name="vac_pay_amount_taken"/>
+                </xpath>
                 <xpath expr="//field[@name='payroll_line_ids']/form/group[2]" position="inside">
                     <group string='Vacation Pay(Earned Pay)' name="vacation_pay">
                         <label for="ytd_vac_pay_amount_erp" class="oe_inline"/>

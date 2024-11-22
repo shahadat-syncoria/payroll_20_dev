@@ -1,6 +1,7 @@
 from odoo.exceptions import UserError
 from odoo import models, api, fields, _
 from datetime import datetime
+from ..helper.helper_functions import year_selection
 
 CODE = [
     ('0', '0'),
@@ -8,17 +9,6 @@ CODE = [
 ]
 
 # old code need to remove
-YEAR = [
-    ('2021', '2021'),
-    ('2022', '2022'),
-    ('2023', '2023'),
-    ('2024', '2024'),
-    ('2025', '2025'),
-    ('2026', '2026'),
-    ('2027', '2027'),
-]
-
-# use this one
 def get_years():
     current_year = datetime.now().year
     start_year = current_year - 3  # 3 years before the current year
@@ -363,7 +353,11 @@ class HrEmployeeYTDPayrollInformation(models.Model):
     contract_id = fields.Many2one('hr.contract',related='head_id.contract_id', store=True)
     last_paycycle_gross = fields.Float(related='head_id.last_paycycle_gross', store=True)
     ytd_previous_irre_prov_amount = fields.Float(related='head_id.ytd_previous_irre_prov_amount', store=True)
-    year = fields.Selection(selection=get_years(), default=lambda self: str(datetime.now().year))
+    year = fields.Selection(
+        year_selection,
+        string="Year",
+        default=lambda self: str(datetime.now().year)
+    )
     ytd_previous_irre_fed_tax = fields.Float("Previous Year To Date Irregular Payment Fed Tax", default=0, store=True,
                                              compute='compute_ytd_previous_irre_fed_tax')
 

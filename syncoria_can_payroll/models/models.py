@@ -673,6 +673,7 @@ class StatementOfRemuneration(models.Model):
             [('employee_id', '=', self.employee_id.id), ('state', '=', 'paid')])
         year_specific_employee_payslip_ids = employee_payslip_ids.filtered(
             lambda s: s.date_from.year == int(self.year) or s.date_to.year == int(self.year))
+        emp_line_obj = self.employee_id.payroll_line_ids.filtered(lambda x: x.year == self.year)
 
         employee_contract = self.employee_contract
         t4_amount = {}
@@ -726,7 +727,7 @@ class StatementOfRemuneration(models.Model):
             # if
             # cpp_cnt_amount +=
         # Total Insurable earning with previous amount
-        employee_empt_incamt +=  self.employee_id.ytd_previous_pi
+        employee_empt_incamt +=  emp_line_obj.ytd_previous_pi if emp_line_obj else 0
 
         t4_amount.update({
             'employee_empt_incamt': round(employee_empt_incamt,2),
@@ -740,10 +741,11 @@ class StatementOfRemuneration(models.Model):
         if not employee_contract.is_cpp_qpp_xmpt_cd:
             canada_cpp_qpp_ern_amt = round(employee_empt_incamt, 2)
             # Total CPP with previous amount
-            cpp_cnt_amount += self.employee_id.ytd_previous_cpp
+
+            cpp_cnt_amount += emp_line_obj.ytd_previous_cpp if emp_line_obj else 0
 
             # Total CPP2 with previous amount
-            cppe_cntrb_amt += self.employee_id.ytd_previous_cpp2
+            cppe_cntrb_amt += emp_line_obj.ytd_previous_cpp2 if emp_line_obj else 0
             t4_amount.update(
                 {
                   'employee_cpp_cntrb_amt': round(cpp_cnt_amount,2),
@@ -758,9 +760,10 @@ class StatementOfRemuneration(models.Model):
         if not employee_contract.is_ei_xmpt_cd:
             employee_ei_insu_ern_amt = round(employee_empt_incamt, 2)
             # Total Employee EI with previous amount
-            employee_empe_eip_amt += self.employee_id.ytd_previous_ei
+            line_obj = self.employee_id.payroll_line_ids.filtered(lambda x: x.year == self.year)
+            employee_empe_eip_amt += line_obj.ytd_previous_ei if line_obj else 0
             # Total Employer EI with previous amount
-            employer_empe_eip_amt += self.employee_id.ytd_previous_ei_employer
+            employer_empe_eip_amt += line_obj.ytd_previous_ei_employer if line_obj else 0
             t4_amount.update(
                 {'employee_empe_eip_amt': round(employee_empe_eip_amt,2),
                  'tot_empe_eip_amt': round(employee_empe_eip_amt,2),

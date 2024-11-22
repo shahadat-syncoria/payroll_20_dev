@@ -329,6 +329,7 @@ class InheritedHrPayslip(models.Model):
         self.env.flush_all()
         today = fields.Date.today()
         for payslip in payslips:
+            emp_line_obj = payslip.employee_id.payroll_line_ids.filtered(lambda x: x.year == payslip.date_to.year)
             number = payslip.number or self.env['ir.sequence'].next_by_code('salary.slip')
             payslip.write({
                 'number': number,
@@ -355,12 +356,12 @@ class InheritedHrPayslip(models.Model):
                     F = x['amount']
             # Parameters for the API request
             P = payslip.pay_cycle.pay_cycle
-            D = payslip.employee_id.ytd_cpp
-            D1 = payslip.employee_id.ytd_ei
-            D2 = payslip.employee_id.ytd_cpp2
-            ytd_pi = payslip.employee_id.ytd_pi
+            D = emp_line_obj.ytd_cpp
+            D1 = emp_line_obj.ytd_ei
+            D2 = emp_line_obj.ytd_cpp2
+            ytd_pi = emp_line_obj.ytd_pi
             emp_province = payslip.employee_id.territory_of_employment.code
-            B1 = payslip.employee_id.year_to_date_irregular_payment
+            B1 = emp_line_obj.year_to_date_irregular_payment
             # B1 = 0 #TODO place the real data
             federal_amount_from_td1 = payslip.contract_id.federal_amount_from_td1
             proviancial_amount_from_td1 = payslip.contract_id.proviancial_amount_from_td1
