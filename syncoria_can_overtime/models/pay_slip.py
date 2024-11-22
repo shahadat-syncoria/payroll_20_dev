@@ -1,8 +1,10 @@
 import json
+import logging
 from datetime import timedelta
 
 from odoo import fields, models, _, api, Command
 from odoo.exceptions import UserError, ValidationError
+_logger = logging.getLogger(__name__)
 
 class OvertimeHrPayslipInput(models.Model):
     _inherit = 'hr.payslip.input'
@@ -42,19 +44,19 @@ class InheritedHrPayslipOvertime(models.Model):
 
 
     def calculate_overtime(self):
-        print(f"Payslip ID===>{self.id}")
+        _logger.info(f"Payslip ID===>{self.id}")
         overtime_hours = 0
         full_week_hours = self.contract_id.overtime_threshold
         # Get the start and end date of the payslip
         payslip_start_date = self.date_from
         payslip_end_date = self.date_to
-        print(f"Start date:{payslip_start_date} and End Date: {payslip_end_date}")
+        _logger.info(f"Start date:{payslip_start_date} and End Date: {payslip_end_date}")
 
         # Find the Monday of the start week and Sunday of the end week
         first_monday = payslip_start_date - timedelta(days=payslip_start_date.weekday())
         last_sunday = payslip_end_date
 
-        print(f"First Monday:{first_monday} ")
+        _logger.info(f"First Monday:{first_monday} ")
 
 
 
@@ -74,7 +76,7 @@ class InheritedHrPayslipOvertime(models.Model):
         # Iterate through full weeks
         while current_week_start <= last_sunday:
             # Get work entries for the current week
-            print(f"Week Start:{current_week_start} and current_week_end: {current_week_end} and IS first week:{first_week}")
+            _logger.info(f"Week Start:{current_week_start} and current_week_end: {current_week_end} and IS first week:{first_week}")
             weekly_work_entries = work_entries.filtered(
                 lambda we: we.date_start.date() >= current_week_start and we.date_stop.date() <= current_week_end
             )
@@ -83,38 +85,37 @@ class InheritedHrPayslipOvertime(models.Model):
             weekly_hours = sum(
                 [(we.date_stop - we.date_start).total_seconds() / 3600 for we in weekly_work_entries]
             )
-            print(f"Weekly Hour:{weekly_hours}\n")
+            _logger.info(f"Weekly Hour:{weekly_hours}\n")
 
 
             if weekly_hours > full_week_hours:
                 # Handle partial weeks:
                 # If the pay period starts in the middle of the week
                 if payslip_start_date.weekday() != 0 and first_week:
-                    print(f"First Partial Week===>")
+                    _logger.info(f"First Partial Week===>")
                     first_partial_week_hours = sum(
                         [(we.date_stop - we.date_start).total_seconds() / 3600 for we in work_entries.filtered(
                             lambda we: we.date_start.date() >= first_monday and we.date_stop.date() < payslip_start_date
                         )]
                     )
-                    print(f"First Partial Week Hour:{first_partial_week_hours} and Date Start: {first_monday} and End date:{payslip_start_date}")
+                    _logger.info(f"First Partial Week Hour:{first_partial_week_hours} and Date Start: {first_monday} and End date:{payslip_start_date}")
                     if first_partial_week_hours > full_week_hours:
-                        print(
+                        _logger.info(
                             f"first_partial_week_hours({first_partial_week_hours}) > full_week_hours{full_week_hours}")
                         first_partial_overtime_hours = first_partial_week_hours - full_week_hours
-                        print(f"first_partial_overtime_hours({first_partial_overtime_hours})")
+                        _logger.info(f"first_partial_overtime_hours({first_partial_overtime_hours})")
                         overtime_hours += (weekly_hours - full_week_hours) - first_partial_overtime_hours
-                        print(f"first_partial_overtime_hours({(weekly_hours - full_week_hours) - first_partial_overtime_hours})")
+                        _logger.info(f"first_partial_overtime_hours({(weekly_hours - full_week_hours) - first_partial_overtime_hours})")
 
                 else:
-                    overtime_hours += weekly_hours - full_week_hours
+                    current_week_start += weekly_hours - full_week_hours
 
-            print(f"Overtime: {overtime_hours})")
             # Move to the next week
             current_week_start += timedelta(days=7)
-            print(f"Next Week: {current_week_start})")
+            _logger.info(f"Next Week Start: {current_week_start})")
             current_week_end = current_week_start + timedelta(days=4)
             first_week = False
-            print(f"Next Week: {current_week_end})")
+            _logger.info(f"Next Week Ends: {current_week_end})")
 
         # Handle partial weeks:
         # If the pay period starts in the middle of the week
@@ -137,7 +138,7 @@ class InheritedHrPayslipOvertime(models.Model):
         #     if last_partial_week_hours > full_week_hours:
         #         overtime_hours += last_partial_week_hours - full_week_hours
 
-        print(overtime_hours)
+        _logger.info(f"overtime_hours")
         return overtime_hours
 
     def _get_new_worked_days_lines(self):
