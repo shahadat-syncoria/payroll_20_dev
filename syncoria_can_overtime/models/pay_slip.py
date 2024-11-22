@@ -75,6 +75,7 @@ class InheritedHrPayslipOvertime(models.Model):
         # Initialize week tracking
         current_week_start = first_monday
         current_week_end = current_week_start + timedelta(days=4)
+        current_week_end +=relativedelta(hour=23, minute=59, second=59)
         first_week = True
 
         # Iterate through full weeks
