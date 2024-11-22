@@ -82,9 +82,9 @@ class InheritedHrPayslipOvertime(models.Model):
             # Get work entries for the current week
             _logger.info(f"Week Start:{current_week_start} and current_week_end: {current_week_end} and IS first week:{first_week}")
             weekly_work_entries = work_entries.filtered(
-                lambda we: we.date_start.date() >= current_week_start and we.date_stop.date() <= current_week_end
+                lambda we: we.date_start >= current_week_start and we.date_stop <= current_week_end
             )
-            _logger.info(f"Weekly Work entries:{weekly_hours[-1].date_start} and {weekly_hours[-1].date_stop}\n")
+            _logger.info(f"Weekly Work entries:{weekly_work_entries[-1].date_start} and {weekly_work_entries[-1].date_stop}\n")
 
             # Calculate weekly hours
             weekly_hours = sum(
@@ -100,7 +100,7 @@ class InheritedHrPayslipOvertime(models.Model):
                     _logger.info(f"First Partial Week===>")
                     first_partial_week_hours = sum(
                         [(we.date_stop - we.date_start).total_seconds() / 3600 for we in work_entries.filtered(
-                            lambda we: we.date_start.date() >= first_monday and we.date_stop.date() < payslip_start_date
+                            lambda we: we.date_start >= first_monday and we.date_stop < payslip_start_date
                         )]
                     )
                     _logger.info(f"First Partial Week Hour:{first_partial_week_hours} and Date Start: {first_monday} and End date:{payslip_start_date}")
