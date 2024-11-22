@@ -55,8 +55,8 @@
                 </xpath>
                 <xpath expr="//notebook" position="inside">
                     <page name="sync_payroll_vac_info" string="Vacation Slab Information" groups="hr.group_hr_manager">
-                                    <group name="vacation_slab">
-                                        <field name="vacation_slab_ids" >
+                                    <group string="Vacation Slab Configuration">
+                                        <field name="vacation_slab_ids" no_label="1" >
                                             <tree>
                                                 <field name="start_year" />
                                                 <field name="end_year" />
@@ -65,7 +65,7 @@
                                             </tree>
                                         </field>
                                 </group>
-                        <group>
+                        <group string="Accounting For Accrued Vacation pay">
                             <field name="account_debit" />
                             <field name="account_credit"/>
                         </group>

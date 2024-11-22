@@ -68,7 +68,7 @@ class InheritedHrPayslip(models.Model):
     def _onchange_pay_cycle_period(self):
         for rec in self:
             if rec.pay_cycle_period:
-                rec.update({
+                rec.write({
                     'name': rec.pay_cycle_period.name + f'-{fields.Date.today().year}',
                     'date_from': rec.pay_cycle_period.start_date,
                     'date_to': rec.pay_cycle_period.end_date
@@ -163,7 +163,7 @@ class InheritedHrPayslip(models.Model):
         return result
 
     # ================== Work days line based on manual input ==============
-    def compute_workdays_manual_input(self,manual_input_ids):
+    def compute_workdays_manual_input(self, manual_input_ids):
         """
         Here this function will only trigger when batch payslip will only generate
         by "Manually Generate Payslips" button.
@@ -171,6 +171,16 @@ class InheritedHrPayslip(models.Model):
         for rec in self:
             manual_input_line_id = manual_input_ids.filtered(lambda x: x.employee_id == rec.employee_id)
             attendance_hour = manual_input_line_id.attendance_hours
+            over_time_hour = manual_input_line_id.overtime_hours
+            stat_over_time_hour = manual_input_line_id.stat_overtime_hours
+
+            vac_pay = manual_input_line_id.vac_pay
+            bonus = manual_input_line_id.bonus
+            commission = manual_input_line_id.commission
+            retro = manual_input_line_id.retro
+
+            rec.payout_vacation_pay_paycycle = True if manual_input_line_id.payout_vacation_pay_paycycle else False
+
             avg_working_hour_per_day = rec.contract_id.resource_calendar_id.hours_per_day
             rec.worked_days_line_ids.unlink()
             worked_days_lines = []
@@ -183,8 +193,54 @@ class InheritedHrPayslip(models.Model):
                     # 'amount': timesheet_hours*payslip.contract_id.hourly_rate
 
                 }))
+            # if over_time_hour > 0.0:
+            #     worked_days_lines.append((0, 0, {
+            #         'work_entry_type_id': self.env.ref('syncoria_can_overtime.sync_overtime_work_entry_type').id,
+            #         'name': 'Overtime',
+            #         'number_of_days': over_time_hour / avg_working_hour_per_day,
+            #         'number_of_hours': over_time_hour,
+            #         # 'amount': timesheet_hours*payslip.contract_id.hourly_rate
+            #
+            #     }))
+            # if stat_over_time_hour > 0.0:
+            #     worked_days_lines.append((0, 0, {
+            #         'work_entry_type_id': self.env.ref('syncoria_can_overtime.sync_stat_overtime_work_entry_type').id,
+            #         'name': 'Statutory Holidays Overtime',
+            #         'number_of_days': stat_over_time_hour / avg_working_hour_per_day,
+            #         'number_of_hours': stat_over_time_hour,
+            #         # 'amount': timesheet_hours*payslip.contract_id.hourly_rate
+            #
+            #     }))
 
             rec.worked_days_line_ids = worked_days_lines
+            input_line = []
+            if vac_pay > 0.0:
+                input_line.append((0, 0, {
+                    'input_type_id': self.env.ref('syncoria_can_vacation_pay.input_ca_vac_pay').id,
+                    'name': "Vacation Pay",
+                    'amount': vac_pay,
+                }))
+            if bonus > 0.0:
+                input_line.append((0, 0, {
+                    'input_type_id': self.env.ref('syncoria_can_irregular_payment.input_ca_bonus_pay').id,
+                    'name': "Bonus",
+                    'amount': bonus,
+                }))
+
+            if commission > 0.0:
+                input_line.append((0, 0, {
+                    'input_type_id': self.env.ref('syncoria_can_irregular_payment.input_ca_commission').id,
+                    'name': "Commission",
+                    'amount': commission,
+                }))
+            if retro > 0.0:
+                input_line.append((0, 0, {
+                    'input_type_id': self.env.ref('syncoria_can_irregular_payment.input_ca_retro_pay').id,
+                    'name': "Retro",
+                    'amount': retro,
+                }))
+
+            rec.input_line_ids = input_line
 
     #================ For Unique Work entry type ========
     # @api.constrains('worked_days_line_ids')

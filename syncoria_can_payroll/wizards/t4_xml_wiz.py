@@ -38,7 +38,7 @@ class MessageWizard(models.TransientModel):
 
         return defaults
 
-    def action_confirm(self):
+    def action_download_t4_xml(self):
         # Generate the T4 XML content
         kwrgs = []
         domain = []
@@ -51,20 +51,32 @@ class MessageWizard(models.TransientModel):
         # for rec in self:
         xml_content = employee.generate_t4_xml(employees)
         employee.xml_content = xml_content
-        print(xml_content)
 
-        # Prepare the file for download
-        # filename = f'{rec.employee_id.name}' + '_T4' + '.xml'
+
 
         content_type = 'application/xml'
 
         kwrgs.append((xml_content, filename, content_type))
 
-        # Return the file as a response
         return {
             'type': 'ir.actions.act_url',
             'url': '/t4/download_xml?field=xml_content&id=%s&filename=%s&content_type=%s' % (
                 employee.id, filename, content_type),
             'target': 'self',
+        }
+
+    def action_download_t4_pdf(self):
+        if self.env.context.get('active_ids'):
+            domain = [('id', 'in', self.env.context.get('active_ids', [])),('state','=','done')]
+            employees = self.env["statement.remuneration"].search(domain)
+            employee = self.env["statement.remuneration"].search([('id', '=', self.env.context.get('active_id'))])
+
+
+        pdf_name = 'Merged T4' + str(datetime.datetime.now().strftime("%m%d%Y%H%M%S%f")) + '.pdf'
+        kwrgs = employee.generate_data_for_pdf(employees)
+        return {
+            'type': 'ir.actions.act_url',
+            'url': '/download/pdf?file_path=%s&file_name=%s&file_paths=%s' % ('', pdf_name, kwrgs),
+            'target': 'new',
         }
 

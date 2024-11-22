@@ -6,6 +6,9 @@
             <field name="model">hr.payslip.run</field>
             <field name="inherit_id" ref="hr_payroll.hr_payslip_run_form"/>
             <field name="arch" type="xml">
+<!--                 <xpath expr="//button[@name='action_validate']" position="after">-->
+<!--                <button name="action_draft_entry_wizard" type="object" string="Create Draft" invisible="state != 'verify'" class="oe_highlight" context="{'payslip_generate_pdf': True}" />-->
+<!--            </xpath>-->
                 <!--                <xpath expr="//button[@name='action_validate']" position="before">-->
                 <!--                    <field name="is_manual_input" invisible="1"/>-->
                 <!--                    <button name="%(syncoria_can_payroll.action_hr_employee_manual_input_wiz)d" type="action"-->
@@ -34,5 +37,18 @@
                     </group>
                 </xpath></field>
         </record>
+
+
+    <record id="hr_payslip_create_draft_form" model="ir.ui.view">
+        <field name="name">hr.payslip.create.draft.form</field>
+        <field name="model">hr.payslip.run</field>
+        <field name="inherit_id" ref="hr_payroll_account.hr_payslip_run_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//button[@name='action_validate']" position="replace">
+                <button name="action_draft_entry_wizard" type="object" string="Create Draft" invisible="state != 'verify'" class="oe_highlight" context="{'payslip_generate_pdf': True}" />
+             </xpath>
+        </field>
+    </record>
+
     </data>
 </odoo>

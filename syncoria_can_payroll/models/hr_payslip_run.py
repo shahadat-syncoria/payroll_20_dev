@@ -50,6 +50,22 @@ class PayrollHrPayslipRun(models.Model):
                     'date_start': rec.pay_cycle_period.start_date,
                     'date_end': rec.pay_cycle_period.end_date
                 })
+    def action_draft_entry_wizard(self):
+        self.ensure_one()
+        return {
+            'type': 'ir.actions.act_window',
+            'name': 'Create Draft Payslips',
+            'res_model': 'hr.payslip.create.draft.wizard',
+            'view_mode': 'form',
+            'target': 'new',
+            'context': {
+                'default_active_id': self.id,  # Pass the active payslip run's ID
+                'default_active_model': self._name,
+                'dialog_size': 'large'
+            },
+
+        }
+
 
     def get_next_calendar_date(self, current_date):
         # Get the current date
