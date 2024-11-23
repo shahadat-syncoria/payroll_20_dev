@@ -179,7 +179,8 @@ class InhertitedHrEmployee(models.Model):
         if req_type in ['CPP', "CPP2","EI","EI_EMPLOYER"]:
             ytd_total_amount = sum(
                 payslip_ytd.filtered(lambda x: x.code == req_type).mapped("total"))
-            
+
+            # todo need to test the task "is_vacation_pay_carry_over"
             if self.is_vacation_pay_carry_over:
                 prev_line_obj = self.payroll_line_ids.filtered(lambda x: x.year == str(year - 1))
                 if prev_line_obj:
