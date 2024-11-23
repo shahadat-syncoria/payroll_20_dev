@@ -400,13 +400,14 @@ class InheritedHrPayslip(models.Model):
             try:
                 with_user = self.env['ir.config_parameter'].sudo()
                 url = with_user.get_param('syncoria_can_payroll.base_url')
+                end_point = '/api/v1/payroll_info/calculate-tax/'
                 if not url:
                     raise ValidationError(f"Failed to call the API, Need to configure a base url from the settings.")
                 token = with_user.get_param('syncoria_can_payroll.token')
                 header={
                     'Authorization': f'Token {token}'
                 }
-                response = requests.post(url, json=payload, headers=header)
+                response = requests.post(url+end_point, json=payload, headers=header)
                 response_data = response.json()
                 if 'FTAX' not in response_data:
                     print('response_data', response_data)
