@@ -53,8 +53,10 @@ class InheritedHrPayslipOvertime(models.Model):
         # Get the start and end date of the payslip
         slip_tz = pytz.timezone(self.contract_id.resource_calendar_id.tz)
         utc = pytz.timezone('UTC')
-        payslip_start_date = slip_tz.localize(datetime.combine(self.date_from, time.min)).astimezone(utc).replace(tzinfo=None)
-        payslip_end_date = slip_tz.localize(datetime.combine(self.date_to, time.max)).astimezone(utc).replace(tzinfo=None)
+        # payslip_start_date = slip_tz.localize(datetime.combine(self.date_from, time.min)).astimezone(utc).replace(tzinfo=None)
+        payslip_start_date = datetime.combine(self.date_from, time.min)
+        # payslip_end_date = slip_tz.localize(datetime.combine(self.date_to, time.max)).astimezone(utc).replace(tzinfo=None)
+        payslip_end_date = datetime.combine(self.date_to, time.max)
 
         _logger.info(f"Start date:{payslip_start_date} and End Date: {payslip_end_date}")
 
@@ -75,8 +77,8 @@ class InheritedHrPayslipOvertime(models.Model):
         ])
 
         # Initialize week tracking
-        current_week_start = slip_tz.localize(datetime.combine(first_monday, time.min)).astimezone(utc).replace(tzinfo=None)
-        current_week_end = slip_tz.localize(datetime.combine((current_week_start + timedelta(days=4)), time.min)).astimezone(utc).replace(tzinfo=None)
+        current_week_start = datetime.combine(first_monday, time.min)
+        current_week_end = datetime.combine((current_week_start + timedelta(days=4)), time.max)
         first_week = True
 
         # Iterate through full weeks
@@ -86,7 +88,7 @@ class InheritedHrPayslipOvertime(models.Model):
             weekly_work_entries = work_entries.filtered(
                 lambda we: we.date_start >= current_week_start and we.date_stop <= current_week_end
             )
-            _logger.info(f"Weekly Work entries:{weekly_work_entries[-1].date_start} and {weekly_work_entries[-1].date_stop}\n")
+            _logger.info(f"Weekly Work entries:{weekly_work_entries[-1].date_start if weekly_work_entries else None} and {weekly_work_entries[-1].date_stop if weekly_work_entries else None}\n")
 
             # Calculate weekly hours
             weekly_hours = sum(
@@ -115,15 +117,14 @@ class InheritedHrPayslipOvertime(models.Model):
                         _logger.info(f"first_partial_overtime_hours({(weekly_hours - full_week_hours) - first_partial_overtime_hours})")
 
                 else:
-                    current_week_start += weekly_hours - full_week_hours
+                    overtime_hours += weekly_hours - full_week_hours
 
             # Move to the next week
             current_week_start += timedelta(days=7)
-            current_week_start = slip_tz.localize(datetime.combine(current_week_start, time.min)).astimezone(utc).replace(tzinfo=None)
+            current_week_start = datetime.combine(current_week_start, time.min)
             _logger.info(f"Next Week Start: {current_week_start})")
             current_week_end = current_week_start + timedelta(days=4)
-            current_week_end = slip_tz.localize(datetime.combine(current_week_end, time.max)).astimezone(
-                utc).replace(tzinfo=None)
+            current_week_end = datetime.combine(current_week_end, time.max)
             first_week = False
             _logger.info(f"Next Week Ends: {current_week_end})")
 
