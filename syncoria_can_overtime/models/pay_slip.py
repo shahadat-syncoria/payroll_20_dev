@@ -1,11 +1,12 @@
 import json
 import logging
-from datetime import timedelta
+from datetime import timedelta, datetime, time
 
 from dateutil.relativedelta import relativedelta
 
 from odoo import fields, models, _, api, Command
 from odoo.exceptions import UserError, ValidationError
+import pytz
 _logger = logging.getLogger(__name__)
 
 class OvertimeHrPayslipInput(models.Model):
@@ -50,10 +51,11 @@ class InheritedHrPayslipOvertime(models.Model):
         overtime_hours = 0
         full_week_hours = self.contract_id.overtime_threshold
         # Get the start and end date of the payslip
-        payslip_start_date = self.date_from
-        payslip_end_date = self.date_to
-        payslip_start_date += relativedelta(hour=0, minute=0, second=0)
-        payslip_end_date += relativedelta(hour=23, minute=59, second=59)
+        slip_tz = pytz.timezone(self.contract_id.resource_calendar_id.tz)
+        utc = pytz.timezone('UTC')
+        payslip_start_date = slip_tz.localize(datetime.combine(self.date_from, time.min)).astimezone(utc).replace(tzinfo=None)
+        payslip_end_date = slip_tz.localize(datetime.combine(self.date_to, time.max)).astimezone(utc).replace(tzinfo=None)
+
         _logger.info(f"Start date:{payslip_start_date} and End Date: {payslip_end_date}")
 
         # Find the Monday of the start week and Sunday of the end week
@@ -73,9 +75,8 @@ class InheritedHrPayslipOvertime(models.Model):
         ])
 
         # Initialize week tracking
-        current_week_start = first_monday
-        current_week_end = current_week_start + timedelta(days=4)
-        current_week_end +=relativedelta(hour=23, minute=59, second=59)
+        current_week_start = slip_tz.localize(datetime.combine(first_monday, time.min)).astimezone(utc).replace(tzinfo=None)
+        current_week_end = slip_tz.localize(datetime.combine((current_week_start + timedelta(days=4)), time.min)).astimezone(utc).replace(tzinfo=None)
         first_week = True
 
         # Iterate through full weeks
@@ -118,8 +119,11 @@ class InheritedHrPayslipOvertime(models.Model):
 
             # Move to the next week
             current_week_start += timedelta(days=7)
+            current_week_start = slip_tz.localize(datetime.combine(current_week_start, time.min)).astimezone(utc).replace(tzinfo=None)
             _logger.info(f"Next Week Start: {current_week_start})")
             current_week_end = current_week_start + timedelta(days=4)
+            current_week_end = slip_tz.localize(datetime.combine(current_week_end, time.max)).astimezone(
+                utc).replace(tzinfo=None)
             first_week = False
             _logger.info(f"Next Week Ends: {current_week_end})")
 
