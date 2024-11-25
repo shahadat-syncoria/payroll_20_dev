@@ -9,3 +9,4 @@ from . import hr_vacation_slab_conf
 from . import hr_leave_allocation
 from . import res_users
 from . import hr_work_entry_type
+from . import hr_contract

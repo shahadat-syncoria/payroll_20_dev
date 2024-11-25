@@ -177,8 +177,7 @@ class VacationPayslip(models.Model):
         # payslip.store_vacation_pay_amount()
         # payslip.employee_id.update_vac_pay_amount_erp()
 
-        insurable_amount = self.line_ids.filtered(lambda x: x.code == "I_Earning").total
-        insurable_amount -= sum(self.line_ids.filtered(lambda x: x.code in ["ADJUST_VP", "VP"]).mapped("total"))
+        insurable_amount = sum(self.line_ids.filtered(lambda x: x.salary_rule_id.is_vacation_pay).mapped("total"))
         vac_percentage = self.employee_id.allocated_vac_percentage
         stored_vac_pay_amount = (insurable_amount * (vac_percentage / 100))
         # other_adjusted_amount_input = payslip.input_line_ids.filtered(
