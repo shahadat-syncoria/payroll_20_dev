@@ -307,22 +307,25 @@ class InheritedHrPayslipOvertime(models.Model):
             other_input_duration_taken = sum(overtime_req_obj.search(
                 [('name', 'in', other_input_line_overtime.overtime_pay_req_ref.split(
                 ',') if other_input_line_overtime.overtime_pay_req_ref else []), ('employee_id', '=', self.employee_id.id)], limit=1).mapped('overtime_pay'))
-            # other_input_duration_taken =other_input_line_overtime.amount
+            other_input_amount_taken =other_input_line_overtime.amount
 
             for store_overtime in existing_overtime_pay_period_ids:
 
                 if other_input_duration_taken > store_overtime.duration_remaining:
                     duration_need_to_deduct = store_overtime.duration_remaining
+                    amount_need_to_deduct = store_overtime.remaining_amount
                     other_input_duration_taken -= duration_need_to_deduct
+                    other_input_amount_taken -= amount_need_to_deduct
 
                     store_overtime.write({
                         'duration_taken':store_overtime.duration_taken+ duration_need_to_deduct,
-                        # 'amount_taken': existing_overtime_pay_period_id.amount_taken + amount_need_to_deduct,
+                        'amount_taken': store_overtime.amount_taken + amount_need_to_deduct,
                         'payslip_ids': [Command.link(self.id)]
                     })
                 else:
                     store_overtime.write({
                         'duration_taken': store_overtime.duration_taken+other_input_duration_taken,
+                        'amount_taken': store_overtime.amount_taken+other_input_amount_taken,
                         'payslip_ids': [Command.link(self.id)]
                     })
 

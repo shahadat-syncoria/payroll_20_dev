@@ -29,7 +29,7 @@
         'data/hr_payroll_overtime_data.xml',
         'data/hr_payroll_overtime_data.xml',
         'data/salary_rules.xml',
-        'data/cron_data.xml',
+        # 'data/cron_data.xml',
         'views/hr_overtime_pay_req_view.xml',
         'views/hr_contract.xml',
         'views/hr_attendance_overtime_store.xml',
