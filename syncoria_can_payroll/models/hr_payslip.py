@@ -183,6 +183,7 @@ class InheritedHrPayslip(models.Model):
 
             avg_working_hour_per_day = rec.contract_id.resource_calendar_id.hours_per_day
             rec.worked_days_line_ids.unlink()
+            rec.input_line_ids.unlink()
             worked_days_lines = []
             if attendance_hour > 0.0:
                 worked_days_lines.append((0, 0, {

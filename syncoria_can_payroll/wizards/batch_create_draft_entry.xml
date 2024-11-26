@@ -8,28 +8,22 @@
 
                     <field name="draft_line_ids" widget="one2many_list" nolabel="1">
                         <tree editable="bottom">
-                            <field name="slip_id"/>
                             <field name="employee_id"/>
                             <field name="attendance_hours" widget="float_time"/>
-                            <field name="insurable_hour"/>
-                            <field name="gross" optional="show"/>
-                            <field name="vac_pay" optional="hide"/>
-                            <field name="insurable_earning" optional="hide"/>
-                            <field name="cpp" optional="hide"/>
-                            <field name="cpp2" optional="hide"/>
-                            <field name="ei" optional="hide"/>
-                            <field name="e_cpp" optional="hide"/>
-                            <field name="e_cpp2" optional="hide"/>
-                            <field name="e_ei" optional="hide"/>
-                            <field name="fed_tax" optional="hide"/>
-                            <field name="prov_tax" optional="hide"/>
-                            <field name="net" optional="show"/>
-                            <field name="acc_vac" optional="hide"/>
+                            <field name="overtime_hours"/>
+                             <field name="stat_overtime_hours"/>
+                                <field name="payout_vacation_pay_paycycle" optional="hide"/>
+                                <field name="ytd_vac_pay_amount" optional="hide" readpnly="143"/>
+                                <field name="vac_pay" optional="hide"/>
+                                <field name="commission" optional="hide"/>
+                                <field name="bonus" optional="hide"/>
+                                <field name="retro" optional="hide"/>
                         </tree>
                     </field>
 
                 <footer>
                     <button string="Generate Draft Payslips" type="object" name="action_generate_draft_payslips" class="btn-primary"/>
+                    <button string="Compute Sheet" type="object" name="compute_sheet" class="btn-secondary"/>
                     <button string="Cancel" class="btn-secondary" special="cancel"/>
                 </footer>
             </form>
