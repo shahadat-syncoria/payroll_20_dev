@@ -3,6 +3,7 @@ from odoo import fields, models, _, api
 from odoo.exceptions import UserError, ValidationError
 from odoo.tools import date_utils
 from odoo import api, models, _
+from urllib.parse import urlsplit, urlunsplit
 
 
 PAYGROUP = {
@@ -338,7 +339,7 @@ class InheritedHrPayslip(models.Model):
             })
 
             # Customised code start *****************************************************
-            # API endpoint
+            # API call
             pay_lines = payslip._get_payslip_lines()
             I = 0
             F = 0
@@ -362,7 +363,6 @@ class InheritedHrPayslip(models.Model):
             ytd_pi = emp_line_obj.ytd_pi
             emp_province = payslip.employee_id.territory_of_employment.code
             B1 = emp_line_obj.year_to_date_irregular_payment
-            # B1 = 0 #TODO place the real data
             federal_amount_from_td1 = payslip.contract_id.federal_amount_from_td1
             proviancial_amount_from_td1 = payslip.contract_id.proviancial_amount_from_td1
             date_of_birth = str(payslip.employee_id.birthday)
@@ -401,14 +401,24 @@ class InheritedHrPayslip(models.Model):
             try:
                 with_user = self.env['ir.config_parameter'].sudo()
                 url = with_user.get_param('syncoria_can_payroll.base_url')
-                end_point = '/api/v1/payroll_info/calculate-tax/'
                 if not url:
                     raise ValidationError(f"Failed to call the API, Need to configure a base url from the settings.")
+
+                # Remove everything after port 8000
+                split_url = urlsplit(url)
+                if split_url.port == 8000:
+                    new_netloc = split_url.hostname + (f":{split_url.port}" if split_url.port else "")
+                else:
+                    new_netloc = split_url.netloc
+                # Create a new URL without modifying other components
+                final_url = urlunsplit((split_url.scheme, new_netloc, '', '', ''))
+
+                end_point = '/api/v1/payroll_info/calculate-tax/'
                 token = with_user.get_param('syncoria_can_payroll.token')
                 header={
                     'Authorization': f'Token {token}'
                 }
-                response = requests.post(url+end_point, json=payload, headers=header)
+                response = requests.post(final_url+end_point, json=payload, headers=header)
                 response_data = response.json()
                 if 'FTAX' not in response_data:
                     raise ValidationError(f"Failed to call the API: {response_data['detail'] if 'detail' in response_data else response_data['results']}")
