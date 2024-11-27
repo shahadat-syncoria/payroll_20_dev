@@ -20,25 +20,10 @@
     'version': '17.0.3.12',
 
     # any module necessary for this one to work correctly
-    'depends': ['base','hr_payroll','hr_work_entry','hr_payroll_account','portal','web','mail','base_sparse_field'],
+    'depends': ['base','hr_payroll','hr_work_entry','hr_payroll_account','portal','queue_job_cron_jobrunner'],
     "external_dependencies": {"python": ["requests"]},
     # always loaded
     'data': [
-        "queue_job/security/security.xml",
-        "queue_job/security/ir.model.access.csv",
-        "queue_job/views/queue_job_views.xml",
-        "queue_job/views/queue_job_channel_views.xml",
-        "queue_job/views/queue_job_function_views.xml",
-        "queue_job/wizards/queue_jobs_to_done_views.xml",
-        "queue_job/wizards/queue_jobs_to_cancelled_views.xml",
-        "queue_job/wizards/queue_requeue_job_views.xml",
-        "queue_job/views/queue_job_menus.xml",
-        "queue_job/data/queue_data.xml",
-        "queue_job/data/queue_job_function_data.xml",
-
-        "queue_job_cron_jobrunner/data/ir_cron.xml",
-        "queue_job_cron_jobrunner/views/ir_cron.xml",
-
         'security/ir.model.access.csv',
         # DATA
         # 'data/paycycle_data.xml',
@@ -92,7 +77,6 @@
         'wizards/payroll_earning_wizard_views.xml',
         'wizards/payroll_update_wizard_views.xml',
 
-
         # ======== Reports =============
         'reports/roe_earning_per_employee_report_view.xml',
         'reports/remittance_summary_report_view.xml',
@@ -102,7 +86,6 @@
 
         # ======== Menus ===============
         'views/menus.xml',
-
     ],
     # only loaded in demonstration mode
     'demo': [
@@ -111,13 +94,8 @@
      'assets': {
         'web.assets_frontend': [
             'syncoria_can_payroll/static/src/css/table.css',
-        ],
-        "web.assets_backend": [
-            "/queue_job/static/src/views/**/*",
-        ],
+        ]
     },
-    "post_init_hook": "syncoria_can_payroll.queue_job.post_init_hook",
-    "post_load": "syncoria_can_payroll.queue_job.post_load",
     'license': 'LGPL-3',
     'installable': True,
     'application': True,
