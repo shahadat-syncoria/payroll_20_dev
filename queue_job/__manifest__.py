@@ -1,10 +1,10 @@
-# License LGPL-3.0 or later (http://www.gnu.org/licenses/lgpl.html)
+# License LGPL-3.0 or later (http://www.syncoria.com)
 
 {
     "name": "Job Queue",
     "version": "17.0.1.0.6",
-    "author": "Camptocamp,ACSONE SA/NV,Odoo Community Association (OCA)",
-    "website": "https://github.com/OCA/queue",
+    "author": "Syncoria",
+    "website": "https://syncoria.com",
     "license": "LGPL-3",
     "category": "Generic Modules",
     "depends": ["mail", "base_sparse_field", "web"],
