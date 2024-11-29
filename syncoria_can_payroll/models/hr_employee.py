@@ -477,6 +477,13 @@ class HrEmployeeYTDPayrollInformation(models.Model):
         for rec in self:
             payslip_ytd_tax = self.head_id.slip_ids.filtered(
             lambda x: x.state == 'paid' and (
-                x.paid_date.year if x.paid_date else x.write_date.year) == int(
-                self.contract_id.deductions.slab_year or 0) and (x.irre_fed_tax > 0.0 or x.irre_prov_tax > 0.0 ))
+                x.date_to.year if x.date_to else x.write_date.year) == int(self.year))
             rec.ytd_previous_irre_payment_erp = sum(payslip_ytd_tax.mapped("irre_amount"))
+
+    # def update_ytd_irregular_payments_tax(self):
+    #     for rec in self:
+    #         payslip_ytd_tax = self.head_id.slip_ids.filtered(
+    #         lambda x: x.state == 'paid' and (
+    #             x.date_to.year if x.date_to else x.write_date.year) == int(
+    #             self.contract_id.deductions.slab_year or 0) and (x.irre_fed_tax > 0.0 or x.irre_prov_tax > 0.0 ))
+    #         rec.ytd_previous_irre_payment_erp = sum(payslip_ytd_tax.mapped("irre_amount"))

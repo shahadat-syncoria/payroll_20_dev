@@ -58,7 +58,7 @@ if is_pay_cycle:
     main_gross = final_result
     PM = 12
     line_obj = employee.payroll_line_ids.filtered(lambda x: x.year == str(payslip.date_to.year))
-    calculation_1 = contract.deductions.cpp2_emp_employ_contrib * (PM / 12) - line_obj.ytd_cpp2
+    calculation_1 = contract.deductions.cpp2_emp_employ_contrib * (PM / 12) - line_obj.ytd_cpp2 if line_obj else 0.0
     ytd_pi = line_obj.ytd_pi if line_obj else 0.0
 
     W = max(ytd_pi, contract.deductions.cpp_max_an_pen_earn)
