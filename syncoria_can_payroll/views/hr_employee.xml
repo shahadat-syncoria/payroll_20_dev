@@ -19,7 +19,7 @@
                                     <field name="ytd_ei"/>
                                     <field name="ytd_ei_employer"/>
                                     <field name="ytd_pi"/>
-<!--                                    <field name="ytd_to_date_irregular_payment"/>-->
+                                    <field name="year_to_date_irregular_payment"/>
                                 </tree>
                                  <form>
                                      <group>
