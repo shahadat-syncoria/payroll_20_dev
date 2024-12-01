@@ -97,8 +97,8 @@ class InheritedHrPayslip(models.Model):
     def action_payslip_cancel(self):
         super(InheritedHrPayslip,self).action_payslip_cancel()
         for slip in self:
-            slip.employee_id.with_context({"type":"ALL", "year": slip.date_to.year}).update_ytd_erp() # "ALL" is for update YTD of CPP,CPP2,PI
-            slip.employee_id.update_ytd_irregular_payments_tax() # "ALL" is for update YTD of CPP,CPP2,PI
+            slip.employee_id.with_context({"type":"ALL", "year": slip.date_to.year, "action": 'cancel'}).update_ytd_erp() # "ALL" is for update YTD of CPP,CPP2,PI
+            # slip.employee_id.update_ytd_irregular_payments_tax() # "ALL" is for update YTD of CPP,CPP2,PI
 
     def get_previous_irregular_payment(self, id, paycycle):
         payslip = self.browse(id)
@@ -121,12 +121,12 @@ class InheritedHrPayslip(models.Model):
             if rec.payslip_run_id and res and 'state' in vals and vals.get('state') == 'paid':
                 rec.payslip_run_id._check_paid_status()
             if 'state' in vals and vals.get('state') == 'paid':
-                rec.employee_id.with_context({"type": "ALL", "year": rec.date_to.year}).update_ytd_erp()
+                # rec.employee_id.with_context({"type": "ALL", "year": rec.date_to.year}).update_ytd_erp()
                 rec.write({
                     'irre_amount': sum([line.amount for line in rec.line_ids if line.salary_rule_id.is_irregular_payment])
-
                 })
-                rec.employee_id.update_ytd_irregular_payments_tax()
+                rec.employee_id.with_context({"type": "ALL", "year": rec.date_to.year, "action": 'paid'}).update_ytd_erp()
+                # rec.employee_id.update_ytd_irregular_payments_tax(rec.date_to.year, rec.irre_amount)
         return res
 
     # ================== Report ======================

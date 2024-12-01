@@ -173,8 +173,7 @@ class InhertitedHrEmployee(models.Model):
         payslip_ytd = self.slip_ids.filtered(lambda x: x.state == 'paid' and x.date_to.year == int(year))
         return payslip_ytd.line_ids
 
-    def _update_ytd_cpp_pi_ei(self,payslip_ytd,req_type, year):
-        # year = 2025
+    def _update_ytd_cpp_pi_ei(self,payslip_ytd,req_type, year, action=None):
         line_obj = self.payroll_line_ids.filtered(lambda x: x.year == str(year))
         if req_type in ['CPP', "CPP2","EI","EI_EMPLOYER"]:
             ytd_total_amount = sum(
@@ -183,7 +182,7 @@ class InhertitedHrEmployee(models.Model):
             # todo need to test the task "is_vacation_pay_carry_over"
             if self.is_vacation_pay_carry_over:
                 prev_line_obj = self.payroll_line_ids.filtered(lambda x: x.year == str(year - 1))
-                if prev_line_obj:
+                if prev_line_obj and not action == 'cancel':
                     if req_type == 'CPP':
                         ytd_total_amount += prev_line_obj.ytd_cpp_erp
                     elif req_type == 'CPP2':
@@ -192,7 +191,7 @@ class InhertitedHrEmployee(models.Model):
                         ytd_total_amount += prev_line_obj.ytd_ei_erp
                     elif req_type == 'EI_EMPLOYER':
                         ytd_total_amount += prev_line_obj.ytd_ei_employer_erp
-            if not line_obj:
+            if not line_obj and not action == 'cancel':
                 self.env["hr.employee.ytd.payroll.information"].create(
                     {
                         "head_id": self.id,
@@ -224,10 +223,10 @@ class InhertitedHrEmployee(models.Model):
             ytd_total_amount = sum(
                 payslip_ytd.filtered(lambda x: x.category_id.code in ["GROSS", "ADD_ALLOWANCE", "ALW"]).mapped("total"))
             prev_line_obj = self.payroll_line_ids.filtered(lambda x: x.year == str(year - 1))
-            if prev_line_obj:
+            if prev_line_obj and not action == 'cancel':
                 ytd_total_amount += prev_line_obj.ytd_pi_erp
             # self.ytd_pi_erp = ytd_total_amount
-            if not line_obj:
+            if not line_obj and not action == 'cancel':
                 self.env["hr.employee.ytd.payroll.information"].create(
                     {
                         "head_id": self.id,
@@ -237,29 +236,73 @@ class InhertitedHrEmployee(models.Model):
                 )
             else:
                 line_obj.ytd_pi_erp = ytd_total_amount
-
+        
     def update_ytd_erp(self):
         for rec in self:
             year = self.env.context['year']
+            action = self.env.context['action']
+            line_obj = self.payroll_line_ids.filtered(lambda x: x.year == str(year))
+            # is_new_row = False
+            # if not line_obj:
+            #     is_new_row = True
             payslip_ytd = rec._get_ytd_payslip_line_ids(year)
             if self.env.context['type'] == "ALL":
                 for i in ["CPP", "CPP2", "PI","EI","EI_EMPLOYER"]:
-                    rec._update_ytd_cpp_pi_ei(payslip_ytd,i,year)
+                    rec._update_ytd_cpp_pi_ei(payslip_ytd,i,year, action)
             else:
-                rec._update_ytd_cpp_pi_ei(payslip_ytd,rec.env.context.get('type'),year)
+                rec._update_ytd_cpp_pi_ei(payslip_ytd,rec.env.context.get('type'),year, action)
 
+            rec.update_ytd_irregular_payments_tax(year, line_obj, action)
 
-    def _update_ytd_irregular_payments_tax(self,payslip_ytd,req_type):
-            ytd_total_amount = payslip_ytd.filtered(lambda x: x.category_id.code in ["ADD_ALLOWANCE"])
-            self.ytd_pi_erp = ytd_total_amount
+    # def _update_ytd_irregular_payments_tax(self,payslip_ytd,req_type):
+    #         ytd_total_amount = payslip_ytd.filtered(lambda x: x.category_id.code in ["ADD_ALLOWANCE"])
+    #         self.ytd_pi_erp = ytd_total_amount
 
-    def update_ytd_irregular_payments_tax(self):
+    def update_ytd_irregular_payments_tax(self, year, line_obj, action=None):
         for rec in self:
-            payslip_ytd_tax = self.slip_ids.filtered(
-            lambda x: x.state == 'paid' and (
-                x.paid_date.year if x.paid_date else x.write_date.year) == int(
-                self.contract_id.deductions.slab_year or 0))
-            rec.ytd_previous_irre_payment_erp = sum(payslip_ytd_tax.mapped("irre_amount"))
+            if not line_obj:
+                line_obj = self.payroll_line_ids.filtered(lambda x: x.year == str(year))
+
+            payslip_ytd_ids = rec.slip_ids.filtered(lambda x: x.state == 'paid' and (x.date_to.year if x.date_to else x.write_date.year) == int(year))
+            irre_amount = sum(payslip_ytd_ids.mapped("irre_amount"))
+
+            # Update irregular payments for the current year
+            if line_obj:
+                line_obj.ytd_previous_irre_payment_erp = irre_amount
+                line_obj.year_to_date_irregular_payment = line_obj.ytd_previous_irre_payment_erp + line_obj.ytd_previous_irre_payment
+
+            # If vacation pay carryover is enabled, add the previous year's irregular amounts
+            if line_obj and rec.is_vacation_pay_carry_over and not action == 'cancel':
+                previous_year_lines = rec.payroll_line_ids.filtered(lambda x: str(x.year) == str(year - 1))
+                if previous_year_lines:
+                    line_obj.ytd_previous_irre_payment_erp += previous_year_lines.ytd_previous_irre_payment_erp
+                    line_obj.ytd_previous_irre_payment = previous_year_lines.ytd_previous_irre_payment
+                    line_obj.year_to_date_irregular_payment = line_obj.ytd_previous_irre_payment_erp + line_obj.ytd_previous_irre_payment
+
+    # def update_ytd_irregular_payments_tax(self, year, irre_amount):
+    #     for rec in self:
+    #         # Filter payroll lines for the current year and previous year
+    #         current_year_lines = rec.payroll_line_ids.filtered(lambda x: str(x.year) == str(year))
+    # 
+    #         # Update irregular payments for the current year
+    #         if current_year_lines:
+    #             current_year_lines.ytd_previous_irre_payment_erp += irre_amount
+    #             current_year_lines.year_to_date_irregular_payment = current_year_lines.ytd_previous_irre_payment_erp + current_year_lines.ytd_previous_irre_payment
+    # 
+    #         # If vacation pay carryover is enabled, add the previous year's irregular amounts
+    #         if rec.is_vacation_pay_carry_over:
+    #             previous_year_lines = rec.payroll_line_ids.filtered(lambda x: str(x.year) == str(year - 1))
+    #             if previous_year_lines:
+    #                 current_year_lines.ytd_previous_irre_payment_erp += previous_year_lines.ytd_previous_irre_payment_erp
+    #                 current_year_lines.ytd_previous_irre_payment = previous_year_lines.ytd_previous_irre_payment
+    #                 current_year_lines.year_to_date_irregular_payment = current_year_lines.ytd_previous_irre_payment_erp + previous_year_lines.ytd_previous_irre_payment
+
+            # payslip_ytd_tax = self.slip_ids.filtered(
+            # lambda x: x.state == 'paid' and (
+            #     x.paid_date.year if x.paid_date else x.write_date.year) == int(
+            #     self.contract_id.deductions.slab_year or 0))
+
+            # rec.ytd_previous_irre_payment_erp = sum(payslip_ytd_tax.mapped("irre_amount"))
             # rec.ytd_irre_fed_tax_erp = sum(payslip_ytd_tax.mapped("irre_fed_tax"))
             # rec.ytd_irre_prov_tax_erp = sum(payslip_ytd_tax.mapped("irre_prov_tax"))
 
@@ -469,16 +512,18 @@ class HrEmployeeYTDPayrollInformation(models.Model):
             else:
                 rec.head_id._update_ytd_cpp_pi_ei(payslip_ytd,rec.env.context.get('type'),int(year))
 
-    def _update_ytd_irregular_payments_tax(self,payslip_ytd,req_type):
-            ytd_total_amount = payslip_ytd.filtered(lambda x: x.category_id.code in ["ADD_ALLOWANCE"])
-            self.ytd_pi_erp = ytd_total_amount
+    # def _update_ytd_irregular_payments_tax(self,payslip_ytd,req_type):
+    #         ytd_total_amount = payslip_ytd.filtered(lambda x: x.category_id.code in ["ADD_ALLOWANCE"])
+    #         self.ytd_pi_erp = ytd_total_amount
 
     def update_ytd_irregular_payments_tax(self):
         for rec in self:
-            payslip_ytd_tax = self.head_id.slip_ids.filtered(
-            lambda x: x.state == 'paid' and (
-                x.date_to.year if x.date_to else x.write_date.year) == int(self.year))
-            rec.ytd_previous_irre_payment_erp = sum(payslip_ytd_tax.mapped("irre_amount"))
+            rec.head_id.update_ytd_irregular_payments_tax(int(self.year), rec)
+
+            # payslip_ytd_tax = self.head_id.slip_ids.filtered(
+            # lambda x: x.state == 'paid' and (
+            #     x.date_to.year if x.date_to else x.write_date.year) == int(self.year))
+            # rec.ytd_previous_irre_payment_erp = sum(payslip_ytd_tax.mapped("irre_amount"))
 
     # def update_ytd_irregular_payments_tax(self):
     #     for rec in self:
