@@ -55,27 +55,33 @@ class VacationPayslip(models.Model):
             # insurable_amount -=  sum(rec.line_ids.filtered(lambda x: x.code in ["ADJUST_VP","VP"]).mapped("total"))
             vac_percentage = employee.allocated_vac_percentage
             stored_vac_pay_amount = (insurable_amount*(vac_percentage/100))
-            print(rec.date_to.year)
+            rec.vac_pay_earned_amount = stored_vac_pay_amount
+
             line_obj = employee.payroll_line_ids.filtered(lambda x: x.year == str(rec.date_to.year))
             # If vacation pay carryover is enabled, add the previous year's irregular amounts
             carry_ytd_vac_pay_amount_erp = 0
+            carry_previous_vac_pay_amount = 0
             if employee.is_vacation_pay_carry_over:
                 previous_year_lines = employee.payroll_line_ids.filtered(lambda x: str(x.year) == str(rec.date_to.year - 1))
                 if previous_year_lines:
                     carry_ytd_vac_pay_amount_erp = previous_year_lines.ytd_vac_pay_amount_erp
-                    stored_vac_pay_amount += previous_year_lines.ytd_vac_pay_amount_erp
+                    carry_previous_vac_pay_amount = previous_year_lines.previous_vac_pay_amount
+
+            payslip_ytd_ids = employee.slip_ids.filtered(lambda x: x.state == 'paid' and (x.date_to.year if x.date_to else x.write_date.year) == int(rec.date_to.year))
+            vac_pay_earned_amount = sum(payslip_ytd_ids.mapped("vac_pay_earned_amount"))
+
             if not line_obj:
                 self.env["hr.employee.ytd.payroll.information"].create(
                     {
                         "head_id": employee.id,
                         "year": str(rec.date_to.year),
-                        "ytd_vac_pay_amount_erp": stored_vac_pay_amount + carry_ytd_vac_pay_amount_erp,
+                        "ytd_vac_pay_amount_erp": vac_pay_earned_amount + carry_ytd_vac_pay_amount_erp,
+                        "previous_vac_pay_amount": carry_previous_vac_pay_amount,
                     }
                 )
             else:
-                line_obj.ytd_vac_pay_amount_erp += stored_vac_pay_amount
-
-            rec.vac_pay_earned_amount = stored_vac_pay_amount
+                line_obj.ytd_vac_pay_amount_erp = vac_pay_earned_amount + carry_ytd_vac_pay_amount_erp
+                line_obj.previous_vac_pay_amount = carry_previous_vac_pay_amount if payslip_ytd_ids else 0
 
 
     def _calculate_vacation_pay(self, vacation_duration,contract_id):

@@ -310,3 +310,4 @@ class InheritHrEmployeeYTDPayrollInformation(models.Model):
             payslips = rec.head_id._get_vac_pay_slip_ids(self.year)
             rec.ytd_vac_pay_amount_erp = sum(payslips.mapped('vac_pay_earned_amount'))
             rec.vac_pay_amount_taken = sum(payslips.mapped('vac_pay_earned_taken'))
+            rec.previous_vac_pay_amount = rec.previous_vac_pay_amount if payslips else 0

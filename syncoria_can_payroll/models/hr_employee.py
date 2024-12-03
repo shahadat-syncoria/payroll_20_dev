@@ -239,9 +239,8 @@ class InhertitedHrEmployee(models.Model):
             year = self.env.context['year']
             action = self.env.context['action']
             line_obj = self.payroll_line_ids.filtered(lambda x: x.year == str(year))
-            # is_new_row = False
-            # if not line_obj:
-            #     is_new_row = True
+            is_new_row = False if not line_obj else True
+            
             payslip_ytd = rec._get_ytd_payslip_line_ids(year)
             if self.env.context['type'] == "ALL":
                 for i in ["CPP", "CPP2", "PI","EI","EI_EMPLOYER"]:
@@ -249,13 +248,13 @@ class InhertitedHrEmployee(models.Model):
             else:
                 rec._update_ytd_cpp_pi_ei(payslip_ytd,rec.env.context.get('type'),year, action)
 
-            rec.update_ytd_irregular_payments_tax(year, line_obj, action)
+            rec.update_ytd_irregular_payments_tax(year, line_obj, action, is_new_row)
 
     # def _update_ytd_irregular_payments_tax(self,payslip_ytd,req_type):
     #         ytd_total_amount = payslip_ytd.filtered(lambda x: x.category_id.code in ["ADD_ALLOWANCE"])
     #         self.ytd_pi_erp = ytd_total_amount
 
-    def update_ytd_irregular_payments_tax(self, year, line_obj, action=None):
+    def update_ytd_irregular_payments_tax(self, year, line_obj, action=None, is_new_row=False):
         for rec in self:
             if not line_obj:
                 line_obj = self.payroll_line_ids.filtered(lambda x: x.year == str(year))
@@ -274,7 +273,7 @@ class InhertitedHrEmployee(models.Model):
                 previous_year_lines = rec.payroll_line_ids.filtered(lambda x: str(x.year) == str(year - 1))
                 if previous_year_lines:
                     line_obj.ytd_previous_irre_payment_erp += previous_year_lines.ytd_previous_irre_payment_erp
-                    line_obj.ytd_previous_irre_payment += previous_year_lines.ytd_previous_irre_payment
+                    line_obj.ytd_previous_irre_payment = previous_year_lines.ytd_previous_irre_payment if is_new_row else line_obj.ytd_previous_irre_payment_erp
                     line_obj.year_to_date_irregular_payment = line_obj.ytd_previous_irre_payment_erp + line_obj.ytd_previous_irre_payment
 
     # def update_ytd_irregular_payments_tax(self, year, irre_amount):
