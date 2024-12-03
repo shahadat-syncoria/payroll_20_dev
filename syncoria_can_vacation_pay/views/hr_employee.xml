@@ -75,7 +75,7 @@
             </field>
         </record>
 
-        <record id="view_employee_form_vac_pay" model="ir.ui.view">
+        <record id="view_employee_form_vac_pay_ytd" model="ir.ui.view">
             <field name="model">hr.employee</field>
             <field name="inherit_id" ref="syncoria_can_payroll.view_employee_form_sync_can_view"/>
             <field name="arch" type="xml">
