@@ -8,8 +8,6 @@
             <field name="inherit_id" ref="hr.view_employee_form"/>
             <!--            <field name="priority" eval="8"/>-->
             <field name="arch" type="xml">
-
-
                 <div name="button_box" position="inside">
                     <field name="vacation_type" invisible="1"/>
                     <button name="%(syncoria_can_vacation_pay.hr_vacation_pay_act_window)d"

@@ -330,7 +330,7 @@ class InheritedHrPayslip(models.Model):
         self.env.flush_all()
         today = fields.Date.today()
         for payslip in payslips:
-            emp_line_obj = payslip.employee_id.payroll_line_ids.filtered(lambda x: x.year == payslip.date_to.year)
+            emp_line_obj = payslip.employee_id.payroll_line_ids.filtered(lambda x: x.year == str(payslip.date_to.year))
             number = payslip.number or self.env['ir.sequence'].next_by_code('salary.slip')
             payslip.write({
                 'number': number,
