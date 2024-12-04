@@ -120,7 +120,6 @@ class VacationPayslip(models.Model):
         adjusted_input_type = self.env.ref('syncoria_can_vacation_pay.input_ca_adjusted_vac_pay').id
         for payslip in payslips:
             # line_obj = payslip.employee_id.payroll_line_ids.filtered(lambda x: x.year == str(payslip.date_to.year))
-            # payslip.employee_id.update_vac_pay_amount_erp()
             try:
                 des_name = ","
                 calculate_vacation_pay = 0.00
