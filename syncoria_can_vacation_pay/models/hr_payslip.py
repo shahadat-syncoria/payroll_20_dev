@@ -120,7 +120,6 @@ class VacationPayslip(models.Model):
         adjusted_input_type = self.env.ref('syncoria_can_vacation_pay.input_ca_adjusted_vac_pay').id
         for payslip in payslips:
             # line_obj = payslip.employee_id.payroll_line_ids.filtered(lambda x: x.year == str(payslip.date_to.year))
-            # line_obj.update_vac_pay_amount_erp()
             # payslip.employee_id.update_vac_pay_amount_erp()
             try:
                 des_name = ","
@@ -207,7 +206,6 @@ class VacationPayslip(models.Model):
         # paid.But in this case we will not store anything just disbursed the amount
 
         # payslip.store_vacation_pay_amount()
-        # payslip.employee_id.update_vac_pay_amount_erp()
 
         insurable_amount = self.line_ids.filtered(lambda x: x.code == "I_Earning").total
         insurable_amount -= sum(self.line_ids.filtered(lambda x: x.code in ["ADJUST_VP", "VP"]).mapped("total"))
@@ -298,7 +296,6 @@ class VacationPayslip(models.Model):
         for rec in self:
             # This commented because write function hits first then calculation happened
             # if 'state' in vals and vals.get('state') == 'paid':
-            #     rec.employee_id.update_vac_pay_amount_erp()
             if 'state' in vals and vals.get('state') == 'cancel':
                 rec.vac_pay_earned_amount = 0.00
                 rec.vac_pay_earned_taken = 0.00
@@ -398,5 +395,4 @@ class AccountPaymentRegister(models.TransientModel):
                 if not payslip.payout_vacation_pay_paycycle:
                     payslip.store_vacation_pay_amount()
             # emp_line_obj = payslip.employee_id.payroll_line_ids.filtered(lambda x: x.year == str(payslip.date_to.year))
-            # emp_line_obj.update_vac_pay_amount_erp()
         return res
