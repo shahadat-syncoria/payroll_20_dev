@@ -1,6 +1,7 @@
 from odoo import fields, models, api, _
 from odoo.exceptions import UserError
 from odoo.tools import float_compare, float_is_zero, plaintext2html
+from datetime import datetime
 
 
 class VacationHrPayslipInput(models.Model):
@@ -16,10 +17,16 @@ class VacationPayslip(models.Model):
     vac_pay_earned_taken = fields.Float("Vacation Pay Earned Amount Taken",default=0.0)
     payout_vacation_pay_paycycle = fields.Boolean("Payout Vacation Amount Per Pay Cycle", default=False,
                                                   groups='hr.group_hr_user')
-    ytd_vac_pay_amount = fields.Float(related="employee_id.ytd_vac_pay_amount")
+    ytd_vac_pay_amount = fields.Float(compute='_compute_ytd_vac',)
     vacation_type = fields.Selection(related="employee_id.vacation_type", string="Vacation Type")
     vacation_pay_taken = fields.Float(related="employee_id.vacation_pay_taken")
-
+    
+    @api.depends('employee_id.payroll_line_ids')
+    def _compute_ytd_vac(self):
+        for record in self:
+            line_obj = record.employee_id.payroll_line_ids.filtered(lambda x: x.year == str(self.date_to.year))
+            record.ytd_vac_pay_amount = line_obj.ytd_vac_pay_amount if line_obj else 0  # Assuming default is 0 if no line is found
+            
     @api.onchange('employee_id')
     def _onchange_payout_vacation_pay_paycycle(self):
         for rec in self:
@@ -44,14 +51,37 @@ class VacationPayslip(models.Model):
             employee = rec.employee_id
             employee._get_employee_allocated_leave()
 
-
             insurable_amount = sum(rec.line_ids.filtered(lambda x: x.salary_rule_id.is_vacation_pay).mapped("total"))
             # insurable_amount -=  sum(rec.line_ids.filtered(lambda x: x.code in ["ADJUST_VP","VP"]).mapped("total"))
             vac_percentage = employee.allocated_vac_percentage
             stored_vac_pay_amount = (insurable_amount*(vac_percentage/100))
-            employee.ytd_vac_pay_amount_erp += stored_vac_pay_amount
             rec.vac_pay_earned_amount = stored_vac_pay_amount
 
+            line_obj = employee.payroll_line_ids.filtered(lambda x: x.year == str(rec.date_to.year))
+            # If vacation pay carryover is enabled, add the previous year's irregular amounts
+            carry_ytd_vac_pay_amount_erp = 0
+            carry_previous_vac_pay_amount = 0
+            if employee.is_vacation_pay_carry_over:
+                previous_year_lines = employee.payroll_line_ids.filtered(lambda x: str(x.year) == str(rec.date_to.year - 1))
+                if previous_year_lines:
+                    carry_ytd_vac_pay_amount_erp = previous_year_lines.ytd_vac_pay_amount_erp
+                    carry_previous_vac_pay_amount = previous_year_lines.previous_vac_pay_amount
+
+            payslip_ytd_ids = employee.slip_ids.filtered(lambda x: x.state == 'paid' and (x.date_to.year if x.date_to else x.write_date.year) == int(rec.date_to.year))
+            vac_pay_earned_amount = sum(payslip_ytd_ids.mapped("vac_pay_earned_amount"))
+
+            if not line_obj:
+                self.env["hr.employee.ytd.payroll.information"].create(
+                    {
+                        "head_id": employee.id,
+                        "year": str(rec.date_to.year),
+                        "ytd_vac_pay_amount_erp": vac_pay_earned_amount + carry_ytd_vac_pay_amount_erp,
+                        "previous_vac_pay_amount": carry_previous_vac_pay_amount,
+                    }
+                )
+            else:
+                line_obj.ytd_vac_pay_amount_erp = vac_pay_earned_amount + carry_ytd_vac_pay_amount_erp
+                line_obj.previous_vac_pay_amount = carry_previous_vac_pay_amount if payslip_ytd_ids else 0
 
 
     def _calculate_vacation_pay(self, vacation_duration,contract_id):
@@ -89,7 +119,9 @@ class VacationPayslip(models.Model):
         payslips = self.filtered(lambda slip: slip.state in ['draft', 'verify'])
         adjusted_input_type = self.env.ref('syncoria_can_vacation_pay.input_ca_adjusted_vac_pay').id
         for payslip in payslips:
-            payslip.employee_id.update_vac_pay_amount_erp()
+            # line_obj = payslip.employee_id.payroll_line_ids.filtered(lambda x: x.year == str(payslip.date_to.year))
+            # line_obj.update_vac_pay_amount_erp()
+            # payslip.employee_id.update_vac_pay_amount_erp()
             try:
                 des_name = ","
                 calculate_vacation_pay = 0.00
@@ -227,7 +259,8 @@ class VacationPayslip(models.Model):
             if rec.state == 'paid' and adjusted_vacation_pay_input_line_ids:
                 vac_pay_amount = sum(adjusted_vacation_pay_input_line_ids.mapped("amount"))
                 rec.vac_pay_earned_taken += vac_pay_amount
-                rec.employee_id.ytd_vac_pay_amount_erp += vac_pay_amount
+                line_obj = rec.employee_id.payroll_line_ids.filtered(lambda x: x.year == str(self.date_to.year))
+                line_obj.ytd_vac_pay_amount_erp += vac_pay_amount
                 rec.vac_pay_earned_amount = vac_pay_amount
 
     def action_payslip_paid(self):
@@ -237,8 +270,8 @@ class VacationPayslip(models.Model):
             if self.env["ir.config_parameter"].sudo().get_param('syncoria_can_vacation_pay.vac_pay_type') == 'cash_wise':
                 if not rec.payout_vacation_pay_paycycle:
                     rec.store_vacation_pay_amount()
-                    rec.employee_id.update_vac_pay_amount_erp()
-
+                    emp_line_obj = rec.employee_id.payroll_line_ids.filtered(lambda x: x.year == str(self.date_to.year))
+                    emp_line_obj.update_vac_pay_amount_erp()
 
         return res
 
@@ -270,7 +303,8 @@ class VacationPayslip(models.Model):
                 rec.vac_pay_earned_amount = 0.00
                 rec.vac_pay_earned_taken = 0.00
                 rec._cancel_vacation_pay_request()
-                rec.employee_id.update_vac_pay_amount_erp()
+                emp_line_obj = rec.employee_id.payroll_line_ids.filtered(lambda x: x.year == str(rec.date_to.year))
+                emp_line_obj.update_vac_pay_amount_erp()
                 rec.message_post(body="Related Vacation Pay Request Cancelled")
         return res
 
@@ -363,5 +397,6 @@ class AccountPaymentRegister(models.TransientModel):
             if self.env["ir.config_parameter"].sudo().get_param('syncoria_can_vacation_pay.vac_pay_type') == 'cash_wise':
                 if not payslip.payout_vacation_pay_paycycle:
                     payslip.store_vacation_pay_amount()
-            payslip.employee_id.update_vac_pay_amount_erp()
+            # emp_line_obj = payslip.employee_id.payroll_line_ids.filtered(lambda x: x.year == str(payslip.date_to.year))
+            # emp_line_obj.update_vac_pay_amount_erp()
         return res

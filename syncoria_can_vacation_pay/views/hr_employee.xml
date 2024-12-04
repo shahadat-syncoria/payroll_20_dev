@@ -8,8 +8,6 @@
             <field name="inherit_id" ref="hr.view_employee_form"/>
             <!--            <field name="priority" eval="8"/>-->
             <field name="arch" type="xml">
-
-
                 <div name="button_box" position="inside">
                     <field name="vacation_type" invisible="1"/>
                     <button name="%(syncoria_can_vacation_pay.hr_vacation_pay_act_window)d"
@@ -75,29 +73,28 @@
             </field>
         </record>
 
-<!--        ========================== Syncoria Canada Payroll Employee View  ================================-->
-          <record id="view_employee_form_vac_pay" model="ir.ui.view">
+        <record id="view_employee_form_vac_pay_ytd" model="ir.ui.view">
             <field name="model">hr.employee</field>
             <field name="inherit_id" ref="syncoria_can_payroll.view_employee_form_sync_can_view"/>
             <field name="arch" type="xml">
-                <xpath expr="//page[@name='sync_payroll_info']/group" position="inside">
+                <xpath expr="//field[@name='payroll_line_ids']/tree/field[@name='ytd_pi']" position="after">
+                    <field name="ytd_vac_pay_amount"/>
+                </xpath>
+                <xpath expr="//field[@name='payroll_line_ids']/form/group[2]" position="inside">
                     <group string='Vacation Pay(Earned Pay)' name="vacation_pay">
-                        <group>
-                            <field name="ytd_vac_pay_amount_erp" readonly="1"/>
-                            <field name="previous_vac_pay_amount"/>
-                            <field name="ytd_vac_pay_amount"/>
-                            <field name="vac_pay_amount_taken"/>
-                        </group>
-                        <group>
-                                            <button name="update_vac_pay_amount_erp" type="object"
-                                                    help="Update Vacation Amount" title="Update Vacation Amount" icon="fa-refresh"/>
-
-                                        </group>
-
-
+                        <label for="ytd_vac_pay_amount_erp" class="oe_inline"/>
+                        <div class="o_row">
+                            <field name="ytd_vac_pay_amount_erp"/>
+                            <button name="update_vac_pay_amount_erp" type="object"
+                                    help="Update Vacation Amount" icon="fa-refresh"/>
+                        </div>
+                        <field name="previous_vac_pay_amount"/>
+                        <field name="ytd_vac_pay_amount"/>
+                        <field name="vac_pay_amount_taken"/>
                     </group>
                 </xpath>
             </field>
           </record>
+
     </data>
 </odoo>

@@ -1,9 +1,3 @@
-import os
-import base64
-import urllib
-
-import werkzeug
-
 from odoo import models, fields, api
 from ..helper.helper_functions import year_selection
 
@@ -34,7 +28,6 @@ class TestWizard(models.TransientModel):
 
         # Retrieve the active IDs from the context
         active_ids = self.env.context.get('active_ids', [])
-        print('active_ids',active_ids)
         if active_ids:
             employee = self.env["hr.employee"].search([("id", "in", active_ids)])
             # Set the employee_ids field with the active employee records

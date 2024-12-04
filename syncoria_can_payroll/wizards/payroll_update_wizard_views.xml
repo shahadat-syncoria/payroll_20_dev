@@ -1,0 +1,27 @@
+<odoo>
+    <data>
+        <record id="payroll_update_wizard_form" model="ir.ui.view">
+            <field name="name">payroll.update.wizard.form</field>
+            <field name="model">payroll.update.wizard</field>
+            <field name="arch" type="xml">
+                <form string="Batch Update Payroll Info">
+                    <group>
+                        <field name="employee_ids" required="1" widget="many2many_avatar_employee" />
+                    </group>
+                    <footer>
+                        <button string="Update" type="object" name="update_payroll_info" class="oe_highlight"/>
+                        <button string="Cancel" special="cancel"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+        <record id="action_payroll_update_wizard" model="ir.actions.act_window">
+            <field name="name">Batch Update Payroll Info</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">payroll.update.wizard</field>
+            <field name="view_mode">form</field>
+            <field name="target">new</field>
+        </record>
+    </data>
+</odoo>

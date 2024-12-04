@@ -3,6 +3,7 @@ import base64
 from collections import defaultdict
 from odoo.exceptions import UserError
 
+
 class PayslipEmailWizard(models.TransientModel):
     _name = 'payslip.email.wizard'
     _description = 'Payslip Email Wizard'
@@ -51,23 +52,28 @@ class PayslipEmailWizard(models.TransientModel):
             'syncoria_can_payroll.bulk_email_template_for_payslip', raise_if_not_found=False
         )
 
+    # def my_method(self, a, k=None):
+    #     print('executed with a: %s and k: %s', a, k)
+
     def action_payslip_email_send(self):
+        self.with_delay().action_payslip_email_with_delay()
+
+    # It will call the job queue action in background asynchronously.
+    def action_payslip_email_with_delay(self):
         template = self._get_email_template()
         if not template:
             return
-        # Generate the PDF reports
-        for x in self.payslip_ids:
-            mapped_reports = self._get_payslip_pdf_reports(x)
+        for recipient in self.payslip_ids:
+            mapped_reports = self._get_payslip_pdf_reports(recipient)
             attachments_vals_list = []
             for report, payslips in mapped_reports.items():
-                for payslip in x:
+                for payslip in payslips:
                     pdf_content, dummy = self.env['ir.actions.report'].sudo().with_context(
                         lang=payslip.employee_id.lang
                     )._render_qweb_pdf(report, payslip.id)
                     pdf_content_encoded = base64.b64encode(pdf_content).decode('utf-8')
-                    pdf_name = 'Payslip'
                     attachment = self.env['ir.attachment'].sudo().create({
-                        'name': pdf_name,
+                        'name': 'Payslip',
                         'type': 'binary',
                         'datas': pdf_content_encoded,
                         'res_model': 'hr.payslip',
@@ -77,11 +83,11 @@ class PayslipEmailWizard(models.TransientModel):
                     attachments_vals_list.append(attachment.id)
 
             # Prepare and send the email
-            subject = template.subject.replace('$employee', x.employee_id.name).replace('$ref', x.name)
-            body_html = template.body_html.replace('$employee', x.employee_id.name)
+            subject = template.subject.replace('$employee', f" ({recipient.number})").replace('$ref', recipient.name)
+            body_html = template.body_html.replace('$employee', recipient.employee_id.name)
             mail_values = {
-                'email_from': x.env.user.company_id.email,
-                'email_to': x.employee_id.work_email,
+                'email_from': self.env.user.company_id.email,
+                'email_to': recipient.employee_id.work_email,
                 'subject': subject,
                 'body_html': body_html,
                 'attachment_ids': [(6, 0, attachments_vals_list)],
@@ -89,5 +95,3 @@ class PayslipEmailWizard(models.TransientModel):
             }
             mail = self.env['mail.mail'].sudo().create(mail_values)
             mail.send()
-
-

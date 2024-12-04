@@ -1,14 +1,10 @@
- /*.table-no-border {*/
- /*       !*border-collapse: collapse;*!*/
- /*       border: none;*/
- /*   }*/
-
- /*   .table-no-border td, .table-no-border th {*/
- /*       border: none;*/
- /*   }*/
+@charset "utf-8";
  .custom-td {
         border: none;
         padding: 10px;
         background-color: #F0F0F0;
         text-align: center;
+    }
+ .label {
+        display: none !important;
     }

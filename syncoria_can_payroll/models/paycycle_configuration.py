@@ -156,7 +156,6 @@ class PayrollPaycycle(models.Model):
             if rec.start_date:
                 start_date = datetime.strptime(f'{fields.Date.today().year}-01-{rec.start_date}', '%Y-%m-%d')
                 result = generate_date_ranges(start_date,rec.pay_cycle)
-                print(result)
                 rec.paycycle_period_ids = result
 
     def _compute_display_name(self):

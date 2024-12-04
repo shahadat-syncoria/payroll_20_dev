@@ -17,15 +17,14 @@
     # Check https://github.com/odoo/odoo/blob/16.0/odoo/addons/base/data/ir_module_category_data.xml
     # for the full list
     'category': 'Human Resources/Payroll',
-    'version': '17.0.3.12',
+    'version': '17.0.3.13',
 
     # any module necessary for this one to work correctly
-    'depends': ['base','hr_payroll','hr_work_entry','hr_payroll_account','portal'],
-
+    'depends': ['base','hr_payroll','hr_work_entry','hr_payroll_account','portal','queue_job_cron_jobrunner'],
+    "external_dependencies": {"python": ["requests"]},
     # always loaded
     'data': [
         'security/ir.model.access.csv',
-
         # DATA
         # 'data/paycycle_data.xml',
         'data/salary_category.xml',
@@ -76,7 +75,7 @@
         'wizards/hr_payroll_payslip_by_employee_views.xml',
         'wizards/employee_net_pay_wizard_views.xml',
         'wizards/payroll_earning_wizard_views.xml',
-
+        'wizards/payroll_update_wizard_views.xml',
 
         # ======== Reports =============
         'reports/roe_earning_per_employee_report_view.xml',
@@ -92,10 +91,10 @@
     'demo': [
         'demo/demo.xml',
     ],
-'assets': {
+     'assets': {
         'web.assets_frontend': [
             'syncoria_can_payroll/static/src/css/table.css',
-        ],
+        ]
     },
     'license': 'LGPL-3',
     'installable': True,
