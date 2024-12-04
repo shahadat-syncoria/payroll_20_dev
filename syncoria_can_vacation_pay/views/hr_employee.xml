@@ -77,7 +77,7 @@
             <field name="model">hr.employee</field>
             <field name="inherit_id" ref="syncoria_can_payroll.view_employee_form_sync_can_view"/>
             <field name="arch" type="xml">
-                <xpath expr="//page[@name='sync_payroll_info']/group" position="inside">
+                <xpath expr="//notebook/page[@name='sync_payroll_info']" position="inside">
 
                 </xpath>
             </field>
