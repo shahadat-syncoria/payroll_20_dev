@@ -179,9 +179,6 @@ class InheritedHrPayslip(models.Model):
             bonus = manual_input_line_id.bonus
             commission = manual_input_line_id.commission
             retro = manual_input_line_id.retro
-
-            # rec.payout_vacation_pay_paycycle = True if manual_input_line_id.payout_vacation_pay_paycycle else False
-
             avg_working_hour_per_day = rec.contract_id.resource_calendar_id.hours_per_day
             rec.worked_days_line_ids.unlink()
             worked_days_lines = []
