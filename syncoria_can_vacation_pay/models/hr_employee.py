@@ -149,11 +149,9 @@ class VacationPayslip(models.Model):
 
         return payslip
 
-    # def update_vac_pay_amount_erp(self):
-    #     for rec in self:
-    #         payslips = rec._get_vac_pay_slip_ids()
-    #         rec.ytd_vac_pay_amount_erp = sum(payslips.mapped('vac_pay_earned_amount'))
-    #         rec.vac_pay_amount_taken = sum(payslips.mapped('vac_pay_earned_taken'))
+    def update_vac_pay_amount_erp(self):
+        for rec in self:
+            pass
 
     @api.depends('sync_first_contract_date','vacation_slab_ids')
     def _get_employee_allocated_leave(self):
