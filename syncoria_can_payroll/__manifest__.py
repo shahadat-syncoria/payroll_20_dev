@@ -76,6 +76,7 @@
         'wizards/employee_net_pay_wizard_views.xml',
         'wizards/payroll_earning_wizard_views.xml',
         'wizards/payroll_update_wizard_views.xml',
+        'wizards/paycycle_config_update_wizard.xml',
 
         # ======== Reports =============
         'reports/roe_earning_per_employee_report_view.xml',

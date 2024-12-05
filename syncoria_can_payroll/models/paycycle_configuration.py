@@ -3,6 +3,7 @@ from calendar import monthrange
 
 from odoo import fields, models, api, _
 from odoo.exceptions import ValidationError
+from ..helper.helper_functions import year_selection
 
 
 
@@ -128,6 +129,11 @@ class PayrollPaycycle(models.Model):
         inverse_name='paycycle_config_id',
         string='Paycycle Periods',
     )
+    paycycle_period_year_slab_ids = fields.One2many(
+        comodel_name='paycycle.period.year.slab',
+        inverse_name='paycycle_config_id',
+        string='Paycycle Period Slabs',
+    )
 
     _sql_constraints = [
         ('pay_cycle', 'unique(pay_cycle)', "A Pay cycle already exists."),
@@ -161,13 +167,45 @@ class PayrollPaycycle(models.Model):
     def _compute_display_name(self):
         for record in self:
             if record.paystub_group_name and record.pay_cycle:
-                record.display_name = record.paystub_group_name + '(' + record.pay_cycle + ')' 
+                record.display_name = record.paystub_group_name + '(' + record.pay_cycle + ')'
             else:
                 super()._compute_display_name()
 
+    @api.model
+    def action_update_batch_paycycle_config(self):
+        return {
+            'type': 'ir.actions.act_window',
+            'name': 'Batch Update Payslip Copnfig',
+            'res_model': 'paycycle.config.update.wizard',
+            'view_mode': 'form',
+            'target': 'new',
+        }
 
+class PaycyclePeriodYearSlab(models.Model):
+    _name = 'paycycle.period.year.slab'
+    _description = 'Pay Cycle Period Year Slab'
+    _rec_name = 'year'
 
+    paycycle_config_id = fields.Many2one('paycycle.config')
+    year = fields.Selection(
+        year_selection,
+        string="Year",
+        default=lambda self: str(datetime.now().year)
+    )
+    paycycle_period_ids = fields.One2many(
+        comodel_name='paycycle.period',
+        inverse_name='paycycle_year_slab_id',
+        string='Paycycle Periods',
+    )
 
+    # A pay period cannot be deleted if there is a generated payslip for that pay period
+    def unlink(self):
+        for rec in self:
+            is_linked_payperiod = self.env["hr.payslip"].search_count([('pay_cycle_period.id','=', rec.id)],limit=1)
+            if is_linked_payperiod >0:
+                raise ValidationError(_("You cannot delete a pay period which have a generated payslip."))
+
+        return super(PaycyclePeriodYearSlab, self).unlink()
 
 
 class PaycyclePeriod(models.Model):
@@ -176,6 +214,12 @@ class PaycyclePeriod(models.Model):
     _rec_name = 'name'
 
     paycycle_config_id = fields.Many2one('paycycle.config')
+    paycycle_year_slab_id = fields.Many2one('paycycle.period.year.slab')
+    year = fields.Selection(
+        year_selection,
+        string="Year",
+        related='paycycle_year_slab_id.year',store=True
+    )
     name = fields.Char("Pay Period")
     start_date = fields.Date("Start Date")
     end_date = fields.Date("End Date")

@@ -1,0 +1,27 @@
+<odoo>
+    <data>
+        <record id="paycycle_config_update_wizard_form" model="ir.ui.view">
+            <field name="name">paycycle.config.update.wizard.form</field>
+            <field name="model">paycycle.config.update.wizard</field>
+            <field name="arch" type="xml">
+                <form string="Batch Update Paycycle Info">
+                    <group>
+                        <field name="config_ids" required="1" widget="many2many_tags" />
+                    </group>
+                    <footer>
+                        <button string="Update" type="object" name="update_payslip_config_info" class="oe_highlight"/>
+                        <button string="Cancel" special="cancel"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+        <record id="action_paycycle_update_wizard" model="ir.actions.act_window">
+            <field name="name">Batch Update Paycycle Info</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">paycycle.config.update.wizard</field>
+            <field name="view_mode">form</field>
+            <field name="target">new</field>
+        </record>
+    </data>
+</odoo>
