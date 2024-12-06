@@ -93,35 +93,38 @@ class InheritedHrPayslipOvertime(models.Model):
             )
             _logger.info(f"Weekly Hour:{weekly_hours}\n")
 
+            try:
+                if weekly_hours > full_week_hours:
+                    # Handle partial weeks:
+                    # If the pay period starts in the middle of the week
+                    if payslip_start_date.weekday() != 0 and first_week:
+                        _logger.info(f"First Partial Week===>")
+                        first_partial_week_hours = sum(
+                            [(we.date_stop - we.date_start).total_seconds() / 3600 for we in work_entries.filtered(
+                                lambda we: we.date_start >= first_monday and we.date_stop < payslip_start_date
+                            )]
+                        )
+                        _logger.info(f"First Partial Week Hour:{first_partial_week_hours} and Date Start: {first_monday} and End date:{payslip_start_date}")
+                        if first_partial_week_hours > full_week_hours:
+                            _logger.info(
+                                f"first_partial_week_hours({first_partial_week_hours}) > full_week_hours{full_week_hours}")
+                            first_partial_overtime_hours = first_partial_week_hours - full_week_hours
+                            _logger.info(f"first_partial_overtime_hours({first_partial_overtime_hours})")
+                            overtime_hours += (weekly_hours - full_week_hours) - first_partial_overtime_hours
+                            _logger.info(f"first_partial_overtime_hours({(weekly_hours - full_week_hours) - first_partial_overtime_hours})")
 
-            if weekly_hours > full_week_hours:
-                # Handle partial weeks:
-                # If the pay period starts in the middle of the week
-                if payslip_start_date.weekday() != 0 and first_week:
-                    _logger.info(f"First Partial Week===>")
-                    first_partial_week_hours = sum(
-                        [(we.date_stop - we.date_start).total_seconds() / 3600 for we in work_entries.filtered(
-                            lambda we: we.date_start >= first_monday and we.date_stop < payslip_start_date
-                        )]
-                    )
-                    _logger.info(f"First Partial Week Hour:{first_partial_week_hours} and Date Start: {first_monday} and End date:{payslip_start_date}")
-                    if first_partial_week_hours > full_week_hours:
-                        _logger.info(
-                            f"first_partial_week_hours({first_partial_week_hours}) > full_week_hours{full_week_hours}")
-                        first_partial_overtime_hours = first_partial_week_hours - full_week_hours
-                        _logger.info(f"first_partial_overtime_hours({first_partial_overtime_hours})")
-                        overtime_hours += (weekly_hours - full_week_hours) - first_partial_overtime_hours
-                        _logger.info(f"first_partial_overtime_hours({(weekly_hours - full_week_hours) - first_partial_overtime_hours})")
+                    else:
+                        current_week_start += weekly_hours - full_week_hours
+                # Move to the next week
+                current_week_start += timedelta(days=7)
+                _logger.info(f"Next Week Start: {current_week_start})")
+                current_week_end = current_week_start + timedelta(days=4)
 
-                else:
-                    current_week_start += weekly_hours - full_week_hours
+                first_week = False
+                _logger.info(f"Next Week Ends: {current_week_end})")
 
-            # Move to the next week
-            current_week_start += timedelta(days=7)
-            _logger.info(f"Next Week Start: {current_week_start})")
-            current_week_end = current_week_start + timedelta(days=4)
-            first_week = False
-            _logger.info(f"Next Week Ends: {current_week_end})")
+            except Exception as e:
+                _logger.info(f"Exception: {e})")
 
         # Handle partial weeks:
         # If the pay period starts in the middle of the week
