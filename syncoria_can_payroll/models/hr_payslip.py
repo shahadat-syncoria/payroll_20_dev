@@ -4,6 +4,8 @@ from odoo.exceptions import UserError, ValidationError
 from odoo.tools import date_utils
 from odoo import api, models, _
 from urllib.parse import urlsplit, urlunsplit
+from datetime import datetime
+from ..helper.helper_functions import year_selection
 
 
 PAYGROUP = {
@@ -33,7 +35,11 @@ class InheritedHrPayslip(models.Model):
     irre_amount = fields.Float("Irregular Amount",default=0)
     api_response_json = fields.Json()
     api_payload_json = fields.Json()
-
+    year = fields.Selection(
+        year_selection,
+        string="Year",
+        default=lambda self: str(datetime.now().year)
+    )
     #====================need to remove=====================
     irre_fed_tax = fields.Float("Irregular Fed Tax",default=0)
     irre_prov_tax = fields.Float("Irregular Prov Tax",default=0)
@@ -57,13 +63,20 @@ class InheritedHrPayslip(models.Model):
 
     # ======================================================
 
-    @api.depends('pay_cycle')
+    @api.depends('pay_cycle','year')
     def _compute_pay_cycle_period_domain(self):
         for rec in self:
             rec.pay_cycle_period_ids_domain = False
             if rec.pay_cycle:
-                rec.pay_cycle_period_ids_domain = rec.pay_cycle.paycycle_period_ids.filtered(
-                    lambda x: x.paycycle_config_id.id == rec.pay_cycle.id).ids
+                pay_cycle_period_ids_domain = rec.pay_cycle.paycycle_period_year_slab_ids.filtered(lambda x: x.year == str(rec.year)).paycycle_period_ids.ids
+                # pay_cycle_period_ids_domain = rec.pay_cycle.paycycle_period_ids.filtered(
+                #     lambda x: x.paycycle_config_id.id == rec.pay_cycle.id and x.paycycle_year_slab_id.year == str(rec.year)).ids
+                rec.pay_cycle_period_ids_domain = pay_cycle_period_ids_domain
+
+    @api.onchange('year')
+    def _onchange_year(self):
+        for rec in self:
+            rec.pay_cycle_period = None
 
     @api.onchange('pay_cycle_period')
     def _onchange_pay_cycle_period(self):

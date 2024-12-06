@@ -1,6 +1,6 @@
 from datetime import datetime,timedelta
 from calendar import monthrange
-
+from odoo.exceptions import UserError
 from odoo import fields, models, api, _
 from odoo.exceptions import ValidationError
 from ..helper.helper_functions import year_selection
@@ -198,6 +198,13 @@ class PaycyclePeriodYearSlab(models.Model):
         string='Paycycle Periods',
     )
 
+    @api.constrains('year')
+    def _check_year(self):
+        self.ensure_one()
+        records_count = self.search_count([('year', '=', self.year),('paycycle_config_id', '=', self.paycycle_config_id.id)])
+        if records_count > 1:
+            raise UserError(_("Duplicate Error: Year already exists."))
+
     # A pay period cannot be deleted if there is a generated payslip for that pay period
     def unlink(self):
         for rec in self:
@@ -223,6 +230,7 @@ class PaycyclePeriod(models.Model):
     name = fields.Char("Pay Period")
     start_date = fields.Date("Start Date")
     end_date = fields.Date("End Date")
+
 
     # A pay period cannot be deleted if there is a generated payslip for that pay period
     def unlink(self):
