@@ -142,7 +142,7 @@ class PayrollPaycycle(models.Model):
     # A pay cycle cannot be deleted if a employee is attached in that paycycle
     def unlink(self):
         for rec in self:
-            is_linked_paycycle = self.env["hr.contract"].search_count([('salary_pay_cycle.id','=', rec.id)],limit=1)
+            is_linked_paycycle = self.env["hr.contract"].search_count([('salary_pay_cycle.id','=', rec.id),('state','!=', 'cancel')],limit=1)
             if is_linked_paycycle > 0:
                 raise ValidationError(_("You cannot delete a pay cycle which have a employee."))
 
@@ -189,8 +189,7 @@ class PaycyclePeriodYearSlab(models.Model):
     paycycle_config_id = fields.Many2one('paycycle.config')
     year = fields.Selection(
         year_selection,
-        string="Year",
-        default=lambda self: str(datetime.now().year)
+        string="Year"
     )
     paycycle_period_ids = fields.One2many(
         comodel_name='paycycle.period',
@@ -205,10 +204,24 @@ class PaycyclePeriodYearSlab(models.Model):
         if records_count > 1:
             raise UserError(_("Duplicate Error: Year already exists."))
 
+    @api.onchange('year')
+    def _onchange_year(self):
+        self.ensure_one()
+        for rec in self:
+            rec.paycycle_period_ids = [(6, 0, [])]
+            if rec.paycycle_config_id.start_date and rec.year:
+                # Assume 'year' is an integer field representing the selected year
+                selected_year = rec.year
+                print(selected_year)
+                start_date = datetime.strptime(f'{selected_year}-01-{rec.paycycle_config_id.start_date}', '%Y-%m-%d')
+                print('start_date', start_date, rec.paycycle_config_id.pay_cycle)
+                result = generate_date_ranges(start_date, rec.paycycle_config_id.pay_cycle)
+                rec.paycycle_period_ids = result
+
     # A pay period cannot be deleted if there is a generated payslip for that pay period
     def unlink(self):
         for rec in self:
-            is_linked_payperiod = self.env["hr.payslip"].search_count([('pay_cycle_period.id','=', rec.id)],limit=1)
+            is_linked_payperiod = self.env["hr.payslip"].search_count([('pay_cycle_period.id','=', rec.id),('state','!=', 'cancel')],limit=1)
             if is_linked_payperiod >0:
                 raise ValidationError(_("You cannot delete a pay period which have a generated payslip."))
 
@@ -235,7 +248,7 @@ class PaycyclePeriod(models.Model):
     # A pay period cannot be deleted if there is a generated payslip for that pay period
     def unlink(self):
         for rec in self:
-            is_linked_payperiod = self.env["hr.payslip"].search_count([('pay_cycle_period.id','=', rec.id)],limit=1)
+            is_linked_payperiod = self.env["hr.payslip"].search_count([('pay_cycle_period.id','=', rec.id),('state','!=', 'cancel')],limit=1)
             if is_linked_payperiod >0:
                 raise ValidationError(_("You cannot delete a pay period which have a generated payslip."))
 
