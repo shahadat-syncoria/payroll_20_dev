@@ -113,7 +113,8 @@ class InheritedHrPayslipOvertime(models.Model):
                         _logger.info(f"first_partial_overtime_hours({(weekly_hours - full_week_hours) - first_partial_overtime_hours})")
 
                 else:
-                    current_week_start += weekly_hours - full_week_hours
+                    overtime_hours += (weekly_hours - full_week_hours)
+
             # Move to the next week
             current_week_start += timedelta(days=7)
             _logger.info(f"Next Week Start: {current_week_start})")
