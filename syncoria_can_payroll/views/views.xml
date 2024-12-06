@@ -7,8 +7,8 @@
             <field name="arch" type="xml">
                 <form string="T4 Form">
                     <header>
-                        <field groups="!hr_payroll.group_hr_payroll_employee_manager" name="state" widget="statusbar"/>
-                        <field groups="hr_payroll.group_hr_payroll_employee_manager" name="state" options="{'clickable': '1'}" widget="statusbar"/>
+                        <field groups="!hr_payroll.group_hr_payroll_manager" name="state" widget="statusbar"/>
+                        <field groups="hr_payroll.group_hr_payroll_manager" name="state" options="{'clickable': '1'}" widget="statusbar"/>
                         <button class="btn btn-primary" invisible="state in ['done', 'cancel']" name="compute_t4" string="Compute" type="object"/>
                         <button class="btn btn-primary" invisible="state != 'done'" name="download_t4_xml" string="Xml Download" type="object"/>
                         <button class="btn btn-primary" invisible="state != 'done'" name="download_t4_pdf" string="T4 Slip Download" type="object"/>
@@ -136,7 +136,7 @@
                                 <field name="indn_txmpt_sei_amt" required="0"/>
                             </group>
                         </group>
-                        <group groups="hr_payroll.group_hr_payroll_employee_manager" name="empl_t4_summary" string="T4 Summary">
+                        <group groups="hr_payroll.group_hr_payroll_manager" name="empl_t4_summary" string="T4 Summary">
                             <group name="empl_t4_summary_left">
                                 <field name="bn" required="0"/>
                                 <field name="employer_l1_nm" required="0"/>
@@ -181,17 +181,17 @@
                     </div>
                 </form></field>
         </record>
-        <record id="hr_contract_view_tree" model="ir.ui.view">
-            <field name="name">statement.remuneration.tree</field>
+        <record id="hr_contract_view_list" model="ir.ui.view">
+            <field name="name">statement.remuneration.list</field>
             <field name="model">statement.remuneration</field>
             <field name="arch" type="xml">
-                <tree multi_edit="1" string="T4 Form" decoration-info="state == 'draft'"
+                <list multi_edit="1" string="T4 Form" decoration-info="state == 'draft'"
                      decoration-success="state == 'done'">
                     <field name="employee_id"/>
                     <field name="year"/>
                     <field name="state"
                      />
-                </tree></field>
+                </list></field>
         </record>
         <record id="t4_form_view_search" model="ir.ui.view">
             <field name="name">statement.remuneration.form</field>
@@ -209,7 +209,7 @@
         <record id="syncoria_can_payroll.t4_action_window" model="ir.actions.act_window">
             <field name="name">T4 Form Slip</field>
             <field name="res_model">statement.remuneration</field>
-            <field name="view_mode">tree,form</field>
+            <field name="view_mode">list,form</field>
             <!--        <field name="domain">[('employee_id', '!=', False)]</field>-->
             <!--        <field name="context">{'search_default_running': 1, 'search_default_to_renew': 1}</field>-->
             <field name="search_view_id" ref="syncoria_can_payroll.t4_form_view_search"/>
@@ -247,7 +247,7 @@
               <field name="state">code</field>
               <field name="code">action = {
                   "type": "ir.actions.act_window",
-                  "view_mode": "tree,form",
+                  "view_mode": "list,form",
                   "res_model": model._name,
                 }</field>
             </record>
@@ -258,7 +258,7 @@
         -->
         <!-- menu categories -->
         <!--        <menuitem name="T4 Form" id="syncoria_can_payroll.t4_menu" sequence="25"-->
-        <!--                  action="syncoria_can_payroll.t4_action_window" parent="hr_payroll.menu_hr_payroll_employees_root" groups="hr_payroll.group_hr_payroll_employee_manager"/>-->
+        <!--                  action="syncoria_can_payroll.t4_action_window" parent="hr_payroll.menu_hr_payroll_employees_root" groups="hr_payroll.group_hr_payroll_manager"/>-->
         <!--    <menuitem name="Menu 2" id="syncoria_can_payroll.menu_2" parent="syncoria_can_payroll.menu_root"/>-->
         <!-- actions -->
         <!--

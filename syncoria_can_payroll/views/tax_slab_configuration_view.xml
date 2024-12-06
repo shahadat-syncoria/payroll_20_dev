@@ -57,8 +57,8 @@
                             <page name="fed_tax_line" string="Fed Tax">
                                 <group>
                                     <field name="fed_tax_line_ids"
-                                           groups="hr_payroll.group_hr_payroll_employee_manager">
-                                        <tree string="Fed Tax">
+                                           groups="hr_payroll.group_hr_payroll_manager">
+                                        <list string="Fed Tax">
 
 
                                             <field name="year"/>
@@ -68,7 +68,7 @@
                                             <field name="tax_amount"/>
                                             <field name="pay_cycle"/>
 
-                                        </tree>
+                                        </list>
                                         <form string="Fed Tax">
 
                                             <group>
@@ -96,8 +96,8 @@
                              <page name="prov_tax_line" string="Prov Tax">
                                 <group>
                                     <field name="prov_tax_line_ids"
-                                           groups="hr_payroll.group_hr_payroll_employee_manager">
-                                        <tree string="Provincial Tax">
+                                           groups="hr_payroll.group_hr_payroll_manager">
+                                        <list string="Provincial Tax">
 
 
                                             <field name="year"/>
@@ -107,7 +107,7 @@
                                             <field name="tax_amount"/>
                                             <field name="pay_cycle"/>
 
-                                        </tree>
+                                        </list>
                                         <form string="Provincial Tax">
 
                                             <group>
@@ -138,15 +138,15 @@
             </field>
         </record>
 
-        <record id="tax_slab_tree_view" model="ir.ui.view">
-            <field name="name">syncoria_can_payroll.tax_slab.tree</field>
+        <record id="tax_slab_list_view" model="ir.ui.view">
+            <field name="name">syncoria_can_payroll.tax_slab.list</field>
             <field name="model">tax.slab</field>
             <field name="arch" type="xml">
-                <tree string="Deduction">
+                <list string="Deduction">
                     <field name="name"/>
                     <field name="slab_year"/>
 
-                </tree>
+                </list>
             </field>
         </record>
 
@@ -168,7 +168,7 @@
             <field name="name">Deductions</field>
             <field name="type">ir.actions.act_window</field>
             <field name="res_model">tax.slab</field>
-            <field name="view_mode">tree,form</field>
+            <field name="view_mode">list,form</field>
             <field name="help" type="html">
                 <p class="oe_view_nocontent_create">
                     There is no examples click here to add new Deductions.

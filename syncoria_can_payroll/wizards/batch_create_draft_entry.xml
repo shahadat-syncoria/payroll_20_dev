@@ -7,7 +7,7 @@
             <form string="Create Draft Payslips Wizard">
 
                     <field name="draft_line_ids" widget="one2many_list" nolabel="1">
-                        <tree editable="bottom">
+                        <list editable="bottom">
                             <field name="slip_id"/>
                             <field name="employee_id"/>
                             <field name="attendance_hours" widget="float_time"/>
@@ -25,7 +25,7 @@
                             <field name="prov_tax" optional="hide"/>
                             <field name="net" optional="show"/>
                             <field name="acc_vac" optional="hide"/>
-                        </tree>
+                        </list>
                     </field>
 
                 <footer>

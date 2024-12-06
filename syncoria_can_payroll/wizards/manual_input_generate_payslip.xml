@@ -11,8 +11,8 @@
                     </group>
 
                         <field name="manual_input_ids"
-                               groups="hr_payroll.group_hr_payroll_employee_manager">
-                            <tree editable="bottom" >
+                               groups="hr_payroll.group_hr_payroll_manager">
+                            <list editable="bottom" >
 
 
                                 <field name="employee_id"/>
@@ -27,7 +27,7 @@
                                 <field name="retro" optional="hide"/>
 
 
-                            </tree>
+                            </list>
                         </field>
 
 

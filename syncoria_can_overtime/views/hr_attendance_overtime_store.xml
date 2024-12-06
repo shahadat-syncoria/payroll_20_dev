@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <record id="view_attendance_overtime_store_tree" model="ir.ui.view">
-        <field name="name">hr.attendance.overtime.store.tree</field>
+    <record id="view_attendance_overtime_store_list" model="ir.ui.view">
+        <field name="name">hr.attendance.overtime.store.list</field>
         <field name="model">hr.attendance.overtime.store</field>
         <field name="arch" type="xml">
-            <tree>
+            <list>
                 <field name="date"/>
                 <field name="employee_id"/>
                 <field name="payment_pay_period"/>
@@ -22,7 +22,7 @@
                 <button name="open_payslip_action" string="View Payslip" type="object" class="btn-primary"/>
 
 
-            </tree>
+            </list>
         </field>
     </record>
 
@@ -40,6 +40,6 @@
     <record id="hr_attendance_overtime_store_action" model="ir.actions.act_window">
         <field name="name">Extra Overtime</field>
         <field name="res_model">hr.attendance.overtime.store</field>
-        <field name="view_mode">tree</field>
+        <field name="view_mode">list</field>
     </record>
 </odoo>

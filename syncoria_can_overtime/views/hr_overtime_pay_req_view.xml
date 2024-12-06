@@ -46,15 +46,15 @@
                     </div>
                 </form></field>
         </record>
-        <record id="hr_overtime_pay_tree_view" model="ir.ui.view">
-            <field name="name">syncoria_can_overtime_pay.hr_overtime_pay.tree</field>
+        <record id="hr_overtime_pay_list_view" model="ir.ui.view">
+            <field name="name">syncoria_can_overtime_pay.hr_overtime_pay.list</field>
             <field name="model">hr.overtime.pay.request</field>
             <field name="arch" type="xml">
-                <tree string="Overtime Pay Request">
+                <list string="Overtime Pay Request">
                     <field name="name"/>
                     <field name="employee_id"/>
                     <field decoration-info="state == 'draft'" decoration-success="state == state in ('validate','paid')" decoration-warning="state in ('refuse','cancel')" name="state" widget="badge"/>
-                </tree></field>
+                </list></field>
         </record>
         <record id="hr_overtime_pay_search_view" model="ir.ui.view">
             <field name="name">syncoria_can_overtime_pay.hr_overtime_pay.search</field>
@@ -75,7 +75,7 @@
             <field name="name">Overtime Pay Request</field>
             <field name="type">ir.actions.act_window</field>
             <field name="res_model">hr.overtime.pay.request</field>
-            <field name="view_mode">tree,form</field>
+            <field name="view_mode">list,form</field>
             <field name="context">{}</field>
             <field name="help" type="html">
                 <p class="oe_view_nocontent_create">

@@ -7,15 +7,15 @@
         name="Statement of Remuneration"
         parent="hr_work_entry_contract_enterprise.menu_hr_payroll_root"
         sequence="75"
-        groups="hr_payroll.group_hr_payroll_employee_manager"/>
+        groups="hr_payroll.group_hr_payroll_manager"/>
         <!--        # Main Form Menu-->
         <menuitem name="Remuneration Paid(T4) Form" id="syncoria_can_payroll.t4_menu" sequence="25"
                   action="syncoria_can_payroll.t4_action_window" parent="menu_hr_payroll_remuneration"
-                  groups="hr_payroll.group_hr_payroll_employee_manager"/>
+                  groups="hr_payroll.group_hr_payroll_manager"/>
 
         <menuitem name="Batch" id="syncoria_can_payroll.t4_batch_menu" sequence="35"
                   action="syncoria_can_payroll.action_statement_remuneration_wizard" parent="menu_hr_payroll_remuneration"
-                  groups="hr_payroll.group_hr_payroll_employee_manager"/>
+                  groups="hr_payroll.group_hr_payroll_manager"/>
         <!--        Report Menus-->
         <menuitem id="roe_wizard_menu"
                   sequence="30"

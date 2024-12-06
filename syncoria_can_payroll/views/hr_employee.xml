@@ -12,7 +12,7 @@
                 <xpath expr="//notebook" position="inside">
                     <page name="sync_payroll_info" string="Payroll Information" groups="hr.group_hr_manager">
                              <field name="payroll_line_ids" nolabel="1">
-                                <tree>
+                                <list>
                                     <field name="year"/>
                                     <field name="ytd_cpp"/>
                                     <field name="ytd_cpp2"/>
@@ -20,7 +20,7 @@
                                     <field name="ytd_ei_employer"/>
                                     <field name="ytd_pi"/>
                                     <field name="year_to_date_irregular_payment"/>
-                                </tree>
+                                </list>
                                  <form>
                                      <group>
                                          <group>
@@ -32,7 +32,7 @@
                                             <label for="ytd_cpp_erp" class="oe_inline"/>
                                             <div class="o_row">
                                                 <field name="ytd_cpp_erp"/>
-                                                <button name="update_ytd_erp" type="object"
+                                                <button name="update_ytd_erp" type="object" string="Reload"
                                                         help="Update ERP CPP" context="{'type':'CPP'}" icon="fa-refresh"/>
                                             </div>
                                             <field name="ytd_previous_cpp"/>
@@ -43,7 +43,7 @@
                                              <label for="ytd_cpp2_erp" class="oe_inline"/>
                                              <div class="o_row">
                                                 <field name="ytd_cpp2_erp"/>
-                                                <button name="update_ytd_erp" type="object"
+                                                <button name="update_ytd_erp" type="object" string="Reload"
                                                         help="Update ERP CPP2" context="{'type':'CPP2'}" icon="fa-refresh"/>
                                              </div>
                                             <field name="ytd_previous_cpp2"/>
@@ -54,7 +54,7 @@
                                              <label for="ytd_ei_erp" class="oe_inline"/>
                                              <div class="o_row">
                                                 <field name="ytd_ei_erp"/>
-                                                <button name="update_ytd_erp" type="object"
+                                                <button name="update_ytd_erp" type="object" string="Reload"
                                                         help="Update ERP EI" context="{'type':'EI'}" icon="fa-refresh"/>
                                              </div>
                                             <field name="ytd_previous_ei"/>
@@ -65,7 +65,7 @@
                                              <label for="ytd_ei_employer_erp" class="oe_inline"/>
                                              <div class="o_row">
                                                 <field name="ytd_ei_employer_erp"/>
-                                                <button name="update_ytd_erp" type="object"
+                                                <button name="update_ytd_erp" type="object" string="Reload"
                                                         help="Update ERP Employer EI" context="{'type':'EI_EMPLOYER'}" icon="fa-refresh"/>
                                              </div>
                                             <field name="ytd_previous_ei_employer"/>
@@ -76,7 +76,7 @@
                                              <label for="ytd_pi_erp" class="oe_inline"/>
                                              <div class="o_row">
                                                 <field name="ytd_pi_erp"/>
-                                                <button name="update_ytd_erp" type="object"
+                                                <button name="update_ytd_erp" type="object" string="Reload"
                                                         help="Update ERP YTDPI" context="{'type':'PI'}" icon="fa-refresh"/>
                                              </div>
                                             <field name="ytd_previous_pi"/>
@@ -87,7 +87,7 @@
                                              <label for="ytd_previous_irre_payment" class="oe_inline"/>
                                              <div class="o_row">
                                                 <field name="ytd_previous_irre_payment"/>
-                                                <button name="update_ytd_irregular_payments_tax" type="object"
+                                                <button name="update_ytd_irregular_payments_tax" type="object" string="Reload"
                                                         help="Update ERP YTD Irr Tax" icon="fa-refresh"/>
                                              </div>
                                             <field name="ytd_previous_irre_payment_erp"/>

@@ -101,7 +101,7 @@ class AttendanceOvertimeStore(models.Model):
             'type': 'ir.actions.act_window',
             'name': 'Payslip',
             'res_model': 'hr.payslip',
-            'view_mode': 'tree,form',
+            'view_mode': 'list,form',
             'target': 'current',
             'domain': [('id', 'in', self.payslip_ids.ids)],
         }

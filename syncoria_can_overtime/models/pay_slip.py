@@ -342,7 +342,7 @@ class InheritedHrPayslipOvertime(models.Model):
             "type": "ir.actions.act_window",
             "name": _("Stored Overtime"),
             "res_model": "hr.attendance.overtime.store",
-            "views": [[False, "tree"]],
+            "views": [[False, "list"]],
             "context": {
                 "create": 0
             },
