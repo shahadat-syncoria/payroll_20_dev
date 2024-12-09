@@ -65,12 +65,23 @@ class InhertitedHrEmployee(models.Model):
     ytd_previous_irre_payment_erp = fields.Float("Year To Date Irregular Payment ERP", default=0, store=True,
                                              compute='compute_ytd_previous_irre_fed_tax')
 
+    ytd_fed_tax = fields.Float("Year To Date Fed Tax", default=0, store=True,
+                                    compute='_compute_ytd_fed_tax', groups="hr.group_hr_user")
+    ytd_fed_tax_erp = fields.Float("Year To Date Fed Tax ERP", default=0, store=True)
+    ytd_previous_fed_tax = fields.Float("Previous Year To Date Fed Tax", default=0, store=True)
+    ytd_prov_tax = fields.Float("Year To Date Prov Tax", default=0, store=True,
+                                     compute='_compute_ytd_prov_tax', groups="hr.group_hr_user")
+    ytd_prov_tax_erp = fields.Float("Year To Date Prov Tax ERP", default=0, store=True)
+    ytd_previous_prov_tax = fields.Float("Previous Year To Date Prov Tax", default=0, store=True)
+    ytd_previous_prov_amount = fields.Float("Previous Year To Date Irregular Amount", default=0, store=True)
+
+
     #========================================== need to remove this fields=====================================
-    ytd_irre_fed_tax = fields.Float("Year To Date Irregular Payment Fed Tax", default=0, store=True, compute='_compute_ytd_irre_fed_tax',groups="hr.group_hr_user")
+    ytd_irre_fed_tax = fields.Float("Year To Date Irregular Payment Fed Tax", default=0, store=True,groups="hr.group_hr_user")
     ytd_irre_fed_tax_erp = fields.Float("Year To Date Irregular Payment Fed Tax ERP", default=0, store=True)
     ytd_previous_irre_fed_tax = fields.Float("Previous Year To Date Irregular Payment Fed Tax", default=0, store=True,compute='compute_ytd_previous_irre_fed_tax')
     ytd_irre_prov_tax = fields.Float("Year To Date Irregular Payment Prov Tax", default=0, store=True,
-                                    compute='_compute_ytd_irre_prov_tax',groups="hr.group_hr_user")
+                                    groups="hr.group_hr_user")
     ytd_irre_prov_tax_erp = fields.Float("Year To Date Irregular Payment Prov Tax ERP", default=0, store=True)
     ytd_previous_irre_prov_tax = fields.Float("Previous Year To Date Irregular Payment Prov Tax", default=0, store=True, compute='compute_ytd_previous_irre_prov_tax')
     ytd_previous_irre_prov_amount = fields.Float("Previous Year To Date Irregular Amount", default=0, store=True)
@@ -119,15 +130,15 @@ class InhertitedHrEmployee(models.Model):
         for rec in self:
             rec.year_to_date_irregular_payment = rec.ytd_previous_irre_payment + rec.ytd_previous_irre_payment_erp
 
-    @api.depends("ytd_irre_prov_tax_erp", "ytd_previous_irre_prov_tax")
-    def _compute_ytd_irre_prov_tax(self):
+    @api.depends("ytd_prov_tax_erp", "ytd_previous_prov_tax")
+    def _compute_ytd_prov_tax(self):
         for rec in self:
-            rec.ytd_irre_prov_tax = rec.ytd_irre_prov_tax_erp + rec.ytd_previous_irre_prov_tax
+            rec.ytd_prov_tax = rec.ytd_prov_tax_erp + rec.ytd_previous_prov_tax
 
-    @api.depends("ytd_irre_fed_tax_erp", "ytd_previous_irre_fed_tax")
-    def _compute_ytd_irre_fed_tax(self):
+    @api.depends("ytd_fed_tax_erp", "ytd_previous_fed_tax")
+    def _compute_ytd_fed_tax(self):
         for rec in self:
-            rec.ytd_irre_fed_tax = rec.ytd_irre_fed_tax_erp + rec.ytd_previous_irre_fed_tax
+            rec.ytd_fed_tax = rec.ytd_fed_tax_erp + rec.ytd_previous_fed_tax
 
     @api.depends("ytd_pi_erp", "ytd_previous_pi")
     def _compute_ytd_pi(self):
@@ -194,21 +205,23 @@ class InhertitedHrEmployee(models.Model):
 
 
 
-    def _update_ytd_irregular_payments_tax(self,payslip_ytd,req_type):
+    def _update_ytd_tax(self,payslip_ytd,req_type):
 
             ytd_total_amount = payslip_ytd.filtered(lambda x: x.category_id.code in ["ADD_ALLOWANCE"])
             self.ytd_pi_erp = ytd_total_amount
 
-    def update_ytd_irregular_payments_tax(self):
+    def update_ytd_tax(self):
         for rec in self:
             payslip_ytd_tax = self.slip_ids.filtered(
             lambda x: x.state == 'paid' and (
                 x.paid_date.year if x.paid_date else x.write_date.year) == int(
                 self.contract_id.deductions.slab_year or 0))
             rec.ytd_previous_irre_payment_erp = sum(payslip_ytd_tax.mapped("irre_amount"))
-            # rec.ytd_irre_fed_tax_erp = sum(payslip_ytd_tax.mapped("irre_fed_tax"))
-            # rec.ytd_irre_prov_tax_erp = sum(payslip_ytd_tax.mapped("irre_prov_tax"))
+            rec.ytd_fed_tax_erp = sum(payslip_ytd_tax.mapped("irre_fed_tax"))
+            rec.ytd_prov_tax_erp = sum(payslip_ytd_tax.mapped("irre_prov_tax"))
 
+
+    # ================================================NO NEED OF THIS FUNCTION========================
     @api.depends('ytd_previous_irre_prov_amount', 'last_paycycle_gross')
     def compute_ytd_previous_irre_fed_tax(self):
         for rec in self:
@@ -248,7 +261,7 @@ class InhertitedHrEmployee(models.Model):
 
                 irr_pay_tax = tax_amount_gross_with_irr - tax_amount_gross_without_irr
                 rec.ytd_previous_irre_prov_tax = irr_pay_tax * pay_cycle
-
+    # ============================================================================================================
     @api.onchange('is_portal_user')
     def _onchage_is_portal_user(self):
         for x in self:
