@@ -38,7 +38,7 @@ class SyncoriaCreateDraftWizard(models.TransientModel):
                 "slip_id" : payslip.id,
                 "employee_id": payslip.employee_id.id,
                 "attendance_hours": payslip.worked_days_line_ids.filtered(lambda x: x.code == "WORK100").number_of_hours,
-                "overtime_hours" : payslip.worked_days_line_ids.filtered(lambda x: x.code == "CAN_OVERTIME").number_of_hours,
+                "overtime_hours" : payslip.worked_days_line_ids.filtered(lambda x: x.code == "BNK_OVERTIME").number_of_hours,
                 "stat_overtime_hours" : payslip.worked_days_line_ids.filtered(lambda x: x.code == "CAN_STAT_OVERTIME").number_of_hours,
                 "payout_vacation_pay_paycycle":True if payslip.payout_vacation_pay_paycycle else False,
                 "ytd_vac_pay_amount" : payslip.ytd_vac_pay_amount,

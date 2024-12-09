@@ -36,6 +36,8 @@
         'views/hr_employee_view.xml',
         'views/hr_payslip.xml',
 
+        'wizards/manual_input_wiz.xml'
+
 
 
     ],

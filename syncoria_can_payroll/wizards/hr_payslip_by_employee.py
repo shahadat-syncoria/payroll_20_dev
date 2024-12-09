@@ -129,6 +129,7 @@ class SyncoriaHrEmployeeManualWizard(models.TransientModel):
             'res_id': payslip_run.id,
         }
         if not employees:
+            payslip_run.state = 'verify'
             return success_result
 
         payslips = self.env['hr.payslip']

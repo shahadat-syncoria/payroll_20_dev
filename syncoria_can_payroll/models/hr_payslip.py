@@ -36,6 +36,9 @@ class InheritedHrPayslip(models.Model):
     #====================need to remove=====================
     irre_fed_tax = fields.Float("Irregular Fed Tax",default=0)
     irre_prov_tax = fields.Float("Irregular Prov Tax",default=0)
+    # ==============================================================
+    fed_tax = fields.Float("Fed Tax",default=0)
+    prov_tax = fields.Float("Prov Tax",default=0)
 
 
     def _compute_is_manual_input(self):
@@ -123,8 +126,8 @@ class InheritedHrPayslip(models.Model):
                 rec.employee_id.with_context({"type": "ALL"}).update_ytd_erp()
                 rec.write({
                     'irre_amount': sum([line.amount for line in rec.line_ids if line.salary_rule_id.is_irregular_payment]),
-                     'irre_fed_tax': sum([line.amount for line in rec.line_ids if line.code=='FTAX']),
-                     'irre_prov_tax': sum([line.amount for line in rec.line_ids if line.code=='OTAX'])
+                     'fed_tax': sum([line.amount for line in rec.line_ids if line.code=='FTAX']),
+                     'prov_tax': sum([line.amount for line in rec.line_ids if line.code=='OTAX'])
                 })
                 rec.employee_id.update_ytd_tax()
         return res

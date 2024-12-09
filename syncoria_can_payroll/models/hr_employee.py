@@ -218,8 +218,8 @@ class InhertitedHrEmployee(models.Model):
                 x.paid_date.year if x.paid_date else x.write_date.year) == int(
                 self.contract_id.deductions.slab_year or 0))
             rec.ytd_previous_irre_payment_erp = sum(payslip_ytd_tax.mapped("irre_amount"))
-            rec.ytd_fed_tax_erp = sum(payslip_ytd_tax.mapped("irre_fed_tax"))
-            rec.ytd_prov_tax_erp = sum(payslip_ytd_tax.mapped("irre_prov_tax"))
+            rec.ytd_fed_tax_erp = sum(payslip_ytd_tax.mapped("fed_tax"))
+            rec.ytd_prov_tax_erp = sum(payslip_ytd_tax.mapped("prov_tax"))
 
 
     # ================================================NO NEED OF THIS FUNCTION========================
