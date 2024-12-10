@@ -263,6 +263,7 @@ class VacationPayslip(models.Model):
                 line_obj = rec.employee_id.payroll_line_ids.filtered(lambda x: x.year == str(self.date_to.year))
                 line_obj.ytd_vac_pay_amount_erp += vac_pay_amount
                 rec.vac_pay_earned_amount = vac_pay_amount
+                line_obj.update_vac_pay_amount_erp()
 
     def action_payslip_paid(self):
         res = super(VacationPayslip, self).action_payslip_paid()
@@ -271,8 +272,8 @@ class VacationPayslip(models.Model):
             if self.env["ir.config_parameter"].sudo().get_param('syncoria_can_vacation_pay.vac_pay_type') == 'cash_wise':
                 if not rec.payout_vacation_pay_paycycle:
                     rec.store_vacation_pay_amount()
-                    emp_line_obj = rec.employee_id.payroll_line_ids.filtered(lambda x: x.year == str(self.date_to.year))
-                    emp_line_obj.update_vac_pay_amount_erp()
+                    # emp_line_obj = rec.employee_id.payroll_line_ids.filtered(lambda x: x.year == str(self.date_to.year))
+                    # emp_line_obj.update_vac_pay_amount_erp()
 
         return res
 
