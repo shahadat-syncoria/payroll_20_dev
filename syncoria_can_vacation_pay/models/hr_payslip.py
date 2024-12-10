@@ -26,7 +26,7 @@ class VacationPayslip(models.Model):
         for record in self:
             line_obj = record.employee_id.payroll_line_ids.filtered(lambda x: x.year == str(record.date_to.year))
             ytd_vac_pay_amount = line_obj.ytd_vac_pay_amount
-            if not line_obj:
+            if not line_obj and record.employee_id.is_vacation_pay_carry_over:
                 previous_year_lines = record.employee_id.payroll_line_ids.filtered(lambda x: str(x.year) == str(record.date_to.year - 1))
                 if previous_year_lines:
                     ytd_vac_pay_amount = previous_year_lines.ytd_vac_pay_amount
