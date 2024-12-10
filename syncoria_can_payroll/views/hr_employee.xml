@@ -104,19 +104,19 @@
 
 
 
-                                            <label for="ytd_fed_tax" class="oe_inline"/>
+                                            <label for="ytd_previous_fed_tax" class="oe_inline"/>
                                         <div class="o_row">
-                                            <field name="ytd_fed_tax"/>
+                                            <field name="ytd_previous_fed_tax"/>
                                             <button name="update_ytd_tax" type="object"
                                                     help="Update ERP YTD Tax"
                                                     icon="fa-refresh"/>
                                         </div>
                                             <field name="ytd_fed_tax_erp" readonly="1"/>
-                                            <field name="ytd_previous_fed_tax"/>
+                                            <field name="ytd_fed_tax"/>
 
-                                            <field name="ytd_prov_tax"/>
-                                            <field name="ytd_prov_tax_erp" readonly="1"/>
                                             <field name="ytd_previous_prov_tax"/>
+                                            <field name="ytd_prov_tax_erp" readonly="1"/>
+                                            <field name="ytd_prov_tax"/>
 
 
 
