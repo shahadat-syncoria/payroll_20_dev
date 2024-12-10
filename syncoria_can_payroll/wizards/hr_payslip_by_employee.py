@@ -129,6 +129,7 @@ class SyncoriaHrEmployeeManualWizard(models.TransientModel):
             'res_id': payslip_run.id,
         }
         if not employees:
+            payslip_run.state = 'verify'
             return success_result
 
         payslips = self.env['hr.payslip']
@@ -196,7 +197,9 @@ class SyncoriaEmployeeManualInputLine(models.TransientModel):
     _description = "HR Employee Manual Input Line"
 
     manual_input_wizard_id= fields.Many2one("hr.payslip.employee.manual.wizard")
+    create_draft_id= fields.Many2one("hr.payslip.create.draft.wizard")
     employee_id = fields.Many2one("hr.employee", string="Employee Name")
+    slip_id = fields.Many2one("hr.payslip", string="Slip_id")
 
     attendance_hours = fields.Float(string="Attendance Number of Hours")
     overtime_hours = fields.Float(string="Overtime Number of Hours")
@@ -211,3 +214,12 @@ class SyncoriaEmployeeManualInputLine(models.TransientModel):
     commission = fields.Float("Commission Amount")
     bonus = fields.Float("Bonus Amount")
     retro = fields.Float("Retro Amount")
+
+
+    @api.constrains("vac_pay")
+    def _check_vac_pay(self):
+        for rec in self:
+            if rec.ytd_vac_pay_amount < rec.vac_pay:
+                raise UserError("Vacation pay amount cannot be greater then Remaining Vacation Pay.")
+
+

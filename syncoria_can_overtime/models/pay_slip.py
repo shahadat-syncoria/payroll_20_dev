@@ -1,11 +1,12 @@
 import json
 import logging
-from datetime import timedelta
+from datetime import timedelta, datetime, time
 
 from dateutil.relativedelta import relativedelta
 
 from odoo import fields, models, _, api, Command
 from odoo.exceptions import UserError, ValidationError
+import pytz
 _logger = logging.getLogger(__name__)
 
 class OvertimeHrPayslipInput(models.Model):
@@ -50,10 +51,13 @@ class InheritedHrPayslipOvertime(models.Model):
         overtime_hours = 0
         full_week_hours = self.contract_id.overtime_threshold
         # Get the start and end date of the payslip
-        payslip_start_date = self.date_from
-        payslip_end_date = self.date_to
-        payslip_start_date += relativedelta(hour=0, minute=0, second=0)
-        payslip_end_date += relativedelta(hour=23, minute=59, second=59)
+        slip_tz = pytz.timezone(self.contract_id.resource_calendar_id.tz)
+        utc = pytz.timezone('UTC')
+        payslip_start_date = slip_tz.localize(datetime.combine(self.date_from, time.min)).astimezone(utc).replace(tzinfo=None)
+        # payslip_start_date = datetime.combine(self.date_from, time.min)
+        payslip_end_date = slip_tz.localize(datetime.combine(self.date_to, time.max)).astimezone(utc).replace(tzinfo=None)
+        # payslip_end_date = datetime.combine(self.date_to, time.max)
+
         _logger.info(f"Start date:{payslip_start_date} and End Date: {payslip_end_date}")
 
         # Find the Monday of the start week and Sunday of the end week
@@ -73,9 +77,10 @@ class InheritedHrPayslipOvertime(models.Model):
         ])
 
         # Initialize week tracking
-        current_week_start = first_monday
-        current_week_end = current_week_start + timedelta(days=4)
-        current_week_end +=relativedelta(hour=23, minute=59, second=59)
+        # current_week_start = datetime.combine(first_monday, time.min)
+        current_week_start = slip_tz.localize(datetime.combine(first_monday, time.min)).astimezone(utc).replace(tzinfo=None)
+        # current_week_end = datetime.combine((current_week_start + timedelta(days=4)), time.max)
+        current_week_end = slip_tz.localize(datetime.combine((current_week_start + timedelta(days=4)), time.max)).astimezone(utc).replace(tzinfo=None)
         first_week = True
 
         # Iterate through full weeks
@@ -85,7 +90,7 @@ class InheritedHrPayslipOvertime(models.Model):
             weekly_work_entries = work_entries.filtered(
                 lambda we: we.date_start >= current_week_start and we.date_stop <= current_week_end
             )
-            _logger.info(f"Weekly Work entries:{weekly_work_entries[-1].date_start} and {weekly_work_entries[-1].date_stop}\n")
+            _logger.info(f"Weekly Work entries:{weekly_work_entries[-1].date_start if weekly_work_entries else None} and {weekly_work_entries[-1].date_stop if weekly_work_entries else None}\n")
 
             # Calculate weekly hours
             weekly_hours = sum(
@@ -114,12 +119,16 @@ class InheritedHrPayslipOvertime(models.Model):
                         _logger.info(f"first_partial_overtime_hours({(weekly_hours - full_week_hours) - first_partial_overtime_hours})")
 
                 else:
-                    current_week_start += weekly_hours - full_week_hours
+                    overtime_hours += weekly_hours - full_week_hours
 
             # Move to the next week
             current_week_start += timedelta(days=7)
+            # current_week_start = datetime.combine(current_week_start, time.min)
+            current_week_start = slip_tz.localize(datetime.combine(current_week_start, time.min)).astimezone(utc).replace(tzinfo=None)
             _logger.info(f"Next Week Start: {current_week_start})")
             current_week_end = current_week_start + timedelta(days=4)
+            # current_week_end = datetime.combine(current_week_end, time.max)
+            current_week_end = slip_tz.localize(datetime.combine(current_week_end, time.max)).astimezone(utc).replace(tzinfo=None)
             first_week = False
             _logger.info(f"Next Week Ends: {current_week_end})")
 
@@ -255,14 +264,12 @@ class InheritedHrPayslipOvertime(models.Model):
             stat_over_time_hour = manual_input_line_id.stat_overtime_hours
             avg_working_hour_per_day = rec.contract_id.resource_calendar_id.hours_per_day
             worked_days_lines = []
+            input_line = []
             if over_time_hour > 0.0:
-                worked_days_lines.append((0, 0, {
-                    'work_entry_type_id': self.env.ref('syncoria_can_overtime.sync_overtime_work_entry_type').id,
-                    'name': 'Overtime',
-                    'number_of_days': over_time_hour / avg_working_hour_per_day,
-                    'number_of_hours': over_time_hour,
-                    # 'amount': timesheet_hours*payslip.contract_id.hourly_rate
-
+                input_line.append((0, 0, {
+                    'input_type_id': self.env.ref('syncoria_can_overtime.input_ca_bank_overtime').id,
+                    'name': "overtime",
+                    'amount': rec._get_hourly_rate() * over_time_hour,
                 }))
             if stat_over_time_hour > 0.0:
                 worked_days_lines.append((0, 0, {
@@ -274,6 +281,7 @@ class InheritedHrPayslipOvertime(models.Model):
 
                 }))
             rec.worked_days_line_ids = worked_days_lines
+            rec.input_line_ids = input_line
 
 
 
@@ -298,22 +306,25 @@ class InheritedHrPayslipOvertime(models.Model):
             other_input_duration_taken = sum(overtime_req_obj.search(
                 [('name', 'in', other_input_line_overtime.overtime_pay_req_ref.split(
                 ',') if other_input_line_overtime.overtime_pay_req_ref else []), ('employee_id', '=', self.employee_id.id)], limit=1).mapped('overtime_pay'))
-            # other_input_duration_taken =other_input_line_overtime.amount
+            other_input_amount_taken =other_input_line_overtime.amount
 
             for store_overtime in existing_overtime_pay_period_ids:
 
                 if other_input_duration_taken > store_overtime.duration_remaining:
                     duration_need_to_deduct = store_overtime.duration_remaining
+                    amount_need_to_deduct = store_overtime.remaining_amount
                     other_input_duration_taken -= duration_need_to_deduct
+                    other_input_amount_taken -= amount_need_to_deduct
 
                     store_overtime.write({
                         'duration_taken':store_overtime.duration_taken+ duration_need_to_deduct,
-                        # 'amount_taken': existing_overtime_pay_period_id.amount_taken + amount_need_to_deduct,
+                        'amount_taken': store_overtime.amount_taken + amount_need_to_deduct,
                         'payslip_ids': [Command.link(self.id)]
                     })
                 else:
                     store_overtime.write({
                         'duration_taken': store_overtime.duration_taken+other_input_duration_taken,
+                        'amount_taken': store_overtime.amount_taken+other_input_amount_taken,
                         'payslip_ids': [Command.link(self.id)]
                     })
 

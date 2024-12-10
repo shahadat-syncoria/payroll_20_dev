@@ -17,7 +17,7 @@
     # Check https://github.com/odoo/odoo/blob/16.0/odoo/addons/base/data/ir_module_category_data.xml
     # for the full list
     'category': 'Uncategorized',
-    'version': '17.3',
+    'version': '17.4',
 
     # any module necessary for this one to work correctly
     'depends': ['syncoria_can_payroll'],
@@ -29,12 +29,14 @@
         'data/hr_payroll_overtime_data.xml',
         'data/hr_payroll_overtime_data.xml',
         'data/salary_rules.xml',
-        'data/cron_data.xml',
+        # 'data/cron_data.xml',
         'views/hr_overtime_pay_req_view.xml',
         'views/hr_contract.xml',
         'views/hr_attendance_overtime_store.xml',
         'views/hr_employee_view.xml',
         'views/hr_payslip.xml',
+
+        'wizards/manual_input_wiz.xml'
 
 
 

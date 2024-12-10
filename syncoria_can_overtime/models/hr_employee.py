@@ -9,7 +9,7 @@ class HrEmployeeOvertime(models.Model):
     overtime_method = fields.Selection([('no_overtime', 'No Overtime'),
                                         ('banked_overtime', 'Banked Overtime'),
                                         ('paycycle_out', 'Payout by Paycycle')],default='no_overtime', string='Overtime Method')
-    total_stored_overtime=fields.Float("Stored Overtime Hours", compute='_compute_total_store_overtime')
+    total_stored_overtime=fields.Float("Stored Overtime Hours", compute='_compute_total_store_overtime', digits=(16, 2))
     total_stored_overtime_amount=fields.Float("Stored Overtime Amount", compute='_compute_total_store_overtime')
 
     def _compute_total_store_overtime(self):

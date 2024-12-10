@@ -11,7 +11,6 @@
             <field name="category_id" ref="hr_payroll.GROSS"/>
             <field name="appears_on_payslip" eval="1"/>
             <field name="active" eval="1"/>
-          <field name="is_batch_modifiable" eval="1"/>
             <field name="amount_select">code</field>
             <field name="struct_id" ref="syncoria_can_payroll.structure_can_employee"/>
 <!--            <field name="condition_select">none</field>-->
@@ -55,7 +54,6 @@ result = (categories['GROSS'] + categories['ALW']+categories['ADD_ALLOWANCE']) -
             <field name="category_id" ref="hr_payroll.ALW"/>
             <field name="appears_on_payslip" eval="1"/>
             <field name="active" eval="1"/>
-            <field name="is_batch_modifiable" eval="1"/>
             <field name="amount_select">code</field>
             <field name="struct_id" ref="syncoria_can_payroll.structure_can_employee"/>
             <field name="condition_select">python</field>
@@ -133,7 +131,6 @@ result = final_result
             <field name="category_id" ref="syncoria_can_payroll.pre_tax_deduction"/>
             <field name="appears_on_payslip" eval="1"/>
             <field name="active" eval="1"/>
-            <field name="is_batch_modifiable" eval="1"/>
             <field name="amount_select">code</field>
             <field name="struct_id" ref="syncoria_can_payroll.structure_can_employee"/>
             <field name="condition_select">python</field>
@@ -153,7 +150,6 @@ else:
             <field name="category_id" ref="syncoria_can_payroll.post_tax_deduction"/>
             <field name="appears_on_payslip" eval="1"/>
             <field name="active" eval="1"/>
-            <field name="is_batch_modifiable" eval="1"/>
             <field name="amount_select">code</field>
             <field name="struct_id" ref="syncoria_can_payroll.structure_can_employee"/>
             <field name="condition_select">python</field>
@@ -173,7 +169,6 @@ else:
             <field name="category_id" ref="syncoria_can_payroll.post_tax_deduction"/>
             <field name="appears_on_payslip" eval="1"/>
             <field name="active" eval="1"/>
-            <field name="is_batch_modifiable" eval="1"/>
             <field name="amount_select">code</field>
             <field name="struct_id" ref="syncoria_can_payroll.structure_can_employee"/>
             <field name="condition_select">python</field>
@@ -193,7 +188,6 @@ else:
             <field name="category_id" ref="syncoria_can_payroll.post_tax_deduction"/>
             <field name="appears_on_payslip" eval="1"/>
             <field name="active" eval="1"/>
-             <field name="is_batch_modifiable" eval="1"/>
             <field name="amount_select">code</field>
             <field name="struct_id" ref="syncoria_can_payroll.structure_can_employee"/>
             <field name="condition_select">python</field>
@@ -213,7 +207,6 @@ else:
             <field name="category_id" ref="syncoria_can_payroll.post_tax_deduction"/>
             <field name="appears_on_payslip" eval="1"/>
             <field name="active" eval="1"/>
-             <field name="is_batch_modifiable" eval="1"/>
             <field name="amount_select">code</field>
             <field name="struct_id" ref="syncoria_can_payroll.structure_can_employee"/>
             <field name="condition_select">python</field>
@@ -234,7 +227,6 @@ else:
             <field name="category_id" ref="syncoria_can_payroll.post_tax_deduction"/>
             <field name="appears_on_payslip" eval="1"/>
             <field name="active" eval="1"/>
-            <field name="is_batch_modifiable" eval="1"/>
             <field name="amount_select">code</field>
             <field name="struct_id" ref="syncoria_can_payroll.structure_can_employee"/>
             <field name="condition_select">python</field>
@@ -254,7 +246,6 @@ else:
             <field name="category_id" ref="syncoria_can_payroll.post_tax_deduction"/>
             <field name="appears_on_payslip" eval="1"/>
             <field name="active" eval="1"/>
-            <field name="is_batch_modifiable" eval="1"/>
             <field name="amount_select">code</field>
             <field name="struct_id" ref="syncoria_can_payroll.structure_can_employee"/>
             <field name="condition_select">python</field>
@@ -277,7 +268,6 @@ else:
             <field name="category_id" ref="hr_payroll.GROSS"/>
             <field name="appears_on_payslip" eval="1"/>
             <field name="active" eval="1"/>
-              <field name="is_batch_modifiable" eval="1"/>
             <field name="amount_select">code</field>
             <field name="struct_id" ref="syncoria_can_payroll.structure_can_worker"/>
 <!--            <field name="condition_select">none</field>-->
@@ -320,7 +310,6 @@ result = (categories['GROSS'] + categories['ALW']+categories['ADD_ALLOWANCE']) -
             <field name="category_id" ref="hr_payroll.ALW"/>
             <field name="appears_on_payslip" eval="1"/>
             <field name="active" eval="1"/>
-            <field name="is_batch_modifiable" eval="1"/>
             <field name="amount_select">code</field>
             <field name="struct_id" ref="syncoria_can_payroll.structure_can_worker"/>
             <field name="condition_select">python</field>
@@ -399,7 +388,6 @@ result = final_result
             <field name="category_id" ref="syncoria_can_payroll.pre_tax_deduction"/>
             <field name="appears_on_payslip" eval="1"/>
             <field name="active" eval="1"/>
-            <field name="is_batch_modifiable" eval="1"/>
             <field name="amount_select">code</field>
             <field name="struct_id" ref="syncoria_can_payroll.structure_can_worker"/>
             <field name="condition_select">python</field>
@@ -421,7 +409,6 @@ result = final_result
             <field name="category_id" ref="syncoria_can_payroll.post_tax_deduction"/>
             <field name="appears_on_payslip" eval="1"/>
             <field name="active" eval="1"/>
-            <field name="is_batch_modifiable" eval="1"/>
             <field name="amount_select">code</field>
             <field name="struct_id" ref="syncoria_can_payroll.structure_can_worker"/>
             <field name="condition_select">python</field>
@@ -441,7 +428,6 @@ else:
             <field name="category_id" ref="syncoria_can_payroll.post_tax_deduction"/>
             <field name="appears_on_payslip" eval="1"/>
             <field name="active" eval="1"/>
-            <field name="is_batch_modifiable" eval="1"/>
             <field name="amount_select">code</field>
             <field name="struct_id" ref="syncoria_can_payroll.structure_can_worker"/>
             <field name="condition_select">python</field>
@@ -461,7 +447,6 @@ else:
             <field name="category_id" ref="syncoria_can_payroll.post_tax_deduction"/>
             <field name="appears_on_payslip" eval="1"/>
             <field name="active" eval="1"/>
-             <field name="is_batch_modifiable" eval="1"/>
             <field name="amount_select">code</field>
             <field name="struct_id" ref="syncoria_can_payroll.structure_can_worker"/>
             <field name="condition_select">python</field>
@@ -481,7 +466,6 @@ else:
             <field name="category_id" ref="syncoria_can_payroll.post_tax_deduction"/>
             <field name="appears_on_payslip" eval="1"/>
             <field name="active" eval="1"/>
-             <field name="is_batch_modifiable" eval="1"/>
             <field name="amount_select">code</field>
             <field name="struct_id" ref="syncoria_can_payroll.structure_can_worker"/>
             <field name="condition_select">python</field>
@@ -503,7 +487,6 @@ else:
             <field name="category_id" ref="syncoria_can_payroll.post_tax_deduction"/>
             <field name="appears_on_payslip" eval="1"/>
             <field name="active" eval="1"/>
-            <field name="is_batch_modifiable" eval="1"/>
             <field name="amount_select">code</field>
             <field name="struct_id" ref="syncoria_can_payroll.structure_can_worker"/>
             <field name="condition_select">python</field>
@@ -523,7 +506,6 @@ else:
             <field name="category_id" ref="syncoria_can_payroll.post_tax_deduction"/>
             <field name="appears_on_payslip" eval="1"/>
             <field name="active" eval="1"/>
-            <field name="is_batch_modifiable" eval="1"/>
             <field name="amount_select">code</field>
             <field name="struct_id" ref="syncoria_can_payroll.structure_can_worker"/>
             <field name="condition_select">python</field>

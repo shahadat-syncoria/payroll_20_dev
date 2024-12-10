@@ -1,5 +1,5 @@
 from odoo import fields,models,api,_
-from odoo.exceptions import UserError
+from odoo.exceptions import UserError, ValidationError
 
 
 class SyncoriaWorkedDays(models.Model):
@@ -54,3 +54,15 @@ class SyncoriaWorkedDays(models.Model):
                 current_hourly_rate = rec.payslip_id.contract_id.hourly_rate
                 stat_overtime_hour_rate = (current_hourly_rate * (stat_overtime_pay_percent / 100))
                 rec.amount = rec.number_of_hours * stat_overtime_hour_rate
+
+
+
+class SyncoriaHrVacation(models.Model):
+    _inherit = "hr.payslip.input"
+
+    @api.constrains("amount")
+    def banked_overtime_amount(self):
+        overtime_input_type = self.env.ref('syncoria_can_overtime.input_ca_bank_overtime').id
+        for rec in self:
+            if rec.input_type_id.id == overtime_input_type and rec.amount > round(rec.payslip_id.total_stored_overtime_amount,2):
+                raise ValidationError(_("Requested overtime greater than stored banked overtime amount!!"))
