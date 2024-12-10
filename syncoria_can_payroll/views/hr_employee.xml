@@ -90,27 +90,27 @@
                                              <label for="ytd_previous_irre_payment" class="oe_inline"/>
                                              <div class="o_row">
                                                 <field name="ytd_previous_irre_payment"/>
-                                                <button name="update_ytd_irregular_payments_tax" type="object"
+                                                <button name="update_ytd_irregular_payments_tax" context="{'type':'PI'}" type="object"
                                                         help="Update ERP YTD Irr Tax" icon="fa-refresh"/>
                                              </div>
                                             <field name="ytd_previous_irre_payment_erp"/>
                                             <field name="year_to_date_irregular_payment"/>
                                         </group>
                                     </group>
-                                        <group>
-                                        <button name="update_ytd_erp" type="object"
-                                                    help="Update ERP YTDPI" context="{'type':'PI'}" title="Update ERP YTDPI" icon="fa-refresh"/>
-                                            </group>
-                                            <group string='YTD Irregular Amount' name="irre">
-                                                   <group>
-                                                       <field name="ytd_previous_irre_payment"/>
-                                                       <field name="ytd_previous_irre_payment_erp"/>
-                                                       <field name="year_to_date_irregular_payment"/>
-                                                   </group>
-                                                <group>
-        <!--                                            <field name="last_paycycle_gross"/>-->
-                                                </group>
-                                            </group>
+<!--                                        <group>-->
+<!--                                        <button name="update_ytd_erp" type="object"-->
+<!--                                                    help="Update ERP YTDPI" context="{'type':'PI'}" title="Update ERP YTDPI" icon="fa-refresh"/>-->
+<!--                                            </group>-->
+<!--                                            <group string='YTD Irregular Amount' name="irre">-->
+<!--                                                   <group>-->
+<!--                                                       <field name="ytd_previous_irre_payment"/>-->
+<!--                                                       <field name="ytd_previous_irre_payment_erp"/>-->
+<!--                                                       <field name="year_to_date_irregular_payment"/>-->
+<!--                                                   </group>-->
+<!--                                                <group>-->
+<!--        &lt;!&ndash;                                            <field name="last_paycycle_gross"/>&ndash;&gt;-->
+<!--                                                </group>-->
+<!--                                            </group>-->
 
 <!--                                         <footer>-->
 <!--                                            <button string="Save" name="save_data" type="object" class="btn-primary"/>-->
