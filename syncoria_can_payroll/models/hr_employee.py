@@ -218,7 +218,8 @@ class InhertitedHrEmployee(models.Model):
                 line_obj.ytd_ei_employer_erp = ytd_total_amount if req_type == 'EI_EMPLOYER' else line_obj.ytd_ei_employer_erp
 
         elif req_type in ['PI']:
-            ytd_total_amount = sum(payslip_ytd.filtered(lambda x: x.category_id.code in ["GROSS", "ADD_ALLOWANCE", "ALW"]).mapped("total"))
+            # ytd_total_amount = sum(payslip_ytd.filtered(lambda x: x.category_id.code in ["GROSS", "ADD_ALLOWANCE", "ALW"]).mapped("total"))
+            ytd_total_amount = sum(payslip_ytd.filtered(lambda x: x.salary_rule_id.is_insurable_earning).mapped("total"))
             # prev_line_obj = self.payroll_line_ids.filtered(lambda x: x.year == str(year - 1))
             # if self.is_vacation_pay_carry_over and prev_line_obj and not action == 'cancel':
             #     ytd_total_amount += prev_line_obj.ytd_pi_erp

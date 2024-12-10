@@ -66,14 +66,17 @@ class VacationPayslip(models.Model):
             # If vacation pay carryover is enabled, add the previous year's irregular amounts
             carry_ytd_vac_pay_amount_erp = 0
             carry_previous_vac_pay_amount = 0
+            carry_vac_pay_amount_taken = 0
             if employee.is_vacation_pay_carry_over:
                 previous_year_lines = employee.payroll_line_ids.filtered(lambda x: str(x.year) == str(rec.date_to.year - 1))
                 if previous_year_lines:
                     carry_ytd_vac_pay_amount_erp = previous_year_lines.ytd_vac_pay_amount_erp
                     carry_previous_vac_pay_amount = previous_year_lines.previous_vac_pay_amount
+                    carry_vac_pay_amount_taken = previous_year_lines.vac_pay_amount_taken
 
             payslip_ytd_ids = employee.slip_ids.filtered(lambda x: x.state == 'paid' and (x.date_to.year if x.date_to else x.write_date.year) == int(rec.date_to.year))
             vac_pay_earned_amount = sum(payslip_ytd_ids.mapped("vac_pay_earned_amount"))
+            vac_pay_earned_taken = sum(payslip_ytd_ids.mapped("vac_pay_earned_taken"))
 
             if not line_obj:
                 self.env["hr.employee.ytd.payroll.information"].create(
@@ -82,11 +85,13 @@ class VacationPayslip(models.Model):
                         "year": str(rec.date_to.year),
                         "ytd_vac_pay_amount_erp": vac_pay_earned_amount + carry_ytd_vac_pay_amount_erp,
                         "previous_vac_pay_amount": carry_previous_vac_pay_amount,
+                        "vac_pay_amount_taken": carry_vac_pay_amount_taken,
                     }
                 )
             else:
                 line_obj.ytd_vac_pay_amount_erp = vac_pay_earned_amount + carry_ytd_vac_pay_amount_erp
                 line_obj.previous_vac_pay_amount = carry_previous_vac_pay_amount if payslip_ytd_ids else 0
+                line_obj.vac_pay_amount_taken = vac_pay_earned_taken + carry_vac_pay_amount_taken
 
 
     def _calculate_vacation_pay(self, vacation_duration,contract_id):
