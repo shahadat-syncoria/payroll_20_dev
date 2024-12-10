@@ -117,14 +117,12 @@ result=CPP2
 is_pay_cycle = contract.salary_pay_cycle.pay_cycle
 if is_pay_cycle:
     pay_cycle = int(is_pay_cycle)
-     pay_cycle = int(is_pay_cycle)
-    pay_cycle = int(is_pay_cycle)
     gross = 0.0
     vp = 0.0
     ad_vp = 0.0
     bonus = 0.0
     retro = 0.0
-    ot =0.0
+    ot = 0.0
     b_ot = 0.0
     com = 0.0
     stat_ot = 0.0
@@ -155,20 +153,23 @@ if is_pay_cycle:
             elif rule_code == 'EXPENSE':
                 exp = EXPENSE
 
-            final_result = gross+ vp+ ad_vp+ bonus+ ot+ retro+ b_ot+ com+ stat_ot + exp
+            final_result = gross + vp + ad_vp + bonus + ot + retro + b_ot + com + stat_ot + exp
 
     main_gross = final_result
-    PM= 12
-    calculation_1 =  contract.deductions.cpp2_emp_employ_contrib * (PM/12) - employee.ytd_cpp2
-    W = max(employee.ytd_pi,contract.deductions.cpp_max_an_pen_earn)
-    calculation_2 =  (employee.ytd_pi + main_gross - W) * (contract.deductions.cpp2_emp_employ_rate / 100)
-    final_cpp2 = min(calculation_1,calculation_2)
+    PM = 12
+    line_obj = employee.payroll_line_ids.filtered(lambda x: x.year == str(payslip.date_to.year))
+    calculation_1 = contract.deductions.cpp2_emp_employ_contrib * (PM / 12) - line_obj.ytd_cpp2 if line_obj else 0.0
+    ytd_pi = line_obj.ytd_pi if line_obj else 0.0
+
+    W = max(ytd_pi, contract.deductions.cpp_max_an_pen_earn)
+    calculation_2 = (ytd_pi + main_gross - W) * (contract.deductions.cpp2_emp_employ_rate / 100)
+    final_cpp2 = min(calculation_1, calculation_2)
     if final_cpp2 < 0.00:
         result = 0.00
     else:
-         result=final_cpp2 if CPP <= 0 else 0.00
+        result = final_cpp2 if CPP <= 0 else 0.00
 else:
-    result=0.00
+    result = 0.00
                     ]]>
             </field>
 
