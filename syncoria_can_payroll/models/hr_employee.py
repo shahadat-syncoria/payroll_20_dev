@@ -525,7 +525,7 @@ class HrEmployeeYTDPayrollInformation(models.Model):
 
     def update_ytd_tax(self):
         for rec in self:
-            rec.head_id.update_ytd_tax(int(self.year))
+            rec.head_id.update_ytd_tax(int(self.year),rec)
 
     # def update_ytd_irregular_payments_tax(self):
     #     for rec in self:
