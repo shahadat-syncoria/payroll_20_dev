@@ -9,6 +9,9 @@
                 <field name="identification_id" position="attributes">
                     <attribute name="string">Employee Social Insurance Number (SIN)</attribute>
                 </field>
+                 <field name="birthday" position="replace">
+                    <field name="birthday"/>
+                </field>
                 <xpath expr="//notebook" position="inside">
                     <page name="sync_payroll_info" string="Payroll Information" groups="hr.group_hr_manager">
                              <field name="payroll_line_ids" nolabel="1">
@@ -94,6 +97,20 @@
                                             <field name="year_to_date_irregular_payment"/>
                                         </group>
                                     </group>
+                                        <group>
+                                        <button name="update_ytd_erp" type="object"
+                                                    help="Update ERP YTDPI" context="{'type':'PI'}" title="Update ERP YTDPI" icon="fa-refresh"/>
+                                            </group>
+                                            <group string='YTD Irregular Amount' name="irre">
+                                                   <group>
+                                                       <field name="ytd_previous_irre_payment"/>
+                                                       <field name="ytd_previous_irre_payment_erp"/>
+                                                       <field name="year_to_date_irregular_payment"/>
+                                                   </group>
+                                                <group>
+        <!--                                            <field name="last_paycycle_gross"/>-->
+                                                </group>
+                                            </group>
 
 <!--                                         <footer>-->
 <!--                                            <button string="Save" name="save_data" type="object" class="btn-primary"/>-->
@@ -172,6 +189,21 @@
 <!--&lt;!&ndash;                                            <field name="last_paycycle_gross"/>&ndash;&gt;-->
 <!--                                </group>-->
 
+
+                                        <group>
+                                            <field name="ytd_fed_tax"/>
+                                            <field name="ytd_fed_tax_erp" readonly="1"/>
+                                            <field name="ytd_previous_fed_tax" />
+                                        </group>
+                                        <group>
+                                            <field name="ytd_prov_tax"/>
+                                            <field name="ytd_prov_tax_erp" readonly="1"/>
+                                            <field name="ytd_previous_prov_tax" />
+                                        </group>
+                                        <group>
+                                        <button name="update_ytd_tax" type="object"
+                                                    help="Update ERP YTD Irr Tax"  title="Update ERP YTIRRTAX" icon="fa-refresh"/>
+                                            </group>
 
 
 <!--&lt;!&ndash;                                        <group>&ndash;&gt;-->

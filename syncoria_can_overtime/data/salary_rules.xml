@@ -9,7 +9,6 @@
             <field name="category_id" ref="syncoria_can_payroll.additional_allowance"/>
             <field name="appears_on_payslip" eval='True'/>
             <field name="active" eval="1"/>
-            <field name="is_batch_modifiable" eval="1"/>
             <field name="amount_select">code</field>
             <field name="struct_id" ref="syncoria_can_payroll.structure_can_employee"/>
             <field name="condition_select">python</field>
@@ -29,7 +28,6 @@ result_name = worked_days['CAN_OVERTIME'].name
             <field name="category_id" ref="syncoria_can_payroll.additional_allowance"/>
             <field name="appears_on_payslip" eval='True'/>
             <field name="active" eval="1"/>
-            <field name="is_batch_modifiable" eval="1"/>
             <field name="amount_select">code</field>
             <field name="struct_id" ref="syncoria_can_payroll.structure_can_employee"/>
             <field name="condition_select">python</field>
@@ -48,7 +46,6 @@ result_name = worked_days['CAN_STAT_OVERTIME'].name
             <field name="category_id" ref="syncoria_can_payroll.additional_allowance"/>
             <field name="appears_on_payslip" eval='True'/>
             <field name="active" eval="1"/>
-            <field name="is_batch_modifiable" eval="1"/>
             <field name="amount_select">code</field>
             <field name="struct_id" ref="syncoria_can_payroll.structure_can_employee"/>
             <field name="condition_select">python</field>
@@ -68,7 +65,6 @@ result_name = inputs['BNK_OVERTIME'].name
             <field name="category_id" ref="syncoria_can_payroll.additional_allowance"/>
             <field name="appears_on_payslip" eval='True'/>
             <field name="active" eval="1"/>
-            <field name="is_batch_modifiable" eval="1"/>
             <field name="amount_select">code</field>
             <field name="struct_id" ref="syncoria_can_payroll.structure_can_worker"/>
             <field name="condition_select">python</field>
@@ -88,7 +84,6 @@ result_name = worked_days['CAN_OVERTIME'].name
             <field name="category_id" ref="syncoria_can_payroll.additional_allowance"/>
             <field name="appears_on_payslip" eval='True'/>
             <field name="active" eval="1"/>
-            <field name="is_batch_modifiable" eval="1"/>
             <field name="amount_select">code</field>
             <field name="struct_id" ref="syncoria_can_payroll.structure_can_worker"/>
             <field name="condition_select">python</field>
@@ -108,7 +103,6 @@ result_name = worked_days['CAN_STAT_OVERTIME'].name
             <field name="category_id" ref="syncoria_can_payroll.additional_allowance"/>
             <field name="appears_on_payslip" eval='True'/>
             <field name="active" eval="1"/>
-            <field name="is_batch_modifiable" eval="1"/>
             <field name="amount_select">code</field>
             <field name="struct_id" ref="syncoria_can_payroll.structure_can_worker"/>
             <field name="condition_select">python</field>
