@@ -114,7 +114,7 @@ class InheritedHrPayslip(models.Model):
         super(InheritedHrPayslip,self).action_payslip_cancel()
         for slip in self:
             slip.employee_id.with_context({"type":"ALL", "year": slip.date_to.year, "action": 'cancel'}).update_ytd_erp() # "ALL" is for update YTD of CPP,CPP2,PI
-            slip.employee_id.update_ytd_tax(slip.date_to.year) # "ALL" is for update YTD of CPP,CPP2,PI
+            # slip.employee_id.update_ytd_tax(slip.date_to.year) # "ALL" is for update YTD of CPP,CPP2,PI
 
     def get_previous_irregular_payment(self, id, paycycle):
         payslip = self.browse(id)
@@ -144,7 +144,7 @@ class InheritedHrPayslip(models.Model):
                      'prov_tax': sum([line.amount for line in rec.line_ids if line.code=='OTAX'])
                 })
                 rec.employee_id.with_context({"type": "ALL", "year": rec.date_to.year, "action": 'paid'}).update_ytd_erp()
-                rec.employee_id.update_ytd_tax(rec.date_to.year)
+                # rec.employee_id.update_ytd_tax(rec.date_to.year)
         return res
 
     # ================== Report ======================

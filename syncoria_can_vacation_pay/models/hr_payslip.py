@@ -24,8 +24,13 @@ class VacationPayslip(models.Model):
     @api.depends('employee_id.payroll_line_ids')
     def _compute_ytd_vac(self):
         for record in self:
-            line_obj = record.employee_id.payroll_line_ids.filtered(lambda x: x.year == str(self.date_to.year))
-            record.ytd_vac_pay_amount = line_obj.ytd_vac_pay_amount if line_obj else 0  # Assuming default is 0 if no line is found
+            line_obj = record.employee_id.payroll_line_ids.filtered(lambda x: x.year == str(record.date_to.year))
+            ytd_vac_pay_amount = line_obj.ytd_vac_pay_amount
+            if not line_obj:
+                previous_year_lines = record.employee_id.payroll_line_ids.filtered(lambda x: str(x.year) == str(record.date_to.year - 1))
+                if previous_year_lines:
+                    ytd_vac_pay_amount = previous_year_lines.ytd_vac_pay_amount
+            record.ytd_vac_pay_amount = ytd_vac_pay_amount if ytd_vac_pay_amount else 0  # Assuming default is 0 if no line is found
             
     @api.onchange('employee_id')
     def _onchange_payout_vacation_pay_paycycle(self):

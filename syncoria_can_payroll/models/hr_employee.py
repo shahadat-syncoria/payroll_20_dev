@@ -219,9 +219,9 @@ class InhertitedHrEmployee(models.Model):
 
         elif req_type in ['PI']:
             ytd_total_amount = sum(payslip_ytd.filtered(lambda x: x.category_id.code in ["GROSS", "ADD_ALLOWANCE", "ALW"]).mapped("total"))
-            prev_line_obj = self.payroll_line_ids.filtered(lambda x: x.year == str(year - 1))
-            if self.is_vacation_pay_carry_over and prev_line_obj and not action == 'cancel':
-                ytd_total_amount += prev_line_obj.ytd_pi_erp
+            # prev_line_obj = self.payroll_line_ids.filtered(lambda x: x.year == str(year - 1))
+            # if self.is_vacation_pay_carry_over and prev_line_obj and not action == 'cancel':
+            #     ytd_total_amount += prev_line_obj.ytd_pi_erp
             # self.ytd_pi_erp = ytd_total_amount
             if not line_obj and not action == 'cancel':
                 self.env["hr.employee.ytd.payroll.information"].create(
@@ -248,16 +248,18 @@ class InhertitedHrEmployee(models.Model):
             else:
                 rec._update_ytd_cpp_pi_ei(payslip_ytd,rec.env.context.get('type'),year, action)
 
+            rec.update_ytd_tax(year, line_obj)
             # rec.update_ytd_irregular_payments_tax(year, line_obj, action, is_new_row)
 
     def _update_ytd_tax(self,payslip_ytd,req_type):
         ytd_total_amount = payslip_ytd.filtered(lambda x: x.category_id.code in ["ADD_ALLOWANCE"])
         self.ytd_pi_erp = ytd_total_amount
 
-    def update_ytd_tax(self, year):
+    def update_ytd_tax(self, year, line_obj):
         for rec in self:
-            line_obj = rec.payroll_line_ids.filtered(lambda x: x.year == str(year))
-            payslip_ytd_tax = rec.slip_ids.filtered(lambda x: x.state == 'paid' and (x.paid_date.year if x.paid_date else x.write_date.year) == int(year))
+            if not line_obj:
+                line_obj = rec.payroll_line_ids.filtered(lambda x: x.year == str(year))
+            payslip_ytd_tax = rec.slip_ids.filtered(lambda x: x.state == 'paid' and (x.date_to.year if x.date_to else x.write_date.year) == int(year))
             line_obj.ytd_previous_irre_payment_erp = sum(payslip_ytd_tax.mapped("irre_amount"))
             line_obj.ytd_fed_tax_erp = sum(payslip_ytd_tax.mapped("fed_tax"))
             line_obj.ytd_prov_tax_erp = sum(payslip_ytd_tax.mapped("prov_tax"))

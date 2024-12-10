@@ -23,6 +23,8 @@
                                 <field name="ytd_ei_employer"/>
                                 <field name="ytd_pi"/>
                                 <field name="year_to_date_irregular_payment"/>
+                                <field name="ytd_fed_tax_erp"/>
+                                <field name="ytd_prov_tax_erp"/>
                             </tree>
                             <form>
                                 <group>
