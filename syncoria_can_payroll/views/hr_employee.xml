@@ -13,7 +13,7 @@
                     <page name="sync_payroll_info" string="Payroll Information" groups="hr.group_hr_manager">
                         <group></group>
                         <field name="payroll_line_ids" nolabel="1">
-                            <tree>
+                            <list>
                                 <field name="year"/>
                                 <field name="ytd_cpp"/>
                                 <field name="ytd_cpp2"/>
@@ -23,7 +23,7 @@
                                 <field name="year_to_date_irregular_payment"/>
                                 <field name="ytd_fed_tax_erp"/>
                                 <field name="ytd_prov_tax_erp"/>
-                            </tree>
+                            </list>
                             <form>
                                 <group>
                                     <group>

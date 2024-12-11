@@ -10,7 +10,7 @@ import pprint
 import random
 import string
 
-from odoo import _, fields, models
+from odoo import  fields, models
 from odoo.exceptions import ValidationError
 from odoo.service import common
 
@@ -66,7 +66,7 @@ class ProviderBamboraEft(models.Model):
     _inherit = "payment.provider"
 
     code = fields.Selection(
-        selection_add=[("bamboraeft", _("Bambora EFT"))],
+        selection_add=[("bamboraeft", ("Bambora EFT"))],
         ondelete={"bamboraeft": "set default"},
     )
     bamboraeft_merchant_id = fields.Char(
