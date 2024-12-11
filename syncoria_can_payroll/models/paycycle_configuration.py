@@ -236,7 +236,6 @@ class PaycyclePeriod(models.Model):
     paycycle_config_id = fields.Many2one('paycycle.config')
     paycycle_year_slab_id = fields.Many2one('paycycle.period.year.slab')
     year = fields.Selection(
-        year_selection,
         string="Year",
         related='paycycle_year_slab_id.year',store=True
     )

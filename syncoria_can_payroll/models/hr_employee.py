@@ -36,7 +36,7 @@ class InhertitedHrEmployee(models.Model):
     employee_prpp_dpsp_rgst_nbr = fields.Integer(string="RPP or DPSP Registration Number Registration Number",default=0, groups='hr.group_hr_user',required=True)
     sync_first_contract_date = fields.Date("Sync First Contract Date", compute='compute_first_contract_date', store=True, groups='hr.group_hr_user')
     payroll_account_number = fields.Char('Payroll Account Number', groups="hr.group_hr_user", related= "company_id.payroll_account_number")
-    identification_id = fields.Char(string='Identification No', groups="hr.group_hr_user", tracking=True, required=True)
+    identification_id = fields.Char(string='Identification No', groups="hr.group_hr_user", tracking=True)
     country_id = fields.Many2one(comodel_name='res.country', string='Country', default=lambda self: self.env.company.country_id)
     territory_of_employment = fields.Many2one("res.country.state", groups="hr.group_hr_user", domain="[('country_id', '=', country_id)]", default=lambda self: self.env.company.state_id)
     # ========================================== YTD Information ===================================
@@ -80,7 +80,7 @@ class InhertitedHrEmployee(models.Model):
     ytd_prov_tax_erp = fields.Float("Year To Date Prov Tax ERP", default=0, store=True)
     ytd_previous_prov_tax = fields.Float("Previous Year To Date Prov Tax", default=0, store=True)
 
-    ytd_previous_prov_amount = fields.Float("Previous Year To Date Irregular Amount", default=0, store=True)
+    ytd_previous_prov_amount = fields.Float("Previous Year To Date Amount", default=0, store=True)
 
 
     #========================================== need to remove this fields=====================================
@@ -390,24 +390,24 @@ class HrEmployeeYTDPayrollInformation(models.Model):
                                              compute='compute_ytd_previous_irre_fed_tax')
 
     ytd_cpp_erp = fields.Float("Year To Date CPP Contribution in ERP")
-    ytd_previous_cpp = fields.Float("Previous CPP", tracking=True, default=0)
+    ytd_previous_cpp = fields.Float("Previous CPP",  default=0)
     ytd_cpp = fields.Float("Year To Date CPP", default=0, store=True, compute='_compute_ytd_cpp',
                            groups="hr.group_hr_user")
 
     # CPP2
     ytd_cpp2_erp = fields.Float("Year To Date CPP2 Contribution in ERP")
-    ytd_previous_cpp2 = fields.Float("Previous CPP2", tracking=True, default=0)
+    ytd_previous_cpp2 = fields.Float("Previous CPP2",  default=0)
     ytd_cpp2 = fields.Float("Year To Date CPP2", default=0, store=True, compute='_compute_ytd_cpp2',
                             groups="hr.group_hr_user")
     # EI
     ytd_ei_erp = fields.Float("Year To Date EI Contribution in ERP")
-    ytd_previous_ei = fields.Float("Previous EI", tracking=True, default=0)
+    ytd_previous_ei = fields.Float("Previous EI",  default=0)
     ytd_ei = fields.Float("Year To Date EI", default=0, store=True, compute='_compute_ytd_ei',
                           groups="hr.group_hr_user")
 
     # EI Employer
     ytd_ei_employer_erp = fields.Float("Year To Date Employer EI Contribution in ERP")
-    ytd_previous_ei_employer = fields.Float("Previous Employer EI ", tracking=True, default=0)
+    ytd_previous_ei_employer = fields.Float("Previous Employer EI ",  default=0)
     ytd_ei_employer = fields.Float("Year To Date Employer EI", default=0, store=True,
                                    compute='_compute_ytd_ei_employer', groups="hr.group_hr_user")
 
