@@ -13,7 +13,7 @@
                     <button name="%(syncoria_can_vacation_pay.hr_vacation_pay_act_window)d"
                             type="action"
                             class="oe_stat_button"
-                            context="{'search_default_employee_id': active_id, 'search_default_state': 'paid'}"
+                            groups="hr.group_hr_user"
                             icon="fa-history"
                             invisible="vacation_type != 'time_wise' ">
                         <field name="vacation_pay_taken" icon="fa-money" widget="statinfo"/>
@@ -21,7 +21,7 @@
                     <button name="%(syncoria_can_vacation_pay.hr_vacation_pay_act_window)d"
                             type="action"
                             class="oe_stat_button"
-                            context="{'search_default_employee_id': active_id, 'search_default_state': 'paid'}"
+                            groups="hr.group_hr_user"
                             icon="fa-money" invisible="vacation_type != 'cash_wise' ">
 
                         <field name="ytd_vac_pay_amount" icon="fa-money" widget="statinfo"/>
@@ -55,12 +55,12 @@
                     <page name="sync_payroll_vac_info" string="Vacation Slab Information" groups="hr.group_hr_manager">
                                     <group string="Vacation Slab Configuration">
                                         <field name="vacation_slab_ids" no_label="1" >
-                                            <tree>
+                                            <list>
                                                 <field name="start_year" />
                                                 <field name="end_year" />
                                                 <field name="allocated_leave" />
                                                 <field name="leave_percentage" />
-                                            </tree>
+                                            </list>
                                         </field>
                                 </group>
                         <group string="Accounting For Accrued Vacation pay">
@@ -87,7 +87,7 @@
             <field name="model">hr.employee</field>
             <field name="inherit_id" ref="syncoria_can_payroll.view_employee_form_sync_can_view"/>
             <field name="arch" type="xml">
-                <xpath expr="//field[@name='payroll_line_ids']/tree/field[@name='ytd_pi']" position="after">
+                <xpath expr="//field[@name='payroll_line_ids']/list/field[@name='ytd_pi']" position="after">
                     <field name="ytd_vac_pay_amount"/>
                 </xpath>
                 <xpath expr="//field[@name='payroll_line_ids']/form/group[2]" position="inside">
@@ -95,7 +95,7 @@
                         <label for="ytd_vac_pay_amount_erp" class="oe_inline"/>
                         <div class="o_row">
                             <field name="ytd_vac_pay_amount_erp"/>
-                            <button name="update_vac_pay_amount_erp" type="object"
+                            <button name="update_vac_pay_amount_erp" type="object" title="Refresh"
                                     help="Update Vacation Amount" icon="fa-refresh"/>
                         </div>
                         <field name="previous_vac_pay_amount"/>

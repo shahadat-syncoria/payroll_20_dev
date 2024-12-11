@@ -13,8 +13,8 @@
       >model.action_report_bamboraeft_batch_payment()</field>
             <field name="interval_number">30</field>
             <field name="interval_type">minutes</field>
-            <field name="numbercall">-1</field>
-            <field name="doall" eval="False" />
+<!--            <field name="numbercall">-1</field>-->
+<!--            <field name="doall" eval="False" />-->
         </record>
         <record id="ir_cron_fetch_bamboraeft_batch_status" model="ir.cron">
             <field name="name">Bambora Batch Cron Status</field>
@@ -26,8 +26,8 @@
             <field name="code">model.batch_payment_cron_check_status()</field>
             <field name="interval_number">20</field>
             <field name="interval_type">minutes</field>
-            <field name="numbercall">-1</field>
-            <field name="doall" eval="False" />
+<!--            <field name="numbercall">-1</field>-->
+<!--            <field name="doall" eval="False" />-->
         </record>
     </data>
 </odoo>

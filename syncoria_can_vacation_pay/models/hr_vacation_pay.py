@@ -2,7 +2,7 @@
 
 from odoo import fields, models, api, _
 from odoo.exceptions import UserError
-from odoo.tools.populate import compute
+# from odoo.tools.populate import compute
 
 
 class HrVacationPay(models.Model):

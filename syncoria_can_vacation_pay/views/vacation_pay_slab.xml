@@ -16,22 +16,22 @@
         </field>
     </record>
     <record id="view_hr_vacation_slab_tree" model="ir.ui.view">
-        <field name="name">hr.vacation.slab.tree</field>
+        <field name="name">hr.vacation.slab.list</field>
         <field name="model">hr.vacation.slab</field>
         <field name="arch" type="xml">
-            <tree>
+            <list>
                 <field name="start_year"/>
                 <field name="end_year"/>
                 <field name="allocated_leave"/>
                 <field name="leave_percentage"/>
-            </tree>
+            </list>
         </field>
     </record>
     <record id="action_hr_vacation_slab" model="ir.actions.act_window">
         <field name="name">Vacation slab</field>
         <field name="type">ir.actions.act_window</field>
         <field name="res_model">hr.vacation.slab</field>
-        <field name="view_mode">tree,form</field>
+        <field name="view_mode">list,form</field>
     </record>
 
     <menuitem

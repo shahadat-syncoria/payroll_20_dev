@@ -13,8 +13,8 @@
       >model.action_allocation_vac_leave()</field>
             <field name="interval_number">1</field>
             <field name="interval_type">weeks</field>
-            <field name="numbercall">-1</field>
-            <field name="doall" eval="False" />
+<!--            <field name="numbercall">-1</field>-->
+<!--            <field name="doall" eval="False" />-->
         </record>
 
     </data>
