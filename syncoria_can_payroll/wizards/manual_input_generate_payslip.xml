@@ -16,9 +16,8 @@
 
 
                                 <field name="employee_id"/>
-                                <field name="attendance_hours"/>
-                                <field name="overtime_hours"/>
-                                <field name="stat_overtime_hours"/>
+                                <field name="attendance_hours" widget="float_time"/>
+
                                 <field name="payout_vacation_pay_paycycle" optional="hide"/>
                                 <field name="ytd_vac_pay_amount" optional="hide"/>
                                 <field name="vac_pay" optional="hide"/>

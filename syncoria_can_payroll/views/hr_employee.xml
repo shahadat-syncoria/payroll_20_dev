@@ -11,208 +11,154 @@
                 </field>
                 <xpath expr="//notebook" position="inside">
                     <page name="sync_payroll_info" string="Payroll Information" groups="hr.group_hr_manager">
-                             <field name="payroll_line_ids" nolabel="1">
-                                <list>
-                                    <field name="year"/>
-                                    <field name="ytd_cpp"/>
-                                    <field name="ytd_cpp2"/>
-                                    <field name="ytd_ei"/>
-                                    <field name="ytd_ei_employer"/>
-                                    <field name="ytd_pi"/>
-                                    <field name="year_to_date_irregular_payment"/>
-                                </list>
-                                 <form>
-                                     <group>
-                                         <group>
-                                             <field name="year" readonly="1" force_save="1"/>
-                                         </group>
-                                     </group>
-                                     <group >
-                                        <group string='CPP' name="cpp">
-                                            <label for="ytd_cpp_erp" class="oe_inline"/>
-                                            <div class="o_row">
-                                                <field name="ytd_cpp_erp"/>
-                                                <button name="update_ytd_erp" type="object" string="Reload"
-                                                        help="Update ERP CPP" context="{'type':'CPP'}" icon="fa-refresh"/>
-                                            </div>
-                                            <field name="ytd_previous_cpp"/>
-                                            <field name="ytd_cpp"/>
-                                        </group>
-
-                                         <group string='CPP2' name="cpp2">
-                                             <label for="ytd_cpp2_erp" class="oe_inline"/>
-                                             <div class="o_row">
-                                                <field name="ytd_cpp2_erp"/>
-                                                <button name="update_ytd_erp" type="object" string="Reload"
-                                                        help="Update ERP CPP2" context="{'type':'CPP2'}" icon="fa-refresh"/>
-                                             </div>
-                                            <field name="ytd_previous_cpp2"/>
-                                            <field name="ytd_cpp2"/>
-                                        </group>
-
-                                         <group string='EI' name="ei">
-                                             <label for="ytd_ei_erp" class="oe_inline"/>
-                                             <div class="o_row">
-                                                <field name="ytd_ei_erp"/>
-                                                <button name="update_ytd_erp" type="object" string="Reload"
-                                                        help="Update ERP EI" context="{'type':'EI'}" icon="fa-refresh"/>
-                                             </div>
-                                            <field name="ytd_previous_ei"/>
-                                            <field name="ytd_ei"/>
-                                        </group>
-
-                                         <group string='Employer EI ' name="ei">
-                                             <label for="ytd_ei_employer_erp" class="oe_inline"/>
-                                             <div class="o_row">
-                                                <field name="ytd_ei_employer_erp"/>
-                                                <button name="update_ytd_erp" type="object" string="Reload"
-                                                        help="Update ERP Employer EI" context="{'type':'EI_EMPLOYER'}" icon="fa-refresh"/>
-                                             </div>
-                                            <field name="ytd_previous_ei_employer"/>
-                                            <field name="ytd_ei_employer"/>
-                                        </group>
-
-                                         <group string='PI/IE' name="pi">
-                                             <label for="ytd_pi_erp" class="oe_inline"/>
-                                             <div class="o_row">
-                                                <field name="ytd_pi_erp"/>
-                                                <button name="update_ytd_erp" type="object" string="Reload"
-                                                        help="Update ERP YTDPI" context="{'type':'PI'}" icon="fa-refresh"/>
-                                             </div>
-                                            <field name="ytd_previous_pi"/>
-                                            <field name="ytd_pi"/>
-                                        </group>
-
-                                         <group string='YTD Irregular Amount' name="irre">
-                                             <label for="ytd_previous_irre_payment" class="oe_inline"/>
-                                             <div class="o_row">
-                                                <field name="ytd_previous_irre_payment"/>
-                                                <button name="update_ytd_irregular_payments_tax" type="object" string="Reload"
-                                                        help="Update ERP YTD Irr Tax" icon="fa-refresh"/>
-                                             </div>
-                                            <field name="ytd_previous_irre_payment_erp"/>
-                                            <field name="year_to_date_irregular_payment"/>
-                                        </group>
+                        <group></group>
+                        <field name="payroll_line_ids" nolabel="1">
+                            <tree>
+                                <field name="year"/>
+                                <field name="ytd_cpp"/>
+                                <field name="ytd_cpp2"/>
+                                <field name="ytd_ei"/>
+                                <field name="ytd_ei_employer"/>
+                                <field name="ytd_pi"/>
+                                <field name="year_to_date_irregular_payment"/>
+                                <field name="ytd_fed_tax_erp"/>
+                                <field name="ytd_prov_tax_erp"/>
+                            </tree>
+                            <form>
+                                <group>
+                                    <group>
+                                        <field name="year" readonly="1" force_save="1"/>
+                                    </group>
+                                </group>
+                                <group>
+                                    <group string='CPP' name="cpp">
+                                        <label for="ytd_cpp_erp" class="oe_inline"/>
+                                        <div class="o_row">
+                                            <field name="ytd_cpp_erp"/>
+                                            <button name="update_ytd_erp" type="object" title="Update ERP CPP"
+                                                    help="Update ERP CPP" context="{'type':'CPP'}" icon="fa-refresh"/>
+                                        </div>
+                                        <field name="ytd_previous_cpp"/>
+                                        <field name="ytd_cpp"/>
                                     </group>
 
-<!--                                         <footer>-->
-<!--                                            <button string="Save" name="save_data" type="object" class="btn-primary"/>-->
-<!--                                            <button string="Discard" class="btn-secondary" special="cancel"/>-->
-<!--                                        </footer>-->
-                                 </form>
-                            </field>
+                                    <group string='CPP2' name="cpp2">
+                                        <label for="ytd_cpp2_erp" class="oe_inline"/>
+                                        <div class="o_row">
+                                            <field name="ytd_cpp2_erp"/>
+                                            <button name="update_ytd_erp" type="object" title="Update ERP CPP2"
+                                                    help="Update ERP CPP2" context="{'type':'CPP2'}" icon="fa-refresh"/>
+                                        </div>
+                                        <field name="ytd_previous_cpp2"/>
+                                        <field name="ytd_cpp2"/>
+                                    </group>
 
-<!--                        <group>-->
-<!--                            <group string='CPP' name="cpp">-->
-<!--                                <group>-->
-<!--                                    <field name="ytd_cpp_erp"/>-->
-<!--                                    <field name="ytd_previous_cpp"/>-->
-<!--                                    <field name="ytd_cpp"/>-->
-<!--                                </group>-->
-<!--                                <group>-->
-<!--                                    <button name="update_ytd_erp" type="object"-->
-<!--                                            help="Update ERP CPP" title="Update ERP CPP" context="{'type':'CPP'}" icon="fa-refresh"/>-->
-<!--                                </group>-->
-<!--                            </group>-->
+                                    <group string='EI' name="ei">
+                                        <label for="ytd_ei_erp" class="oe_inline"/>
+                                        <div class="o_row">
+                                            <field name="ytd_ei_erp"/>
+                                            <button name="update_ytd_erp" type="object" title="Update ERP EI"
+                                                    help="Update ERP EI" context="{'type':'EI'}" icon="fa-refresh"/>
+                                        </div>
+                                        <field name="ytd_previous_ei"/>
+                                        <field name="ytd_ei"/>
+                                    </group>
 
-<!--                            <group string='CPP2' name="cpp2">-->
-<!--                                <group>-->
-<!--                                    <field name="ytd_cpp2_erp"/>-->
-<!--                                    <field name="ytd_previous_cpp2"/>-->
-<!--                                    <field name="ytd_cpp2"/>-->
-<!--                                </group>-->
-<!--                                <group>-->
-<!--                                    <button name="update_ytd_erp" type="object"-->
-<!--                                            help="Update ERP CPP2" context="{'type':'CPP2'}" title="Update ERP CPP2" icon="fa-refresh"/>-->
-<!--                                </group>-->
-<!--                            </group>-->
+                                    <group string='Employer EI ' name="ei">
+                                        <label for="ytd_ei_employer_erp" class="oe_inline"/>
+                                        <div class="o_row">
+                                            <field name="ytd_ei_employer_erp"/>
+                                            <button name="update_ytd_erp" type="object" title="Update ERP Employer EI"
+                                                    help="Update ERP Employer EI" context="{'type':'EI_EMPLOYER'}"
+                                                    icon="fa-refresh"/>
+                                        </div>
+                                        <field name="ytd_previous_ei_employer"/>
+                                        <field name="ytd_ei_employer"/>
+                                    </group>
 
-<!--                            <group string='EI' name="ei">-->
-<!--                                <group>-->
-<!--                                    <field name="ytd_ei_erp"/>-->
-<!--                                    <field name="ytd_previous_ei"/>-->
-<!--                                    <field name="ytd_ei"/>-->
-<!--                                </group>-->
-<!--                                <group>-->
-<!--                                    <button name="update_ytd_erp" type="object"-->
-<!--                                            help="Update ERP CPP2" context="{'type':'EI'}" title="Update ERP EI" icon="fa-refresh"/>-->
-<!--                                </group>-->
-<!--                            </group>-->
+                                    <group string='PI/IE' name="pi">
+                                        <label for="ytd_pi_erp" class="oe_inline"/>
+                                        <div class="o_row">
+                                            <field name="ytd_pi_erp"/>
+                                            <button name="update_ytd_erp" type="object" title="Update ERP YTDPI"
+                                                    help="Update ERP YTDPI" context="{'type':'PI'}" icon="fa-refresh"/>
+                                        </div>
+                                        <field name="ytd_previous_pi"/>
+                                        <field name="ytd_pi"/>
+                                    </group>
 
-<!--                            <group string='Employer EI ' name="ei">-->
-<!--                                <group>-->
-<!--                                    <field name="ytd_ei_employer_erp"/>-->
-<!--                                    <field name="ytd_previous_ei_employer"/>-->
-<!--                                    <field name="ytd_ei_employer"/>-->
-<!--                                </group>-->
-<!--                                <group>-->
-<!--                                    <button name="update_ytd_erp" type="object"-->
-<!--                                            help="Update ERP Employer EI" context="{'type':'EI_EMPLOYER'}" title="Update ERP Employer EI" icon="fa-refresh"/>-->
-<!--                                </group>-->
-<!--                            </group>-->
-
-<!--                            <group string='PI/IE' name="pi">-->
-<!--                                <group>-->
-<!--                                    <field name="ytd_pi_erp"/>-->
-<!--                                    <field name="ytd_previous_pi" />-->
-<!--                                    <field name="ytd_pi" />-->
-<!--                                </group>-->
-<!--                                <group>-->
-<!--                                <button name="update_ytd_erp" type="object"-->
-<!--                                            help="Update ERP YTDPI" context="{'type':'PI'}" title="Update ERP YTDPI" icon="fa-refresh"/>-->
-<!--                                    </group>-->
-<!--                            </group>-->
-<!--                            <group string='YTD Irregular Amount' name="irre">-->
-<!--                                   <group>-->
-<!--                                       <field name="ytd_previous_irre_payment"/>-->
-<!--                                       <field name="ytd_previous_irre_payment_erp"/>-->
-<!--                                       <field name="year_to_date_irregular_payment"/>-->
-<!--                                   </group>-->
-<!--                                <group>-->
-<!--&lt;!&ndash;                                            <field name="last_paycycle_gross"/>&ndash;&gt;-->
-<!--                                </group>-->
+                                    <group string='YTD Irregular Amount' name="irre">
+                                        <label for="ytd_previous_irre_payment" class="oe_inline"/>
+                                        <div class="o_row">
+                                            <field name="ytd_previous_irre_payment"/>
+                                            <button name="update_ytd_irregular_payments_tax" context="{'type':'PI'}"
+                                                    type="object" title="Update ERP YTD Irr Tax"
+                                                    help="Update ERP YTD Irr Tax" icon="fa-refresh"/>
+                                        </div>
+                                        <field name="ytd_previous_irre_payment_erp"/>
+                                        <field name="year_to_date_irregular_payment"/>
+                                    </group>
+                                    <group string='YTD Tax Amount'>
 
 
 
-<!--&lt;!&ndash;                                        <group>&ndash;&gt;-->
-<!--&lt;!&ndash;                                            <field name="ytd_irre_fed_tax"/>&ndash;&gt;-->
-<!--&lt;!&ndash;                                            <field name="ytd_irre_fed_tax_erp" readonly="1"/>&ndash;&gt;-->
-<!--&lt;!&ndash;                                            <field name="ytd_previous_irre_fed_tax" />&ndash;&gt;-->
-<!--&lt;!&ndash;                                        </group>&ndash;&gt;-->
-<!--&lt;!&ndash;                                        <group>&ndash;&gt;-->
-<!--&lt;!&ndash;                                            <field name="ytd_irre_prov_tax"/>&ndash;&gt;-->
-<!--&lt;!&ndash;                                            <field name="ytd_irre_prov_tax_erp" readonly="1"/>&ndash;&gt;-->
-<!--&lt;!&ndash;                                            <field name="ytd_previous_irre_prov_tax" />&ndash;&gt;-->
-<!--&lt;!&ndash;                                        </group>&ndash;&gt;-->
-<!--                                <group>-->
-<!--                                <button name="update_ytd_irregular_payments_tax" type="object"-->
-<!--                                            help="Update ERP YTD Irr Tax"  title="Update ERP YTIRRTAX" icon="fa-refresh"/>-->
-<!--                                    </group>-->
-<!--                                    </group>-->
+                                            <label for="ytd_previous_fed_tax" class="oe_inline"/>
+                                        <div class="o_row">
+                                            <field name="ytd_previous_fed_tax"/>
+                                            <button name="update_ytd_tax" type="object"
+                                                    help="Update ERP YTD Tax" title="Update ERP YTD Tax"
+                                                    icon="fa-refresh"/>
+                                        </div>
+                                            <field name="ytd_fed_tax_erp" readonly="1"/>
+                                            <field name="ytd_fed_tax"/>
+
+                                            <field name="ytd_previous_prov_tax"/>
+                                            <field name="ytd_prov_tax_erp" readonly="1"/>
+                                            <field name="ytd_prov_tax"/>
 
 
 
+                                    </group>
+                                </group>
+                                <!--                                        <group>-->
+                                <!--                                        <button name="update_ytd_erp" type="object"-->
+                                <!--                                                    help="Update ERP YTDPI" context="{'type':'PI'}" title="Update ERP YTDPI" icon="fa-refresh"/>-->
+                                <!--                                            </group>-->
+                                <!--                                            <group string='YTD Irregular Amount' name="irre">-->
+                                <!--                                                   <group>-->
+                                <!--                                                       <field name="ytd_previous_irre_payment"/>-->
+                                <!--                                                       <field name="ytd_previous_irre_payment_erp"/>-->
+                                <!--                                                       <field name="year_to_date_irregular_payment"/>-->
+                                <!--                                                   </group>-->
+                                <!--                                                <group>-->
+                                <!--        &lt;!&ndash;                                            <field name="last_paycycle_gross"/>&ndash;&gt;-->
+                                <!--                                                </group>-->
+                                <!--                                            </group>-->
 
-<!--                        </group>-->
+                                <!--                                         <footer>-->
+                                <!--                                            <button string="Save" name="save_data" type="object" class="btn-primary"/>-->
+                                <!--                                            <button string="Discard" class="btn-secondary" special="cancel"/>-->
+                                <!--                                        </footer>-->
+                            </form>
+                        </field>
                     </page>
                 </xpath>
 
                 <xpath expr="//group[@name='active_group']" position="inside">
-                    <field name="territory_of_employment" />
-                    <field name="is_portal_user" />
+                    <field name="territory_of_employment"/>
+                    <field name="is_portal_user"/>
                     <field name="portal_user_id" invisible="not is_portal_user"/>
-                    <field name="is_vacation_pay_carry_over" />
+                    <field name="is_vacation_pay_carry_over"/>
                 </xpath>
                 <xpath expr="//group[@name='identification_group']" position="after">
                     <group string="T4 Information">
-                        <field name="employee_cpp_qpp_xmpt_cd" />
-                        <field name="employee_ei_xmpt_cd" />
-                        <field name="empr_dntl_ben_rpt_cd" />
-                        <field name="employee_empt_cd" />
-                        <field name="employee_prov_pip_xmpt_cd" />
+                        <field name="employee_cpp_qpp_xmpt_cd"/>
+                        <field name="employee_ei_xmpt_cd"/>
+                        <field name="empr_dntl_ben_rpt_cd"/>
+                        <field name="employee_empt_cd"/>
+                        <field name="employee_prov_pip_xmpt_cd"/>
 
-                     </group>
-
+                    </group>
 
 
                 </xpath>

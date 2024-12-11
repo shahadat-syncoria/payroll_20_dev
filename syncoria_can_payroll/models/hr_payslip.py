@@ -43,6 +43,9 @@ class InheritedHrPayslip(models.Model):
     #====================need to remove=====================
     irre_fed_tax = fields.Float("Irregular Fed Tax",default=0)
     irre_prov_tax = fields.Float("Irregular Prov Tax",default=0)
+    # ==============================================================
+    fed_tax = fields.Float("Fed Tax",default=0)
+    prov_tax = fields.Float("Prov Tax",default=0)
 
 
     def _compute_is_manual_input(self):
@@ -58,6 +61,7 @@ class InheritedHrPayslip(models.Model):
         for slip in self.filtered(lambda p: p.employee_id and p.date_from):
             if slip.payslip_run_id:
                 slip.update({
+                    'year' :slip.payslip_run_id.pay_cycle_year,
                     'pay_cycle_period': slip.payslip_run_id.pay_cycle_period,
                 })
 
@@ -83,7 +87,7 @@ class InheritedHrPayslip(models.Model):
         for rec in self:
             if rec.pay_cycle_period:
                 rec.write({
-                    'name': rec.pay_cycle_period.name + f'-{fields.Date.today().year}',
+                    'name': rec.pay_cycle_period.name + f'-{rec.year}',
                     'date_from': rec.pay_cycle_period.start_date,
                     'date_to': rec.pay_cycle_period.end_date
                 })
@@ -95,6 +99,7 @@ class InheritedHrPayslip(models.Model):
                 if rec.payslip_run_id.pay_cycle != rec.pay_cycle:
                     raise UserError(_("Batch pay cycle is not matched with contract pay cycle!"))
                 rec.update({
+                    'year':rec.payslip_run_id.pay_cycle_year,
                     'pay_cycle_period': rec.payslip_run_id.pay_cycle_period,
                 })
 
@@ -111,7 +116,7 @@ class InheritedHrPayslip(models.Model):
         super(InheritedHrPayslip,self).action_payslip_cancel()
         for slip in self:
             slip.employee_id.with_context({"type":"ALL", "year": slip.date_to.year, "action": 'cancel'}).update_ytd_erp() # "ALL" is for update YTD of CPP,CPP2,PI
-            # slip.employee_id.update_ytd_irregular_payments_tax() # "ALL" is for update YTD of CPP,CPP2,PI
+            # slip.employee_id.update_ytd_tax(slip.date_to.year) # "ALL" is for update YTD of CPP,CPP2,PI
 
     def get_previous_irregular_payment(self, id, paycycle):
         payslip = self.browse(id)
@@ -134,12 +139,14 @@ class InheritedHrPayslip(models.Model):
             if rec.payslip_run_id and res and 'state' in vals and vals.get('state') == 'paid':
                 rec.payslip_run_id._check_paid_status()
             if 'state' in vals and vals.get('state') == 'paid':
-                # rec.employee_id.with_context({"type": "ALL", "year": rec.date_to.year}).update_ytd_erp()
+                # rec.employee_id.with_context({"type": "ALL"}).update_ytd_erp()
                 rec.write({
-                    'irre_amount': sum([line.amount for line in rec.line_ids if line.salary_rule_id.is_irregular_payment])
+                    'irre_amount': sum([line.amount for line in rec.line_ids if line.salary_rule_id.is_irregular_payment]),
+                     'fed_tax': sum([line.amount for line in rec.line_ids if line.code=='FTAX']),
+                     'prov_tax': sum([line.amount for line in rec.line_ids if line.code=='OTAX'])
                 })
                 rec.employee_id.with_context({"type": "ALL", "year": rec.date_to.year, "action": 'paid'}).update_ytd_erp()
-                # rec.employee_id.update_ytd_irregular_payments_tax(rec.date_to.year, rec.irre_amount)
+                # rec.employee_id.update_ytd_tax(rec.date_to.year)
         return res
 
     # ================== Report ======================
@@ -194,6 +201,7 @@ class InheritedHrPayslip(models.Model):
             retro = manual_input_line_id.retro
             avg_working_hour_per_day = rec.contract_id.resource_calendar_id.hours_per_day
             rec.worked_days_line_ids.unlink()
+            rec.input_line_ids.unlink()
             worked_days_lines = []
             if attendance_hour > 0.0:
                 worked_days_lines.append((0, 0, {
@@ -349,7 +357,7 @@ class InheritedHrPayslip(models.Model):
             })
 
             # Customised code start *****************************************************
-            # API call
+            # API endpoint
             pay_lines = payslip._get_payslip_lines()
             I = 0
             F = 0

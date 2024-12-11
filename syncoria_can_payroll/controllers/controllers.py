@@ -14,7 +14,7 @@ class T4WizardController(http.Controller):
         quoted_filename = urllib.parse.quote(filename)
         return 'attachment; filename="%s"; filename*=UTF-8\'\'%s' % (quoted_filename, quoted_filename)
 
-    @http.route('/web/content', type='http', auth='public')
+    @http.route('/download/remuneration', type='http', auth='public')
     def download_t4_xml(self, model, field, id, filename=None, content_type=None, **kwargs):
         if model == 'statement.remuneration' and field == 'xml_content' and id:
             record = request.env[model].sudo().browse(int(id))

@@ -2,7 +2,7 @@
 <odoo>
     <data>
 
-        <record id="hr_employee_form_inherit" model="ir.ui.view">
+        <record id="hr_employee_form_inherit_vac" model="ir.ui.view">
             <field name="name">syncoria_can_vacation_pay.hr_employee.form</field>
             <field name="model">hr.employee</field>
             <field name="inherit_id" ref="hr.view_employee_form"/>
@@ -13,6 +13,8 @@
                     <button name="%(syncoria_can_vacation_pay.hr_vacation_pay_act_window)d"
                             type="action"
                             class="oe_stat_button"
+                            context="{'search_default_employee_id': id, 'search_default_state': 'paid'}"
+
                             groups="hr.group_hr_user"
                             icon="fa-history"
                             invisible="vacation_type != 'time_wise' ">
@@ -21,6 +23,8 @@
                     <button name="%(syncoria_can_vacation_pay.hr_vacation_pay_act_window)d"
                             type="action"
                             class="oe_stat_button"
+                            context="{'search_default_employee_id': id, 'search_default_state': 'paid'}"
+
                             groups="hr.group_hr_user"
                             icon="fa-money" invisible="vacation_type != 'cash_wise' ">
 
@@ -77,7 +81,7 @@
             <field name="model">hr.employee</field>
             <field name="inherit_id" ref="syncoria_can_payroll.view_employee_form_sync_can_view"/>
             <field name="arch" type="xml">
-                <xpath expr="//notebook/page[@name='sync_payroll_info']" position="inside">
+                <xpath expr="//notebook/page[@name='sync_payroll_info']/group" position="inside">
 
                 </xpath>
             </field>
@@ -95,7 +99,7 @@
                         <label for="ytd_vac_pay_amount_erp" class="oe_inline"/>
                         <div class="o_row">
                             <field name="ytd_vac_pay_amount_erp"/>
-                            <button name="update_vac_pay_amount_erp" type="object" title="Refresh"
+                            <button name="update_vac_pay_amount_erp" type="object" title="Update Vacation Amount"
                                     help="Update Vacation Amount" icon="fa-refresh"/>
                         </div>
                         <field name="previous_vac_pay_amount"/>

@@ -16,7 +16,6 @@
             <field name="category_id" ref="syncoria_can_payroll.additional_allowance"/>
             <field name="appears_on_payslip" eval='True'/>
             <field name="active" eval="1"/>
-            <field name="is_batch_modifiable" eval="1"/>
             <field name="amount_select">code</field>
             <field name="struct_id" ref="syncoria_can_payroll.structure_can_employee"/>
             <field name="is_irregular_payment">True</field>
@@ -44,7 +43,6 @@ result_name = inputs['Bonus_Pay'].name
             <field name="category_id" ref="syncoria_can_payroll.additional_allowance"/>
             <field name="appears_on_payslip" eval='True'/>
             <field name="active" eval="1"/>
-            <field name="is_batch_modifiable" eval="1"/>
             <field name="amount_select">code</field>
             <field name="is_irregular_payment">True</field>
             <field name="struct_id" ref="syncoria_can_payroll.structure_can_employee"/>
@@ -73,7 +71,6 @@ result_name = inputs['Retro_Pay'].name
             <field name="category_id" ref="syncoria_can_payroll.additional_allowance"/>
             <field name="appears_on_payslip" eval='True'/>
             <field name="active" eval="1"/>
-            <field name="is_batch_modifiable" eval="1"/>
             <field name="amount_select">code</field>
             <field name="is_irregular_payment">True</field>
             <field name="struct_id" ref="syncoria_can_payroll.structure_can_employee"/>
@@ -100,7 +97,6 @@ result_name = inputs['COMMISSION'].name
             <field name="category_id" ref="syncoria_can_payroll.additional_allowance"/>
             <field name="appears_on_payslip" eval='True'/>
             <field name="active" eval="1"/>
-            <field name="is_batch_modifiable" eval="1"/>
             <field name="amount_select">code</field>
             <field name="struct_id" ref="syncoria_can_payroll.structure_can_worker"/>
             <field name="condition_select">python</field>
@@ -120,7 +116,6 @@ result_name = inputs['Bonus_Pay'].name
             <field name="category_id" ref="syncoria_can_payroll.additional_allowance"/>
             <field name="appears_on_payslip" eval='True'/>
             <field name="active" eval="1"/>
-            <field name="is_batch_modifiable" eval="1"/>
             <field name="amount_select">code</field>
             <field name="struct_id" ref="syncoria_can_payroll.structure_can_worker"/>
             <field name="condition_select">python</field>
@@ -143,7 +138,6 @@ result_name = inputs['Retro_Pay'].name
             <field name="category_id" ref="syncoria_can_payroll.additional_allowance"/>
             <field name="appears_on_payslip" eval='True'/>
             <field name="active" eval="1"/>
-             <field name="is_batch_modifiable" eval="1"/>
             <field name="amount_select">code</field>
             <field name="struct_id" ref="syncoria_can_payroll.structure_can_worker"/>
             <field name="condition_select">python</field>

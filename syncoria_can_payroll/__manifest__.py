@@ -20,7 +20,7 @@
     'version': '18.0.3.13',
 
     # any module necessary for this one to work correctly
-    'depends': ['base','hr_payroll','hr_work_entry','hr_payroll_account','portal'],
+    'depends': ['base','hr_payroll','hr_work_entry','hr_payroll_account','portal','queue_job_cron_jobrunner'],
     "external_dependencies": {"python": ["requests"]},
     # always loaded
     'data': [

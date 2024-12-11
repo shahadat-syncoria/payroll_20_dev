@@ -40,7 +40,7 @@
         'views/hr_work_entry_type.xml',
         'views/hr_payslip.xml',
         # Report
-        # 'report/payslip.xml',
+        'report/payslip.xml',
         'report/vacation_slab_for_existing_employees.xml',
 
         'wizards/vacation_slab_update.xml'

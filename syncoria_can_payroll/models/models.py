@@ -857,7 +857,7 @@ class StatementOfRemuneration(models.Model):
 
             return {
                 'type': 'ir.actions.act_url',
-                'url': '/web/content/?model=statement.remuneration&field=xml_content&id=%s&filename=%s&content_type=%s' % (
+                'url': '/download/remuneration/?model=statement.remuneration&field=xml_content&id=%s&filename=%s&content_type=%s' % (
                     employee.id, filename, content_type),
                 'target': 'self',
             }
