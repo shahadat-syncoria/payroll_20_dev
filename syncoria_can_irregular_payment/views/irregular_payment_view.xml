@@ -7,8 +7,8 @@
             <field name="arch" type="xml">
                 <form string="Irregular Payment">
                     <header>
-                        <button class="oe_highlight" groups="hr_payroll.group_hr_payroll_employee_manager" invisible="state not in ['draft']" name="action_confirm" string="Confirm" type="object"/>
-                        <button class="oe_highlight" groups="hr_payroll.group_hr_payroll_employee_manager" invisible="state in ['draft', 'validate', 'paid', 'cancel']" name="action_validate" string="Approve" type="object"/>
+                        <button class="oe_highlight" groups="hr_payroll.group_hr_payroll_manager" invisible="state not in ['draft']" name="action_confirm" string="Confirm" type="object"/>
+                        <button class="oe_highlight" groups="hr_payroll.group_hr_payroll_manager" invisible="state in ['draft', 'validate', 'paid', 'cancel']" name="action_validate" string="Approve" type="object"/>
                         <button invisible="state in ['draft', 'paid', 'cancel']" name="action_cancel" string="Cancel" type="object"/>
                         <button invisible="state not in ['cancel']" name="action_draft" string="Mark as Draft" type="object"/>
                         <field name="state" statusbar_visible="draft,to_approve,validate" widget="statusbar"/>
@@ -46,7 +46,7 @@
                         <notebook>
                             <page name="employee_line" string="Employees">
                                 <sheet>
-                                    <field groups="hr_payroll.group_hr_payroll_employee_manager" name="line_ids" readonly="state != 'draft'" widget="section_and_note_one2many">
+                                    <field groups="hr_payroll.group_hr_payroll_manager" name="line_ids" readonly="state != 'draft'" widget="section_and_note_one2many">
                                         <list editable="bottom" string="Employee Line">
                                             <field name="employee_id"/>
                                             <field name="amount"/>
@@ -110,6 +110,6 @@
                     There is no examples click here to add new Irregular Payment.
                 </p></field>
         </record>
-        <menuitem action="hr_irregular_pay_act_window" groups="hr_payroll.group_hr_payroll_employee_manager" id="hr_irregular_pay_menu" name="Irregular Payment" parent="hr_payroll.menu_hr_payroll_payslips" sequence="100"/>
+        <menuitem action="hr_irregular_pay_act_window" groups="hr_payroll.group_hr_payroll_manager" id="hr_irregular_pay_menu" name="Irregular Payment" parent="hr_payroll.menu_hr_payroll_payslips" sequence="100"/>
     </data>
 </odoo>

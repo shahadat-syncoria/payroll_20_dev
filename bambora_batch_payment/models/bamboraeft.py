@@ -271,7 +271,7 @@ class providerBamboraEft(models.Model):
         return {
             "type": "ir.actions.act_window",
             "name": "Batch Tracking",
-            "view_mode": "tree,form",
+            "view_mode": "list,form",
             "res_model": "batch.payment.tracking",
             "domain": [("provider_id", "=", self.id)],
             "context": "{'create': False}",

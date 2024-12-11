@@ -8,7 +8,7 @@
             <field name="arch" type="xml">
                 <xpath expr="//field[@name='bank_ids']" position="replace">
                     <field name="bank_ids" nolabel="1">
-                        <tree editable="bottom">
+                        <list editable="bottom">
                             <field name="sequence" widget="handle"/>
                             <field name="bank_id"/>
                             <field name="acc_number"/>
@@ -17,7 +17,7 @@
                             <field name="bank_transit_no"/>
                             <field name="bank_account_type"/>
                             <!-- <field name="bamboraeft_customer_code"/> -->
-                        </tree></field>
+                        </list></field>
                 </xpath></field>
         </record>
         <record id="view_partners_form_payment_bamboraeft" model="ir.ui.view">
@@ -27,7 +27,7 @@
             <field eval="15" name="priority"/>
             <field name="arch" type="xml">
                 <div name="button_box" position="inside">
-                    <button class="oe_stat_button" context="{'search_default_partner_id': active_id, 'create': False, 'edit': False}" icon="fa-bank" invisible="payment_eft_count == 0" name="%(payment.action_payment_token)d" type="action">
+                    <button class="oe_stat_button" context="{'search_default_partner_id': id, 'create': False, 'edit': False}" icon="fa-bank" invisible="payment_eft_count == 0" name="%(payment.action_payment_token)d" type="action">
                         <div class="o_form_field o_stat_info">
                             <span class="o_stat_value">
                                 <field name="payment_eft_count" nolabel="1" widget="statinfo"/>
@@ -53,7 +53,7 @@
                     <field name="bank_transit_no"/>
                     <field name="bank_account_type"/>
                 </xpath>
-                <xpath expr="//field[@name='acc_holder_name']" position="after">
+                <xpath expr="//field[@name='partner_id']" position="before">
                     <field domain="[('partner_id','=',partner_id)]" name="payment_token_id"/>
                     <field invisible="1" name="bamboraeft_status"/>
                 </xpath></field>

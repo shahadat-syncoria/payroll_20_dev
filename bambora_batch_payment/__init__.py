@@ -6,7 +6,6 @@
 from odoo.addons.payment import reset_payment_provider
 
 from odoo import _
-from odoo.exceptions import warnings
 from odoo.service import common
 from . import controllers
 from . import models
