@@ -61,6 +61,7 @@ class InheritedHrPayslip(models.Model):
         for slip in self.filtered(lambda p: p.employee_id and p.date_from):
             if slip.payslip_run_id:
                 slip.update({
+                    'year' :slip.payslip_run_id.pay_cycle_year,
                     'pay_cycle_period': slip.payslip_run_id.pay_cycle_period,
                 })
 
@@ -86,7 +87,7 @@ class InheritedHrPayslip(models.Model):
         for rec in self:
             if rec.pay_cycle_period:
                 rec.write({
-                    'name': rec.pay_cycle_period.name + f'-{fields.Date.today().year}',
+                    'name': rec.pay_cycle_period.name + f'-{rec.year}',
                     'date_from': rec.pay_cycle_period.start_date,
                     'date_to': rec.pay_cycle_period.end_date
                 })
@@ -98,6 +99,7 @@ class InheritedHrPayslip(models.Model):
                 if rec.payslip_run_id.pay_cycle != rec.pay_cycle:
                     raise UserError(_("Batch pay cycle is not matched with contract pay cycle!"))
                 rec.update({
+                    'year':rec.payslip_run_id.pay_cycle_year,
                     'pay_cycle_period': rec.payslip_run_id.pay_cycle_period,
                 })
 

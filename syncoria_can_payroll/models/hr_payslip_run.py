@@ -31,22 +31,23 @@ class PayrollHrPayslipRun(models.Model):
         for payslip in self:
             payslip.is_manual_input = True if attendance_manual == 'True' else False
 
-    @api.depends('pay_cycle')
+    @api.depends('pay_cycle','pay_cycle_year')
     def _compute_pay_cycle_period_domain(self):
         for rec in self:
-            if rec.pay_cycle_period.paycycle_config_id != rec.pay_cycle:
-                rec.pay_cycle_period = None
             rec.pay_cycle_period_ids_domain = False
             if rec.pay_cycle:
-                rec.pay_cycle_period_ids_domain = rec.pay_cycle.paycycle_period_ids.filtered(
-                    lambda x: x.paycycle_config_id.id == rec.pay_cycle.id).ids
+                pay_cycle_period_ids_domain = rec.pay_cycle.paycycle_period_year_slab_ids.filtered(
+                    lambda x: x.year == str(rec.pay_cycle_year)).paycycle_period_ids.ids
+                # pay_cycle_period_ids_domain = rec.pay_cycle.paycycle_period_ids.filtered(
+                #     lambda x: x.paycycle_config_id.id == rec.pay_cycle.id and x.paycycle_year_slab_id.year == str(rec.year)).ids
+                rec.pay_cycle_period_ids_domain = pay_cycle_period_ids_domain
 
     @api.onchange('pay_cycle_period')
     def _onchange_pay_cycle_period(self):
         for rec in self:
             if rec.pay_cycle_period:
                 rec.update({
-                    'name': rec.pay_cycle_period.name + f'-{fields.Date.today().year}',
+                    'name': rec.pay_cycle_period.name + f'-{rec.pay_cycle_year}',
                     'date_start': rec.pay_cycle_period.start_date,
                     'date_end': rec.pay_cycle_period.end_date
                 })
