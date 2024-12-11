@@ -18,12 +18,50 @@
 is_pay_cycle = contract.salary_pay_cycle.pay_cycle
 if is_pay_cycle:
     pay_cycle = int(is_pay_cycle)
+    gross = 0.0
+    vp = 0.0
+    ad_vp = 0.0
+    bonus = 0.0
+    retro = 0.0
+    ot =0.0
+    b_ot = 0.0
+    com = 0.0
+    stat_ot = 0.0
+    final_result = 0.0
+    exp = 0.0
+
+    for rule in rules:
+        if rules[rule].is_pensionable:
+            rule_code = rules[rule].code
+            if rule_code == 'GROSS':
+                gross = GROSS
+            elif rule_code == 'ADJUST_VP':
+                ad_vp = ADJUST_VP
+            elif rule_code == 'VP':
+                vp = VP
+            elif rule_code == 'BONUS':
+                bonus = BONUS
+            elif rule_code == 'RETRO':
+                retro = RETRO
+            elif rule_code == 'OVERTIME':
+                ot = OVERTIME
+            elif rule_code == 'BANKED_OVERTIME':
+                b_ot = BANKED_OVERTIME
+            elif rule_code == 'COMMISSION':
+                com = COMMISSION
+            elif rule_code == 'STAT_OVERTIME':
+                stat_ot = STAT_OVERTIME
+            elif rule_code == 'EXPENSE':
+                exp = EXPENSE
+
+            final_result = gross+ vp+ ad_vp+ bonus+ ot+ retro+ b_ot+ com+ stat_ot + exp
 
 
-    main_gross = I_Earning
+
+    main_gross = final_result
     PM= 12
-
-    calculation_1 =  contract.deductions.cpp_emp_employ_contrib * (PM/12) - employee.ytd_cpp ;
+    line_obj = employee.payroll_line_ids.filtered(lambda x: x.year == str(payslip.date_to.year))
+    calculation_1 =  contract.deductions.cpp_emp_employ_contrib * (PM/12) - line_obj.ytd_cpp ;
     calculation_2 =   (contract.deductions.cpp_emp_employ_rate / 100) * (main_gross -(contract.deductions.cpp_basic_exem /pay_cycle))
     final_cpp = min(calculation_1,calculation_2)
     if final_cpp < 0.00:
@@ -79,11 +117,48 @@ result=CPP
 is_pay_cycle = contract.salary_pay_cycle.pay_cycle
 if is_pay_cycle:
     pay_cycle = int(is_pay_cycle)
+    gross = 0.0
+    vp = 0.0
+    ad_vp = 0.0
+    bonus = 0.0
+    retro = 0.0
+    ot =0.0
+    b_ot = 0.0
+    com = 0.0
+    stat_ot = 0.0
+    final_result = 0.0
+    exp =0.0
 
-    main_gross = I_Earning
+    for rule in rules:
+        if rules[rule].is_pensionable:
+            rule_code = rules[rule].code
+            if rule_code == 'GROSS':
+                gross = GROSS
+            elif rule_code == 'ADJUST_VP':
+                ad_vp = ADJUST_VP
+            elif rule_code == 'VP':
+                vp = VP
+            elif rule_code == 'BONUS':
+                bonus = BONUS
+            elif rule_code == 'RETRO':
+                retro = RETRO
+            elif rule_code == 'OVERTIME':
+                ot = OVERTIME
+            elif rule_code == 'BANKED_OVERTIME':
+                b_ot = BANKED_OVERTIME
+            elif rule_code == 'COMMISSION':
+                com = COMMISSION
+            elif rule_code == 'STAT_OVERTIME':
+                stat_ot = STAT_OVERTIME
+            elif rule_code == 'EXPENSE':
+                exp = EXPENSE
+
+            final_result = gross+ vp+ ad_vp+ bonus+ ot+ retro+ b_ot+ com+ stat_ot +exp
+
+    main_gross = final_result
     PM= 12
-
-    calculation_1 =  contract.deductions.cpp_emp_employ_contrib * (PM/12) - employee.ytd_cpp ;
+    line_obj = employee.payroll_line_ids.filtered(lambda x: x.year == str(payslip.date_to.year))
+    calculation_1 =  contract.deductions.cpp_emp_employ_contrib * (PM/12) - line_obj.ytd_cpp ;
     calculation_2 =   (contract.deductions.cpp_emp_employ_rate / 100) * (main_gross -(contract.deductions.cpp_basic_exem /pay_cycle))
     final_cpp = min(calculation_1,calculation_2)
     if final_cpp < 0.00:

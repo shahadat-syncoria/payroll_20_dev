@@ -20,15 +20,26 @@
                         <notebook>
                             <page name="pay_periods" string="Pay Periods">
                                 <group>
-                                    <field name="paycycle_period_ids"
-                                          >
-                                        <tree string="Pay Period" editable="bottom">
-                                            <field name="name"/>
-                                            <field name="start_date"/>
-                                            <field name="end_date"/>
-
+                                    <field name="paycycle_period_year_slab_ids">
+                                        <tree string="Pay Period Year">
+                                            <field name="year"/>
                                         </tree>
+                                        <form>
+                                            <group>
+                                                <field name="year"/>
+                                            </group>
+
+                                            <field name="paycycle_period_ids">
+                                                <tree string="Pay Period" editable="bottom">
+                                                    <field name="year" column_invisible="True"/>
+                                                    <field name="name"/>
+                                                    <field name="start_date"/>
+                                                    <field name="end_date"/>
+                                                </tree>
+                                            </field>
+                                        </form>
                                     </field>
+
                                 </group>
                             </page>
                         </notebook>
@@ -74,6 +85,15 @@
             </field>
         </record>
 
+        <record id="action_update_batch_paycycle_config" model="ir.actions.server">
+            <field name="name">Batch Update Paycycle Config</field>
+            <field name="model_id" ref="model_paycycle_config"/>
+            <field name="binding_model_id" ref="model_paycycle_config"/>
+            <field name="state">code</field>
+            <field name="code">
+                action = model.action_update_batch_paycycle_config()
+            </field>
+        </record>
 
     </data>
 </odoo>

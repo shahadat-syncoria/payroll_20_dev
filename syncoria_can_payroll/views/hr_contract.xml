@@ -28,7 +28,7 @@
                                 <!--                                <field name="is_cpp_qpp_xmpt_cd" widget='boolean_toggle'/>-->
                                 <!--                                <field name="is_ei_xmpt_cd" widget='boolean_toggle'/>-->
                                 <!--                                <field name="is_prov_pip_xmpt_cd" widget='boolean_toggle'/>-->
-                                <field name="employee_empt_cd"/>
+                                <!--                                <field name="employee_empt_cd"/>-->
                             </group>
                             <group>
                                 <field name="federal_amount_from_td1"/>

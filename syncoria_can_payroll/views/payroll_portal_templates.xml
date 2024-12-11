@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="portal_layout" name="Portal layout: payslip menu entry" inherit_id="portal.portal_breadcrumbs" priority="50">
+        <xpath expr="//ol[hasclass('o_portal_submenu')]" position="inside">
+            <li t-if="page_name == 'payslip' or payslip" class="col-lg-2" t-attf-class="breadcrumb-item #{'active ' if not v else ''}">
+                <a t-if="payslip" t-attf-href="/my/payslip">Payslip</a>
+                <t t-else="">Payslip</t>
+            </li>
+            <li t-elif="payslip" t-attf-class="breadcrumb-item #{'active ' if not payslip else ''} text-truncate col-8 col-lg-10">
+                <t t-esc="payslip.name"/>
+            </li>
+            <li t-if="page_name == 'payslip_details'" class="breadcrumb-item active">
+                <t t-esc="payslip.name"/>
+            </li>
+        </xpath>
+    </template>
+
+    <template id="portal_my_home" name="Show Payroll" customize_show="True" inherit_id="portal.portal_my_home" priority="110">
+        <xpath expr="//div[hasclass('o_portal_docs')]" position="inside">
+            <t t-set="portal_service_category_enable" t-value="True"/>
+        </xpath>
+        <div id="portal_service_category" position="inside">
+            <div>
+                 <t t-if ='payslip_count > 0'>
+                     <t t-set="show_payslip" t-value="True"/>
+                 </t>
+                 <t t-else =''>
+                     <t t-set="show_payslip" t-value="False"/>
+                 </t>
+                <t t-call="portal.portal_docs_entry">
+                    <t t-set="icon" t-value="'/syncoria_can_payroll/static/src/img/portal-addresses.svg'"/>
+                    <t t-set="title">Payslip</t>
+                    <t t-set="url" t-value="'/my/payslip'"/>
+                    <t t-set="text">Efficient payroll isn't just about numbers; it's about ensuring your team's well-being while your project evolves.</t>
+                    <t t-set="config_card" t-value="show_payslip"/>
+                    <t t-set="placeholder_count" t-value="payslip_count"/>
+                </t>
+            </div>
+        </div>
+    </template>
+
+    <template id="portal_my_payslips" name="All Payslip">
+        <t t-call="portal.portal_layout">
+            <t t-set="breadcrumbs_searchbar" t-value="True"/>
+
+            <t t-call="portal.portal_searchbar">
+                <t t-set="title">Payslips</t>
+            </t>
+            <t t-if="not payslips">
+                <div class="alert alert-warning" role="alert">
+                    There are no Payslips.
+                </div>
+            </t>
+            <t t-if="payslips" t-call="portal.portal_table">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Payslip Number</th>
+                        <th>Amount</th>
+                        <th>State</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr t-foreach="payslips" t-as="payslip">
+                        <td>
+                            Period: <span t-field="payslip.date_from"/> To: <span t-field="payslip.date_to"/>
+                        </td>
+                        <td>
+                            <span t-field="payslip.number"/>
+                        </td>
+                        <td>
+                            <span t-field="payslip.net_wage"/>
+                        </td>
+                        <td>
+                            <span t-field="payslip.state"/>
+                        </td>
+                         <td>
+                            <a t-attf-href="/my/payslip/#{payslip.id}"><span t-field="payslip.name"/></a>
+                        </td>
+                         <td style="width:200px">
+                             <a class="btn btn-secondary d-block o_download_btn" t-attf-href="/action_print_payslip?payslip_id=#{payslip.id}" title="Download"><i class="fa fa-download"/> Download</a>
+                        </td>
+                    </tr>
+                </tbody>
+            </t>
+        </t>
+    </template>
+
+    <template id="portal_my_payslip" name="My Payslip">
+        <t t-call="portal.portal_layout">
+            <t t-set="title" t-value="pay_cycle_period_name"/>
+
+            <t t-call="portal.portal_searchbar">
+                <t t-set="title">Payslip</t>
+            </t>
+
+            <p><b>Slip Number:</b> <span t-field="payslip.number"/>
+                <t t-if="payslip.state == 'paid'"> (<span style="color:green" t-field="payslip.state"/>) </t>
+                <t t-else=""> (<span style="color:#705fc4" t-field="payslip.state"/>) </t>
+            </p>
+            <p style="margin-bottom: 20px">Period: <span t-field="payslip.name"/> </p>
+
+            <t t-if="not detailed_payslip">
+                <div class="alert alert-warning" role="alert">
+                    There are no Payslip.
+                </div>
+            </t>
+
+            <t t-if="detailed_payslip">
+                <t t-call="portal.portal_table">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Category</th>
+                            <th>Quantity</th>
+                            <th>Rate</th>
+                            <th>Amount</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <t t-foreach="detailed_payslip" t-as="d">
+                            <tr>
+                                <td>
+                                    <span t-esc="d.name" />
+                                </td>
+                                <td>
+                                    <span t-esc="d.category_id.name" />
+                                </td>
+                                <td>
+                                    <span t-esc="d.quantity" />
+                                </td>
+                                <td>
+                                    <span t-esc="d.rate" />
+                                </td>
+                                <td>
+                                    <span t-esc="d.amount" />
+                                </td>
+                            </tr>
+                        </t>
+                    </tbody>
+                </t>
+
+                <p style="  text-align: right;
+                            margin-bottom: 100px;
+                            margin-right: 134px;
+                            font-size: 20px;
+                            font-weight: bold;
+                            margin-top: 10px;}">
+                    Net Wage: <t t-esc="payslip.net_wage"/>
+                </p>
+            </t>
+        </t>
+    </template>
+</odoo>

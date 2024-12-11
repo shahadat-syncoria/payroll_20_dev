@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_attendance_overtime_store_tree" model="ir.ui.view">
+        <field name="name">hr.attendance.overtime.store.tree</field>
+        <field name="model">hr.attendance.overtime.store</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="date"/>
+                <field name="employee_id"/>
+                <field name="payment_pay_period"/>
+                <field name="duration_store" widget="float_time"/>
+                <field name="duration_taken" widget="float_time"/>
+                <field name="duration_remaining" widget="float_time"/>
+<!--                <field name="overtime_rate"/>-->
+<!--                <field name="amount"/>-->
+<!--                <field name="amount_taken"/>-->
+<!--                <field name="remaining_amount"/>-->
+                <field name="payslip_ids" widget="many2many_tags"/>
+<!--                <field name="need_to_payout" widget="float_time"/>-->
+<!--                <field name="is_need_payout_paid"/>-->
+
+                <button name="open_payslip_action" string="View Payslip" type="object" class="btn-primary"/>
+
+
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_attendance_overtime_store_search" model="ir.ui.view">
+        <field name="name">hr.attendance.overtime.store.search</field>
+        <field name="model">hr.attendance.overtime.store</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="employee_id"/>
+                <field name="duration_store" filter_domain="[('duration_store', '>=', self)]"/>
+            </search>
+        </field>
+    </record>
+
+    <record id="hr_attendance_overtime_store_action" model="ir.actions.act_window">
+        <field name="name">Extra Overtime</field>
+        <field name="res_model">hr.attendance.overtime.store</field>
+        <field name="view_mode">tree</field>
+    </record>
+</odoo>

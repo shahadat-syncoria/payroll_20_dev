@@ -61,7 +61,7 @@
                     <notebook>
                         <page name="payslips" string="Payslips">
                             <sheet>
-                                <field name="payslip_ids"><tree create="false" default_order="date_to asc" delete="false">
+                                <field name="payslip_ids"><tree create="false" default_order="number asc" delete="false">
                                         <field name="number"/>
                                         <field name="name"/>
                                         <field name="pay_cycle_period"/>
@@ -73,13 +73,22 @@
                         </page>
                         <page name="vac_pay" string="Vacation Pay">
                             <sheet>
-                                <field name="vacation_pay_ids"><tree create="false" default_order="paid_date asc" delete="false">
-                                        <field name="employee_id"/>
-                                        <field name="duration"/>
-                                        <field name="paid_date"/>
-                                        <field decoration-info="state == 'draft'" decoration-success="state == state in ('validate','paid')" decoration-warning="state in ('refuse','cancel')" name="state" widget="badge"/>
-                                        <field name="vacation_pay_amount"/>
-                                        <field name="is_last_pay"/>
+<!--                                <field name="vacation_pay_ids"><tree create="false" default_order="paid_date asc" delete="false">-->
+<!--                                        <field name="employee_id"/>-->
+<!--                                        <field name="duration"/>-->
+<!--                                        <field name="paid_date"/>-->
+<!--                                        <field decoration-info="state == 'draft'" decoration-success="state == state in ('validate','paid')" decoration-warning="state in ('refuse','cancel')" name="state" widget="badge"/>-->
+<!--                                        <field name="vacation_pay_amount"/>-->
+<!--                                        <field name="is_last_pay"/>-->
+<!--                                    </tree></field>-->
+                                 <field name="vacation_amount_ids"><tree create="false" default_order="reference asc" delete="false">
+                                        <field name="reference"/>
+                                        <field name="payslip_id"/>
+                                        <field name="vacation_pay_type" widget="many2many_tags"/>
+                                        <field name="amount"/>
+<!--                                        <field decoration-info="state == 'draft'" decoration-success="state == state in ('validate','paid')" decoration-warning="state in ('refuse','cancel')" name="state" widget="badge"/>-->
+<!--                                        <field name="vacation_pay_amount"/>-->
+<!--                                        <field name="is_last_pay"/>-->
                                     </tree></field>
                             </sheet>
                         </page>

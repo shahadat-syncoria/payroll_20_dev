@@ -37,6 +37,7 @@
                                     <th>CPP2 Deductions</th>
                                     <th>EI Deductions</th>
                                     <th>Employer EI Deductions</th>
+                                    <th>WSIB Premium</th>
                                 </tr>
 
                                 <t t-foreach="grouped_payslips.items()" t-as="cycle">
@@ -60,6 +61,7 @@
                                             <td t-esc="round(line['cpp2'], 2)"/>
                                             <td t-esc="round(line['ei'], 2)"/>
                                             <td t-esc="round(line['employer_ei'], 2)"/>
+                                            <td t-esc="round(line['wsib'], 2)"/>
                                         </tr>
                                     </t>
 
@@ -102,6 +104,9 @@
                                         </td>
                                         <td>
                                             <span t-esc="round(line['employer_ei'],2)"/>
+                                        </td>
+                                        <td>
+                                            <span t-esc="round(line['wsib'],2)"/>
                                         </td>
                                     </tr>
                             </table>

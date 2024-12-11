@@ -1,3 +1,4 @@
+
 from PyPDF2 import PdfFileMerger
 from odoo import fields, models, api, _
 import os
@@ -6,7 +7,7 @@ from lxml import etree
 from odoo.exceptions import UserError
 
 from odoo.modules.module import get_module_resource
-import datetime
+from datetime import datetime
 
 from pypdf import PdfReader, PdfWriter
 
@@ -94,9 +95,14 @@ class RecordOfEmployee(models.Model):
     language = fields.Selection([("english", "English"), ("french", "French")], default="english",
                                 string="20-Communication Preferred In")
     telephone_no = fields.Char(string="21-Telephone No", unaccent=False)
-    name_of_issuer_id = fields.Many2one("hr.employee", string="22-Name of Issuer")
+    name_of_issuer_id = fields.Many2one(
+        "hr.employee",
+        string="22-Name of Issuer",
+
+    )
     payslip_ids = fields.One2many("hr.payslip", "roe_id", string="15c-PaySlip")
     vacation_pay_ids = fields.One2many("hr.vacation.pay", "roe_id", string="Vacation Pay")
+    vacation_amount_ids = fields.One2many("vacation.amount", "roe_id", string="Vacation Pay")
 
     issuing_date = fields.Date.today()
 
@@ -130,6 +136,35 @@ class RecordOfEmployee(models.Model):
                                                                                         key=lambda x: x.paid_date)
         return employee_vacation_pay_ids
 
+    def _get_vacation_amount(self):
+        self.write({'vacation_amount_ids': [(5, 0, 0)]})
+
+        payslips = self.get_payslip_ids()
+        adjusted_input_type = self.env.ref('syncoria_can_vacation_pay.input_ca_adjusted_vac_pay').id
+        input_type = self.env.ref('syncoria_can_vacation_pay.input_ca_vac_pay').id
+        vacation_data = []
+
+        for payslip in payslips:
+            # Retrieve vacation input lines
+            vac_info = payslip.input_line_ids.search([
+                ("payslip_id", "=", payslip.id),
+                ("input_type_id", "in", [adjusted_input_type, input_type])
+            ])
+
+            # Sum up the vacation amounts if needed
+            total_vacation_amount = sum(line.amount for line in vac_info)
+            if vac_info:
+
+                vacation_data.append((0, 0, {
+                    "payslip_id": payslip.id,
+                    "reference":payslip.number,
+                    "vacation_pay_type": [(6, 0, vac_info.ids)],  # Use Many2many relation with the input records
+                    "amount": total_vacation_amount,
+                }))
+
+        # Insert data into the One2many field
+        return vacation_data
+
     def _get_insurable_earning(self):
         employee_payslip_ids = self.get_payslip_ids()
 
@@ -156,10 +191,12 @@ class RecordOfEmployee(models.Model):
         if self.employee_id:
             employee = self.employee_id
             payslip_ids = self.get_payslip_ids()
-            has_last_payment = self.vacation_pay_ids.filtered(lambda x: x.is_last_pay)
+            has_last_payment = self.vacation_amount_ids.sorted(key=lambda r: r.reference, reverse=True)[:1]
 
+            line_obj = self.employee_id.payroll_line_ids.filtered(lambda x: x.year == datetime.now().year)
             self.write({
                 "company_id": employee.company_id,
+                "name_of_issuer_id" : self.env['hr.employee'].search([('user_id', '=', self.env.uid)], limit=1).id,
                 "pay_period_id": employee.contract_id.salary_pay_cycle,
                 "social_insurance_number": employee.identification_id,
                 "first_day_worked": employee.contract_id.date_start,
@@ -169,10 +206,10 @@ class RecordOfEmployee(models.Model):
                 "cra_payroll_acc_num": employee.company_id.payroll_account_number,
                 "employer_payroll_ref": self.company_id.employer_payroll_ref or '',
                 "total_insurable_hours": self._get_insurable_hour(),
-                "total_insurable_earnings": self.employee_id.ytd_pi,
+                "total_insurable_earnings": line_obj.ytd_pi,
                 "payslip_ids": payslip_ids,
-                "vacation_pay_ids": self.get_vacation_pay_ids(),
-                "vacation_pay_amount": round(has_last_payment[0].vacation_pay_amount,2) if has_last_payment else ''
+                "vacation_amount_ids": self._get_vacation_amount(),
+                "vacation_pay_amount": round(has_last_payment.amount,2) if has_last_payment else ''
             })
 
         # ======================== Generate and download T4 xml ===========================
@@ -203,7 +240,7 @@ class RecordOfEmployee(models.Model):
                     # Return the file as a response
                     return {
                         'type': 'ir.actions.act_url',
-                        'url': '/web/content/?model=record.of.employee&field=xml_content&id=%s&filename=%s&content_type=%s' % (
+                        'url': '/download/roe/?model=record.of.employee&field=xml_content&id=%s&filename=%s&content_type=%s' % (
                             rec.id, filename, content_type),
                         'target': 'self',
                     }
@@ -279,12 +316,12 @@ class RecordOfEmployee(models.Model):
         b17a = ET.SubElement(roe, "B17A")
         vp = ET.SubElement(b17a, "VP")
         vp.set("nbr", "1")
-        has_last_payment = self.vacation_pay_ids.filtered(lambda x: x.is_last_pay)
+        has_last_payment =  self.vacation_amount_ids.sorted(key=lambda r: r.reference, reverse=True)[:1]
 
         ET.SubElement(vp, "CD").text = '2' if has_last_payment else '1'
         ET.SubElement(vp, "SDT").text = ''
         ET.SubElement(vp, "EDT").text = ''
-        ET.SubElement(vp, "AMT").text = f'{has_last_payment[0].vacation_pay_amount:.2f}' if has_last_payment else ''
+        ET.SubElement(vp, "AMT").text = f'{has_last_payment.amount:.2f}' if has_last_payment else ''
 
         # STATUTORY HOLIDAY INFORMATION
         b17b = ET.SubElement(roe, "B17B")
@@ -330,12 +367,10 @@ class RecordOfEmployee(models.Model):
                     output_folder_path = os.path.expanduser(os.getenv("HOME")) + "/outPdf/"
                     if not os.path.isdir(output_folder_path):
                         os.mkdir(output_folder_path)
-                    if is_bulk:  # Change the PDF name if called from the action
-                        pdf_name = "Merged_ROE.pdf"
-                    else:
-                        pdf_name = str(
-                            datetime.datetime.now().strftime(f"{rec.employee_id.name.replace(' ', '')}-")) + str(
-                            datetime.datetime.now().strftime("%m%d%Y%H%M%S%f")) + ".pdf"
+
+                    pdf_name = str(
+                        datetime.now().strftime(f"{rec.employee_id.name.replace(' ', '')}-")) + str(
+                        datetime.now().strftime("%m%d%Y%H%M%S%f")) + ".pdf"
 
                     filename = output_folder_path + pdf_name
 
@@ -348,8 +383,8 @@ class RecordOfEmployee(models.Model):
                     writer.append(reader)
                     rec.compute_roe()
 
-                    has_last_payment = rec.vacation_pay_ids.filtered(lambda x: x.is_last_pay)
-                    rec.vacation_pay_amount = f'{has_last_payment[0].vacation_pay_amount:.2f}' if has_last_payment else ''
+                    has_last_payment =  self.vacation_amount_ids.sorted(key=lambda r: r.reference, reverse=True)[:1]
+                    rec.vacation_pay_amount = f'{has_last_payment.amount:.2f}' if has_last_payment else ''
                     data = {
                         'sl_no': rec.serial_no or '',
                         'employee_info': f'{rec.employee_id.name}\n{rec.employee_id.private_street or ""},{rec.employee_id.private_street2 or ""},{rec.employee_id.private_city or ""},{rec.employee_id.private_country_id.name or ""}' or '',
@@ -373,23 +408,23 @@ class RecordOfEmployee(models.Model):
                     'postal_code': rec.employee_id.private_zip or '',
                     'cra_payroll_acc': rec.cra_payroll_acc_num or '',
                     'issuer_name': rec.name_of_issuer_id.name or '',
-                    'issue_date': datetime.datetime.now().strftime('%d-%m-%Y') or '',
+                    'issue_date': datetime.now().strftime('%d-%m-%Y') or '',
                     'vacation_pay': rec.vacation_pay_amount or '',
                     'vacation_pay_start': rec.vacation_pay_start_date.strftime('%d-%m-%Y') if rec.vacation_pay_start_date else '',
                     'vacation_pay_end': rec.vacation_pay_end_date.strftime('%d-%m-%Y') if rec.vacation_pay_end_date else '',
                     'comment': rec.comments or '',
-                    'other_start_date1': '',
-                    'other_start_date2': '', 'other_start_date3': '', 'other_end_date1': '',
-                    'other_end_date2': '', 'other_end_date3': '',
-                    'CheckBox-14Yj7BWRzb': '', 'CheckBox-QFXjTBRVwq': '', 'CheckBox-f1WzgWGwMl': '',
-                    'CheckBox-djIjiRzJE7': '', 'CheckBox-3o38tjRP62': '', 'CheckBox-4qOCRr9Nrz': '',
-                    'CheckBox-eTaQV6ngRM': '', 'CheckBox-7aZtgMItxj': '',
-                    'comm_english': '', 'comm_french': '',
-                    'unique_id': '', 'Text-9vMCmQF1F1': '',
-                    'Text-yk2dZTKG-c': '', 'Text-0K3CUNZijm': '', 'Text-_e_t278CcP': '',
-                    'Text-UA8BMNPK9-': '', 'Text-nvSTgcUKe2': '', 'Text-qSSHJVKGp9': '',
-                    'Text-InbjcxfE6o': '', 'amount1': '', 'amount2': '', 'amount3': '', 'amount4': '',
-                    'holiday_pay': '',
+                    'other_start_date1': None,
+                    'other_start_date2': None, 'other_start_date3': None, 'other_end_date1': None,
+                    'other_end_date2': None, 'other_end_date3': None,
+                    'CheckBox-14Yj7BWRzb': None, 'CheckBox-QFXjTBRVwq': None, 'CheckBox-f1WzgWGwMl': None,
+                    'CheckBox-djIjiRzJE7': None, 'CheckBox-3o38tjRP62': None, 'CheckBox-4qOCRr9Nrz': None,
+                    'CheckBox-eTaQV6ngRM': None, 'CheckBox-7aZtgMItxj': None,
+                    'comm_english': None, 'comm_french': None,
+                    'unique_id': None, 'Text-9vMCmQF1F1': None,
+                    'Text-yk2dZTKG-c': None, 'Text-0K3CUNZijm': None, 'Text-_e_t278CcP': None,
+                    'Text-UA8BMNPK9-': None, 'Text-nvSTgcUKe2': None, 'Text-qSSHJVKGp9': None,
+                    'Text-InbjcxfE6o': None, 'amount1': None, 'amount2': None, 'amount3': None, 'amount4': None,
+                    'holiday_pay': None,
 
                     }
                     for index, payslip in enumerate(rec.get_payslip_ids(), start=1):
@@ -400,7 +435,7 @@ class RecordOfEmployee(models.Model):
                         data[date_field] = payslip.date_to.strftime('%d-%m-%Y')
                         data[hours_field] = round(payslip.insurable_hour, 2)
                         data[earning_field] = payslip.insurable_earning
-
+                    data = {key: str(value) if value is not None else "" for key, value in data.items()}
                     writer.update_page_form_field_values(writer.pages[0], data)
 
                 # write "output" to pypdf-output.pdf
@@ -415,6 +450,8 @@ class RecordOfEmployee(models.Model):
 
 
                 kwrgs.append((filename,pdf_name))
+                if is_bulk:  # Change the PDF name if called from the action
+                    pdf_name = "Merged_ROE.pdf"
 
         return {
             'type': 'ir.actions.act_url',
@@ -432,8 +469,8 @@ class RecordOfEmployee(models.Model):
 
             attachment = self.env['ir.attachment'].create({
                 'name':  str(
-                        datetime.datetime.now().strftime(f"{rec.employee_id.name.replace(' ', '')}-")) + str(
-                        datetime.datetime.now().strftime("%m%d%Y%H%M%S%f")) + ".xml",
+                        datetime.now().strftime(f"{rec.employee_id.name.replace(' ', '')}-")) + str(
+                        datetime.now().strftime("%m%d%Y%H%M%S%f")) + ".xml",
                 'raw': xml_content,
                 'res_id': rec.id,
                 'res_model': 'record.of.employee',
@@ -465,3 +502,15 @@ class RecordOfEmployee(models.Model):
                 'sticky': True,
             }
         }
+
+
+class VacationAmount(models.Model):
+    _name = "vacation.amount"
+    _inherit = ['mail.thread', 'mail.activity.mixin']
+    _description = "Vacation Amount"
+
+    roe_id = fields.Many2one("record.of.employee")
+    payslip_id = fields.Many2one("hr.payslip")
+    reference= fields.Char()
+    vacation_pay_type = fields.Many2many("hr.payslip.input")
+    amount = fields.Float(string="Amount")

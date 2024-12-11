@@ -10,9 +10,9 @@
                             <field name="employee_ids" required="1" widget="many2many_avatar_employee" />
                             <field name="year" required="1"/>
                         </group>
-                        <group>
-                            <field name="department_ids" widget="many2many_tags"/>
-                        </group>
+<!--                        <group>-->
+<!--                            <field name="department_ids" widget="many2many_tags"/>-->
+<!--                        </group>-->
                     </group>
                     <footer>
                         <button string="Generate" type="object" name="generate_t4_records" class="oe_highlight"/>

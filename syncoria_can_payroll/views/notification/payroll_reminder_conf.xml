@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <data>
-
         <record id="res_config_settings_can_payroll_form_inherit" model="ir.ui.view">
             <field name="name">syncoria_can_payroll.res_config_settings.form</field>
             <field name="model">res.config.settings</field>
@@ -84,6 +83,25 @@
                             </div>
                         </div>
                     </div>
+                </xpath>
+            </field>
+        </record>
+
+        <record id="res_config_settings_system_param" model="ir.ui.view">
+            <field name="name">res.config.settings.view.form.inherit.syncoria.payroll</field>
+            <field name="model">res.config.settings</field>
+            <field name="priority" eval="0"/>
+            <field name="inherit_id" ref="base.res_config_settings_view_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//block[@name='performance']" position="after">
+                    <block title="Syncoria System Config" name="sys_config">
+                        <setting id="base_url">
+                            <field name="base_url"/>
+                        </setting>
+                        <setting id="auth_token">
+                            <field name="token" password="True"/>
+                        </setting>
+                    </block>
                 </xpath>
             </field>
         </record>

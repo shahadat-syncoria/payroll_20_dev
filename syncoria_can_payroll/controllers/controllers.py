@@ -14,7 +14,7 @@ class T4WizardController(http.Controller):
         quoted_filename = urllib.parse.quote(filename)
         return 'attachment; filename="%s"; filename*=UTF-8\'\'%s' % (quoted_filename, quoted_filename)
 
-    @http.route('/web/content', type='http', auth='public')
+    @http.route('/download/remuneration', type='http', auth='public')
     def download_t4_xml(self, model, field, id, filename=None, content_type=None, **kwargs):
         if model == 'statement.remuneration' and field == 'xml_content' and id:
             record = request.env[model].sudo().browse(int(id))
@@ -93,6 +93,19 @@ class T4WizardController(http.Controller):
         # os.remove(file_path)
 
         # return response
+
+    @http.route('/t4/download_xml', type='http', auth='user')
+    def download_t4_batch_xml(self, field, id, filename=None, content_type='application/xml', **kwargs):
+        if field == 'xml_content' and id:
+            record = request.env['statement.remuneration'].sudo().browse(int(id))
+            xml_content = record.xml_content
+            if xml_content:
+                headers = [
+                    ('Content-Type', content_type),
+                    ('Content-Disposition', self.content_disposition(filename)),
+                ]
+                return request.make_response(xml_content, headers)
+        return request.not_found()
 
 # class SyncoriaCanPayroll(http.Controller):
 #     @http.route('/syncoria_can_payroll/syncoria_can_payroll', auth='public')

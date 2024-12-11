@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="seq_hr_overtime_pay" model="ir.sequence">
+            <field name="name">Overtime Pay</field>
+            <field name="code">hr.overtime.pay.request</field>
+            <field name="prefix">OPR</field>
+            <field name="padding">5</field>
+            <field name="company_id" eval="False"></field>
+        </record>
+    </data>
+</odoo>

@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <record id="view_hr_payslip_create_draft_wizard_form" model="ir.ui.view">
+        <field name="name">hr.payslip.create.draft.wizard.form</field>
+        <field name="model">hr.payslip.create.draft.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Create Draft Payslips Wizard">
+
+                    <field name="draft_line_ids" widget="one2many_list" nolabel="1">
+                        <tree editable="bottom">
+                            <field name="employee_id"/>
+                            <field name="attendance_hours" widget="float_time"/>
+                            <field name="overtime_hours"/>
+                             <field name="stat_overtime_hours"/>
+                                <field name="payout_vacation_pay_paycycle" optional="hide"/>
+                                <field name="ytd_vac_pay_amount" optional="hide" readonly="1"/>
+                                <field name="vac_pay" optional="hide"/>
+                                <field name="commission" optional="hide"/>
+                                <field name="bonus" optional="hide"/>
+                                <field name="retro" optional="hide"/>
+                        </tree>
+                    </field>
+
+                <footer>
+                    <button string="Generate Draft Payslips" type="object" name="action_generate_draft_payslips" class="btn-primary"/>
+                    <button string="Compute Sheet" type="object" name="compute_sheet" class="btn-secondary"/>
+                    <button string="Cancel" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_hr_payslip_create_draft_wizard" model="ir.actions.act_window">
+        <field name="name">Create Draft Payslips</field>
+        <field name="res_model">hr.payslip.create.draft.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+<!--         <field name="dialog_size">large</field>-->
+    </record>
+</odoo>

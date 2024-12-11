@@ -11,3 +11,4 @@ class ResCompanyPayroll(models.Model):
                                                                                                                             -The 10th and 11th characters must be 'RP' (or 'RW' for Demo).\
                                                                                                                             -The last four characters must be numeric and greater than '0000'.")
     employer_payroll_ref = fields.Char(string="Employer's Payroll Reference Number")
+    wsib = fields.Float(string="WSIB Premium Rate")

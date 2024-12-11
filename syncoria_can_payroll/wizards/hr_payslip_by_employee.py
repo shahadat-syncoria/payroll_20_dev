@@ -60,7 +60,8 @@ class SyncoriaHrEmployeeManualWizard(models.TransientModel):
             for employee in self.env['hr.employee'].search(contract_domain):
                 rec.append((0,0,{
                     "employee_id": employee.id,
-                    "attendance_hours": self._get_default_attendance_hours(hr_payslip_run,employee)
+                    "attendance_hours": self._get_default_attendance_hours(hr_payslip_run,employee),
+                    "ytd_vac_pay_amount" : employee.ytd_vac_pay_amount
                 }))
             # return [(0,0,{"employee_id": employee.id}) for employee in self.env['hr.employee'].search(contract_domain)]
             return rec
@@ -128,6 +129,7 @@ class SyncoriaHrEmployeeManualWizard(models.TransientModel):
             'res_id': payslip_run.id,
         }
         if not employees:
+            payslip_run.state = 'verify'
             return success_result
 
         payslips = self.env['hr.payslip']
@@ -179,9 +181,13 @@ class SyncoriaHrEmployeeManualWizard(models.TransientModel):
             })
             payslips_vals.append(values)
         payslips = Payslip.with_context(tracking_disable=True).create(payslips_vals)
-        payslips._compute_name()
-        payslips.compute_workdays_manual_input(self.manual_input_ids)
-        payslips.compute_sheet()
+        for rec in payslips:
+            rec._compute_name()
+            rec.compute_workdays_manual_input(self.manual_input_ids)
+            rec.compute_sheet()
+        # payslips._compute_name()
+        # payslips.compute_workdays_manual_input(self.manual_input_ids)
+        # payslips.compute_sheet()
         payslip_run.state = 'verify'
 
         return success_result
@@ -191,5 +197,29 @@ class SyncoriaEmployeeManualInputLine(models.TransientModel):
     _description = "HR Employee Manual Input Line"
 
     manual_input_wizard_id= fields.Many2one("hr.payslip.employee.manual.wizard")
+    create_draft_id= fields.Many2one("hr.payslip.create.draft.wizard")
     employee_id = fields.Many2one("hr.employee", string="Employee Name")
+    slip_id = fields.Many2one("hr.payslip", string="Slip_id")
+
     attendance_hours = fields.Float(string="Attendance Number of Hours")
+    overtime_hours = fields.Float(string="Overtime Number of Hours")
+    stat_overtime_hours = fields.Float(string="Statutory Overtime Number of Hours")
+
+    payout_vacation_pay_paycycle = fields.Boolean("Payout Vacation Amount Per Pay Cycle", default=False,
+                                                  groups='hr.group_hr_user')
+    #======= have to make it related with employee_id================
+    ytd_vac_pay_amount = fields.Float("Remaining Vacation Pay")
+
+    vac_pay = fields.Float("Vacation Pay Amount")
+    commission = fields.Float("Commission Amount")
+    bonus = fields.Float("Bonus Amount")
+    retro = fields.Float("Retro Amount")
+
+
+    @api.constrains("vac_pay")
+    def _check_vac_pay(self):
+        for rec in self:
+            if rec.ytd_vac_pay_amount < rec.vac_pay:
+                raise UserError("Vacation pay amount cannot be greater then Remaining Vacation Pay.")
+
+
