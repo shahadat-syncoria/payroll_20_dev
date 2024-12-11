@@ -61,27 +61,27 @@
                     <notebook>
                         <page name="payslips" string="Payslips">
                             <sheet>
-                                <field name="payslip_ids"><tree create="false" default_order="number asc" delete="false">
+                                <field name="payslip_ids"><list create="false" default_order="number asc" delete="false">
                                         <field name="number"/>
                                         <field name="name"/>
                                         <field name="pay_cycle_period"/>
                                         <field name="date_to"/>
                                         <field name="insurable_hour"/>
                                         <field name="insurable_earning"/>
-                                    </tree></field>
+                                    </list></field>
                             </sheet>
                         </page>
                         <page name="vac_pay" string="Vacation Pay">
                             <sheet>
-<!--                                <field name="vacation_pay_ids"><tree create="false" default_order="paid_date asc" delete="false">-->
+<!--                                <field name="vacation_pay_ids"><list create="false" default_order="paid_date asc" delete="false">-->
 <!--                                        <field name="employee_id"/>-->
 <!--                                        <field name="duration"/>-->
 <!--                                        <field name="paid_date"/>-->
 <!--                                        <field decoration-info="state == 'draft'" decoration-success="state == state in ('validate','paid')" decoration-warning="state in ('refuse','cancel')" name="state" widget="badge"/>-->
 <!--                                        <field name="vacation_pay_amount"/>-->
 <!--                                        <field name="is_last_pay"/>-->
-<!--                                    </tree></field>-->
-                                 <field name="vacation_amount_ids"><tree create="false" default_order="reference asc" delete="false">
+<!--                                    </list></field>-->
+                                 <field name="vacation_amount_ids"><list create="false" default_order="reference asc" delete="false">
                                         <field name="reference"/>
                                         <field name="payslip_id"/>
                                         <field name="vacation_pay_type" widget="many2many_tags"/>
@@ -89,7 +89,7 @@
 <!--                                        <field decoration-info="state == 'draft'" decoration-success="state == state in ('validate','paid')" decoration-warning="state in ('refuse','cancel')" name="state" widget="badge"/>-->
 <!--                                        <field name="vacation_pay_amount"/>-->
 <!--                                        <field name="is_last_pay"/>-->
-                                    </tree></field>
+                                    </list></field>
                             </sheet>
                         </page>
                     </notebook>
@@ -101,11 +101,11 @@
                 </div>
             </form></field>
     </record>
-    <record id="view_record_of_employee_tree" model="ir.ui.view">
-        <field name="name">record.of.employee.tree</field>
+    <record id="view_record_of_employee_list" model="ir.ui.view">
+        <field name="name">record.of.employee.list</field>
         <field name="model">record.of.employee</field>
         <field name="arch" type="xml">
-            <tree>
+            <list>
                 <field name="employee_id"/>
                 <field name="company_id"/>
                 <!--                <field name="serial_no"/>-->
@@ -118,7 +118,7 @@
                 <!--                <field name="total_insurable_earnings"/>-->
                 <field name="reason_for_issuing_roe"/>
                 <!--                <field name="name_of_issuer_id"/>-->
-            </tree></field>
+            </list></field>
     </record>
     <record id="view_record_of_employee_search" model="ir.ui.view">
         <field name="name">record.of.employee.search</field>
@@ -155,7 +155,7 @@
         <field name="name">ROE</field>
         <field name="type">ir.actions.act_window</field>
         <field name="res_model">record.of.employee</field>
-        <field name="view_mode">tree,form</field>
+        <field name="view_mode">list,form</field>
     </record>
     <!--    <menuitem id="menu_roe"-->
     <!--              name="ROE"-->

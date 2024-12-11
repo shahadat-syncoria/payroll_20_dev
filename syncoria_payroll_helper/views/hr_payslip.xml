@@ -7,7 +7,7 @@
             <field name="model">hr.payslip</field>
             <field name="inherit_id" ref="hr_payroll.view_hr_payslip_form"/>
             <field name="arch" type="xml">
-                <xpath expr="//tree[1]" position="attributes">
+                <xpath expr="//list[1]" position="attributes">
                        <attribute name="create">1</attribute>
                        <attribute name="delete">1</attribute>
                 </xpath>
