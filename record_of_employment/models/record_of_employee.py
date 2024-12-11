@@ -1,3 +1,4 @@
+
 from PyPDF2 import PdfFileMerger
 from odoo import fields, models, api, _
 import os
@@ -6,7 +7,7 @@ from lxml import etree
 from odoo.exceptions import UserError
 
 from odoo.modules.module import get_module_resource
-from datetime import datetime
+import datetime
 
 from pypdf import PdfReader, PdfWriter
 
@@ -239,7 +240,7 @@ class RecordOfEmployee(models.Model):
                     # Return the file as a response
                     return {
                         'type': 'ir.actions.act_url',
-                        'url': '/web/content/?model=record.of.employee&field=xml_content&id=%s&filename=%s&content_type=%s' % (
+                        'url': '/download/roe/?model=record.of.employee&field=xml_content&id=%s&filename=%s&content_type=%s' % (
                             rec.id, filename, content_type),
                         'target': 'self',
                     }
@@ -412,18 +413,18 @@ class RecordOfEmployee(models.Model):
                     'vacation_pay_start': rec.vacation_pay_start_date.strftime('%d-%m-%Y') if rec.vacation_pay_start_date else '',
                     'vacation_pay_end': rec.vacation_pay_end_date.strftime('%d-%m-%Y') if rec.vacation_pay_end_date else '',
                     'comment': rec.comments or '',
-                    'other_start_date1': '',
-                    'other_start_date2': '', 'other_start_date3': '', 'other_end_date1': '',
-                    'other_end_date2': '', 'other_end_date3': '',
-                    'CheckBox-14Yj7BWRzb': '', 'CheckBox-QFXjTBRVwq': '', 'CheckBox-f1WzgWGwMl': '',
-                    'CheckBox-djIjiRzJE7': '', 'CheckBox-3o38tjRP62': '', 'CheckBox-4qOCRr9Nrz': '',
-                    'CheckBox-eTaQV6ngRM': '', 'CheckBox-7aZtgMItxj': '',
-                    'comm_english': '', 'comm_french': '',
-                    'unique_id': '', 'Text-9vMCmQF1F1': '',
-                    'Text-yk2dZTKG-c': '', 'Text-0K3CUNZijm': '', 'Text-_e_t278CcP': '',
-                    'Text-UA8BMNPK9-': '', 'Text-nvSTgcUKe2': '', 'Text-qSSHJVKGp9': '',
-                    'Text-InbjcxfE6o': '', 'amount1': '', 'amount2': '', 'amount3': '', 'amount4': '',
-                    'holiday_pay': '',
+                    'other_start_date1': None,
+                    'other_start_date2': None, 'other_start_date3': None, 'other_end_date1': None,
+                    'other_end_date2': None, 'other_end_date3': None,
+                    'CheckBox-14Yj7BWRzb': None, 'CheckBox-QFXjTBRVwq': None, 'CheckBox-f1WzgWGwMl': None,
+                    'CheckBox-djIjiRzJE7': None, 'CheckBox-3o38tjRP62': None, 'CheckBox-4qOCRr9Nrz': None,
+                    'CheckBox-eTaQV6ngRM': None, 'CheckBox-7aZtgMItxj': None,
+                    'comm_english': None, 'comm_french': None,
+                    'unique_id': None, 'Text-9vMCmQF1F1': None,
+                    'Text-yk2dZTKG-c': None, 'Text-0K3CUNZijm': None, 'Text-_e_t278CcP': None,
+                    'Text-UA8BMNPK9-': None, 'Text-nvSTgcUKe2': None, 'Text-qSSHJVKGp9': None,
+                    'Text-InbjcxfE6o': None, 'amount1': None, 'amount2': None, 'amount3': None, 'amount4': None,
+                    'holiday_pay': None,
 
                     }
                     for index, payslip in enumerate(rec.get_payslip_ids(), start=1):
@@ -434,7 +435,7 @@ class RecordOfEmployee(models.Model):
                         data[date_field] = payslip.date_to.strftime('%d-%m-%Y')
                         data[hours_field] = round(payslip.insurable_hour, 2)
                         data[earning_field] = payslip.insurable_earning
-
+                    data = {key: str(value) if value is not None else "" for key, value in data.items()}
                     writer.update_page_form_field_values(writer.pages[0], data)
 
                 # write "output" to pypdf-output.pdf
@@ -513,4 +514,3 @@ class VacationAmount(models.Model):
     reference= fields.Char()
     vacation_pay_type = fields.Many2many("hr.payslip.input")
     amount = fields.Float(string="Amount")
-

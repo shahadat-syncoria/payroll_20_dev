@@ -31,7 +31,9 @@
                 </xpath>
                 <xpath expr="//sheet/group/group[1]" position="after">
                     <group name="syncoria_can_paycycle">
+                        <field name="pay_cycle_year" required="1" readonly="state in ['close','paid']"/>
                         <field name="pay_cycle" required="1" readonly="state in ['close','paid']"/>
+
                         <field domain="[('id','in',pay_cycle_period_ids_domain)]" invisible="pay_cycle == False" name="pay_cycle_period" required="pay_cycle != False" readonly="state in ['close','paid']"/>
                         <field invisible="1" name="pay_cycle_period_ids_domain"/>
                     </group>
