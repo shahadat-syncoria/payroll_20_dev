@@ -7,7 +7,7 @@ from lxml import etree
 from odoo.exceptions import UserError
 
 from odoo.modules.module import get_module_resource
-import datetime
+from datetime import datetime
 
 from pypdf import PdfReader, PdfWriter
 
@@ -369,8 +369,8 @@ class RecordOfEmployee(models.Model):
                         os.mkdir(output_folder_path)
 
                     pdf_name = str(
-                        datetime.datetime.now().strftime(f"{rec.employee_id.name.replace(' ', '')}-")) + str(
-                        datetime.datetime.now().strftime("%m%d%Y%H%M%S%f")) + ".pdf"
+                        datetime.now().strftime(f"{rec.employee_id.name.replace(' ', '')}-")) + str(
+                        datetime.now().strftime("%m%d%Y%H%M%S%f")) + ".pdf"
 
                     filename = output_folder_path + pdf_name
 
@@ -408,7 +408,7 @@ class RecordOfEmployee(models.Model):
                     'postal_code': rec.employee_id.private_zip or '',
                     'cra_payroll_acc': rec.cra_payroll_acc_num or '',
                     'issuer_name': rec.name_of_issuer_id.name or '',
-                    'issue_date': datetime.datetime.now().strftime('%d-%m-%Y') or '',
+                    'issue_date': datetime.now().strftime('%d-%m-%Y') or '',
                     'vacation_pay': rec.vacation_pay_amount or '',
                     'vacation_pay_start': rec.vacation_pay_start_date.strftime('%d-%m-%Y') if rec.vacation_pay_start_date else '',
                     'vacation_pay_end': rec.vacation_pay_end_date.strftime('%d-%m-%Y') if rec.vacation_pay_end_date else '',
@@ -469,8 +469,8 @@ class RecordOfEmployee(models.Model):
 
             attachment = self.env['ir.attachment'].create({
                 'name':  str(
-                        datetime.datetime.now().strftime(f"{rec.employee_id.name.replace(' ', '')}-")) + str(
-                        datetime.datetime.now().strftime("%m%d%Y%H%M%S%f")) + ".xml",
+                        datetime.now().strftime(f"{rec.employee_id.name.replace(' ', '')}-")) + str(
+                        datetime.now().strftime("%m%d%Y%H%M%S%f")) + ".xml",
                 'raw': xml_content,
                 'res_id': rec.id,
                 'res_model': 'record.of.employee',
