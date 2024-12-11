@@ -32,7 +32,7 @@ class InhertitedHrEmployee(models.Model):
     payroll_line_ids = fields.One2many('hr.employee.ytd.payroll.information', 'head_id')
 
 
-    birthday = fields.Date('Date of Birth', groups="hr.group_hr_user",required=True, tracking=True)
+    birthday = fields.Date('Date of Birth', groups="hr.group_hr_user", tracking=True)
     employee_prpp_dpsp_rgst_nbr = fields.Integer(string="RPP or DPSP Registration Number Registration Number",default=0, groups='hr.group_hr_user',required=True)
     sync_first_contract_date = fields.Date("Sync First Contract Date", compute='compute_first_contract_date', store=True, groups='hr.group_hr_user')
     payroll_account_number = fields.Char('Payroll Account Number', groups="hr.group_hr_user", related= "company_id.payroll_account_number")

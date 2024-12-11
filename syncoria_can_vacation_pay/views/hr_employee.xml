@@ -95,7 +95,7 @@
                         <label for="ytd_vac_pay_amount_erp" class="oe_inline"/>
                         <div class="o_row">
                             <field name="ytd_vac_pay_amount_erp"/>
-                            <button name="update_vac_pay_amount_erp" type="object"
+                            <button name="update_vac_pay_amount_erp" type="object" title="Update Vacation Amount"
                                     help="Update Vacation Amount" icon="fa-refresh"/>
                         </div>
                         <field name="previous_vac_pay_amount"/>
