@@ -78,7 +78,12 @@
             <field name="inherit_id" ref="syncoria_can_payroll.view_employee_form_sync_can_view"/>
             <field name="arch" type="xml">
                 <xpath expr="//notebook/page[@name='sync_payroll_info']" position="inside">
-
+                         <group string='Vacation Pay(Earned Pay)' name="vacation_pay">
+                            <field name="previous_vac_pay_amount"/>
+                            <field name="ytd_vac_pay_amount_erp"/>
+                            <field name="ytd_vac_pay_amount"/>
+                            <field name="vac_pay_amount_taken"/>
+                        </group>
                 </xpath>
             </field>
         </record>
