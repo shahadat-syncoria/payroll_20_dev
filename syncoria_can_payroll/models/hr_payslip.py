@@ -469,7 +469,9 @@ class InheritedHrPayslip(models.Model):
 
                 # place the net amount
                 if x['code'] == 'NET':
-                    x['amount'] = positive_amount - neg_amount
+                    net_amount = positive_amount - neg_amount
+                    x['amount'] = net_amount
+                    x['total'] = net_amount
 
             self.env['hr.payslip.line'].create(pay_lines)
         return True

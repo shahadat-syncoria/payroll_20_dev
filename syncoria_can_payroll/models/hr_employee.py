@@ -258,9 +258,12 @@ class InhertitedHrEmployee(models.Model):
             if not line_obj:
                 line_obj = rec.payroll_line_ids.filtered(lambda x: x.year == str(year))
             payslip_ytd_tax = rec.slip_ids.filtered(lambda x: x.state == 'paid' and (x.date_to.year if x.date_to else x.write_date.year) == int(year))
-            line_obj.ytd_previous_irre_payment_erp = sum(payslip_ytd_tax.mapped("irre_amount"))
-            line_obj.ytd_fed_tax_erp = sum(payslip_ytd_tax.mapped("fed_tax"))
-            line_obj.ytd_prov_tax_erp = sum(payslip_ytd_tax.mapped("prov_tax"))
+            payslip_line_ids_irregular = payslip_ytd_tax.line_ids.filtered(lambda x: x.salary_rule_id.is_irregular_payment)
+            payslip_line_ids_ftax = payslip_ytd_tax.line_ids.filtered(lambda x: x.code == 'FTAX')
+            payslip_line_ids_otax = payslip_ytd_tax.line_ids.filtered(lambda x: x.code == 'OTAX')
+            line_obj.ytd_previous_irre_payment_erp = sum(payslip_line_ids_irregular.mapped("total"))
+            line_obj.ytd_fed_tax_erp =  sum(payslip_line_ids_ftax.mapped("total"))
+            line_obj.ytd_prov_tax_erp = sum(payslip_line_ids_otax.mapped("total"))
 
 
     # def update_ytd_irregular_payments_tax(self,year, line_obj, action, is_new_row):
@@ -519,7 +522,7 @@ class HrEmployeeYTDPayrollInformation(models.Model):
 
     def update_ytd_irregular_payments_tax(self):
         for rec in self:
-            rec.head_id.update_ytd_irregular_payments_tax(int(self.year), rec)
+            rec.head_id.update_ytd_tax(int(self.year), rec)
 
     def update_ytd_tax(self):
         for rec in self:
