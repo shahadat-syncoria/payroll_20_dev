@@ -142,7 +142,7 @@ class VacationPayslip(models.Model):
             This is helper function to get YTD paid payslips compute line ids
         """
         payslip = self.slip_ids.filtered(lambda x: x.state == 'paid' and
-                                         (x.paid_date.year if x.paid_date else x.write_date.year) == int(year))
+                                         (x.date_to.year if x.date_to else x.write_date.year) == int(year))
 
         # payslip = self.slip_ids.filtered(
         #     lambda x: x.state == 'paid' )
@@ -320,5 +320,7 @@ class InheritHrEmployeeYTDPayrollInformation(models.Model):
 
             rec.ytd_vac_pay_amount_erp = sum(payslips.mapped('vac_pay_earned_amount')) + ytd_vac_pay_amount_erp
             rec.vac_pay_amount_taken = sum(payslips.mapped('vac_pay_earned_taken')) + vac_pay_amount_taken
+
+            # previous_vac_pay_amount will calculate for the first time
             if not len(payslips) > 1:
                 rec.previous_vac_pay_amount = previous_vac_pay_amount

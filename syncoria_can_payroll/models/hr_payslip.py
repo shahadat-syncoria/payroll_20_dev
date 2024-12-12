@@ -459,13 +459,13 @@ class InheritedHrPayslip(models.Model):
 
                 # add category wise amounts for net calculation******************
                 if category_code in positive_amount_cat_list:
-                    positive_amount += x['amount']
+                    positive_amount += round(x['amount'], 2)
                 elif category_code in neg_amount_cat_list:
-                    neg_amount += x['amount']
+                    neg_amount += round(x['amount'], 2)
 
                 # place the net amount
                 if x['code'] == 'NET':
-                    net_amount = positive_amount - neg_amount
+                    net_amount = round(positive_amount - neg_amount, 2)
                     x['amount'] = net_amount
                     x['total'] = net_amount
 
