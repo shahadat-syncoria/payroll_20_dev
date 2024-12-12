@@ -31,7 +31,6 @@ class InhertitedHrEmployee(models.Model):
     is_vacation_pay_carry_over = fields.Boolean(default=True, string='Vacation Pay Carry Over?')
     payroll_line_ids = fields.One2many('hr.employee.ytd.payroll.information', 'head_id')
 
-
     birthday = fields.Date('Date of Birth', groups="hr.group_hr_user", tracking=True)
     employee_prpp_dpsp_rgst_nbr = fields.Integer(string="RPP or DPSP Registration Number Registration Number",default=0, groups='hr.group_hr_user',required=True)
     sync_first_contract_date = fields.Date("Sync First Contract Date", compute='compute_first_contract_date', store=True, groups='hr.group_hr_user')
@@ -60,13 +59,12 @@ class InhertitedHrEmployee(models.Model):
 
     #PIYTD
     ytd_pi = fields.Float("Year To Date PI/IE", default=0, groups="hr.group_hr_user")
-    ytd_pi_erp = fields.Float("Year To Date PI/IE ERP", default=0, store=True)
+    ytd_pi_erp = fields.Float("Year To Date PI/IE ERP", default=0)
     ytd_previous_pi = fields.Float("Previous Year To Date PI/IE", default=0)
 
     # YTDIrregularPaymentFedTaxAmount
     year_to_date_irregular_payment = fields.Float("Year To Date Irregular Payment", default=0)
-    ytd_previous_irre_payment = fields.Float("Previous Year To Date Irregular Payment", default=0, store=True,
-                                            )
+    ytd_previous_irre_payment = fields.Float("Previous Year To Date Irregular Payment", default=0)
     ytd_previous_irre_payment_erp = fields.Float("Year To Date Irregular Payment ERP", default=0)
 
     # FTAX, OTAX FIELDS
@@ -74,22 +72,21 @@ class InhertitedHrEmployee(models.Model):
     ytd_fed_tax_erp = fields.Float("Year To Date Fed Tax ERP", default=0)
     ytd_previous_fed_tax = fields.Float("Previous Year To Date Fed Tax", default=0)
     ytd_prov_tax = fields.Float("Year To Date Prov Tax", default=0,groups="hr.group_hr_user")
-    ytd_prov_tax_erp = fields.Float("Year To Date Prov Tax ERP", default=0, store=True)
+    ytd_prov_tax_erp = fields.Float("Year To Date Prov Tax ERP", default=0)
     ytd_previous_prov_tax = fields.Float("Previous Year To Date Prov Tax", default=0)
 
     ytd_previous_prov_amount = fields.Float("Previous Year To Date Amount", default=0)
 
 
     #========================================== need to remove this fields=====================================
-    ytd_irre_fed_tax = fields.Float("Year To Date Irregular Payment Fed Tax", default=0, store=True,groups="hr.group_hr_user")
-    ytd_irre_fed_tax_erp = fields.Float("Year To Date Irregular Payment Fed Tax ERP", default=0, store=True)
+    ytd_irre_fed_tax = fields.Float("Year To Date Irregular Payment Fed Tax", default=0, groups="hr.group_hr_user")
+    ytd_irre_fed_tax_erp = fields.Float("Year To Date Irregular Payment Fed Tax ERP", default=0)
     ytd_previous_irre_fed_tax = fields.Float("Previous Year To Date Irregular Payment Fed Tax", default=0, store=True,compute='compute_ytd_previous_irre_fed_tax')
-    ytd_irre_prov_tax = fields.Float("Year To Date Irregular Payment Prov Tax", default=0, store=True,
-                                    groups="hr.group_hr_user")
-    ytd_irre_prov_tax_erp = fields.Float("Year To Date Irregular Payment Prov Tax ERP", default=0, store=True)
+    ytd_irre_prov_tax = fields.Float("Year To Date Irregular Payment Prov Tax", default=0, groups="hr.group_hr_user")
+    ytd_irre_prov_tax_erp = fields.Float("Year To Date Irregular Payment Prov Tax ERP", default=0)
     ytd_previous_irre_prov_tax = fields.Float("Previous Year To Date Irregular Payment Prov Tax", default=0, store=True, compute='compute_ytd_previous_irre_prov_tax')
-    ytd_previous_irre_prov_amount = fields.Float("Previous Year To Date Irregular Amount", default=0, store=True)
-    last_paycycle_gross = fields.Float("Last Paycycle Wage",help="Last paycycle wage for which the previous bonus was given ",  default=0, store=True)
+    ytd_previous_irre_prov_amount = fields.Float("Previous Year To Date Irregular Amount", default=0)
+    last_paycycle_gross = fields.Float("Last Paycycle Wage",help="Last paycycle wage for which the previous bonus was given ", default=0)
     #============================================================================================================
 
     #==================================T4 INFORMATION======================================
@@ -174,7 +171,6 @@ class InhertitedHrEmployee(models.Model):
         """
             This is helper function to get YTD paid payslips compute line ids
         """
-        # payslip_ytd = self.slip_ids.filtered(lambda x: x.state == 'paid' and (x.paid_date.year if x.paid_date else x.write_date.year) == int(self.contract_id.deductions.slab_year or 0))
         payslip_ytd = self.slip_ids.filtered(lambda x: x.state == 'paid' and x.date_to.year == int(year))
         return payslip_ytd.line_ids
 
@@ -182,19 +178,6 @@ class InhertitedHrEmployee(models.Model):
         line_obj = self.payroll_line_ids.filtered(lambda x: x.year == str(year))
         if req_type in ['CPP', "CPP2","EI","EI_EMPLOYER"]:
             ytd_total_amount = sum(payslip_ytd.filtered(lambda x: x.code == req_type).mapped("total"))
-
-            # todo need to test the task "is_vacation_pay_carry_over"
-            # if self.is_vacation_pay_carry_over:
-            #     prev_line_obj = self.payroll_line_ids.filtered(lambda x: x.year == str(year - 1))
-            #     if prev_line_obj and not action == 'cancel':
-            #         if req_type == 'CPP':
-            #             ytd_total_amount += prev_line_obj.ytd_cpp_erp
-            #         elif req_type == 'CPP2':
-            #             ytd_total_amount += prev_line_obj.ytd_cpp2_erp
-            #         elif req_type == 'EI':
-            #             ytd_total_amount += prev_line_obj.ytd_ei_erp
-            #         elif req_type == 'EI_EMPLOYER':
-            #             ytd_total_amount += prev_line_obj.ytd_ei_employer_erp
 
             if not line_obj and not action == 'cancel':
                 self.env["hr.employee.ytd.payroll.information"].create(
@@ -215,12 +198,7 @@ class InhertitedHrEmployee(models.Model):
                 line_obj.ytd_ei_employer_erp = ytd_total_amount if req_type == 'EI_EMPLOYER' else line_obj.ytd_ei_employer_erp
 
         elif req_type in ['PI']:
-            # ytd_total_amount = sum(payslip_ytd.filtered(lambda x: x.category_id.code in ["GROSS", "ADD_ALLOWANCE", "ALW"]).mapped("total"))
             ytd_total_amount = sum(payslip_ytd.filtered(lambda x: x.salary_rule_id.is_insurable_earning).mapped("total"))
-            # prev_line_obj = self.payroll_line_ids.filtered(lambda x: x.year == str(year - 1))
-            # if self.is_vacation_pay_carry_over and prev_line_obj and not action == 'cancel':
-            #     ytd_total_amount += prev_line_obj.ytd_pi_erp
-            # self.ytd_pi_erp = ytd_total_amount
             if not line_obj and not action == 'cancel':
                 self.env["hr.employee.ytd.payroll.information"].create(
                     {
@@ -237,7 +215,7 @@ class InhertitedHrEmployee(models.Model):
             year = self.env.context['year']
             action = self.env.context['action']
             line_obj = self.payroll_line_ids.filtered(lambda x: x.year == str(year))
-            is_new_row = False if not line_obj else True
+            is_new_row = False if not line_obj else True # need to remove
 
             payslip_ytd = rec._get_ytd_payslip_line_ids(year)
             if self.env.context['type'] == "ALL":
@@ -247,7 +225,6 @@ class InhertitedHrEmployee(models.Model):
                 rec._update_ytd_cpp_pi_ei(payslip_ytd,rec.env.context.get('type'),year, action)
 
             rec.update_ytd_tax(year, line_obj)
-            # rec.update_ytd_irregular_payments_tax(year, line_obj, action, is_new_row)
 
     def _update_ytd_tax(self,payslip_ytd,req_type):
         ytd_total_amount = payslip_ytd.filtered(lambda x: x.category_id.code in ["ADD_ALLOWANCE"])
@@ -265,36 +242,11 @@ class InhertitedHrEmployee(models.Model):
             line_obj.ytd_fed_tax_erp =  sum(payslip_line_ids_ftax.mapped("total"))
             line_obj.ytd_prov_tax_erp = sum(payslip_line_ids_otax.mapped("total"))
 
-
-    # def update_ytd_irregular_payments_tax(self,year, line_obj, action, is_new_row):
-    #     for rec in self:
-    #         if not line_obj:
-    #             line_obj = rec.payroll_line_ids.filtered(lambda x: x.year == str(year))
-    #
-    #         payslip_ytd_ids = rec.slip_ids.filtered(lambda x: x.state == 'paid' and (x.date_to.year if x.date_to else x.write_date.year) == int(year))
-    #         irre_amount = sum(payslip_ytd_ids.mapped("irre_amount"))
-    #
-    #         # Update irregular payments for the current year
-    #         if line_obj:
-    #             line_obj.ytd_previous_irre_payment_erp = irre_amount
-    #             line_obj.ytd_previous_irre_payment = line_obj.ytd_previous_irre_payment if payslip_ytd_ids else 0
-    #             line_obj.year_to_date_irregular_payment = line_obj.ytd_previous_irre_payment_erp + line_obj.ytd_previous_irre_payment
-
-            # If vacation pay carryover is enabled, add the previous year's irregular amounts
-            # if line_obj and rec.is_vacation_pay_carry_over and not action == 'cancel':
-            #     previous_year_lines = rec.payroll_line_ids.filtered(lambda x: str(x.year) == str(year - 1))
-            #     if previous_year_lines:
-            #         line_obj.ytd_previous_irre_payment_erp += previous_year_lines.ytd_previous_irre_payment_erp
-            #         line_obj.ytd_previous_irre_payment = previous_year_lines.ytd_previous_irre_payment if is_new_row else line_obj.ytd_previous_irre_payment_erp
-            #         line_obj.year_to_date_irregular_payment = line_obj.ytd_previous_irre_payment_erp + line_obj.ytd_previous_irre_payment
-
-
     @api.depends('ytd_previous_irre_prov_amount', 'last_paycycle_gross')
     def compute_ytd_previous_irre_fed_tax(self):
         for rec in self:
             is_pay_cycle = rec.contract_id.salary_pay_cycle.pay_cycle
             paycycle_gross = rec.last_paycycle_gross
-            # paycycle_gross = self.contract_id.paycyle_wage - categories['PRE_TAX_DEDUCTION'] FIX
             if is_pay_cycle:
                 pay_cycle = int(is_pay_cycle)
                 claim_code = rec.contract_id.federal_claim_code_from_td1
@@ -314,7 +266,6 @@ class InhertitedHrEmployee(models.Model):
         for rec in self:
             is_pay_cycle = rec.contract_id.salary_pay_cycle.pay_cycle
             paycycle_gross = rec.last_paycycle_gross
-            # paycycle_gross = self.contract_id.paycyle_wage - categories['PRE_TAX_DEDUCTION'] FIX
             if is_pay_cycle:
                 pay_cycle = int(is_pay_cycle)
                 claim_code = rec.contract_id.federal_claim_code_from_td1
@@ -414,30 +365,25 @@ class HrEmployeeYTDPayrollInformation(models.Model):
     # PIYTD
     ytd_pi = fields.Float("Year To Date PI/IE", default=0, store=True, compute='_compute_ytd_pi',
                           groups="hr.group_hr_user")
-    ytd_pi_erp = fields.Float("Year To Date PI/IE ERP", default=0, store=True)
-    ytd_previous_pi = fields.Float("Previous Year To Date PI/IE", default=0, store=True)
+    ytd_pi_erp = fields.Float("Year To Date PI/IE ERP", default=0)
+    ytd_previous_pi = fields.Float("Previous Year To Date PI/IE", default=0)
 
     # YTDIrregularPaymentFedTaxAmount
     year_to_date_irregular_payment = fields.Float("Year To Date Irregular Payment", default=0, store=True,
                                                   compute="_compute_ytd_irre_payment")
-    ytd_previous_irre_payment = fields.Float("Previous Year To Date Irregular Payment", default=0, store=True,
-                                             )
+    ytd_previous_irre_payment = fields.Float("Previous Year To Date Irregular Payment", default=0)
     ytd_previous_irre_payment_erp = fields.Float("Year To Date Irregular Payment ERP", default=0, store=True,
                                                  compute='compute_ytd_previous_irre_fed_tax')
 
     # FTAX, OTAX FIELDS
     ytd_fed_tax = fields.Float("Year To Date Fed Tax", default=0, store=True,
                                compute='_compute_ytd_fed_tax', groups="hr.group_hr_user")
-    ytd_fed_tax_erp = fields.Float("Year To Date Fed Tax ERP", default=0, store=True)
-    ytd_previous_fed_tax = fields.Float("Previous Year To Date Fed Tax", default=0, store=True)
+    ytd_fed_tax_erp = fields.Float("Year To Date Fed Tax ERP", default=0)
+    ytd_previous_fed_tax = fields.Float("Previous Year To Date Fed Tax", default=0)
     ytd_prov_tax = fields.Float("Year To Date Prov Tax", default=0, store=True,
                                 compute='_compute_ytd_prov_tax', groups="hr.group_hr_user")
-    ytd_prov_tax_erp = fields.Float("Year To Date Prov Tax ERP", default=0, store=True)
-    ytd_previous_prov_tax = fields.Float("Previous Year To Date Prov Tax", default=0, store=True)
-
-    # _sql_constraints = [
-    #     ('name_year_unique', 'unique (head_id, year)', 'The combination code/payment type already exists!'),
-    # ]
+    ytd_prov_tax_erp = fields.Float("Year To Date Prov Tax ERP", default=0)
+    ytd_previous_prov_tax = fields.Float("Previous Year To Date Prov Tax", default=0)
 
     @api.constrains('year')
     def _check_year(self):
@@ -491,7 +437,6 @@ class HrEmployeeYTDPayrollInformation(models.Model):
         for rec in self:
             is_pay_cycle = rec.contract_id.salary_pay_cycle.pay_cycle
             paycycle_gross = rec.last_paycycle_gross
-            # paycycle_gross = self.contract_id.paycyle_wage - categories['PRE_TAX_DEDUCTION'] FIX
             if is_pay_cycle:
                 pay_cycle = int(is_pay_cycle)
                 claim_code = rec.contract_id.federal_claim_code_from_td1
@@ -516,10 +461,6 @@ class HrEmployeeYTDPayrollInformation(models.Model):
             else:
                 rec.head_id._update_ytd_cpp_pi_ei(payslip_ytd,rec.env.context.get('type'),int(year))
 
-    # def _update_ytd_irregular_payments_tax(self,payslip_ytd,req_type):
-    #         ytd_total_amount = payslip_ytd.filtered(lambda x: x.category_id.code in ["ADD_ALLOWANCE"])
-    #         self.ytd_pi_erp = ytd_total_amount
-
     def update_ytd_irregular_payments_tax(self):
         for rec in self:
             rec.head_id.update_ytd_tax(int(self.year), rec)
@@ -527,11 +468,3 @@ class HrEmployeeYTDPayrollInformation(models.Model):
     def update_ytd_tax(self):
         for rec in self:
             rec.head_id.update_ytd_tax(int(self.year),rec)
-
-    # def update_ytd_irregular_payments_tax(self):
-    #     for rec in self:
-    #         payslip_ytd_tax = self.head_id.slip_ids.filtered(
-    #         lambda x: x.state == 'paid' and (
-    #             x.date_to.year if x.date_to else x.write_date.year) == int(
-    #             self.contract_id.deductions.slab_year or 0) and (x.irre_fed_tax > 0.0 or x.irre_prov_tax > 0.0 ))
-    #         rec.ytd_previous_irre_payment_erp = sum(payslip_ytd_tax.mapped("irre_amount"))

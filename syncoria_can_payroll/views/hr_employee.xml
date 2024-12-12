@@ -17,7 +17,7 @@
                     <page name="sync_payroll_info" string="Payroll Information" groups="hr.group_hr_manager">
                         <group></group>
                         <field name="payroll_line_ids" nolabel="1">
-                            <tree>
+                            <tree create="0" delete="0">
                                 <field name="year"/>
                                 <field name="ytd_cpp"/>
                                 <field name="ytd_cpp2"/>
