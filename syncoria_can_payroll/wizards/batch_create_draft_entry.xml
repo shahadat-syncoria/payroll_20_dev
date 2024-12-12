@@ -5,7 +5,6 @@
         <field name="model">hr.payslip.create.draft.wizard</field>
         <field name="arch" type="xml">
             <form string="Create Draft Payslips Wizard">
-
                     <field name="draft_line_ids" widget="one2many_list" nolabel="1">
                         <tree editable="bottom">
                             <field name="employee_id"/>
@@ -13,7 +12,7 @@
                             <field name="overtime_hours"/>
                              <field name="stat_overtime_hours"/>
                                 <field name="payout_vacation_pay_paycycle" optional="hide"/>
-                                <field name="ytd_vac_pay_amount" optional="hide" readonly="1"/>
+                                <field name="ytd_vac_pay_amount" optional="hide" readonly="1" force_save="1"/>
                                 <field name="vac_pay" optional="hide"/>
                                 <field name="commission" optional="hide"/>
                                 <field name="bonus" optional="hide"/>
