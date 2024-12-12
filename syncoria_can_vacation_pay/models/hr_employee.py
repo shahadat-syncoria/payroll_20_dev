@@ -306,6 +306,19 @@ class InheritHrEmployeeYTDPayrollInformation(models.Model):
     def update_vac_pay_amount_erp(self):
         for rec in self:
             payslips = rec.head_id._get_vac_pay_slip_ids(self.year)
-            rec.ytd_vac_pay_amount_erp = sum(payslips.mapped('vac_pay_earned_amount'))
-            rec.vac_pay_amount_taken = sum(payslips.mapped('vac_pay_earned_taken'))
-            rec.previous_vac_pay_amount = rec.previous_vac_pay_amount if payslips else 0
+            previous_vac_pay_amount = 0
+            vac_pay_amount_taken = 0
+            ytd_vac_pay_amount_erp = 0
+
+            if rec.env.context.get('type') == 'VAC':
+                if rec.head_id.is_vacation_pay_carry_over:
+                    previous_year_lines = rec.head_id.payroll_line_ids.filtered(lambda x: str(x.year) == str(int(rec.year) - 1))
+                    if previous_year_lines:
+                        previous_vac_pay_amount = previous_year_lines.previous_vac_pay_amount
+                        vac_pay_amount_taken = previous_year_lines.vac_pay_amount_taken
+                        ytd_vac_pay_amount_erp = previous_year_lines.ytd_vac_pay_amount_erp
+
+            rec.ytd_vac_pay_amount_erp = sum(payslips.mapped('vac_pay_earned_amount')) + ytd_vac_pay_amount_erp
+            rec.vac_pay_amount_taken = sum(payslips.mapped('vac_pay_earned_taken')) + vac_pay_amount_taken
+            if not len(payslips) > 1:
+                rec.previous_vac_pay_amount = previous_vac_pay_amount
