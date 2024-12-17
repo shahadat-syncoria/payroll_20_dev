@@ -11,7 +11,14 @@ class HrIrregularPayment(models.Model):
     _rec_name = "name"
 
     def _get_available_contracts_domain(self):
-        return [('contract_id.state', 'in', ('open', 'close')), ('company_id', '=', self.env.company.id)]
+        return [
+            ('contract_id.state', 'in', ('open', 'close')),
+            ('company_id', '=', self.env.company.id),
+            ('contract_id.date_start', '<=', self.date),
+            '|',  # Logical OR operator
+            ('contract_id.date_end', '>=', self.date),
+            ('contract_id.date_end', '=', False)  # Handles empty end date
+        ]
 
     def _get_employee_line(self):
         employee_line_list = [(0, 0, {
