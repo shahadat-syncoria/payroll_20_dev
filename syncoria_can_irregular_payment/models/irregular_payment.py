@@ -11,7 +11,7 @@ class HrIrregularPayment(models.Model):
     _rec_name = "name"
 
     def _get_available_contracts_domain(self):
-        return [('contract_ids.state', 'in', ('open', 'close')), ('company_id', '=', self.env.company.id)]
+        return [('contract_id.state', 'in', ('open', 'close')), ('company_id', '=', self.env.company.id)]
 
     def _get_employee_line(self):
         employee_line_list = [(0, 0, {
@@ -67,7 +67,7 @@ class HrIrregularPayment(models.Model):
             if rec.department_id:
                 domain += [('department_id', 'child_of', rec.department_id.id)]
             if rec.paycycle_ids:
-                domain += [('contract_ids.salary_pay_cycle', 'in', rec.paycycle_ids.ids)]
+                domain += [('contract_id.salary_pay_cycle', 'in', rec.paycycle_ids.ids)]
 
             domain_wise_employee = self.env['hr.employee'].search(domain)
             rec.line_ids = [(6, 0, [])]
