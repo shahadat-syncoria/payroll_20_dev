@@ -17,7 +17,7 @@
     # Check https://github.com/odoo/odoo/blob/16.0/odoo/addons/base/data/ir_module_category_data.xml
     # for the full list
     'category': 'Payroll',
-    'version': '17.0.0.7',
+    'version': '17.0.0.8',
 
     # any module necessary for this one to work correctly
     'depends': ['base', 'hr', 'syncoria_can_payroll','syncoria_can_vacation_pay'],
@@ -26,6 +26,7 @@
     'data': [
         'security/ir.model.access.csv',
         'data/batch_xml_send_roe.xml',
+        'data/hr_work_entry_data.xml',
         'views/record_of_employee.xml',
         # 'views/hr_employee_view.xml',
         'views/hr_payslip.xml',
