@@ -367,9 +367,10 @@ class AccountPaymentRegister(models.TransientModel):
     def _reconcile_payments(self, to_process, edit_mode=False):
         res = super()._reconcile_payments(to_process, edit_mode=edit_mode)
         for rec in self:
-            payslip = rec.env['hr.payslip'].browse(self.env.context['hr_payroll_payment_register'])
-            payslip._create_banked_overtime_record()
-            payslip._deduct_banked_overtime_amount()
+            if self.env.context.get('hr_payroll_payment_register'):
+                payslip = rec.env['hr.payslip'].browse(self.env.context['hr_payroll_payment_register'])
+                payslip._create_banked_overtime_record()
+                payslip._deduct_banked_overtime_amount()
 
         return res
 
