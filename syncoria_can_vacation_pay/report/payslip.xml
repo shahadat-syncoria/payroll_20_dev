@@ -5,34 +5,30 @@
 
 <!--            </xpath>-->
 
-        <xpath expr="//table[@name='employee-infos']" position="after">
-            <t t-set="vac_payslip_ids"
-                   t-value="o.env['hr.vacation.pay'].search(
-                    [('employee_id', '=', o.employee_id.id)]).filtered(
-                    lambda x: o.date_to >= x.date)"/>
-            <t t-set="cal_vac_pay"
-                   t-value="o._calculate_vacation_pay(sum(vac_payslip_ids.mapped('duration')),o.contract_id)"/>
-            <t t-if="vac_payslip_ids and cal_vac_pay > 0.0">
-            <table name="vacation_leave_information" class="table table-sm table-bordered">
-                <th colspan="4" style="text-align:center;">Vacation Pay</th>
+        <xpath expr="//div[@id='infos_table']" position="after">
+
+            <t t-if="o.input_line_ids.filtered(lambda worked_days: worked_days.code in ['Vacation_Pay','Adjusted_Vacation_Pay'])">
+
+            <table name="vacation_leave_information" class="table table-sm table-borderless">
+
                 <t t-set="vac_report"
                    t-value="o.env['ir.config_parameter'].get_param('syncoria_can_vacation_pay.vac_report')"/>
-                <tr id="vacation_leave_info_1">
-                    <t t-if="vac_report in ['both', 'days']">
-                        <td class="w-25">
-                            <strong>Vacation Pay(Days)</strong>
-                        </td>
+                <thead class="o_black_border">
+                    <tr><th colspan="4" style="text-align:center;">Vacation Pay</th></tr>
+                        <tr>
+                            <t t-if="vac_report in ['both', 'days']">
+                        <th class="text-end">
+                            Vacation Pay(Days)
+                        </th>
                     </t>
                     <t t-if="vac_report in ['both', 'hours']">
-                        <td class="w-25">
-                            <strong>Vacation Pay(Hours)</strong>
-                        </td>
+                        <th class="text-end">Vacation Pay(Hours)</th>
                     </t>
-                    <td class="w-25">
-                        <strong>Accrued Amount</strong>
-                    </td>
-                </tr>
-                <tr id="vacation_leave_info_2" style="text-align:right;">
+                    <th class="text-end">Accrued Amount</th>
+                        </tr>
+                    </thead>
+                <tbody>
+                    <tr id="vacation_leave_info_2" style="text-align:right;">
                     <t t-set="leave_taken" t-value="o.employee_id._get_vacation_pay_calculation()"/>
                         <t t-if="vac_report in ['both', 'days']">
                             <td>
@@ -45,11 +41,15 @@
                             </td>
                         </t>
                     <td>
-                        <span t-esc="round(o.calculate_remaining_vac_leave_amount(o.employee_id.allocated_vacation_leave),4)"/>
+                        <span t-esc="round(o.ytd_vac_pay_amount,2)"/>
                     </td>
                 </tr>
+                </tbody>
+
+
             </table>
             </t>
+
         </xpath>
     </template>
 </odoo>
