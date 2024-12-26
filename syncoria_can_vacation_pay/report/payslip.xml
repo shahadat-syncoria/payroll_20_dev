@@ -14,7 +14,7 @@
 <!--                   t-value="o._calculate_vacation_pay(sum(vac_payslip_ids.mapped('duration')),o.contract_id)"/>-->
 <!--            <t t-if="vac_payslip_ids and cal_vac_pay > 0.0">-->
 
-             <t t-set="vacation_pay" t-value="o.input_line_ids.filtered(lambda worked_days: worked_days.code in ['Vacation_Pay','Adjusted_Vacation_Pay'])"/>
+              <t t-if="o.input_line_ids.filtered(lambda worked_days: worked_days.code in ['Vacation_Pay','Adjusted_Vacation_Pay'])"/>
             <table name="vacation_leave_information" class="table table-sm table-bordered">
                 <th colspan="4" style="text-align:center;">Vacation Pay</th>
                 <t t-set="vac_report"
