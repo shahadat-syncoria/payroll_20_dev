@@ -361,9 +361,9 @@ class VacationPayslip(models.Model):
                 debit = amount if amount > 0.0 else 0.0
                 credit = -amount if amount < 0.0 else 0.0
 
-                debit_line = self._get_existing_lines(
-                    line_ids + new_lines, line, debit_account_id, debit, credit
-                )
+                debit_line = next(self._get_existing_lines(
+                    line_ids + new_lines, line, debit_account_id, debit, credit), False)
+
 
                 if not debit_line:
                     debit_line = self._prepare_line_values(line, debit_account_id, date, debit, credit)
@@ -377,9 +377,9 @@ class VacationPayslip(models.Model):
                 debit = -amount if amount < 0.0 else 0.0
                 credit = amount if amount > 0.0 else 0.0
 
-                credit_line = self._get_existing_lines(
-                    line_ids + new_lines, line, credit_account_id, debit, credit
-                )
+                credit_line = next(self._get_existing_lines(
+                    line_ids + new_lines, line, credit_account_id, debit, credit), False)
+
 
                 if not credit_line:
                     credit_line = self._prepare_line_values(line, credit_account_id, date, debit, credit)
@@ -398,10 +398,11 @@ class AccountPaymentRegister(models.TransientModel):
     def _reconcile_payments(self, to_process, edit_mode=False):
         res = super()._reconcile_payments(to_process, edit_mode=edit_mode)
         if self.env.context.get('hr_payroll_payment_register'):
-            payslip = self.env['hr.payslip'].browse(self.env.context['hr_payroll_payment_register'])
-            payslip.vacation_pay_paid()
-            if self.env["ir.config_parameter"].sudo().get_param('syncoria_can_vacation_pay.vac_pay_type') == 'cash_wise':
-                if not payslip.payout_vacation_pay_paycycle:
-                    payslip.store_vacation_pay_amount()
-            # emp_line_obj = payslip.employee_id.payroll_line_ids.filtered(lambda x: x.year == str(payslip.date_to.year))
+            for vals in to_process:
+                payslip = vals['to_reconcile'].move_id.payslip_ids
+                payslip.vacation_pay_paid()
+                if self.env["ir.config_parameter"].sudo().get_param('syncoria_can_vacation_pay.vac_pay_type') == 'cash_wise':
+                    if not payslip.payout_vacation_pay_paycycle:
+                        payslip.store_vacation_pay_amount()
+                # emp_line_obj = payslip.employee_id.payroll_line_ids.filtered(lambda x: x.year == str(payslip.date_to.year))
         return res
