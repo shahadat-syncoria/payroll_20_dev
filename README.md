@@ -1,2 +1,2 @@
 # syncoria_payroll
-Version 17.0
+Version 18.0
