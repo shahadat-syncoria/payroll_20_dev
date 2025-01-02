@@ -395,14 +395,14 @@ class VacationPayslip(models.Model):
 # class AccountPaymentRegister(models.TransientModel):
 #     _inherit = "account.payment.register"
 #
-#     def _reconcile_payments(self, to_process, edit_mode=False):
-#         res = super()._reconcile_payments(to_process, edit_mode=edit_mode)
-#         if self.env.context.get('hr_payroll_payment_register'):
-#             for vals in to_process:
-#                 payslip = vals['to_reconcile'].move_id.payslip_ids
-#                 payslip.vacation_pay_paid()
-#                 if self.env["ir.config_parameter"].sudo().get_param('syncoria_can_vacation_pay.vac_pay_type') == 'cash_wise':
-#                     if not payslip.payout_vacation_pay_paycycle:
-#                         payslip.store_vacation_pay_amount()
-#                 # emp_line_obj = payslip.employee_id.payroll_line_ids.filtered(lambda x: x.year == str(payslip.date_to.year))
-#         return res
+    def _reconcile_payments(self, to_process, edit_mode=False):
+        res = super()._reconcile_payments(to_process, edit_mode=edit_mode)
+        if self.env.context.get('hr_payroll_payment_register'):
+            for vals in to_process:
+                payslip = vals['to_reconcile'].move_id.payslip_ids
+                payslip.vacation_pay_paid()
+                if self.env["ir.config_parameter"].sudo().get_param('syncoria_can_vacation_pay.vac_pay_type') == 'cash_wise':
+                    if not payslip.payout_vacation_pay_paycycle:
+                        payslip.store_vacation_pay_amount()
+                # emp_line_obj = payslip.employee_id.payroll_line_ids.filtered(lambda x: x.year == str(payslip.date_to.year))
+        return res

@@ -363,13 +363,15 @@ class InheritedHrPayslipOvertime(models.Model):
 class AccountPaymentRegister(models.TransientModel):
     _inherit = "account.payment.register"
 
-    # def _reconcile_payments(self, to_process, edit_mode=False):
-    #     res = super()._reconcile_payments(to_process, edit_mode=edit_mode)
-    #     for rec in self:
-    #         if self.env.context.get('hr_payroll_payment_register'):
-    #             payslip = rec.env['hr.payslip'].browse(self.env.context['hr_payroll_payment_register'])
-    #             payslip._create_banked_overtime_record()
-    #             payslip._deduct_banked_overtime_amount()
-    #
-    #     return res
+    def _reconcile_payments(self, to_process, edit_mode=False):
+        res = super()._reconcile_payments(to_process, edit_mode=edit_mode)
+        for rec in self:
+            if self.env.context.get('hr_payroll_payment_register'):
+                for vals in to_process:
+                    payslip = vals['to_reconcile'].move_id.payslip_ids
+                # payslip = rec.env['hr.payslip'].browse(self.env.context['hr_payroll_payment_register'])
+                    payslip._create_banked_overtime_record()
+                    payslip._deduct_banked_overtime_amount()
+
+        return res
 
