@@ -90,7 +90,7 @@ class VacationPayslip(models.Model):
                 )
             else:
                 line_obj.ytd_vac_pay_amount_erp = vac_pay_earned_amount + carry_ytd_vac_pay_amount_erp
-                line_obj.previous_vac_pay_amount = carry_previous_vac_pay_amount if payslip_ytd_ids else 0
+                line_obj.previous_vac_pay_amount = carry_previous_vac_pay_amount if len(payslip_ytd_ids) == 1 else line_obj.previous_vac_pay_amount
                 line_obj.vac_pay_amount_taken = vac_pay_earned_taken + carry_vac_pay_amount_taken
 
 

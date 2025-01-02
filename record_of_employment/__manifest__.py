@@ -26,6 +26,7 @@
     'data': [
         'security/ir.model.access.csv',
         'data/batch_xml_send_roe.xml',
+        'data/hr_work_entry_data.xml',
         'views/record_of_employee.xml',
         # 'views/hr_employee_view.xml',
         'views/hr_payslip.xml',

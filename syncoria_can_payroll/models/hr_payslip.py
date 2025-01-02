@@ -288,10 +288,6 @@ class InheritedHrPayslip(models.Model):
                     end=slip.date_to,
                 ))
 
-            # if (slip.contract_id.schedule_pay or slip.contract_id.structure_type_id.default_schedule_pay) \
-            #         and slip.date_from + slip._get_schedule_timedelta() != slip.date_to:
-            #     warnings.append(_("The duration of the payslip is not accurate according to the structure type."))
-
             if warnings:
                 warnings = [_("This payslip can be erroneous :")] + warnings
                 slip.warning_message = "\n  ・ ".join(warnings)
@@ -463,116 +459,16 @@ class InheritedHrPayslip(models.Model):
 
                 # add category wise amounts for net calculation******************
                 if category_code in positive_amount_cat_list:
-                    positive_amount += x['amount']
+                    positive_amount += round(x['amount'], 2)
                 elif category_code in neg_amount_cat_list:
-                    neg_amount += x['amount']
+                    neg_amount += round(x['amount'], 2)
 
                 # place the net amount
                 if x['code'] == 'NET':
-                    x['amount'] = positive_amount - neg_amount
+                    net_amount = round(positive_amount - neg_amount, 2)
+                    x['amount'] = net_amount
+                    x['total'] = net_amount
 
             self.env['hr.payslip.line'].create(pay_lines)
         return True
 
-# this portion is for edit payslip line wizard *******************************
-class HrPayrollEditPayslipLinesWizardInheritSynPayroll(models.TransientModel):
-    _inherit = 'hr.payroll.edit.payslip.lines.wizard'
-    
-    def recompute_following_lines(self, line_id):
-        self.ensure_one()
-        wizard_line = self.env['hr.payroll.edit.payslip.line'].browse(line_id)
-        reload_wizard = {
-            'type': 'ir.actions.act_window',
-            'res_model': 'hr.payroll.edit.payslip.lines.wizard',
-            'view_mode': 'form',
-            'res_id': self.id,
-            'views': [(False, 'form')],
-            'target': 'new',
-        }
-        if not wizard_line.salary_rule_id:
-            return reload_wizard
-        localdict = self.payslip_id._get_localdict()
-        rules_dict = localdict['rules']
-        result_rules_dict = localdict['result_rules']
-        remove_lines = False
-        lines_to_remove = []
-        blacklisted_rule_ids = []
-        for line in sorted(self.line_ids, key=lambda x: x.sequence):
-            if remove_lines and line.code in self.payslip_id.line_ids.mapped('code'):
-                lines_to_remove.append((2, line.id, 0))
-            else:
-                rules_dict[line.code] = line.salary_rule_id
-                if line == wizard_line:
-                    line._compute_total()
-                    remove_lines = True
-                blacklisted_rule_ids.append(line.salary_rule_id.id)
-                localdict[line.code] = line.total
-                result_rules_dict[line.code] = {'total': line.total, 'amount': line.amount, 'quantity': line.quantity, 'rate': line.rate}
-                localdict = line.salary_rule_id.category_id._sum_salary_rule_category(localdict, line.total)
-
-        payslip = self.payslip_id.with_context(force_payslip_localdict=localdict, prevent_payslip_computation_line_ids=blacklisted_rule_ids)
-
-        # Customised code start **********************************
-        pay_lines =  payslip._get_payslip_lines()
-
-        # api_payload_json update with onchange amount
-        positive_amount = 0
-        neg_amount = 0
-        api_payload_json = self.payslip_id.api_payload_json
-        if api_payload_json:
-            if wizard_line.code == 'GROSS':
-                api_payload_json['I'] = wizard_line.amount
-                positive_amount = wizard_line.amount
-            if wizard_line.code == 'RRSP':
-                api_payload_json['F'] = wizard_line.amount
-                neg_amount = wizard_line.amount
-            if wizard_line.code == 'BONUS':
-                api_payload_json['B'] = wizard_line.amount
-                positive_amount = wizard_line.amount
-
-            try:
-                with_user = self.env['ir.config_parameter'].sudo()
-                token = with_user.get_param('syncoria_can_payroll.token')
-                url = with_user.get_param('syncoria_can_payroll.base_url')
-                end_point = '/api/v1/payroll_info/calculate-tax/'
-                if not url:
-                    raise ValidationError(f"Failed to call the API, need to configure a base url from the settings.")
-                header = {
-                    'Authorization': f'Token {token}'
-                }
-                response = requests.post(url+end_point, json=api_payload_json, headers=header)
-                response_data = response.json()
-                self.payslip_id.api_response_json = response_data
-                self.payslip_id.api_payload_json = api_payload_json
-                if 'FTAX' not in response_data:
-                    raise ValidationError(f"Failed to call the API: {response_data['detail']}")
-
-            except Exception as e:
-                raise ValidationError(f"{str(e)}")
-
-        # Add FTAX and OTAX in Lines ************
-        positive_amount_cat_list = ["GROSS", "ADD_ALLOWANCE", "ALW"]
-        neg_amount_cat_list = ["DED", "PRE_TAX_DEDUCTION", "POST_TAX_DEDUCTION"]
-
-        for x in pay_lines:
-            category_code = self.env['hr.salary.rule'].sudo().browse(x['salary_rule_id']).category_id.code
-            if x['code'] == 'FTAX':
-                x['amount'] = response_data['FTAX'] if response_data else 0
-                x['total'] = response_data['FTAX'] if response_data else 0
-            if x['code'] == 'OTAX':
-                x['amount'] = response_data['OTAX'] if response_data else 0
-                x['total'] = response_data['OTAX'] if response_data else 0
-
-            # add category wise amounts for net calculation ******************
-            if category_code in positive_amount_cat_list:
-                positive_amount += x['amount']
-            elif category_code in neg_amount_cat_list:
-                neg_amount += x['amount']
-
-            # place the net amount
-            if x['code'] == 'NET':
-                x['amount'] = positive_amount - neg_amount
-        # Customised code end **********************************
-
-        self.line_ids = lines_to_remove + [(0, 0, line) for line in pay_lines]
-        return reload_wizard
