@@ -42,11 +42,7 @@
                             </group>
                         </group>
                     </sheet>
-    <!--                    <div class="oe_chatter">-->
-    <!--                        <field groups="base.group_user" name="message_follower_ids"/>-->
-    <!--                        <field name="activity_ids"/>-->
-    <!--                        <field name="message_ids"/>-->
-    <!--                    </div>-->
+<chatter/>
                 </form></field>
         </record>
         <record id="hr_vacation_pay_tree_view" model="ir.ui.view">
