@@ -94,11 +94,11 @@
                         </page>
                     </notebook>
                 </sheet>
-                <div class="oe_chatter">
-                    <field groups="base.group_user" name="message_follower_ids"/>
-                    <field name="activity_ids"/>
-                    <field name="message_ids"/>
-                </div>
+<!--                <div class="oe_chatter">-->
+<!--                    <field groups="base.group_user" name="message_follower_ids"/>-->
+<!--                    <field name="activity_ids"/>-->
+<!--                    <field name="message_ids"/>-->
+<!--                </div>-->
             </form></field>
     </record>
     <record id="view_record_of_employee_list" model="ir.ui.view">
