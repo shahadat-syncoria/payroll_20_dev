@@ -281,6 +281,7 @@ class InheritedHrPayslipOvertime(models.Model):
 
                 }))
             rec.worked_days_line_ids = worked_days_lines
+            rec.input_line_ids = input_line
 
 
 
