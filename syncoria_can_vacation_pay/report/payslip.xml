@@ -6,13 +6,15 @@
             </xpath>
 
         <xpath expr="//table[@name='employee-infos']" position="after">
-            <t t-set="vac_payslip_ids"
-                   t-value="o.env['hr.vacation.pay'].search(
-                    [('employee_id', '=', o.employee_id.id)]).filtered(
-                    lambda x: o.date_to >= x.date)"/>
-            <t t-set="cal_vac_pay"
-                   t-value="o._calculate_vacation_pay(sum(vac_payslip_ids.mapped('duration')),o.contract_id)"/>
-            <t t-if="vac_payslip_ids and cal_vac_pay > 0.0">
+<!--            <t t-set="vac_payslip_ids"-->
+<!--                   t-value="o.env['hr.vacation.pay'].search(-->
+<!--                    [('employee_id', '=', o.employee_id.id)]).filtered(-->
+<!--                    lambda x: o.date_to >= x.date)"/>-->
+<!--            <t t-set="cal_vac_pay"-->
+<!--                   t-value="o._calculate_vacation_pay(sum(vac_payslip_ids.mapped('duration')),o.contract_id)"/>-->
+<!--            <t t-if="vac_payslip_ids and cal_vac_pay > 0.0">-->
+
+              <t t-if="o.input_line_ids.filtered(lambda worked_days: worked_days.code in ['Vacation_Pay','Adjusted_Vacation_Pay'])"/>
             <table name="vacation_leave_information" class="table table-sm table-bordered">
                 <th colspan="4" style="text-align:center;">Vacation Pay</th>
                 <t t-set="vac_report"
@@ -45,11 +47,11 @@
                             </td>
                         </t>
                     <td>
-                        <span t-esc="round(o.calculate_remaining_vac_leave_amount(o.employee_id.allocated_vacation_leave),4)"/>
+                        <span t-esc="round(o.ytd_vac_pay_amount,2)"/>
                     </td>
                 </tr>
             </table>
-            </t>
+<!--            </t>-->
         </xpath>
     </template>
 </odoo>

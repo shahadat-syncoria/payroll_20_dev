@@ -4,10 +4,10 @@ from odoo import fields, models, api, _
 class InsurablePayslip(models.Model):
     _inherit = 'hr.payslip'
 
-    insurable_hour = fields.Float(string="Insurable Hour", default=0.0)
+    insurable_hour = fields.Float(string="Insurable Hour", default=0.0,compute="_compute_insurable_amount")
     roe_id = fields.Many2one("record.of.employee", string="Roe")
 
-    insurable_earning = fields.Float(string="Insurable Earning", default=0.0)
+    insurable_earning = fields.Float(string="Insurable Earning", default=0.0,compute="_compute_insurable_amount")
 
     @api.depends('line_ids','worked_days_line_ids')
     def _compute_insurable_amount(self):
