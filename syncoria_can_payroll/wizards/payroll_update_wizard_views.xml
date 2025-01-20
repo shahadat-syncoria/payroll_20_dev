@@ -9,7 +9,7 @@
                         <field name="employee_ids" required="1" widget="many2many_avatar_employee" />
                     </group>
                     <footer>
-                        <button string="Update" type="object" name="update_payroll_info" class="oe_highlight"/>
+                        <button string="Update Payroll Info" type="object" name="update_payroll_info" class="oe_highlight"/>
                         <button string="Cancel" special="cancel"/>
                     </footer>
                 </form>
