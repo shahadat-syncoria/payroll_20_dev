@@ -14,3 +14,9 @@ class InheritPayrollUpdateWizard(models.TransientModel):
             line_obj.vac_pay_amount_taken = x.vac_pay_amount_taken
 
         return res
+
+    def update_remaining_vacation_info(self):
+        for x in self.employee_ids:
+            line_obj = x.payroll_line_ids.filtered(lambda x: x.year == str(2025))
+            if line_obj:
+                x.ytd_vac_pay_amount = line_obj.ytd_vac_pay_amount
