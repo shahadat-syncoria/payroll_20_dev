@@ -126,6 +126,9 @@ class InhertitedHrEmployee(models.Model):
     - 0 if no exemption applies\
     - 1 if the employee has been exempt", default='0')
 
+    is_cpp_exempt = fields.Boolean("CPP Exempt", default=False)
+    is_ei_exempt = fields.Boolean("EI Exempt", default=False)
+
     @api.depends("ytd_previous_irre_payment", "ytd_previous_irre_payment_erp")
     def _compute_ytd_irre_payment(self):
         for rec in self:
