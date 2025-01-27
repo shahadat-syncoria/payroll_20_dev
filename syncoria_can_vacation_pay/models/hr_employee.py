@@ -35,7 +35,7 @@ class VacationPayslip(models.Model):
     vacation_leave_write_date = fields.Datetime(string="Last Updated at", groups='hr.group_hr_user')
 
     # =================================================== Cash Wise store Vacation Pay(Earned Vacation Pay) ========================================
-    ytd_vac_pay_amount = fields.Float("Remaining Vacation Pay Amount", default=0.0, groups='hr.group_hr_user',store=True)
+    ytd_vac_pay_amount = fields.Float("Remaining Vacation Pay Amount", default=0.0, groups='hr.group_hr_user',compute="_compute_vac_pay_amount",store=True)
     ytd_vac_pay_amount_erp = fields.Float("Vacation Pay Amount ERP", default=0.0, groups='hr.group_hr_user')
     previous_vac_pay_amount = fields.Float("Previous Vacation Pay Amount", default=0.0, groups='hr.group_hr_user')
     vac_pay_amount_taken = fields.Float("Vacation Pay Amount Taken", default=0.0,store=True,readonly=True, groups="hr.group_hr_user")
@@ -132,10 +132,11 @@ class VacationPayslip(models.Model):
             if not rec.is_adjust_vacation_pay_leave:
                 rec.is_vacation_pay_adjust_negative = False
 
-    # @api.depends("ytd_vac_pay_amount_erp", "previous_vac_pay_amount")
-    # def _compute_vac_pay_amount(self):
-    #     for rec in self:
-    #         rec.ytd_vac_pay_amount = (rec.ytd_vac_pay_amount_erp + rec.previous_vac_pay_amount) - rec.vac_pay_amount_taken
+    @api.depends("payroll_line_ids.ytd_vac_pay_amount_erp","payroll_line_ids.previous_vac_pay_amount")
+    def _compute_vac_pay_amount(self):
+        for rec in self:
+            emp_line_obj = rec.payroll_line_ids.filtered(lambda x: x.year == str(fields.Date.today().year))
+            rec.ytd_vac_pay_amount = emp_line_obj.ytd_vac_pay_amount
 
     def _get_vac_pay_slip_ids(self, year):
         """

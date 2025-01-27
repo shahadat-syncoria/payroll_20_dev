@@ -1,0 +1,18 @@
+<odoo>
+    <data>
+        <record id="payroll_update_wizard_form_inherit" model="ir.ui.view">
+            <field name="name">payroll.update.wizard.form.inherit</field>
+            <field name="model">payroll.update.wizard</field>
+            <field name="inherit_id" ref="syncoria_can_payroll.payroll_update_wizard_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//footer/button[@name='update_payroll_info']" position="after">
+                    <button string="Update Remaining Vacation Pay" type="object" name="update_remaining_vacation_info"
+                            class="oe_highlight"/>
+
+                </xpath>
+            </field>
+        </record>
+
+
+    </data>
+</odoo>
