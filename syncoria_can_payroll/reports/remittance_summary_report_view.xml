@@ -10,7 +10,7 @@
 
                     <!-- <t t-call="report.external_layout"> -->
                     <div class="page">
-                        <div style="margin:0 6rem 0 6rem">
+                        <div id="remittance_summery_content" style="margin:0 6rem 0 6rem">
                             <table class="table " name="body">
                                 <tr>
                                     <th colspan="2">

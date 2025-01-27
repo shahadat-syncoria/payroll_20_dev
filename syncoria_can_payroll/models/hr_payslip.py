@@ -6,6 +6,8 @@ from odoo import api, models, _
 from urllib.parse import urlsplit, urlunsplit
 from datetime import datetime
 from ..helper.helper_functions import year_selection
+from collections import defaultdict, Counter
+
 
 
 PAYGROUP = {
@@ -336,6 +338,46 @@ class InheritedHrPayslip(models.Model):
             'target': 'new',
             'context': ctx,
         }
+#==================================FOR v18 ytd computation========================
+    def _get_last_ytd_payslips(self):
+        res = super(InheritedHrPayslip, self)._get_last_ytd_payslips()
+        if not self:
+            return self
+
+        earliest_date_to = min(self.mapped('date_to'))
+        earliest_ytd_date_to = min(
+            company.get_last_ytd_reset_date(earliest_date_to) for company in self.company_id
+        )
+        ytd_payslips_grouped = self.env['hr.payslip']._read_group(
+            domain=[
+                ('employee_id', 'in', self.employee_id.ids),
+                ('struct_id', 'in', self.struct_id.ids),
+                ('ytd_computation', '=', True),
+                ('date_to', '>=', earliest_ytd_date_to),
+                ('date_to', '<=', max(self.mapped('date_to'))),
+                ('state', 'in', ['paid']),
+            ],
+            groupby=['employee_id', 'struct_id'],
+            aggregates=['id:recordset']
+        )
+
+        ytd_payslips_sorted = defaultdict(lambda: self.env['hr.payslip'])
+        for employee_id, struct_id, payslips in ytd_payslips_grouped:
+            ytd_payslips_sorted[(employee_id, struct_id)] = payslips.sorted(
+                key=lambda p: p.date_to, reverse=True
+            )
+
+        last_ytd_payslips = defaultdict(lambda: self.env['hr.payslip'])
+        for payslip in self:
+            last_payslips = ytd_payslips_sorted[(payslip.employee_id, payslip.struct_id)].filtered(
+                lambda p: p.date_to <= payslip.date_to
+            )
+            if last_payslips and last_payslips[0].date_to >= \
+                    payslip.company_id.get_last_ytd_reset_date(payslip.date_to):
+                last_ytd_payslips[payslip] = last_payslips[0]
+
+        return res
+
 
     # inherited compute_sheet method for tax api call
     def compute_sheet(self):
