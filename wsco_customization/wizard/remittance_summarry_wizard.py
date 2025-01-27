@@ -29,8 +29,8 @@ class RemittanceSummaryInherit(models.TransientModel):
         p.state = 'paid'
         AND (p.credit_note IS NULL OR p.credit_note = false)
         AND p.company_id = %s
-        AND p.paid_date >= '%s'
-        AND p.paid_date <= '%s'
+        AND p.date_from >= '%s'
+        AND p.date_to <= '%s'
        """ % (self.env.company.id, self.date_from, self.date_to)
         cr = self.env.cr
         cr.execute(query)
