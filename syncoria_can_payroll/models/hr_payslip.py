@@ -493,11 +493,16 @@ class InheritedHrPayslip(models.Model):
             for x in pay_lines:
                 category_code = self.env['hr.salary.rule'].sudo().browse(x['salary_rule_id']).category_id.code
                 if x['code'] == 'FTAX':
-                    x['amount'] = response_data['FTAX'] if response_data else 0
-                    x['total'] = response_data['FTAX'] if response_data else 0
+                    ftax = response_data['FTAX'] if response_data else 0
+                    x['amount'], x['total'] = ftax, ftax
                 if x['code'] == 'OTAX':
-                    x['amount'] = response_data['OTAX'] if response_data else 0
-                    x['total'] = response_data['OTAX'] if response_data else 0
+                    otax  = response_data['OTAX'] if response_data else 0
+                    x['amount'], x['total'] = otax, otax
+
+                if payslip.employee_id.is_cpp_exempt and x['code'] in ['CPP','CPP2','CPP_EMPLOYER','CPP2_EMPLOYER']:
+                    x['amount'], x['total'] = 0,0
+                if payslip.employee_id.is_ei_exempt and x['code'] in ['EI','EI_EMPLOYER']:
+                    x['amount'], x['total'] = 0,0
 
                 # add category wise amounts for net calculation******************
                 if category_code in positive_amount_cat_list:
