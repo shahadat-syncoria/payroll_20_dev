@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="hr_payslip_run_form_rbc" model="ir.ui.view">
+            <field name="name">syncoria_rbc_direct_deposit.hr_payslip_run.form</field>
+            <field name="model">hr.payslip.run</field>
+            <field name="inherit_id" ref="hr_payroll.hr_payslip_run_form"/>
+            <field name="arch" type="xml">
+
+
+                <xpath expr="//field[@name='payment_report']" position="after">
+                        <field name="direct_deposit_txt_filename" invisible="1"/>
+                       <field name="direct_deposit_txt" filename="direct_deposit_txt_filename" />
+
+                </xpath>
+            <xpath expr="//button[@name='action_payment_report']" position="after">
+                <button string="Create Direct Deposit File" name="action_txt_report" type="object" invisible="state != 'paid'"/>
+             </xpath>
+            </field>
+
+        </record>
+
+
+<!--    <record id="hr_payslip_create_draft_form" model="ir.ui.view">-->
+<!--        <field name="name">hr.payslip.create.draft.form</field>-->
+<!--        <field name="model">hr.payslip.run</field>-->
+<!--        <field name="inherit_id" ref="hr_payroll_account.hr_payslip_run_view_form"/>-->
+<!--        <field name="arch" type="xml">-->
+<!--            <xpath expr="//button[@name='action_validate']" position="replace">-->
+<!--                <button name="action_draft_entry_wizard" type="object" string="Create Draft" invisible="state != 'verify'" class="oe_highlight" context="{'payslip_generate_pdf': True}" />-->
+<!--             </xpath>-->
+<!--        </field>-->
+<!--    </record>-->
+
+    </data>
+</odoo>
