@@ -10,7 +10,7 @@ class PayrollCustomerPortal(CustomerPortal):
         values = self._prepare_portal_layout_values()
         payslip = request.env['hr.payslip'].sudo()
         emp_id = request.env["hr.employee"].sudo().search([("portal_user_id", "=", request.env.user.id)], limit=1)
-        domain = [('employee_id', '=', emp_id.id), ('state', 'not in', ('draft', 'cancel'))]
+        domain = [('employee_id', '=', emp_id.id), ('state', 'in', ('done', 'paid'))]
         payslip_count = payslip.search_count(domain)
         values['payslip_count'] = payslip_count
         return request.render("portal.portal_my_home", values)
