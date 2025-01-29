@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+	<record model="ir.ui.view" id="eht_report_wizard_form">
+		<field name="name">eht.report.wizard.form</field>
+		<field name="model">eht.report.wizard</field>
+		<field name="priority">10</field>
+		<field name="type">form</field>
+		<field name="arch" type="xml">
+			<form>
+				<sheet>
+					 <form string="Upload Invoice">
+						 <group>
+							<group>
+								<field name="year" required="1"/>
+								<field name="month" required="1"/>
+							</group>
+                    	</group>
+						<footer>
+							<button name="eht_report_pdf" string=" Download PDF" type="object" class="btn-primary fa fa-download"/>
+							<button string="Cancel" class="btn-secondary" special="cancel"/>
+						</footer>
+                	</form>
+				</sheet>
+
+			</form>
+		</field>
+	</record>
+
+
+	<record id="eht_report_wizard_action" model="ir.actions.act_window">
+		 <field name="name">EHT Report</field>
+         <field name="res_model">eht.report.wizard</field>
+         <field name="view_mode">form</field>
+		 <field name="view_id" ref="eht_report_wizard_form"/>
+		 <field name="target">new</field>
+	</record>
+
+	<menuitem id="eht_report_wizard_menu" name="EHT Report" action="eht_report_wizard_action" sequence="45"
+			  parent="hr_payroll.menu_hr_payroll_report"/>
+</odoo>
