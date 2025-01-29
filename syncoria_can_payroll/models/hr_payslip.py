@@ -450,19 +450,39 @@ class InheritedHrPayslip(models.Model):
 
             for x in pay_lines:
                 category_code = self.env['hr.salary.rule'].sudo().browse(x['salary_rule_id']).category_id.code
+                # update data from api to payslip lines
                 if x['code'] == 'FTAX':
                     ftax = response_data['FTAX'] if response_data else 0
                     x['amount'], x['total'] = ftax, ftax
+
                 if x['code'] == 'OTAX':
                     otax  = response_data['OTAX'] if response_data else 0
                     x['amount'], x['total'] = otax, otax
 
+                if x['code'] == 'CPP':
+                    cpp  = response_data['CPP'] if response_data else 0
+                    x['amount'], x['total'] = cpp, cpp
+
+                if x['code'] == 'CPP2':
+                    cpp2  = response_data['CPP2'] if response_data else 0
+                    x['amount'], x['total'] = cpp2, cpp2
+
+                if x['code'] == 'EI':
+                    ei  = response_data['EI'] if response_data else 0
+                    x['amount'], x['total'] = ei, ei
+
+                if x['code'] == 'EI_EMPLOYER':
+                    emp_ei  = response_data['EI_EMPLOYER'] if response_data else 0
+                    x['amount'], x['total'] = emp_ei, emp_ei
+
+                # Verify whether cpp and ei exempt are enabled, and if so, set them to 0 respectively.
                 if payslip.employee_id.is_cpp_exempt and x['code'] in ['CPP','CPP2','CPP_EMPLOYER','CPP2_EMPLOYER']:
                     x['amount'], x['total'] = 0,0
+
                 if payslip.employee_id.is_ei_exempt and x['code'] in ['EI','EI_EMPLOYER']:
                     x['amount'], x['total'] = 0,0
 
-                # add category wise amounts for net calculation******************
+                # add category wise amounts for net calculation ******************
                 if category_code in positive_amount_cat_list:
                     positive_amount += round(x['amount'], 2)
                 elif category_code in neg_amount_cat_list:

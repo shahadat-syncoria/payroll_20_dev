@@ -12,3 +12,13 @@ class ResCompanyPayroll(models.Model):
                                                                                                                             -The last four characters must be numeric and greater than '0000'.")
     employer_payroll_ref = fields.Char(string="Employer's Payroll Reference Number")
     wsib = fields.Float(string="WSIB Premium Rate")
+
+    is_exemption = fields.Boolean(string="No Exemption")
+    exemption_amount = fields.Float(string="Exemption Amount", default=1000000.0)
+
+    @api.onchange('is_exemption')
+    def _onchange_is_exemption(self):
+        if self.is_exemption:
+            self.exemption_amount = 0
+        else:
+            self.exemption_amount = 1000000

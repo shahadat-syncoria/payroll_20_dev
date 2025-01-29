@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<odoo>
+    <data>
+         <record id="eht_report_tmpl_id" model="ir.actions.report">
+            <field name="name">EHT Report</field>
+            <field name="model">eht.report.wizard</field>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">syncoria_can_payroll.eht_report_tmpl</field>
+            <field name="report_file">syncoria_can_payroll.eht_report_tmpl</field>
+        </record>
+
+        <template id="eht_report_tmpl">
+            <t t-call="web.html_container">
+                <t t-call="web.external_layout">
+                    <div class="page">
+                        <div style="margin:0 6rem 0 6rem">
+                            <h2 style="text-align:center">EHT Calculation for <span t-esc="year"/> (As of <span t-esc="month_name"/>)</h2>
+                            <table class="table mt-5" name="body">
+                                <tr>
+                                    <th style="text-align:center">
+                                        Year
+                                    </th>
+                                    <th style="text-align:right">
+                                        Total Payroll
+                                    </th>
+                                    <th style="text-align:right">
+                                        Exemption amount
+                                    </th>
+                                    <th style="text-align:right">
+                                        Taxable Amount
+                                    </th>
+                                    <th style="text-align:right">
+                                        Tax Rate
+                                    </th>
+                                    <th style="text-align:right">
+                                        Tax Amount
+                                    </th>
+                                </tr>
+
+                                <tr>
+                                    <td style="text-align:center">
+                                        <span t-esc="year"/>
+                                    </td>
+                                    <td style="text-align:right">
+                                        <span t-esc="total_payroll"/>
+                                    </td>
+                                    <td style="text-align:right">
+                                        <span t-esc="exemption_amount"/>
+                                    </td>
+                                    <td style="text-align:right">
+                                        <span t-esc="taxable_amount"/>
+                                    </td>
+                                    <td style="text-align:right">
+                                      <span t-esc="rate"/>
+                                    </td>
+                                    <td style="text-align:right">
+                                      <span t-esc="total_tax"/>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </t>
+            </t>
+        </template>
+    </data>
+
+</odoo>
