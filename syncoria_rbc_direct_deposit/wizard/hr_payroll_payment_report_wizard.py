@@ -65,6 +65,7 @@ class HrPayrollPaymentReportWizardInherit(models.TransientModel):
                 institution_number = employee.employee_id.bank_account_id.bank_id.bic.ljust(4)[:4]
                 branch_number = employee.employee_id.bank_account_id.rbc_bank_transit_no.ljust(5)[:5]
                 account_number = employee.employee_id.bank_account_id.acc_number
+                employee_currency_name = employee.employee_id.bank_account_id.currency_id.display_name
                 payment_amount = employee.net_wage or 0.0
                 payment_date = f"{employee.paid_date.year}{employee.paid_date.timetuple().tm_yday:03d}"
                 customer_name = employee.employee_id.name.ljust(30)[:30]
@@ -88,6 +89,7 @@ class HrPayrollPaymentReportWizardInherit(models.TransientModel):
                         "institution_number": institution_number,
                         "branch_number": branch_number,
                         "account_number": account_number,
+                        "employee_currency_name": employee_currency_name,
                         "payment_amount": payment_amount,
                         "payment_date": payment_date,
                         "customer_name": customer_name,
@@ -99,6 +101,7 @@ class HrPayrollPaymentReportWizardInherit(models.TransientModel):
         # Log errors if any
         if errors:
             self.payslip_run_id.message_post(body="<br/>".join(errors))
+            self.payslip_run_id.direct_deposit_txt=None
             self.env.cr.commit()
             raise ValidationError(_("There are some missing information. Please refresh the browser and check the log for more details."))
 
@@ -124,7 +127,7 @@ class HrPayrollPaymentReportWizardInherit(models.TransientModel):
                     f"{language_code}"
                     f" "
                     f"{client_name.ljust(15)[:15]}"
-                    f"{currency}"
+                    f"{employee['employee_currency_name']}"
                     f" "
                     f"{country}"
                     f"    "
