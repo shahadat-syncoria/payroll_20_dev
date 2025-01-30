@@ -62,10 +62,10 @@ class HrPayrollPaymentReportWizardInherit(models.TransientModel):
             try:
                 # Validate Required Fields
                 customer_number = employee.employee_id.barcode
-                institution_number = employee.employee_id.bank_account_id.bank_id.bic.ljust(4)[:4]
-                branch_number = employee.employee_id.bank_account_id.rbc_bank_transit_no.ljust(5)[:5]
-                account_number = employee.employee_id.bank_account_id.acc_number
-                employee_currency_name = employee.employee_id.bank_account_id.currency_id.display_name
+                institution_number = getattr(employee.employee_id.bank_account_id.bank_id, 'bic', '').ljust(4)[:4]
+                branch_number = getattr(employee.employee_id.bank_account_id, 'rbc_bank_transit_no', '').ljust(5)[:5]
+                account_number = getattr(employee.employee_id.bank_account_id, 'acc_number', '')
+                employee_currency_name = getattr(employee.employee_id.bank_account_id.currency_id, 'display_name', '')
                 payment_amount = employee.net_wage or 0.0
                 payment_date = f"{employee.paid_date.year}{employee.paid_date.timetuple().tm_yday:03d}"
                 customer_name = employee.employee_id.name.ljust(30)[:30]
