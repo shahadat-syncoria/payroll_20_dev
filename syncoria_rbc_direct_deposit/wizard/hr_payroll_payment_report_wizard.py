@@ -62,13 +62,13 @@ class HrPayrollPaymentReportWizardInherit(models.TransientModel):
             try:
                 # Validate Required Fields
                 customer_number = employee.employee_id.barcode
-                institution_number = getattr(employee.employee_id.bank_account_id.bank_id, 'bic', '').ljust(4)[:4]
-                branch_number = getattr(employee.employee_id.bank_account_id, 'rbc_bank_transit_no', '').ljust(5)[:5]
+                institution_number = getattr(employee.employee_id.bank_account_id.bank_id, 'bic', '')
+                branch_number = getattr(employee.employee_id.bank_account_id, 'rbc_bank_transit_no', '')
                 account_number = getattr(employee.employee_id.bank_account_id, 'acc_number', '')
                 employee_currency_name = getattr(employee.employee_id.bank_account_id.currency_id, 'display_name', '')
                 payment_amount = employee.net_wage or 0.0
                 payment_date = f"{employee.paid_date.year}{employee.paid_date.timetuple().tm_yday:03d}"
-                customer_name = employee.employee_id.name.ljust(30)[:30]
+                customer_name = employee.employee_id.name
 
                 # Check for missing or invalid values
                 if not customer_number:
@@ -84,15 +84,15 @@ class HrPayrollPaymentReportWizardInherit(models.TransientModel):
 
                 if not errors:  # Only add employee if no errors
                     valid_employees.append({
-                        "customer_number": customer_number,
+                        "customer_number": customer_number.ljust(4)[:4],
                         "payment_number": i + 1,
                         "institution_number": institution_number,
-                        "branch_number": branch_number,
+                        "branch_number": branch_number.ljust(5)[:5],
                         "account_number": account_number,
                         "employee_currency_name": employee_currency_name,
                         "payment_amount": payment_amount,
                         "payment_date": payment_date,
-                        "customer_name": customer_name,
+                        "customer_name": customer_name.ljust(30)[:30],
                     })
 
             except Exception as e:
