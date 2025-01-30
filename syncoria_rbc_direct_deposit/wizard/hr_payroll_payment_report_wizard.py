@@ -1,5 +1,6 @@
 import base64
 import csv
+import logging
 from datetime import datetime
 
 from io import StringIO
@@ -8,6 +9,8 @@ from odoo import fields, models, _
 from odoo.exceptions import UserError, ValidationError
 from odoo.tools import format_list
 from odoo.tools.misc import format_date
+
+_logger = logging.getLogger(__name__)
 
 
 class HrPayrollPaymentReportWizardInherit(models.TransientModel):
@@ -22,97 +25,121 @@ class HrPayrollPaymentReportWizardInherit(models.TransientModel):
         }
     )
 
+
+
     def _create_txt_binary(self):
 
-
-        # Fetch required fields for the header
-        client_number = self.env.company.partner_id.rbc_client_number.zfill(10)  # Ensure it's 10 digits
-        client_name = self.env.company.partner_id.name.ljust(30)[:30]  # Left-justify and truncate to 30 characters
+        client_number = self.env.company.partner_id.rbc_client_number.zfill(10)
+        client_name = self.env.company.partner_id.name
         today = datetime.today()
         julian_date = f"{today.year}{today.timetuple().tm_yday:03d}"
+        currency = self.env.company.partner_id.currency_id.name
+        file_creation_number = "TEST" # for production we need to remove test with meaningful number
+        language_code = "E"
+        country = "CAN"
+        record_count = 1
 
-        currency = self.env.company.partner_id.currency_id.name  # CAD or USD
-        file_creation_number = "TEST"
-        language_code= "E"
-        country= "CAN"
-        # Example employee data
-        employees = [
-            {
-                "customer_number": employee.employee_id.barcode or "DEFAULT",  # Replace with actual employee VAT or another unique identifier
-                "payment_number": i + 1,
-                "institution_number": employee.employee_id.bank_account_id.bank_id.bic,  # Your logic here
-                "branch_number": employee.employee_id.bank_account_id.rbc_bank_transit_no,  # Your logic here
-                "account_number": employee.employee_id.bank_account_id.acc_number or "DEFAULT_ACCOUNT",  # Replace with employee's actual account
-                "payment_amount": employee.net_wage or 0.0,  # Assuming you have total amount on the payslip
-                "payment_date": f"{employee.paid_date.year}{employee.paid_date.timetuple().tm_yday:03d}",
-                "customer_name": employee.employee_id.name.ljust(30)[:30],
-                 # Replace with actual data
-            }
-            for i, employee in enumerate(self.payslip_ids)
-        ]
-        total_payment_amount = sum(employee["payment_amount"] for employee in employees)
-        # Use "TEST" for testing, otherwise use a unique number
+
+
+        valid_employees = []
+        errors = []
+
+        if not client_number:
+            errors.append(f"Missing RBC assigned client number for the company")
+
         output = StringIO()
-        # Add the header line based on the RBC Header Record specification
         output.write(
-            f"$$AA01STD0152[TEST[NL$$\n"
-            f"000001AHDR{client_number}{client_name}{file_creation_number}{julian_date}{currency}1".ljust(152)
+            f"$$AA01STD0152[TEST[NL$$".ljust(152)
+        )
+        output.write("\n")
+        output.write(
+            f"{record_count:06d}AHDR{client_number}{client_name.ljust(30)[:30]}{file_creation_number}{julian_date}{currency}1".ljust(
+                152)
         )
         output.write("\n")
 
+        for i, employee in enumerate(self.payslip_ids):
+            try:
+                # Validate Required Fields
+                customer_number = employee.employee_id.barcode
+                institution_number = employee.employee_id.bank_account_id.bank_id.bic.ljust(4)[:4]
+                branch_number = employee.employee_id.bank_account_id.rbc_bank_transit_no.ljust(5)[:5]
+                account_number = employee.employee_id.bank_account_id.acc_number
+                payment_amount = employee.net_wage or 0.0
+                payment_date = f"{employee.paid_date.year}{employee.paid_date.timetuple().tm_yday:03d}"
+                customer_name = employee.employee_id.name.ljust(30)[:30]
 
+                # Check for missing or invalid values
+                if not customer_number:
+                    errors.append(f"Missing Customer Number for {employee.employee_id.name}")
+                if not institution_number:
+                    errors.append(f"Missing Institution Number for {employee.employee_id.name}")
+                if not branch_number:
+                    errors.append(f"Missing Branch Number for {employee.employee_id.name}")
+                if not account_number:
+                    errors.append(f"Missing Account Number for {employee.employee_id.name}")
+                if not payment_amount:
+                    errors.append(f"Missing Payment Amount for {employee.employee_id.name}")
 
-        # Generate Basic Payment Records for all employees
-        record_count = 2
-        for employee in employees:
+                if not errors:  # Only add employee if no errors
+                    valid_employees.append({
+                        "customer_number": customer_number,
+                        "payment_number": i + 1,
+                        "institution_number": institution_number,
+                        "branch_number": branch_number,
+                        "account_number": account_number,
+                        "payment_amount": payment_amount,
+                        "payment_date": payment_date,
+                        "customer_name": customer_name,
+                    })
 
-            customer_number = employee['customer_number'].ljust(19)[:19]  # Ensure 19 characters
-            payment_number = f"{employee['payment_number']}"
-            institution_number = f"{employee['institution_number']}"
-            branch_number = f"{employee['branch_number']}"
-            account_number = employee['account_number'].ljust(18)[:18]  # 18-character account number
-            payment_amount = f"{int(employee['payment_amount'] * 100):010d}"  # Amount in cents
-            payment_date = employee['payment_date']  # Julian date (YYYYDDD)
-            customer_name = employee['customer_name'].ljust(30)[:30]  # 30-character customer name
-            # language_code = employee['language_code'][:1]  # Language code (E or F)
-            # destination_currency = employee['destination_currency'].ljust(3)[:3]  # CAD or USD
-            # destination_country = employee['destination_country'].ljust(3)[:3]  # CAN or USA
+            except Exception as e:
+                errors.append(str(e))
 
-            # Create Basic Payment Record
-            record = (
-                f"{record_count:06d}C"  # Record count (6 digits)
-                f"200"  # Transaction code (default blank for now)
-                f"{client_number}"
-                f" "  # Filler
-                f"{customer_number}"
-                f"{payment_number}"
-                f"{institution_number}{branch_number}"
-                f"{account_number}"
-                f" "  # Filler
-                f"{payment_amount}"
-                f"      "  # Reserved (6 blanks)
-                f"{payment_date}"
-                f"{customer_name}"
-                f"{language_code}"
-                f" " 
-                f"{client_name}"
-                  
-                f"{currency}"
-                f" "  # Reserved
-                f"{country}"
-                f"    "  # Filler (2 blanks)
-                 # Reserved (2 blanks)
-                f"N"  # Optional record indicator
-            ).ljust(152)  # Pad to 152 characters
-            output.write(record + "\n")  # Add newline after each record
+        # Log errors if any
+        if errors:
+            self.payslip_run_id.message_post(body="<br/>".join(errors))
+            self.env.cr.commit()
+            raise ValidationError(_("There are some missing information. Please refresh the browser and check the log for more details."))
+
+        else:
+            total_payment_amount = sum(emp["payment_amount"] for emp in valid_employees)
             record_count += 1
-        output.write(
-            f"{record_count:06d}ZTRL{client_number}{len(employees):06d}{int(total_payment_amount * 100):014d}{len(employees):06d}".ljust(152)
 
-        )
-        # Encode the content to Base64
-        content = output.getvalue()
-        return base64.encodebytes(content.encode())
+            for employee in valid_employees:
+                record = (
+                    f"{record_count:06d}C"
+                    f"200" # may need to replace with meaningful number
+                    f"{client_number}"
+                    f" "
+                    f"{employee['customer_number'].ljust(19)[:19]}"
+                    f"{employee['payment_number']:02d}"
+                    f"{employee['institution_number']}{employee['branch_number']}"
+                    f"{employee['account_number'].ljust(18)[:18]}"
+                    f" "
+                    f"{int(employee['payment_amount'] * 100):010d}"
+                    f"      "
+                    f"{employee['payment_date']}"
+                    f"{employee['customer_name']}"
+                    f"{language_code}"
+                    f" "
+                    f"{client_name.ljust(15)[:15]}"
+                    f"{currency}"
+                    f" "
+                    f"{country}"
+                    f"    "
+                    f"N"
+                ).ljust(152)
+                output.write(record + "\n")
+                record_count += 1
+
+            output.write(
+                f"{record_count:06d}ZTRL{client_number}{len(valid_employees):06d}{int(total_payment_amount * 100):014d}{len(valid_employees):06d}{'0' * 22}".ljust(
+                    152)
+            )
+
+            content = output.getvalue()
+            return base64.encodebytes(content.encode())
 
     def _write_file_txt(self, payment_report, extension, filename=''):
 
