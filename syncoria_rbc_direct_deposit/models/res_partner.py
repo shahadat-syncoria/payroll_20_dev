@@ -18,5 +18,11 @@ class ResPartnerBank(models.Model):
     _inherit = "res.partner.bank"
 
     rbc_bank_transit_no = fields.Char(
-        string="Bank Transit No",
+        string="RBC Financial Institution Branch Number",
     )
+
+    @api.constrains('rbc_client_number')
+    def _check_rbc_bank_transit_no(self):
+        for rec in self:
+            if len(rec.rbc_bank_transit_no) != 5:
+                raise UserError(_("RBC Financial Institution Branch Number must be 5 characters long"))

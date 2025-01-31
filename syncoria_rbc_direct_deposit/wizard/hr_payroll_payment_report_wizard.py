@@ -49,14 +49,14 @@ class HrPayrollPaymentReportWizardInherit(models.TransientModel):
 
         output = StringIO()
         output.write(
-            f"$$AA01STD0152[TEST[NL$$".ljust(152)
+            f"$$AA01STD0152[TEST[NL$$"
         )
-        output.write("\n")
+        output.write("\r\n")
         output.write(
             f"{record_count:06d}AHDR{client_number}{client_name.ljust(30)[:30]}{file_creation_number}{julian_date}{currency}1".ljust(
-                152)
+                152)+ "\r\n"
         )
-        output.write("\n")
+        # output.write("\n")
 
         for i, employee in enumerate(self.payslip_ids):
             try:
@@ -73,8 +73,12 @@ class HrPayrollPaymentReportWizardInherit(models.TransientModel):
                 # Check for missing or invalid values
                 if not customer_number:
                     errors.append(f"Missing Customer Number for {employee.employee_id.name}")
+                if not len(customer_number) <= 19:
+                    errors.append(f"Employee Batch ID Can't exceed 19 Digits/Character for {employee.employee_id.name}")
                 if not institution_number:
                     errors.append(f"Missing Institution Number for {employee.employee_id.name}")
+                if len(institution_number) != 4:
+                    errors.append(f"Institution Number Must Be 4 Digits for {employee.employee_id.name}")
                 if not branch_number:
                     errors.append(f"Missing Branch Number for {employee.employee_id.name}")
                 if not account_number:
@@ -84,7 +88,7 @@ class HrPayrollPaymentReportWizardInherit(models.TransientModel):
 
                 if not errors:  # Only add employee if no errors
                     valid_employees.append({
-                        "customer_number": customer_number.ljust(4)[:4],
+                        "customer_number": customer_number.ljust(4),
                         "payment_number": i + 1,
                         "institution_number": institution_number,
                         "branch_number": branch_number.ljust(5)[:5],
@@ -132,13 +136,13 @@ class HrPayrollPaymentReportWizardInherit(models.TransientModel):
                     f"{country}"
                     f"    "
                     f"N"
-                ).ljust(152)
-                output.write(record + "\n")
+                ).ljust(152)+ "\r\n"
+                output.write(record )
                 record_count += 1
 
             output.write(
                 f"{record_count:06d}ZTRL{client_number}{len(valid_employees):06d}{int(total_payment_amount * 100):014d}{len(valid_employees):06d}{'0' * 22}".ljust(
-                    152)
+                    152)+ "\r\n"
             )
 
             content = output.getvalue()
