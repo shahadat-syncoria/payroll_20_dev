@@ -1,2 +1,0 @@
-id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
-access_wsco_customization_wsco_customization,wsco_customization.wsco_customization,model_wsco_customization_wsco_customization,base.group_user,1,1,1,1
