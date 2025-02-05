@@ -141,7 +141,7 @@ class HrPayrollPaymentReportWizardInherit(models.TransientModel):
                 record_count += 1
 
             output.write(
-                f"{record_count:06d}ZTRL{client_number}{len(valid_employees):06d}{int(total_payment_amount * 100):014d}{len(valid_employees):06d}{'0' * 22}".ljust(
+                f"{record_count:06d}ZTRL{client_number}{len(valid_employees):06d}{int(total_payment_amount * 100):014d}{'0' * 28}".ljust(
                     152)+ "\r\n"
             )
 
