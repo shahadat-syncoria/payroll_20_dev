@@ -21,7 +21,7 @@ class ResPartnerBank(models.Model):
         string="RBC Financial Institution Branch Number",
     )
 
-    @api.constrains('rbc_client_number')
+    @api.constrains('rbc_bank_transit_no')
     def _check_rbc_bank_transit_no(self):
         for rec in self:
             if len(rec.rbc_bank_transit_no) != 5:
