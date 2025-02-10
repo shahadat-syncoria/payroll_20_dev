@@ -10,7 +10,7 @@ class ResPartnerRBC(models.Model):
     @api.constrains('rbc_client_number')
     def _check_rbc_client_number(self):
         for rec in self:
-            if len(rec.rbc_client_number) !=10:
+            if rec.rbc_client_number and len(rec.rbc_client_number) !=10:
                 raise UserError(_("RBC Client Number must be 10 characters long"))
 
 
