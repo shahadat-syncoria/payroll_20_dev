@@ -17,7 +17,7 @@
     # Check https://github.com/odoo/odoo/blob/16.0/odoo/addons/base/data/ir_module_category_data.xml
     # for the full list
     'category': 'Human Resources/Payroll',
-    'version': '17.0.3.18',
+    'version': '17.0.3.19',
 
     # any module necessary for this one to work correctly
     'depends': ['base','hr_payroll','hr_work_entry','hr_payroll_account','portal','queue_job_cron_jobrunner'],
@@ -77,6 +77,7 @@
         'wizards/payroll_earning_wizard_views.xml',
         'wizards/payroll_update_wizard_views.xml',
         'wizards/paycycle_config_update_wizard.xml',
+        'wizards/report_wizards/eht_report_wizard.xml',
 
         # ======== Reports =============
         'reports/roe_earning_per_employee_report_view.xml',
@@ -84,6 +85,7 @@
         'reports/rgr_report_view.xml',
         'reports/employee_net_pay_report.xml',
         'reports/payroll_earning_report.xml',
+        'reports/eht_pdf_report.xml',
 
         # ======== Menus ===============
         'views/menus.xml',

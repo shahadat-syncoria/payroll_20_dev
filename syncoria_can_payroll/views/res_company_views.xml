@@ -13,6 +13,13 @@
                                 <field name="employer_payroll_ref"/>
                                 <field name="wsib"/>
                            </group>
+                       </page>
+
+                       <page string="EHT Config">
+                           <group>
+                                <field name="is_exemption"/>
+                                <field name="exemption_amount" readonly="is_exemption" force_save="1"/>
+                           </group>
 
                        </page>
                 </xpath>
