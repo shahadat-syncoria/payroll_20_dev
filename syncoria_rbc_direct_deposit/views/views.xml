@@ -1,0 +1,60 @@
+<odoo>
+  <data>
+    <!-- explicit list view definition -->
+<!--
+    <record model="ir.ui.view" id="syncoria_rbc_direct_deposit.list">
+      <field name="name">syncoria_rbc_direct_deposit list</field>
+      <field name="model">syncoria_rbc_direct_deposit.syncoria_rbc_direct_deposit</field>
+      <field name="arch" type="xml">
+        <list>
+          <field name="name"/>
+          <field name="value"/>
+          <field name="value2"/>
+        </list>
+      </field>
+    </record>
+-->
+
+    <!-- actions opening views on models -->
+<!--
+    <record model="ir.actions.act_window" id="syncoria_rbc_direct_deposit.action_window">
+      <field name="name">syncoria_rbc_direct_deposit window</field>
+      <field name="res_model">syncoria_rbc_direct_deposit.syncoria_rbc_direct_deposit</field>
+      <field name="view_mode">list,form</field>
+    </record>
+-->
+
+    <!-- server action to the one above -->
+<!--
+    <record model="ir.actions.server" id="syncoria_rbc_direct_deposit.action_server">
+      <field name="name">syncoria_rbc_direct_deposit server</field>
+      <field name="model_id" ref="model_syncoria_rbc_direct_deposit_syncoria_rbc_direct_deposit"/>
+      <field name="state">code</field>
+      <field name="code">
+        action = {
+          "type": "ir.actions.act_window",
+          "view_mode": "list,form",
+          "res_model": model._name,
+        }
+      </field>
+    </record>
+-->
+
+    <!-- Top menu item -->
+<!--
+    <menuitem name="syncoria_rbc_direct_deposit" id="syncoria_rbc_direct_deposit.menu_root"/>
+-->
+    <!-- menu categories -->
+<!--
+    <menuitem name="Menu 1" id="syncoria_rbc_direct_deposit.menu_1" parent="syncoria_rbc_direct_deposit.menu_root"/>
+    <menuitem name="Menu 2" id="syncoria_rbc_direct_deposit.menu_2" parent="syncoria_rbc_direct_deposit.menu_root"/>
+-->
+    <!-- actions -->
+<!--
+    <menuitem name="List" id="syncoria_rbc_direct_deposit.menu_1_list" parent="syncoria_rbc_direct_deposit.menu_1"
+              action="syncoria_rbc_direct_deposit.action_window"/>
+    <menuitem name="Server to list" id="syncoria_rbc_direct_deposit" parent="syncoria_rbc_direct_deposit.menu_2"
+              action="syncoria_rbc_direct_deposit.action_server"/>
+-->
+  </data>
+</odoo>

@@ -1,0 +1,2 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+syncoria_rbc_direct_deposit.access_hr_payroll_deposit_report_wizard,access_hr_payroll_deposit_report_wizard,syncoria_rbc_direct_deposit.model_hr_payroll_deposit_report_wizard,base.group_user,1,1,1,1
