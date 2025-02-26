@@ -6,7 +6,7 @@
             <field name="model">hr.payslip.run</field>
             <field name="inherit_id" ref="hr_payroll.hr_payslip_run_form"/>
             <field name="arch" type="xml">
-                 <xpath expr="//button[@name='action_validate']" position="after">
+                 <xpath expr="//button[@name='action_paid']" position="after">
                     <button invisible="state in ['close','paid']" icon="fa-refresh" string="Refresh" name="action_payslip_refresh" type="object"/>
                  </xpath>
 
