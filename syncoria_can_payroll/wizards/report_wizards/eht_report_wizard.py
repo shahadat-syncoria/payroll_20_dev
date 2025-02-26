@@ -81,7 +81,7 @@ class EHTReportWizard(models.TransientModel):
             if not base_url:
                 raise ValidationError(f"Failed to call the API, Need to configure a base url from the settings.")
 
-            # Process the base URL to remove the port if necessary
+            # Process the base URL to remove extra / if present.
             final_url = self._process_base_url(base_url)
 
             token = with_user.get_param('syncoria_can_payroll.token')

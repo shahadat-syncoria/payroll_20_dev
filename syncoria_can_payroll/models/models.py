@@ -693,6 +693,7 @@ class StatementOfRemuneration(models.Model):
         pension_padj_amt = 0.0
         PPIP_prov_pip_amt = 0.0
         PPIP_prov_insu_ern_amt = 0.0
+        empt_cmsn_amt = 0.0
 
         for pay in year_specific_employee_payslip_ids:
             for line in pay.line_ids:
@@ -723,6 +724,8 @@ class StatementOfRemuneration(models.Model):
                     PPIP_prov_insu_ern_amt += line.amount
                 elif line.code == 'PPI_PRE':
                     PPIP_prov_pip_amt += line.amount
+                elif line.code == 'COMMISSION':
+                    empt_cmsn_amt += line.amount
 
             # if
             # cpp_cnt_amount +=
@@ -737,6 +740,7 @@ class StatementOfRemuneration(models.Model):
             'union_unn_dues_amt': round(union_unn_dues_amt,2),
             'charitable_chrty_dons_amt': round(charitable_chrty_dons_amt,2),
             'pension_padj_amt': round(pension_padj_amt,2),
+            'empt_cmsn_amt' :round(empt_cmsn_amt,2)
         })
         if not employee_contract.is_cpp_qpp_xmpt_cd:
             canada_cpp_qpp_ern_amt = round(employee_empt_incamt, 2)
@@ -1089,6 +1093,8 @@ class StatementOfRemuneration(models.Model):
                     filename = output_folder_path + pdf_name
 
                     reader = PdfReader(get_path + '/' + "t4-fill-23e.pdf")
+                    fields = reader.get_fields()
+                    print(fields)
                     writer = PdfWriter()
 
                     writer.append(reader)
@@ -1115,7 +1121,8 @@ class StatementOfRemuneration(models.Model):
                             'Slip1Box56[0]': rec.PPIP_prov_insu_ern_amt, 'Slip1LastName[0]': rec.employee_snm,
                             'Slip1FirstName[0]': rec.employee_gvn_nm, 'Slip1Initial[0]': rec.employee_init,
                             'Slip1Address[0]': f'{rec.employee_addr_l1_txt}\n{rec.employee_addr_l2_txt}\n{rec.employee_cty_nm}\n{rec.employee_prov_cd} {rec.employee_pstl_cd}',
-                            'Slip1Amount1[0]': None,
+                            'Slip1Amount1[0]': rec.empt_cmsn_amt,
+                            'Slip1Box1[0]': '42',
                             'Slip1Amount2[0]': None, 'Slip1Amount3[0]': None, 'Slip1Amount4[0]': None,
                             'Slip1Amount5[0]': None,
                             'Slip1Amount6[0]': None, 'Slip1EmployersName[0].2': None,

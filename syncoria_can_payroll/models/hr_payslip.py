@@ -337,6 +337,11 @@ class InheritedHrPayslip(models.Model):
             'context': ctx,
         }
 
+    def action_payslip_refresh(self):
+        for x in self:
+            x._onchange_pay_cycle_period()
+            x.compute_sheet()
+
     # inherited compute_sheet method for tax api call
     def compute_sheet(self):
         payslips = self.filtered(lambda slip: slip.state in ['draft', 'verify'])

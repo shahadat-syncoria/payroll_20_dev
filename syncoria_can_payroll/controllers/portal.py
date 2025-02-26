@@ -67,7 +67,7 @@ class PayrollCustomerPortal(CustomerPortal):
         }
         return request.render("syncoria_can_payroll.portal_my_payslip", ctx)
 
-
+    # print emp individual payslip form portal
     @http.route(['/action_print_payslip'], type="http", auth="public", csrf=False, website=True)
     def action_print_payslip(self, **kwargs):
         payslip_id = int(kwargs.get('payslip_id'))
