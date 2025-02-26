@@ -625,8 +625,6 @@ class StatementOfRemuneration(models.Model):
         string="Total Employer's Employment Insurance Premiums", help="- 11 numeric"
     )
 
-    emp_commissions = fields.Float( string="Employment Commissions")
-
 
     def open_t4_website(self):
         return {
