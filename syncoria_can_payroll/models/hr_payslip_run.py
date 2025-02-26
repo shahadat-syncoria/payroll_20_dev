@@ -147,3 +147,9 @@ class PayrollHrPayslipRun(models.Model):
                     )
         except Exception as e:
             _logger.warning(f"Email Not send.\n Exception{e}")
+
+    def action_payslip_refresh(self):
+        for x in self.slip_ids:
+            print(x)
+            x._onchange_pay_cycle_period()
+            x.compute_sheet()

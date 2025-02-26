@@ -10,6 +10,9 @@
                 <xpath expr="//button[@name='action_print_payslip']" position="after">
                     <button invisible="state not in ['verify', 'done', 'paid']" string="Send by Email" name="action_payslip_email_send" type="object"/>
                 </xpath>
+                <xpath expr="//button[@name='action_payslip_cancel']" position="before">
+                    <button invisible="state not in ['draft','verify']" icon="fa-refresh" string="Refresh" name="action_payslip_refresh" type="object"/>
+                </xpath>
                 <xpath expr="//field[@name='contract_domain_ids']" position="after">
                     <field name="paid_date"/>
                 </xpath>
