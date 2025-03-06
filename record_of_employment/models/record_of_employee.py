@@ -435,6 +435,21 @@ class RecordOfEmployee(models.Model):
                         data[date_field] = payslip.date_to.strftime('%d-%m-%Y')
                         data[hours_field] = round(payslip.insurable_hour, 2)
                         data[earning_field] = payslip.insurable_earning
+
+                    # Fetch values from employee_id.roe_paycycle_ids and continue numbering
+                    paycycle_index = index + 1  # Continue numbering from last payslip index
+
+                    for paycycle in rec.employee_id.roe_paycycle_ids:
+                        date_field = f'pay_period_ending_date{paycycle_index}'
+                        hours_field = f'insurable_hours{paycycle_index}'
+                        earning_field = f'insurable_earning{paycycle_index}'
+
+                        data[date_field] = paycycle.pay_period_date.strftime(
+                            '%d-%m-%Y') if paycycle.pay_period_date else ''
+                        data[hours_field] = round(paycycle.insurable_hour, 2)
+                        data[earning_field] = paycycle.insurable_earning
+
+                        paycycle_index += 1  # Increment index
                     data = {key: str(value) if value is not None else "" for key, value in data.items()}
                     writer.update_page_form_field_values(writer.pages[0], data)
 
