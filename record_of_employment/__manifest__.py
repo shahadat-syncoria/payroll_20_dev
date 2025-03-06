@@ -28,10 +28,11 @@
         'data/batch_xml_send_roe.xml',
         'data/hr_work_entry_data.xml',
         'views/record_of_employee.xml',
-        # 'views/hr_employee_view.xml',
+        'views/hr_employee_view.xml',
         'views/hr_payslip.xml',
         'views/hr_contract_history.xml',
         'views/menu.xml',
+        'wizard/roe_paycycle_excel_wizard_view.xml'
     ],
     'license': 'LGPL-3',
 
