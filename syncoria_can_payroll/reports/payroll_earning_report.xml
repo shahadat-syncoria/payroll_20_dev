@@ -10,8 +10,8 @@
 
                     <!-- <t t-call="report.external_layout"> -->
                     <div class="page">
-                        <div>
-                            <table class="table" name="header">
+                      <div>
+                            <table class="table mt-5" name="header">
                                 <tr style="text-align: left;">
                                     <th>
                                         Date Range :
@@ -29,7 +29,7 @@
                                     <th>Pay Cycle</th>
                                     <th>Employee Name</th>
                                     <th>Total Gross</th>
-                                    <th>Total Insurable Earnings</th>
+                                    <th>Total<br/>Insurable Earnings<br/></th>
                                     <th>Net Pay</th>
                                     <th>Federal Tax Deductions</th>
                                     <th>Provincial Tax Deductions</th>
@@ -43,6 +43,7 @@
                                 <t t-foreach="grouped_payslips.items()" t-as="cycle">
                                     <t t-set="pay_cycle" t-value="cycle[0]"/>
                                     <t t-set="data" t-value="cycle[1]"/>
+                                    <t t-set="currency" t-value="currency"/>
 
                                     <tr style="font-weight: bold;">
                                         <td t-esc="pay_cycle"/>
@@ -51,17 +52,43 @@
                                     <t t-foreach="data['payslips']" t-as="line">
                                         <tr>
                                             <td t-esc="line['pay_period']"/> <!-- Empty cell for alignment -->
-                                            <td t-esc="line['employee_name']"/>
-                                            <td t-esc="round(line['total_gross'], 2)"/>
-                                            <td t-esc="round(line['total_insurable_earnings'], 2)"/>
-                                            <td t-esc="round(line['net_pay'], 2)"/>
-                                            <td t-esc="round(line['fed_tax'], 2)"/>
-                                            <td t-esc="round(line['prov_tax'], 2)"/>
-                                            <td t-esc="round(line['cpp'], 2)"/>
-                                            <td t-esc="round(line['cpp2'], 2)"/>
-                                            <td t-esc="round(line['ei'], 2)"/>
-                                            <td t-esc="round(line['employer_ei'], 2)"/>
-                                            <td t-esc="round(line['wsib'], 2)"/>
+                                            <td t-esc="line['employee_name']" />
+                                            <td>
+                                                <span t-esc="round(line['total_gross'], 2)" />
+                                                <span t-esc="currency" /></td>
+                                            <td>
+                                                 <span t-esc="round(line['total_insurable_earnings'], 2)"/>
+                                                <span t-esc="currency" />
+                                            </td>
+
+                                            <td>
+                                                <span t-esc="round(line['net_pay'], 2)"/>
+                                                <span t-esc="currency" />
+                                            </td>
+
+                                            <td>
+                                            <span t-esc="round(line['fed_tax'], 2)"/>
+                                                <span t-esc="currency" />
+                                            </td>
+                                            <td>
+                                            <span t-esc="round(line['prov_tax'], 2)"/>
+                                                <span t-esc="currency" />
+                                            </td>
+                                            <td>
+                                                <span t-esc="round(line['cpp'], 2)"/>
+                                                <span t-esc="currency" />
+                                            </td>
+
+                                            <td>
+                                            <span t-esc="round(line['cpp2'], 2)"/>
+                                                <span t-esc="currency" />
+                                            </td>
+                                            <td><span t-esc="round(line['ei'], 2)"/><span t-esc="currency" /></td>
+
+
+                                            <td><span t-esc="round(line['employer_ei'], 2)"/><span t-esc="currency" /></td>
+
+                                            <td><span t-esc="round(line['wsib'], 2)"/><span t-esc="currency" /></td>
                                         </tr>
                                     </t>
 
@@ -80,33 +107,43 @@
                                         </td>
                                         <td>
                                             <span t-esc="round(line['total_gross'],2)"/>
+                                            <span t-esc="currency" />
                                         </td>
                                         <td>
                                             <span t-esc="round(line['total_insurable_earnings'],2)"/>
+                                            <span t-esc="currency" />
                                         </td>
                                         <td>
                                             <span t-esc="round(line['net_pay'],2)"/>
+                                            <span t-esc="currency" />
                                         </td>
                                         <td>
                                             <span t-esc="round(line['fed_tax'],2)"/>
+                                            <span t-esc="currency" />
                                         </td>
                                         <td>
                                             <span t-esc="round(line['prov_tax'],2)"/>
+                                            <span t-esc="currency" />
                                         </td>
                                         <td>
                                             <span t-esc="round(line['cpp'],2)"/>
+                                            <span t-esc="currency" />
                                         </td>
                                         <td>
                                             <span t-esc="round(line['cpp2'],2)"/>
+                                            <span t-esc="currency" />
                                         </td>
                                         <td>
                                             <span t-esc="round(line['ei'],2)"/>
+                                            <span t-esc="currency" />
                                         </td>
                                         <td>
                                             <span t-esc="round(line['employer_ei'],2)"/>
+                                            <span t-esc="currency" />
                                         </td>
                                         <td>
                                             <span t-esc="round(line['wsib'],2)"/>
+                                            <span t-esc="currency" />
                                         </td>
                                     </tr>
                             </table>

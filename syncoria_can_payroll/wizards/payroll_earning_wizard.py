@@ -22,7 +22,7 @@ class EmployeeNetPay(models.TransientModel):
             ('date_from', '>=', self.date_from),
             ('date_to', '<=', self.date_to)
         ], order="date_from asc")
-
+        currency = self.env.company.currency_id
         grouped_payslip_data = {}
         totals = {
             'cpp': 0.0,
@@ -89,6 +89,7 @@ class EmployeeNetPay(models.TransientModel):
             'date_range': f"{self.date_from} to {self.date_to}",
             'grouped_payslips': grouped_payslip_data,
             'totals': totals,
+            'currency':currency.symbol
         }
         return datas
 
@@ -96,7 +97,7 @@ class EmployeeNetPay(models.TransientModel):
 
     def print_report(self):
         datas = self.get_payslip_ids()
-        return self.env.ref('syncoria_can_payroll.action_report_payroll_earning').report_action(self, data=datas)
+        return self.env.ref('syncoria_can_payroll.action_report_payroll_earning').with_context(landscape=True).report_action(self, data=datas)
 
     def get_xlsx_report(self):
         data = self.get_payslip_ids()
