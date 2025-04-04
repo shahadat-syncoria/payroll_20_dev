@@ -1093,8 +1093,8 @@ class StatementOfRemuneration(models.Model):
                     filename = output_folder_path + pdf_name
 
                     reader = PdfReader(get_path + '/' + "t4-fill-23e.pdf")
-                    fields = reader.get_fields()
-                    print(fields)
+                    # fields = reader.get_fields()
+                    # print(fields)
                     writer = PdfWriter()
 
                     writer.append(reader)

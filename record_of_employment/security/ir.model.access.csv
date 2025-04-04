@@ -1,3 +1,5 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
 record_of_employment.access_record_of_employee,access_record_of_employee,record_of_employment.model_record_of_employee,base.group_user,1,1,1,1
 record_of_employment.access_vacation_amount,access_vacation_amount,record_of_employment.model_vacation_amount,base.group_user,1,1,1,1
+record_of_employment.access_roe_paycycle,access_roe_paycycle,record_of_employment.model_roe_paycycle,base.group_user,1,1,1,1
+record_of_employment.access_roe_paycycle_excel_wizard,access_roe_paycycle_excel_wizard,record_of_employment.model_roe_paycycle_excel_wizard,base.group_user,1,1,1,1

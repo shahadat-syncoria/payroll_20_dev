@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="roe_paycycle_excel_wizard_form" model="ir.ui.view">
+            <field name="name">roe.paycycle.excel.wizard.form</field>
+            <field name="model">roe.paycycle.excel.wizard</field>
+            <field name="arch" type="xml">
+                <form string="ROE Paycyle Wizard Form">
+                    <sheet>
+                        <group>
+                            <field name="excel_file"/>
+                        </group>
+
+                    </sheet>
+                    <footer>
+                        <button name="button_process" string="Process" type="object"
+                                 confirm="Are you sure want to process?"/>
+                        <button string="Cancel"  special="cancel"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+        <record id="action_open_roe_paycyle_wizard" model="ir.actions.server">
+        <field name="name">Previous Paycycle Wizard</field>
+        <field name="model_id" ref="model_hr_employee"/>
+        <field name="binding_model_id" ref="hr.model_hr_employee"/>
+            <field name="binding_type">action</field>
+        <field name="state">code</field>
+        <field name="code">
+            action = model.action_roe_paycyle_wizard()
+        </field>
+    </record>
+    </data>
+</odoo>

@@ -6,12 +6,19 @@
             <field name="model">hr.employee</field>
             <field name="inherit_id" ref="hr.view_employee_form"/>
             <field name="arch" type="xml">
-                <xpath expr="//page[@name='hr_settings']" position="after">
-                    <page string="Employer's Information">
-                        <group>
-                            <field name="payroll_ref"/>
-                        </group>
-                    </page>
+                <xpath expr="//page[@name='sync_payroll_vac_info']" position="after">
+                    <page name="sync_roe_paycycle" string="Previous Paycycle For ROE" groups="hr.group_hr_manager">
+                                    <group string="Vacation Slab Configuration">
+                                        <field name="roe_paycycle_ids" no_label="1" >
+                                            <tree>
+                                                <field name="pay_period_date" />
+                                                <field name="insurable_earning" />
+                                                <field name="insurable_hour" />
+                                            </tree>
+                                        </field>
+                                </group>
+
+                            </page>
                 </xpath>
             </field>
         </record>
