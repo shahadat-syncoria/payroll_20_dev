@@ -10,11 +10,11 @@
                     <page name="sync_roe_paycycle" string="Previous Paycycle For ROE" groups="hr.group_hr_manager">
                                     <group string="Vacation Slab Configuration">
                                         <field name="roe_paycycle_ids" no_label="1" >
-                                            <list>
+                                            <tree>
                                                 <field name="pay_period_date" />
                                                 <field name="insurable_earning" />
                                                 <field name="insurable_hour" />
-                                            </list>
+                                            </tree>
                                         </field>
                                 </group>
 
