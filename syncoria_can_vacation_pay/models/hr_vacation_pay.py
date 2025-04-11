@@ -29,7 +29,7 @@ class HrVacationPay(models.Model):
 
     name = fields.Char(string='Reference', required=True, copy=False, default='Draft', readonly=True,groups='hr_holidays.group_hr_holidays_user')
     date = fields.Date(string="Requested Date", required=True, default=fields.Date.today(),groups='hr_holidays.group_hr_holidays_user')
-    employee_id = fields.Many2one('hr.employee', required=True, default=_get_default_employee,groups='hr_holidays.group_hr_holidays_user')
+    employee_id = fields.Many2one('hr.employee', required=True, domain=lambda self: [('id', '=', self.env.user.employee_id.id)],default=lambda self: self._get_default_employee(),groups='hr_holidays.group_hr_holidays_user')
     duration = fields.Float("Duration",groups='hr_holidays.group_hr_holidays_user')
     vacation_remain = fields.Float('Remaining Vacation', store=True,compute='_compute_remaining_vacation_employee',default=_get_default_remaining_vacation,groups='hr_holidays.group_hr_holidays_user')
     vacation_pay_amount_remaining =  fields.Float('Remaining Vacation Pay Amount', store=True,compute='_compute_remaining_vacation_pay_amount_employee',default=_get_default_remaining_vacation_pay_amount,groups='hr_holidays.group_hr_holidays_user')
