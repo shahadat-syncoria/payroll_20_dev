@@ -15,4 +15,18 @@ class InheritedResUser(models.Model):
     def SELF_WRITEABLE_FIELDS(self):
         return super().SELF_WRITEABLE_FIELDS + ['ytd_vac_pay_amount']
 
+    def action_view_employee_vacation_pay(self):
+        self.ensure_one()
+        return {
+            'type': 'ir.actions.act_window',
+            'name': 'Vacation Pay Request',
+            'res_model': 'hr.vacation.pay',
+            'view_mode': 'tree,form',
+            'target': 'current',
+            'context': {
+                'search_default_employee_id': self.employee_id.id if self.employee_id else False
+            },
+
+        }
+
 
