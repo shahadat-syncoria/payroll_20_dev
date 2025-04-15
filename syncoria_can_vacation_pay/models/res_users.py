@@ -21,7 +21,7 @@ class InheritedResUser(models.Model):
             'type': 'ir.actions.act_window',
             'name': 'Vacation Pay Request',
             'res_model': 'hr.vacation.pay',
-            'view_mode': 'tree,form',
+            'view_mode': 'list,form',
             'target': 'current',
             'context': {
                 'search_default_employee_id': self.employee_id.id if self.employee_id else False
