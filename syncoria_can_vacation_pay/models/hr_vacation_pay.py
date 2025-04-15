@@ -27,15 +27,15 @@ class HrVacationPay(models.Model):
         return self.env.user.employee_id.ytd_vac_pay_amount
 
 
-    name = fields.Char(string='Reference', required=True, copy=False, default='Draft', readonly=True)
-    date = fields.Date(string="Requested Date", required=True, default=fields.Date.today())
-    employee_id = fields.Many2one('hr.employee', required=True, default=_get_default_employee)
-    duration = fields.Float("Duration")
-    vacation_remain = fields.Float('Remaining Vacation', store=True,compute='_compute_remaining_vacation_employee',default=_get_default_remaining_vacation)
-    vacation_pay_amount_remaining =  fields.Float('Remaining Vacation Pay Amount', store=True,compute='_compute_remaining_vacation_pay_amount_employee',default=_get_default_remaining_vacation_pay_amount)
-    vacation_pay_amount = fields.Float('Amount')
-    payslip_id = fields.Many2one('hr.payslip')
-    paid_date = fields.Date(related='payslip_id.paid_date')
+    name = fields.Char(string='Reference', required=True, copy=False, default='Draft', readonly=True,groups='hr_holidays.group_hr_holidays_user')
+    date = fields.Date(string="Requested Date", required=True, default=fields.Date.today(),groups='hr_holidays.group_hr_holidays_user')
+    employee_id = fields.Many2one('hr.employee', required=True, domain=lambda self: [('id', '=', self.env.user.employee_id.id)],default=lambda self: self._get_default_employee(),groups='hr_holidays.group_hr_holidays_user')
+    duration = fields.Float("Duration",groups='hr_holidays.group_hr_holidays_user')
+    vacation_remain = fields.Float('Remaining Vacation', store=True,compute='_compute_remaining_vacation_employee',default=_get_default_remaining_vacation,groups='hr_holidays.group_hr_holidays_user')
+    vacation_pay_amount_remaining =  fields.Float('Remaining Vacation Pay Amount', store=True,compute='_compute_remaining_vacation_pay_amount_employee',default=_get_default_remaining_vacation_pay_amount,groups='hr_holidays.group_hr_holidays_user')
+    vacation_pay_amount = fields.Float('Amount',groups='hr_holidays.group_hr_holidays_user')
+    payslip_id = fields.Many2one('hr.payslip',groups='hr_holidays.group_hr_holidays_user')
+    paid_date = fields.Date(related='payslip_id.paid_date',groups='hr_holidays.group_hr_holidays_user')
     state = fields.Selection([
         ('draft', 'To Submit'),
         ('confirm', 'To Approve'),
@@ -44,15 +44,15 @@ class HrVacationPay(models.Model):
         ('validate', 'Approved'),
         ('paid', 'Paid'),
         ('cancel', 'Cancel')
-    ], string='Status',  store=True, tracking=True, copy=False, readonly=False, default='draft'
+    ], string='Status',  store=True, tracking=True, copy=False, readonly=False, default='draft',groups='hr_holidays.group_hr_holidays_user'
     )
-    is_last_pay = fields.Boolean(default=False)
-    description = fields.Text(string="Description")
-    department_id = fields.Many2one(related="employee_id.department_id",string="Department", store=True)
-    job_id = fields.Many2one(related="employee_id.job_id",string="Job")
-    contract_id = fields.Many2one(related="employee_id.contract_id",string="Contract")
+    is_last_pay = fields.Boolean(default=False,groups='hr_holidays.group_hr_holidays_user')
+    description = fields.Text(string="Description",groups='hr_holidays.group_hr_holidays_user')
+    department_id = fields.Many2one(related="employee_id.department_id",string="Department", store=True,groups='hr_holidays.group_hr_holidays_user')
+    job_id = fields.Many2one(related="employee_id.job_id",string="Job",groups='hr_holidays.group_hr_holidays_user')
+    contract_id = fields.Many2one(related="employee_id.contract_id",string="Contract",groups='hr_holidays.group_hr_holidays_user')
     vacation_type = fields.Selection([('time_wise',"Time Store"),('cash_wise',"Cash Store"),
-                                      ],string="Vacation Type",default='cash_wise',compute='_compute_vacation_type',store=True)
+                                      ],string="Vacation Type",default='cash_wise',compute='_compute_vacation_type',store=True,groups='hr_holidays.group_hr_holidays_user')
 
 
 

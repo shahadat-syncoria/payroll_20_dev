@@ -26,9 +26,9 @@ class InhertitedHrEmployee(models.Model):
         # ('registration_number_verification', 'CHECK (registration_number SIMILAR TO ^[178][0-9]{8}(RP|RW)[0-9]{4}$)', ('Payroll Account Number Must Match patterns.')),
     ]
 
-    is_portal_user = fields.Boolean()
-    portal_user_id = fields.Many2one("res.users")
-    is_vacation_pay_carry_over = fields.Boolean(default=True, string='Vacation Pay Carry Over?')
+    is_portal_user = fields.Boolean(groups="hr.group_hr_user")
+    portal_user_id = fields.Many2one("res.users",groups="hr.group_hr_user")
+    is_vacation_pay_carry_over = fields.Boolean(default=True, string='Vacation Pay Carry Over?',groups="hr.group_hr_user")
     payroll_line_ids = fields.One2many('hr.employee.ytd.payroll.information', 'head_id')
 
     birthday = fields.Date('Date of Birth', groups="hr.group_hr_user", tracking=True)
@@ -39,62 +39,62 @@ class InhertitedHrEmployee(models.Model):
     country_id = fields.Many2one(comodel_name='res.country', string='Country', related= "company_id.country_id")
     territory_of_employment = fields.Many2one("res.country.state", groups="hr.group_hr_user", domain="[('country_id', '=?', country_id)]", default=lambda self: self.env.company.state_id)
     # ========================================== YTD Information ===================================
-    ytd_cpp_erp = fields.Float("Year To Date CPP contribution in ERP")
-    ytd_previous_cpp = fields.Float("Previous CPP",tracking=True,default=0)
+    ytd_cpp_erp = fields.Float("Year To Date CPP contribution in ERP",groups="hr.group_hr_user")
+    ytd_previous_cpp = fields.Float("Previous CPP",tracking=True,default=0,groups="hr.group_hr_user")
     ytd_cpp = fields.Float("Year To Date CPP",default=0,store=True,compute='_compute_ytd_cpp', groups="hr.group_hr_user")
 
     #CPP2
-    ytd_cpp2_erp = fields.Float("Year To Date CPP2 contribution in ERP")
-    ytd_previous_cpp2 = fields.Float("Previous CPP2", tracking=True, default=0)
+    ytd_cpp2_erp = fields.Float("Year To Date CPP2 contribution in ERP",groups="hr.group_hr_user")
+    ytd_previous_cpp2 = fields.Float("Previous CPP2", tracking=True, default=0,groups="hr.group_hr_user")
     ytd_cpp2 = fields.Float("Year To Date CPP2", default=0, groups="hr.group_hr_user")
     # EI
-    ytd_ei_erp = fields.Float("Year To Date EI contribution in ERP")
-    ytd_previous_ei = fields.Float("Previous EI", tracking=True, default=0)
+    ytd_ei_erp = fields.Float("Year To Date EI contribution in ERP",groups="hr.group_hr_user")
+    ytd_previous_ei = fields.Float("Previous EI", tracking=True, default=0,groups="hr.group_hr_user")
     ytd_ei = fields.Float("Year To Date EI", default=0, groups="hr.group_hr_user")
 
     # EI Employer
-    ytd_ei_employer_erp = fields.Float("Year To Date Employer EI  contribution in ERP")
-    ytd_previous_ei_employer = fields.Float("Previous Employer EI ", tracking=True, default=0)
+    ytd_ei_employer_erp = fields.Float("Year To Date Employer EI  contribution in ERP",groups="hr.group_hr_user")
+    ytd_previous_ei_employer = fields.Float("Previous Employer EI ", tracking=True, default=0,groups="hr.group_hr_user")
     ytd_ei_employer = fields.Float("Year To Date Employer EI", default=0,groups="hr.group_hr_user")
 
     #PIYTD
     ytd_pi = fields.Float("Year To Date PI/IE", default=0, groups="hr.group_hr_user")
-    ytd_pi_erp = fields.Float("Year To Date PI/IE ERP", default=0)
-    ytd_previous_pi = fields.Float("Previous Year To Date PI/IE", default=0)
+    ytd_pi_erp = fields.Float("Year To Date PI/IE ERP", default=0,groups="hr.group_hr_user")
+    ytd_previous_pi = fields.Float("Previous Year To Date PI/IE", default=0,groups="hr.group_hr_user")
 
     # YTDIrregularPaymentFedTaxAmount
-    year_to_date_irregular_payment = fields.Float("Year To Date Irregular Payment", default=0)
-    ytd_previous_irre_payment = fields.Float("Previous Year To Date Irregular Payment", default=0)
-    ytd_previous_irre_payment_erp = fields.Float("Year To Date Irregular Payment ERP", default=0)
+    year_to_date_irregular_payment = fields.Float("Year To Date Irregular Payment", default=0,groups="hr.group_hr_user")
+    ytd_previous_irre_payment = fields.Float("Previous Year To Date Irregular Payment", default=0,groups="hr.group_hr_user")
+    ytd_previous_irre_payment_erp = fields.Float("Year To Date Irregular Payment ERP", default=0,groups="hr.group_hr_user")
 
     # FTAX, OTAX FIELDS
     ytd_fed_tax = fields.Float("Year To Date Fed Tax", default=0, groups="hr.group_hr_user")
-    ytd_fed_tax_erp = fields.Float("Year To Date Fed Tax ERP", default=0)
-    ytd_previous_fed_tax = fields.Float("Previous Year To Date Fed Tax", default=0)
+    ytd_fed_tax_erp = fields.Float("Year To Date Fed Tax ERP", default=0,groups="hr.group_hr_user")
+    ytd_previous_fed_tax = fields.Float("Previous Year To Date Fed Tax", default=0,groups="hr.group_hr_user")
     ytd_prov_tax = fields.Float("Year To Date Prov Tax", default=0,groups="hr.group_hr_user")
-    ytd_prov_tax_erp = fields.Float("Year To Date Prov Tax ERP", default=0)
-    ytd_previous_prov_tax = fields.Float("Previous Year To Date Prov Tax", default=0)
+    ytd_prov_tax_erp = fields.Float("Year To Date Prov Tax ERP", default=0,groups="hr.group_hr_user")
+    ytd_previous_prov_tax = fields.Float("Previous Year To Date Prov Tax", default=0,groups="hr.group_hr_user")
 
-    ytd_previous_prov_amount = fields.Float("Previous Year To Date Amount", default=0)
+    ytd_previous_prov_amount = fields.Float("Previous Year To Date Amount", default=0,groups="hr.group_hr_user")
 
 
     #========================================== need to remove this fields=====================================
     ytd_irre_fed_tax = fields.Float("Year To Date Irregular Payment Fed Tax", default=0, groups="hr.group_hr_user")
-    ytd_irre_fed_tax_erp = fields.Float("Year To Date Irregular Payment Fed Tax ERP", default=0)
-    ytd_previous_irre_fed_tax = fields.Float("Previous Year To Date Irregular Payment Fed Tax", default=0, store=True,compute='compute_ytd_previous_irre_fed_tax')
+    ytd_irre_fed_tax_erp = fields.Float("Year To Date Irregular Payment Fed Tax ERP", default=0,groups="hr.group_hr_user")
+    ytd_previous_irre_fed_tax = fields.Float("Previous Year To Date Irregular Payment Fed Tax", default=0, store=True,compute='compute_ytd_previous_irre_fed_tax',groups="hr.group_hr_user")
     ytd_irre_prov_tax = fields.Float("Year To Date Irregular Payment Prov Tax", default=0, groups="hr.group_hr_user")
-    ytd_irre_prov_tax_erp = fields.Float("Year To Date Irregular Payment Prov Tax ERP", default=0)
-    ytd_previous_irre_prov_tax = fields.Float("Previous Year To Date Irregular Payment Prov Tax", default=0, store=True, compute='compute_ytd_previous_irre_prov_tax')
-    ytd_previous_irre_prov_amount = fields.Float("Previous Year To Date Irregular Amount", default=0)
-    last_paycycle_gross = fields.Float("Last Paycycle Wage",help="Last paycycle wage for which the previous bonus was given ", default=0)
+    ytd_irre_prov_tax_erp = fields.Float("Year To Date Irregular Payment Prov Tax ERP", default=0,groups="hr.group_hr_user")
+    ytd_previous_irre_prov_tax = fields.Float("Previous Year To Date Irregular Payment Prov Tax", default=0, store=True, compute='compute_ytd_previous_irre_prov_tax',groups="hr.group_hr_user")
+    ytd_previous_irre_prov_amount = fields.Float("Previous Year To Date Irregular Amount", default=0,groups="hr.group_hr_user")
+    last_paycycle_gross = fields.Float("Last Paycycle Wage",help="Last paycycle wage for which the previous bonus was given ", default=0,groups="hr.group_hr_user")
     #============================================================================================================
 
     #==================================T4 INFORMATION======================================
-    employee_cpp_qpp_xmpt_cd = fields.Selection(selection=CODE,default="0",
+    employee_cpp_qpp_xmpt_cd = fields.Selection(selection=CODE,default="0",groups="hr.group_hr_user",
                                                 string="Canada Pension Plan Or Quebec Pension Plan Exempt Code", help="- T4 slip, box 28\
        - 0 if no exemption applies or if the employee is exempt for a portion of the period\
        - 1 if the employee has been exempt from CPP or QPP for the entire period of employment due to age, nature of payment, etc.")
-    employee_ei_xmpt_cd = fields.Selection(selection=CODE,default='0', string="Employment Insurance Exempt Code", help="- T4 slip, box 28\
+    employee_ei_xmpt_cd = fields.Selection(selection=CODE,default='0', groups="hr.group_hr_user",string="Employment Insurance Exempt Code", help="- T4 slip, box 28\
        - 0 if no exemption applies or if the employee is exempt for a portion of the period\
        - 1 if the employee has been exempt from EI premiums for the entire period of employment due to age, nature of employment, etc.")
     empr_dntl_ben_rpt_cd = fields.Selection(
@@ -110,7 +110,7 @@ class InhertitedHrEmployee(models.Model):
            2 - Payee only
            3 - Payee, spouse and dependent children
            4 - Payee and their spouse
-           5 - Payee and their dependent children""", default='1')
+           5 - Payee and their dependent children""", default='1',groups="hr.group_hr_user")
     employee_empt_cd = fields.Selection(selection=EMPLOYMENT_CODE, default="11",string="Employment Code", help="- T4 slip, box 29\
         - Do not complete Box 14 - Employment income, if you are using employment codes 11, 12, 13, or 17.\
         11 - Placement or employment agency workers\
@@ -120,14 +120,14 @@ class InhertitedHrEmployee(models.Model):
         15 - Seasonal Agricultural Workers Program\
         16 - Detached employee - Social security agreement.\
         Note: When CPP is paid by the employer on behalf of detached employees under employment code 16, box 14 is left blank if no other type of income is reported. Boxes 16 and 26 are completed with the appropriate amounts and boxes 18 and 24 are left blank.\
-        17 - Fishers - Self-employed",)
+        17 - Fishers - Self-employed",groups="hr.group_hr_user")
 
     employee_prov_pip_xmpt_cd = fields.Selection(selection=CODE,  string="PPIP Exempt Code", help="- T4 slip, box 28\
     - 0 if no exemption applies\
-    - 1 if the employee has been exempt", default='0')
+    - 1 if the employee has been exempt", default='0',groups="hr.group_hr_user")
 
-    is_cpp_exempt = fields.Boolean("CPP Exempt", default=False)
-    is_ei_exempt = fields.Boolean("EI Exempt", default=False)
+    is_cpp_exempt = fields.Boolean("CPP Exempt", default=False,groups="hr.group_hr_user")
+    is_ei_exempt = fields.Boolean("EI Exempt", default=False,groups="hr.group_hr_user")
 
     @api.depends("ytd_previous_irre_payment", "ytd_previous_irre_payment_erp")
     def _compute_ytd_irre_payment(self):
