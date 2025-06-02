@@ -20,7 +20,7 @@
     'version': '17.4',
 
     # any module necessary for this one to work correctly
-    'depends': ['syncoria_can_payroll'],
+    'depends': ['syncoria_can_payroll','syncoria_payroll_timesheet'],
 
     # always loaded
     'data': [
