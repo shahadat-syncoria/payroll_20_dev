@@ -6,10 +6,12 @@
         <field name="arch" type="xml">
             <form>
                 <header>
-                    <field name="state" options="{'clickable': '1'}" widget="statusbar"/>
+                    <field name="state" widget="statusbar"/>
                     <button class="btn btn-primary" invisible="state != 'done'" name="download_roe_pdf" string="ROE Slip Download" type="object"/>
                     <button class="btn btn-primary" invisible="state != 'done'" name="download_roe_xml" string="ROE XML Download" type="object"/>
-                    <button class="btn btn-primary" invisible="state in ['done', 'cancel']" name="compute_roe" string="Compute" type="object"/>
+                    <button class="btn btn-primary" invisible="state in ['done']" name="compute_roe" string="Compute" type="object"/>
+                    <button name="action_mark_done" string="Mark as Done" type="object" class="btn btn-secondary" invisible="state == 'done'"/>
+                    <button name="action_cancel" string="Cancel" type="object" class="btn btn-secondary" invisible="state == 'cancel'"/>
                 </header>
                 <sheet>
                     <div name="button_box">
@@ -18,17 +20,35 @@
                         </button>
                     </div>
                     <group readonly="state != 'draft'">
+
                         <group string="Employee Information">
+
                             <field name="employee_id"/>
                             <field name="company_id"/>
                             <field name="occupation"/>
+                             <field name="employee_lnm" />
+                                <field name="employee_fnm"/>
+                                <field name="employee_init" />
+
+
                         </group>
                         <group string="Employer Information">
                             <field name="name_of_issuer_id"/>
                             <field name="telephone_no"/>
+                            <field name="area_code"/>
+                            <field name="ext_no"/>
                             <field name="employer_payroll_ref"/>
                             <field name="language"/>
                         </group>
+
+                            <group name="empl_info_add">
+                                <field name="employee_addr_l1_txt" />
+                                <field name="employee_addr_l2_txt" />
+                                <field name="employee_cty_nm" />
+                                <field name="employee_prov_cd" />
+                                <field name="employee_cntry_cd"/>
+                                <field name="employee_pstl_cd" />
+                            </group>
                         <group string="Serial and Payroll Information">
                             <field name="serial_no"/>
                             <field name="amended_serial_no"/>

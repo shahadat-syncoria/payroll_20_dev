@@ -4,7 +4,7 @@ from odoo import fields, models, api, _
 import os
 import xml.etree.ElementTree as ET
 from lxml import etree
-from odoo.exceptions import UserError
+from odoo.exceptions import UserError, ValidationError
 
 from odoo.modules.module import get_module_resource
 from datetime import datetime
@@ -65,7 +65,23 @@ class RecordOfEmployee(models.Model):
         ('cancel', 'Cancelled')
     ], string='Status', group_expand='_expand_states', copy=False,
         tracking=True, help='Status of the ROE form', default='draft')
+    #=======================Employee Information=======================
+    employee_lnm = fields.Char("Employee Last name", )
 
+    employee_fnm = fields.Char("Employee First Name")
+
+    employee_init = fields.Char("Employee Initial")
+    employee_addr_l1_txt = fields.Char("Employee Address - line 1" , related="employee_id.private_street")
+    employee_addr_l2_txt = fields.Char("Employee Address - line 2",related="employee_id.private_street2")
+    employee_cty_nm = fields.Char("Employee City", related="employee_id.private_city")
+
+    employee_prov_cd = fields.Many2one(
+        "res.country.state", string="Employee State",
+        related="employee_id.private_state_id",
+        )
+    # employee_prov_cd = fields.Char("Employee Province Or Territory code",related="employee_id.private_city" )
+    employee_cntry_cd = fields.Many2one("res.country", related="employee_id.private_country_id")
+    employee_pstl_cd = fields.Char("Employee Postal Code", related="employee_id.private_zip")
     # =======================================================================
     serial_no = fields.Char(string="1-Serial No.")
     amended_serial_no = fields.Char(string="2-Serial No Of ROE Amended Or Replaced")
@@ -94,7 +110,9 @@ class RecordOfEmployee(models.Model):
     comments = fields.Char(string="18-Comments")
     language = fields.Selection([("english", "English"), ("french", "French")], default="english",
                                 string="20-Communication Preferred In")
-    telephone_no = fields.Char(string="21-Telephone No", unaccent=False)
+    area_code = fields.Char(string="Area code", unaccent=False)
+    telephone_no = fields.Char(string="21-Telephone No", unaccent=False, )
+    ext_no = fields.Char(string="Extension Number", unaccent=False)
     name_of_issuer_id = fields.Many2one(
         "hr.employee",
         string="22-Name of Issuer",
@@ -109,6 +127,52 @@ class RecordOfEmployee(models.Model):
     _sql_constraints = [
         ('employee_id', 'unique(employee_id)', "ROE already exist!"),
     ]
+
+    def action_mark_done(self):
+        for record in self:
+            required_fields = {
+                'employee_id': 'Employee',
+                'employee_lnm': 'Employee Last Name',
+                'employee_fnm': 'Employee First Name',
+                'employee_init': 'Employee Initial',
+                'employee_addr_l1_txt': 'Employee Address - line 1',
+                'employee_cty_nm': 'Employee City',
+
+                'employee_cntry_cd': 'Employee Country',
+                'employee_pstl_cd': 'Employee Postal Code',
+
+                'cra_payroll_acc_num': 'CRA Payroll Account Number',
+                'pay_period_id': 'Pay Period Type',
+                'social_insurance_number': 'Social Insurance Number',
+                'first_day_worked': 'First Day Worked',
+                'last_day_worked': 'Last Day Worked',
+                'final_pay_period_ending_date': 'Final Pay Period Ending Date',
+
+                'total_insurable_hours': 'Total Insurable Hours',
+                'total_insurable_earnings': 'Total Insurable Earnings',
+                'reason_for_issuing_roe': 'Reason For Issuing ROE',
+                'area_code': 'Area Code',
+                'telephone_no': 'Telephone Number',
+                'name_of_issuer_id': 'Name of Issuer',
+            }
+
+            missing_fields = []
+            for field, field_name in required_fields.items():
+                value = record[field]
+                if not value and value is False:
+                    missing_fields.append(field_name)
+
+            if missing_fields:
+                raise ValidationError(
+                    "You cannot mark this record as Done. The following required fields are missing:\n- %s"
+                    % "\n- ".join(missing_fields)
+                )
+
+            record.state = 'done'
+
+    def action_cancel(self):
+        for record in self:
+            record.state = 'cancel'
 
     def _compute_display_name(self):
         for rec in self:
@@ -197,6 +261,9 @@ class RecordOfEmployee(models.Model):
             self.write({
                 "company_id": employee.company_id,
                 "name_of_issuer_id" : self.env['hr.employee'].search([('user_id', '=', self.env.uid)], limit=1).id,
+                'employee_lnm': employee.name.split(" ")[-1],  # FIX: Add field on employee
+                'employee_fnm': employee.name.split(" ")[0],  # FIX: Add field on employee
+                'employee_init': employee.name.split(" ")[0][0],
                 "pay_period_id": employee.contract_id.salary_pay_cycle,
                 "social_insurance_number": employee.identification_id,
                 "first_day_worked": employee.contract_id.date_start,
@@ -209,7 +276,9 @@ class RecordOfEmployee(models.Model):
                 "total_insurable_earnings": line_obj.ytd_pi,
                 "payslip_ids": payslip_ids,
                 "vacation_amount_ids": self._get_vacation_amount(),
-                "vacation_pay_amount": round(has_last_payment.amount,2) if has_last_payment else ''
+                "vacation_pay_amount": round(has_last_payment.amount,2) if has_last_payment else '',
+                "telephone_no": self.name_of_issuer_id.work_phone if self.name_of_issuer_id else '',
+                "area_code": self.telephone_no[:3] if self.telephone_no else ''
             })
 
         # ======================== Generate and download T4 xml ===========================
@@ -272,12 +341,12 @@ class RecordOfEmployee(models.Model):
 
         # EMPLOYEE INFORMATION
         b9 = ET.SubElement(roe, "B9")
-        ET.SubElement(b9, "FN").text = self.employee_id.name.split(" ")[-1] or " "
-        ET.SubElement(b9, "LN").text = self.employee_id.name.split(" ")[0] or " "
-        ET.SubElement(b9, "A1").text = self.employee_id.private_street or " "
-        ET.SubElement(b9, "A2").text = self.employee_id.private_city or " "
-        ET.SubElement(b9, "A3").text = self.employee_id.private_country_id.name or " "
-        ET.SubElement(b9, "PC").text = self.employee_id.private_zip or " "
+        ET.SubElement(b9, "FN").text = self.employee_lnm or " "
+        ET.SubElement(b9, "LN").text = self.employee_fnm or " "
+        ET.SubElement(b9, "A1").text = self.employee_addr_l1_txt or " "
+        ET.SubElement(b9, "A2").text = self.employee_addr_l2_txt or " "
+        ET.SubElement(b9, "A3").text = self.employee_cntry_cd.name or " "
+        ET.SubElement(b9, "PC").text = self.employee_pstl_cd or " "
 
         # PAY CYCLE INFORMATION
         ET.SubElement(roe, "B10").text = str(self.first_day_worked) or " "
@@ -309,8 +378,9 @@ class RecordOfEmployee(models.Model):
                 0]) if self.reason_for_issuing_roe else "" or " "
         ET.SubElement(b16, "FN").text = self.name_of_issuer_id.name.split(" ")[-1] if self.name_of_issuer_id else ""
         ET.SubElement(b16, "LN").text = self.name_of_issuer_id.name.split(" ")[0] if self.name_of_issuer_id else ""
-        ET.SubElement(b16, "AC").text = "999"
-        ET.SubElement(b16, "TEL").text = self.telephone_no
+        ET.SubElement(b16, "AC").text = self.area_code
+        ET.SubElement(b16, "TEL").text = self.telephone_no[3:] if self.telephone_no and len(self.telephone_no) > 3 else ''
+
 
         # VACATION PAY INFORMATION
         b17a = ET.SubElement(roe, "B17A")
