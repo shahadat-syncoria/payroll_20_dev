@@ -77,6 +77,7 @@
         'wizards/payroll_earning_wizard_views.xml',
         'wizards/payroll_update_wizard_views.xml',
         'wizards/paycycle_config_update_wizard.xml',
+        'wizards/ytd_payroll_earning_wizard_views.xml',
         'wizards/report_wizards/eht_report_wizard.xml',
 
         # ======== Reports =============
@@ -86,6 +87,7 @@
         'reports/employee_net_pay_report.xml',
         'reports/payroll_earning_report.xml',
         'reports/eht_pdf_report.xml',
+        'reports/ytd_payroll_earning_report.xml',
 
         # ======== Menus ===============
         'views/menus.xml',

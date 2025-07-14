@@ -41,5 +41,13 @@
         <field name="report_name">syncoria_can_payroll.report_payroll_earning</field>
         <field name="report_file">syncoria_can_payroll.report_payroll_earning</field>
     </record>
+
+        <record id="action_report_ytd_payroll_earning" model="ir.actions.report">
+        <field name="name">YTD Payroll Earning Report </field>
+        <field name="model">ytd.payroll.earning.wizard</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">syncoria_can_payroll.report_ytd_payroll_earning</field>
+        <field name="report_file">syncoria_can_payroll.report_ytd_payroll_earning</field>
+    </record>
 </odoo>
 

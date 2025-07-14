@@ -6,6 +6,7 @@ import json
 import xlsxwriter
 from odoo import models
 from odoo.tools import date_utils
+from ..helper.helper_functions import year_selection
 
 
 class EmployeeNetPay(models.TransientModel):
@@ -20,13 +21,18 @@ class EmployeeNetPay(models.TransientModel):
         compute='_compute_pay_cycle_period_domain', readonly=True,
         store=False)
 
-    @api.depends('pay_cycle')
+    year = fields.Selection(
+        year_selection,
+        string="Year"
+    )
+
+    @api.depends('pay_cycle','year')
     def _compute_pay_cycle_period_domain(self):
         for rec in self:
             rec.pay_cycle_period_ids_domain = False
-            if rec.pay_cycle:
-                rec.pay_cycle_period_ids_domain = rec.pay_cycle.paycycle_period_ids.filtered(
-                    lambda x: x.paycycle_config_id.id == rec.pay_cycle.id).ids
+            if rec.pay_cycle and rec.year:
+                rec.pay_cycle_period_ids_domain = rec.pay_cycle.paycycle_period_year_slab_ids.paycycle_period_ids.filtered(
+                    lambda x: x.paycycle_config_id.id == rec.pay_cycle.id and x.year == rec.year).ids
 
     def get_payslip_ids(self):
         payslip_ids = self.env['hr.payslip'].search(

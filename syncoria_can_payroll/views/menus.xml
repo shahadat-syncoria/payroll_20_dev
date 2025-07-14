@@ -36,6 +36,10 @@
                   sequence="41"
                   name="Payroll Earning Report" action="action_payroll_earning_wizard" parent="hr_payroll.menu_hr_payroll_report"/>
 
+<menuitem id="ytd_payroll_earning_menu"
+                  sequence="42"
+                  name="YTD Payroll Earning Report" action="action_ytd_payroll_earning_wizard" parent="hr_payroll.menu_hr_payroll_report"/>
+
 
         <!--        ================= Configuration ============================-->
         <menuitem

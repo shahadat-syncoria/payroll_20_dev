@@ -1,0 +1,33 @@
+<odoo>
+    <data>
+        <record id="ytd_payroll_earning_wizard_form" model="ir.ui.view">
+            <field name="name">ytd.payroll.earning.wizard.form</field>
+            <field name="model">ytd.payroll.earning.wizard</field>
+            <field name="arch" type="xml">
+                <form string="YTD Payroll Earning">
+                    <group>
+
+                        <group>
+                            <field name="year" required="1" />
+<!--                            <field name="employee_ids" required="1" widget="many2many_tags" />-->
+                        </group>
+
+                    </group>
+                    <footer>
+                        <button string="PDF File" type="object" name="print_report" class="oe_highlight"/>
+                        <button name="get_xlsx_report" string="XLSX File" type="object" class="btn-secondary"/>
+                        <button string="Cancel" special="cancel"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+        <record id="action_ytd_payroll_earning_wizard" model="ir.actions.act_window">
+            <field name="name">YTD Payroll Earning Report</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">ytd.payroll.earning.wizard</field>
+            <field name="view_mode">form</field>
+            <field name="target">new</field>
+        </record>
+
+    </data>
+</odoo>

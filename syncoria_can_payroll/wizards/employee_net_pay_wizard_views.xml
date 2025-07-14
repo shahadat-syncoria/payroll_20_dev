@@ -10,6 +10,7 @@
 
                             <field name="pay_cycle" required="1"/>
                             <field name="payperiod" required="1" domain="[('id','in',pay_cycle_period_ids_domain)]" />
+                            <field name="year"/>
                             <field name="pay_cycle_period_ids_domain" invisible="1"/>
                         </group>
                         <group>

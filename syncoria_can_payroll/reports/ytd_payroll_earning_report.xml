@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<odoo>
+    <data>
+
+        <template id="report_ytd_payroll_earning">
+            <t t-call="web.html_container">
+                <t t-call="web.external_layout">
+                    <div class="page">
+                        <div>
+                            <h2>YEAR TO DATE PAYROLL EARNING</h2>
+                            <div class="col" name="ytd_info">
+                        <span>Year: <span t-esc="year"/></span><br/>
+<!--                        <span>Email: <span t-field="doc.attention_id.email"/></span><br/>-->
+<!--                        <span>Phone Number: <span t-field="doc.attention_id.phone"/></span>-->
+                    </div>
+
+                            <table class="table mt-5" name="body">
+                                <thead>
+                                    <tr style="text-align: center; font-weight: bold;">
+                                        <th name="employee_name">Employee Name</th>
+                                        <th name="total_gross">Total Gross</th>
+                                        <th name="total_insurable_earnings">Total Insurable Earnings</th>
+                                        <th name="net_pay">Net Pay</th>
+                                        <th name="fed_tax">Federal Tax</th>
+                                        <th name="prov_tax">Provincial Tax</th>
+                                        <th name="cpp">CPP</th>
+                                        <th name="cpp2">CPP2</th>
+                                        <th name="ei">EI</th>
+                                        <th name="employer_ei">Employer EI</th>
+                                        <th name="wsib">WSIB</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <t t-foreach="employee_totals" t-as="emp">
+                                        <t t-set="employee_name" t-value="emp['employee_name']"/>
+                                        <t t-set="totals" t-value="emp['totals']"/>
+                                        <t t-set="currency" t-value="emp.get('currency', '')"/>
+
+                                        <tr>
+                                            <td name="employee_name">
+                                                <span t-esc="employee_name"/>
+                                            </td>
+                                            <td name="total_gross">
+                                                <span t-esc="round(totals['total_gross'], 2)"/>
+                                                <span t-esc="currency"/>
+                                            </td>
+                                            <td name="total_insurable_earnings">
+                                                <span t-esc="round(totals['total_insurable_earnings'], 2)"/>
+                                                <span t-esc="currency"/>
+                                            </td>
+                                            <td name="net_pay">
+                                                <span t-esc="round(totals['net_pay'], 2)"/>
+                                                <span t-esc="currency"/>
+                                            </td>
+                                            <td name="fed_tax">
+                                                <span t-esc="round(totals['fed_tax'], 2)"/>
+                                                <span t-esc="currency"/>
+                                            </td>
+                                            <td name="prov_tax">
+                                                <span t-esc="round(totals['prov_tax'], 2)"/>
+                                                <span t-esc="currency"/>
+                                            </td>
+                                            <td name="cpp">
+                                                <span t-esc="round(totals['cpp'], 2)"/>
+                                                <span t-esc="currency"/>
+                                            </td>
+                                            <td name="cpp2">
+                                                <span t-esc="round(totals['cpp2'], 2)"/>
+                                                <span t-esc="currency"/>
+                                            </td>
+                                            <td name="ei">
+                                                <span t-esc="round(totals['ei'], 2)"/>
+                                                <span t-esc="currency"/>
+                                            </td>
+                                            <td name="employer_ei">
+                                                <span t-esc="round(totals['employer_ei'], 2)"/>
+                                                <span t-esc="currency"/>
+                                            </td>
+                                            <td name="wsib">
+                                                <span t-esc="round(totals['wsib'], 2)"/>
+                                                <span t-esc="currency"/>
+                                            </td>
+                                        </tr>
+                                    </t>
+                                </tbody>
+                            </table>
+
+                        </div>
+                    </div>
+                </t>
+            </t>
+        </template>
+
+
+    </data>
+
+</odoo>

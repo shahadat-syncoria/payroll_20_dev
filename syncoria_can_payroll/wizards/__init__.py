@@ -14,3 +14,4 @@ from . import payroll_update_wizard
 from . import batch_create_draft_entry
 from . import paycycle_config_update_wizard
 from . import report_wizards
+from . import ytd_payroll_earning_wizard
