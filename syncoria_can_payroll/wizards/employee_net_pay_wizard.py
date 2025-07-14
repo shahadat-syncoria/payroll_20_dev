@@ -23,6 +23,7 @@ class EmployeeNetPay(models.TransientModel):
 
     year = fields.Selection(
         year_selection,
+        default=lambda self: str(fields.Date.today().year),
         string="Year"
     )
 
@@ -32,7 +33,7 @@ class EmployeeNetPay(models.TransientModel):
             rec.pay_cycle_period_ids_domain = False
             if rec.pay_cycle and rec.year:
                 rec.pay_cycle_period_ids_domain = rec.pay_cycle.paycycle_period_year_slab_ids.paycycle_period_ids.filtered(
-                    lambda x: x.paycycle_config_id.id == rec.pay_cycle.id and x.year == rec.year).ids
+                    lambda x: x.year == rec.year).ids
 
     def get_payslip_ids(self):
         payslip_ids = self.env['hr.payslip'].search(
