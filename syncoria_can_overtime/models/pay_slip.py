@@ -48,8 +48,17 @@ class InheritedHrPayslipOvertime(models.Model):
 
     def calculate_overtime(self):
         _logger.info(f"Payslip ID===>{self.id}")
+        overtime_data = {}
         overtime_hours = 0
-        full_week_hours = self.contract_id.overtime_threshold
+        weekly_overtime_hours = {}
+        if self.contract_id.overtime_threshold_selection == "fixed":
+            full_week_hours = self.contract_id.overtime_threshold
+        if self.contract_id.overtime_threshold_selection == "range":
+            thresholds = self.contract_id.overtime_threshold_id.line_ids
+            full_week_hours = min(
+                thresholds.mapped('start_threshold')
+            ) if thresholds else 0.0
+        # full_week_hours = self.contract_id.overtime_threshold
         work_entry_source =self.contract_id.work_entry_source
         employee = self.employee_id
         # Get the start and end date of the payslip
@@ -102,6 +111,7 @@ class InheritedHrPayslipOvertime(models.Model):
 
 
                 if weekly_hours > full_week_hours:
+
                     # Handle partial weeks:
                     # If the pay period starts in the middle of the week
                     if payslip_start_date.weekday() != 0 and first_week:
@@ -117,12 +127,15 @@ class InheritedHrPayslipOvertime(models.Model):
                                 f"first_partial_week_hours({first_partial_week_hours}) > full_week_hours{full_week_hours}")
                             first_partial_overtime_hours = first_partial_week_hours - full_week_hours
                             _logger.info(f"first_partial_overtime_hours({first_partial_overtime_hours})")
-                            overtime_hours += (weekly_hours - full_week_hours) - first_partial_overtime_hours
+                            overtime = (weekly_hours - full_week_hours) - first_partial_overtime_hours
+                            overtime_hours += overtime
+                            weekly_overtime_hours[str(current_week_start.date())] = overtime
                             _logger.info(f"first_partial_overtime_hours({(weekly_hours - full_week_hours) - first_partial_overtime_hours})")
 
                     else:
-                        overtime_hours += weekly_hours - full_week_hours
-
+                        overtime = weekly_hours - full_week_hours
+                        overtime_hours += overtime
+                        weekly_overtime_hours[str(current_week_start.date())] = overtime
                 # Move to the next week
                 current_week_start += timedelta(days=7)
                 # current_week_start = datetime.combine(current_week_start, time.min)
@@ -169,11 +182,15 @@ class InheritedHrPayslipOvertime(models.Model):
                                 f"first_partial_week_hours({first_partial_week_hours}) > full_week_hours{full_week_hours}")
                             first_partial_overtime_hours = first_partial_week_hours - full_week_hours
                             _logger.info(f"first_partial_overtime_hours({first_partial_overtime_hours})")
-                            overtime_hours += (weekly_hours - full_week_hours) - first_partial_overtime_hours
+                            overtime = (weekly_hours - full_week_hours) - first_partial_overtime_hours
+                            overtime_hours += overtime
+                            weekly_overtime_hours[str(current_week_start.date())] = overtime
                             _logger.info(f"first_partial_overtime_hours({(weekly_hours - full_week_hours) - first_partial_overtime_hours})")
 
                     else:
-                        overtime_hours += weekly_hours - full_week_hours
+                        overtime = weekly_hours - full_week_hours
+                        overtime_hours += overtime
+                        weekly_overtime_hours[str(current_week_start.date())] = overtime
 
                 # Move to the next week
                 current_week_start += timedelta(days=7)
@@ -206,54 +223,93 @@ class InheritedHrPayslipOvertime(models.Model):
         #     )
         #     if last_partial_week_hours > full_week_hours:
         #         overtime_hours += last_partial_week_hours - full_week_hours
+        result = self.distribute_hours_from_thresholds(weekly_overtime_hours)
 
-        _logger.info(f"overtime_hours")
-        return overtime_hours
+
+        if self.contract_id.overtime_threshold_selection == "fixed":
+            overtime_data[self.contract_id.overtime_threshold] = overtime_hours
+        if self.contract_id.overtime_threshold_selection == "range":
+            overtime_data = result
+        _logger.info(f"overtime_data")
+        return overtime_data
+
+    def distribute_hours_from_thresholds(self, weekly_overtime_hours):
+        """
+          Aggregates hours across all weeks into each threshold bucket.
+          """
+        thresholds = self.contract_id.overtime_threshold_id.line_ids.sorted('start_threshold')  # Ensure sorted by start
+        summary = {}
+
+        for threshold in thresholds:
+            key = threshold.work_entry_id.code
+            summary[key] = 0.0
+
+        for date, total_hours in weekly_overtime_hours.items():
+            remaining_hours = total_hours
+            for threshold in thresholds:
+                lower = threshold.start_threshold
+                upper = threshold.end_threshold
+                key = threshold.work_entry_id.code
+                max_in_bucket = upper - lower
+
+                if remaining_hours > max_in_bucket:
+                    summary[key] += max_in_bucket
+                    remaining_hours -= max_in_bucket
+                else:
+                    summary[key] += remaining_hours
+                    break  # Done allocating hours
+
+        return summary
 
     def _get_new_worked_days_lines(self):
-        """
-                Overtime added to workdays line
-                This function will run if overtime_method is
-        """
+
         res = super()._get_new_worked_days_lines()
-        if self.employee_id.overtime_method in ['banked_overtime','paycycle_out'] and self.pay_cycle_period:
-            overtime = self.calculate_overtime()
+
+        if self.employee_id.overtime_method in ['banked_overtime', 'paycycle_out'] and self.pay_cycle_period:
+            overtime_data = self.calculate_overtime()  # e.g. {'threshold 40': 1.25, 'threshold 41.25': 6.75}
             avg_working_hour_per_day = self.contract_id.resource_calendar_id.hours_per_day
-            if self.employee_id.overtime_method== 'banked_overtime' and  overtime>0:
-                res.append((0, 0, {
-                    'work_entry_type_id': self.env.ref('syncoria_can_overtime.sync_banked_overtime_work_entry_type').id,
-                    'name': 'Overtime',
-                    'number_of_days': overtime / avg_working_hour_per_day,
-                    'number_of_hours': overtime,
-                    # 'amount': timesheet_hours*payslip.contract_id.hourly_rate
 
-                }))
-            if self.employee_id.overtime_method == 'paycycle_out' and overtime > 0:
-                res.append((0, 0, {
-                    'work_entry_type_id': self.env.ref('syncoria_can_overtime.sync_overtime_work_entry_type').id,
-                    'name': 'Regular Payout Overtime',
-                    'number_of_days': overtime / avg_working_hour_per_day,
-                    'number_of_hours': overtime,
-                    # 'amount': timesheet_hours*payslip.contract_id.hourly_rate
+            for threshold_label, overtime_hours in overtime_data.items():
+                if overtime_hours <= 0:
+                    continue
 
+
+                work_entry_type = self.env['hr.work.entry.type'].search(
+                    [('code', '=', threshold_label)],
+                    limit=1
+                )
+
+                if work_entry_type:
+                    work_entry_type_id = work_entry_type.id
+                else:
+                    work_entry_type_id = (
+                        self.env.ref('syncoria_can_overtime.sync_banked_overtime_work_entry_type').id
+                        if self.employee_id.overtime_method == 'banked_overtime'
+                        else self.env.ref('syncoria_can_overtime.sync_overtime_work_entry_type').id
+                    )
+
+                res.append((0, 0, {
+                    'work_entry_type_id': work_entry_type_id,
+                    'name': f'Overtime ({threshold_label})',
+                    'number_of_days': overtime_hours / avg_working_hour_per_day,
+                    'number_of_hours': overtime_hours,
                 }))
+
+            # Deduct total overtime from attendance/timesheet entries
+            total_overtime = sum(overtime_data.values())
             new_worked_days_lines = []
             for entry in res:
-                entry_data = entry[2]  # Extracting the dictionary from the tuple
-                if entry_data['work_entry_type_id'] == self.env.ref(
-                        'hr_work_entry.work_entry_type_attendance').id:  # Checking if work_entry_type_id is 8
-                    real_attendance_hour = entry_data['number_of_hours'] - overtime
-                    entry_data['number_of_hours'] = real_attendance_hour  # Updating the number of hours to 10
-                    entry_data[
-                        'number_of_days'] = real_attendance_hour / avg_working_hour_per_day
-                elif entry_data['work_entry_type_id'] == self.env.ref(
-                        'syncoria_payroll_timesheet.sync_work_type_timesheet').id:  # Checking if work_entry_type_id is 8
-                    real_attendance_hour = entry_data['number_of_hours'] - overtime
-                    entry_data['number_of_hours'] = real_attendance_hour  # Updating the number of hours to 10
-                    entry_data[
-                        'number_of_days'] = real_attendance_hour / avg_working_hour_per_day # Updating the number of hours to 10
+                entry_data = entry[2]
+                if entry_data['work_entry_type_id'] in [
+                    self.env.ref('hr_work_entry.work_entry_type_attendance').id,
+                    self.env.ref('syncoria_payroll_timesheet.sync_work_type_timesheet').id
+                ]:
+                    real_attendance_hour = entry_data['number_of_hours'] - total_overtime
+                    entry_data['number_of_hours'] = real_attendance_hour
+                    entry_data['number_of_days'] = real_attendance_hour / avg_working_hour_per_day
                 new_worked_days_lines.append(entry)
-                res = new_worked_days_lines
+            res = new_worked_days_lines
+
         return res
 
 

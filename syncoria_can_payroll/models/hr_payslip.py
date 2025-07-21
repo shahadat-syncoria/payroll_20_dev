@@ -197,23 +197,37 @@ class InheritedHrPayslip(models.Model):
             over_time_hour = manual_input_line_id.overtime_hours
             stat_over_time_hour = manual_input_line_id.stat_overtime_hours
 
+            attendance_type_id = self.env.ref('hr_work_entry.work_entry_type_attendance').id
+
+            existing_line = rec.worked_days_line_ids.filtered(
+                lambda l: l.work_entry_type_id.id == attendance_type_id
+            )
+
             vac_pay = manual_input_line_id.vac_pay
             bonus = manual_input_line_id.bonus
             commission = manual_input_line_id.commission
             retro = manual_input_line_id.retro
             avg_working_hour_per_day = rec.contract_id.resource_calendar_id.hours_per_day
-            rec.worked_days_line_ids.unlink()
-            rec.input_line_ids.unlink()
+            # rec.worked_days_line_ids.unlink()
+            # rec.input_line_ids.unlink()
             worked_days_lines = []
-            if attendance_hour > 0.0:
-                worked_days_lines.append((0, 0, {
-                    'work_entry_type_id': self.env.ref('hr_work_entry.work_entry_type_attendance').id,
-                    'name': 'Attendance',
-                    'number_of_days': attendance_hour / avg_working_hour_per_day,
-                    'number_of_hours': attendance_hour,
-                    # 'amount': timesheet_hours*payslip.contract_id.hourly_rate
+            if attendance_hour > 0.0 :
+                if existing_line:
+                    existing_line.write({
+                        'number_of_days': attendance_hour / avg_working_hour_per_day,
+                        'number_of_hours': attendance_hour,
+                        'name': 'Attendance',
+                    })
+                else:
+                    rec.write({
+                        'worked_days_line_ids': [(0, 0, {
+                            'work_entry_type_id': attendance_type_id,
+                            'name': 'Attendance',
+                            'number_of_days': attendance_hour / avg_working_hour_per_day,
+                            'number_of_hours': attendance_hour,
+                        })]
+                    })
 
-                }))
             # if over_time_hour > 0.0:
             #     worked_days_lines.append((0, 0, {
             #         'work_entry_type_id': self.env.ref('syncoria_can_overtime.sync_overtime_work_entry_type').id,

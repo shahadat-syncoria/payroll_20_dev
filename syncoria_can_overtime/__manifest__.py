@@ -31,6 +31,7 @@
         'data/salary_rules.xml',
         # 'data/cron_data.xml',
         'views/hr_overtime_pay_req_view.xml',
+        'views/overtime_threshold.xml',
         'views/hr_contract.xml',
         'views/hr_attendance_overtime_store.xml',
         'views/hr_employee_view.xml',

@@ -19,6 +19,16 @@ class SyncoriaWorkedDays(models.Model):
         super(SyncoriaWorkedDays, self)._compute_amount()
 
         for rec in self:
+            lines = self.env["overtime.thresholds.line"].search([])
+            for line in lines:
+
+                if line.work_entry_id.code == rec.code:
+                    overtime_pay_percent = line.overtime_rate
+                    current_hourly_rate = (rec.payslip_id.contract_id.wage * 12) / (
+                            rec.payslip_id.contract_id.resource_calendar_id.full_time_required_hours * 52)
+                    overtime_hour_rate = (current_hourly_rate * (overtime_pay_percent / 100))
+                    rec.amount = rec.number_of_hours * overtime_hour_rate
+
             # ================================== Calculation for manually input overtime =================
             if rec.code in [self.env.ref(
                     'syncoria_can_overtime.sync_overtime_work_entry_type').code,self.env.ref(
