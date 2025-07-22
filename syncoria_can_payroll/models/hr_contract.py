@@ -79,7 +79,7 @@ class InheritedResPartner(models.Model):
     paycycle_wage = fields.Float(string="Pay Cycle Wage", tracking=True)
 
     # =========================== Deductions ===================================
-    rrsp_amount = fields.Integer("RRSP Contribution")
+    rrsp_amount = fields.Float("RRSP Contribution")
     rrsp_type = fields.Selection(deduction_amount_type,default="percent")
 
     garnishment = fields.Boolean("Garnishment Deduction?",default=False)
@@ -103,10 +103,10 @@ class InheritedResPartner(models.Model):
     benefit_plans = fields.Boolean("Benefit Plans",default=False)
 
 
-    life_insurance = fields.Integer("Life Insurance")
+    life_insurance = fields.Float("Life Insurance")
     life_insurance_type = fields.Selection(deduction_amount_type, default="percent")
 
-    medical_insurance = fields.Integer("Medical Insurance")
+    medical_insurance = fields.Float("Medical Insurance")
     medical_insurance_type = fields.Selection(deduction_amount_type, default="percent")
 
     # To get the paycycle of the employee from its structure_type_id if the paycycle is not selected.
