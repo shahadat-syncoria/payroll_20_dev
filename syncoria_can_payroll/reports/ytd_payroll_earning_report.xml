@@ -10,7 +10,9 @@
                         <div>
                             <h2>YEAR TO DATE PAYROLL EARNING</h2>
                             <div class="col" name="ytd_info">
-                        <span>Year: <span t-esc="year"/></span><br/>
+<!--                        <span>Year: <span t-esc="year"/></span><br/>-->
+                        <span>Date Range: <span t-esc="date_from"/>-<span t-esc="date_to"/></span><br/>
+
 <!--                        <span>Email: <span t-field="doc.attention_id.email"/></span><br/>-->
 <!--                        <span>Phone Number: <span t-field="doc.attention_id.phone"/></span>-->
                     </div>

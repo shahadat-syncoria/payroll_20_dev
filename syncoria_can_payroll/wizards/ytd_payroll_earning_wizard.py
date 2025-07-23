@@ -1,5 +1,6 @@
 import base64
 from datetime import datetime, date
+import calendar
 
 from odoo import fields, models, _, api
 import io
@@ -14,9 +15,15 @@ class YTDPayrollEarning(models.TransientModel):
     _name = "ytd.payroll.earning.wizard"
     _description = "YTD Payroll Earning Report"
 
-
-
-
+    period_type = fields.Selection(
+        selection=[
+            ('year', 'Year'),
+            ('date_range', 'Date Range'),
+        ],
+        string="Period Type",
+        required=True,
+        default='year',
+    )
 
     year = fields.Selection(
         year_selection,
@@ -24,23 +31,39 @@ class YTDPayrollEarning(models.TransientModel):
         default=lambda self: str(fields.Date.today().year),
         required=True
     )
+
+    date_from = fields.Date(
+        string="Date From",
+        default=lambda self: date(date.today().year, 1, 1)
+    )
+
+    date_to = fields.Date(
+        string="Date To",
+        default=lambda self: date.today().replace(
+            day=calendar.monthrange(date.today().year, date.today().month)[1]
+        )
+    )
+
     employee_ids = fields.Many2many(
         'hr.employee',
         string="Employees",
         compute="_compute_employee_ids",
         store=True,
     )
-    @api.depends('year')
+
+    @api.depends('date_from','date_to')
     def _compute_employee_ids(self):
         for wizard in self:
             wizard.employee_ids = [(5, 0, 0)]  # Clear first
 
-            if not wizard.year:
-                continue
 
-            year_int = int(wizard.year)
-            start_of_year = date(year_int, 1, 1)
-            end_of_year = date(year_int, 12, 31)
+            if wizard.period_type == "year":
+                year_int = int(wizard.year)
+                start_of_year = date(year_int, 1, 1)
+                end_of_year = date(year_int, 12, 31)
+            else:
+                start_of_year = self.date_from
+                end_of_year = self.date_to
 
             contracts = self.env['hr.contract'].search([
                 ('state', '=', 'open'),
@@ -52,9 +75,13 @@ class YTDPayrollEarning(models.TransientModel):
 
 
     def get_payslip_totals(self):
-        year = int(self.year)
-        date_from = date(year, 1, 1)
-        date_to = date(year, 12, 31)
+        if self.period_type == "year":
+            year_int = int(self.year)
+            date_from = date(year_int, 1, 1)
+            date_to = date(year_int, 12, 31)
+        else:
+            date_from = self.date_from
+            date_to = self.date_to
         currency = self.env.company.currency_id.symbol
 
         all_employee_totals = []
@@ -115,7 +142,9 @@ class YTDPayrollEarning(models.TransientModel):
 
             })
         datas={
-            "year" : year,
+            "year": self.year,
+            "date_from" : date_from,
+            "date_to" : date_to,
             "employee_totals":all_employee_totals,
             'currency': currency
         }
@@ -133,7 +162,7 @@ class YTDPayrollEarning(models.TransientModel):
         cell_format = workbook.add_format({'font_size': 12, 'align': 'center'})
         head = workbook.add_format({'align': 'center', 'bold': True, 'font_size': 20})
         txt = workbook.add_format({'font_size': 10, 'align': 'center'})
-        bold = workbook.add_format({'bold': True})
+        bold = workbook.add_format({'bold': True, 'align': 'center'})
 
         # Set column widths
         sheet.set_column('B:B', 15)
@@ -142,8 +171,8 @@ class YTDPayrollEarning(models.TransientModel):
 
         # Header
         sheet.merge_range('B2:N3', ' Year To Date Payroll Earning Report', head)
-        sheet.merge_range('D4:E4', 'Year:', cell_format)
-        sheet.merge_range('F4:G4', str(data['year']), txt)
+        sheet.merge_range('F4:G4', 'Date Range:', bold)
+        sheet.merge_range('H4:I4', f"{data['date_from']} - {data['date_to']}", bold)
 
         row = 6
         col = 1
@@ -214,7 +243,7 @@ class YTDPayrollEarning(models.TransientModel):
         output.seek(0)
 
         attachment_id = self.env['ir.attachment'].create({
-            'name': f"Payroll_Earning_Report_{data['year']}.xlsx",
+            'name': f"Payroll_Earning_Report_{data['date_from']} - {data['date_to']}.xlsx",
             'datas': base64.encodebytes(output.getvalue()),
             'res_model': self._name,
             'res_id': self.id,
