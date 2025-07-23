@@ -24,8 +24,11 @@ class SyncoriaWorkedDays(models.Model):
 
                 if line.work_entry_id.code == rec.code:
                     overtime_pay_percent = line.overtime_rate
-                    current_hourly_rate = (rec.payslip_id.contract_id.wage * 12) / (
-                            rec.payslip_id.contract_id.resource_calendar_id.full_time_required_hours * 52)
+                    if not rec.payslip_id.contract_id.is_hourly:
+                        current_hourly_rate = (rec.payslip_id.contract_id.wage * 12) / (
+                                rec.payslip_id.contract_id.resource_calendar_id.full_time_required_hours * 52)
+                    else:
+                        current_hourly_rate = rec.payslip_id.contract_id.hourly_rate
                     overtime_hour_rate = (current_hourly_rate * (overtime_pay_percent / 100))
                     rec.amount = rec.number_of_hours * overtime_hour_rate
 
