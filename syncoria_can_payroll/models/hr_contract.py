@@ -79,8 +79,13 @@ class InheritedResPartner(models.Model):
     paycycle_wage = fields.Float(string="Pay Cycle Wage", tracking=True)
 
     # =========================== Deductions ===================================
-    rrsp_amount = fields.Float("RRSP Contribution")
+    rrsp_amount = fields.Float("Employee Portion")
     rrsp_type = fields.Selection(deduction_amount_type,default="percent")
+
+    employer_rrsp = fields.Float("Employer Portion")
+    employer_rrsp_type = fields.Selection(deduction_amount_type, default="percent")
+
+    rrsp_amount_withdraw = fields.Boolean("Can Employee Withdraw RRSP before retirement?")
 
     garnishment = fields.Boolean("Garnishment Deduction?",default=False)
     wage_garnishment = fields.Integer("Wage Garnishment",help="It involves the employer withholding a portion of an employee's wages to satisfy a debt.")

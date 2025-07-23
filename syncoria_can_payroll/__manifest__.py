@@ -17,7 +17,7 @@
     # Check https://github.com/odoo/odoo/blob/16.0/odoo/addons/base/data/ir_module_category_data.xml
     # for the full list
     'category': 'Human Resources/Payroll',
-    'version': '18.0.3.14',
+    'version': '18.0.3.15',
 
     # any module necessary for this one to work correctly
     'depends': ['base', 'hr_payroll', 'hr_work_entry', 'hr_payroll_account', 'portal', 'queue_job_cron_jobrunner'],
@@ -33,6 +33,7 @@
         'data/salary_rules/cpp2.xml',
         'data/salary_rules/ei.xml',
         'data/salary_rules/tax.xml',
+        'data/salary_rules/rrsp.xml',
         'data/emails/reminder_email.xml',
         'data/emails/batch_xml_send_email.xml',
         'data/emails/payslip_mail_template_data.xml',

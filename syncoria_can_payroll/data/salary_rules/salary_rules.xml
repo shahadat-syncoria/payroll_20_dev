@@ -126,7 +126,7 @@ result = final_result
 <!--        EXTRA DEDUCTIONS-->
         <record id="rule_ca_rrsp" model="hr.salary.rule">
             <field name="name">RRSP</field>
-            <field name="sequence" eval="210"/>
+            <field name="sequence" eval="89"/>
             <field name="code">RRSP</field>
             <field name="category_id" ref="syncoria_can_payroll.pre_tax_deduction"/>
             <field name="appears_on_payslip" eval="1"/>
@@ -383,7 +383,7 @@ result = final_result
         <!--        EXTRA DEDUCTIONS-->
         <record id="rule_ca_rrsp_worker" model="hr.salary.rule">
             <field name="name">RRSP</field>
-            <field name="sequence" eval="210"/>
+            <field name="sequence" eval="89"/>
             <field name="code">RRSP_WORKER</field>
             <field name="category_id" ref="syncoria_can_payroll.pre_tax_deduction"/>
             <field name="appears_on_payslip" eval="1"/>

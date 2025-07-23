@@ -441,6 +441,7 @@ class InheritedHrPayslip(models.Model):
             federal_amount_from_td1 = payslip.contract_id.federal_amount_from_td1
             proviancial_amount_from_td1 = payslip.contract_id.proviancial_amount_from_td1
             date_of_birth = str(payslip.employee_id.birthday)
+            amount_withdraw = payslip.contract_id.rrsp_amount_withdraw
             if date_of_birth == 'False':
                 raise ValidationError("Employee Date of Birth Mandatory")
             payroll_year = payslip.date_to.year
@@ -460,6 +461,7 @@ class InheritedHrPayslip(models.Model):
                     "YTD_PI": ytd_pi,
                     "TC": federal_amount_from_td1,
                     "TCP": proviancial_amount_from_td1,
+                    "amount_withdraw" : amount_withdraw,
                     "LCF": 0,
                     "U1": 0,
                     "V": V,

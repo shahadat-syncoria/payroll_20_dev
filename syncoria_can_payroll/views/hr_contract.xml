@@ -41,13 +41,7 @@
                             </group>
                         </group>
                         <group name="deductions" string="Deductions">
-                            <group>
-                                <label for="rrsp_amount"/>
-                                <div class="o_row">
-                                    <field name="rrsp_amount"/>
-                                    <field name="rrsp_type"/>
-                                </div>
-                            </group>
+
                             <group>
                                 <field name="garnishment" widget="boolean_toggle"/>
                                 <label for="wage_garnishment" invisible="garnishment != True"/>
@@ -87,6 +81,27 @@
                                 </div>
                             </group>
                         </group>
+                    </page>
+                     <page name="rrsp_contribution" string="RRSP Contribution">
+
+
+                        <group name="employer_rrsp_contribution" string="Contribution">
+                            <group>
+                                <label for="employer_rrsp"/>
+                                <div class="o_row">
+                                    <field name="employer_rrsp"/>
+                                    <field name="employer_rrsp_type"/>
+                                </div>
+                                <label for="rrsp_amount"/>
+                                <div class="o_row">
+                                    <field name="rrsp_amount"/>
+                                    <field name="rrsp_type"/>
+                                </div>
+                                <field name="rrsp_amount_withdraw"/>
+                            </group>
+
+                        </group>
+
                     </page>
                 </page>
                 <xpath expr="//field[@name='structure_type_id']" position="after">

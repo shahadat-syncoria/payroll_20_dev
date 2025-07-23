@@ -179,7 +179,7 @@ class InhertitedHrEmployee(models.Model):
 
     def _update_ytd_cpp_pi_ei(self,payslip_ytd,req_type, year, action=None):
         line_obj = self.payroll_line_ids.filtered(lambda x: x.year == str(year))
-        if req_type in ['CPP', "CPP2","EI","EI_EMPLOYER"]:
+        if req_type in ['CPP', "CPP2","EI","EI_EMPLOYER","RRSP","RRSP_EMPLOYER"]:
             ytd_total_amount = sum(payslip_ytd.filtered(lambda x: x.code == req_type).mapped("total"))
 
             if not line_obj and not action == 'cancel':
@@ -191,6 +191,8 @@ class InhertitedHrEmployee(models.Model):
                         "ytd_cpp2_erp": ytd_total_amount if req_type == 'CPP2' else 0,
                         "ytd_ei_erp": ytd_total_amount if req_type == 'EI' else 0,
                         "ytd_ei_employer_erp": ytd_total_amount if req_type == 'EI_EMPLOYER' else 0,
+                        "ytd_employee_rrsp_erp": ytd_total_amount if req_type == 'RRSP' else 0,
+                        "ytd_employer_rrsp_erp": ytd_total_amount if req_type == 'RRSP_EMPLOYER' else 0,
                     }
                 )
 
@@ -199,6 +201,8 @@ class InhertitedHrEmployee(models.Model):
                 line_obj.ytd_cpp2_erp = ytd_total_amount if req_type == 'CPP2' else line_obj.ytd_cpp2_erp
                 line_obj.ytd_ei_erp = ytd_total_amount if req_type == 'EI' else line_obj.ytd_ei_erp
                 line_obj.ytd_ei_employer_erp = ytd_total_amount if req_type == 'EI_EMPLOYER' else line_obj.ytd_ei_employer_erp
+                line_obj.ytd_employee_rrsp_erp = ytd_total_amount if req_type == 'RRSP' else line_obj.ytd_ei_employer_erp
+                line_obj.ytd_employer_rrsp_erp = ytd_total_amount if req_type == 'RRSP_EMPLOYER' else line_obj.ytd_ei_employer_erp
 
         elif req_type in ['PI']:
             ytd_total_amount = sum(payslip_ytd.filtered(lambda x: x.salary_rule_id.is_insurable_earning).mapped("total"))
@@ -222,7 +226,7 @@ class InhertitedHrEmployee(models.Model):
 
             payslip_ytd = rec._get_ytd_payslip_line_ids(year)
             if self.env.context['type'] == "ALL":
-                for i in ["CPP", "CPP2", "PI","EI","EI_EMPLOYER"]:
+                for i in ["CPP", "CPP2", "PI","EI","EI_EMPLOYER","RRSP","RRSP_EMPLOYER"]:
                     rec._update_ytd_cpp_pi_ei(payslip_ytd,i,year, action)
             else:
                 rec._update_ytd_cpp_pi_ei(payslip_ytd,rec.env.context.get('type'),year, action)
@@ -388,6 +392,17 @@ class HrEmployeeYTDPayrollInformation(models.Model):
     ytd_prov_tax_erp = fields.Float("Year To Date Prov Tax ERP", default=0)
     ytd_previous_prov_tax = fields.Float("Previous Year To Date Prov Tax", default=0)
 
+    #RRSP contribution
+    year_to_date_employee_rrsp = fields.Float("Year To Date Employee Portion", default=0, store=True,
+                                                  compute="_compute_ytd_rrsp")
+    ytd_previous_employee_rrsp = fields.Float("Previous Year To Date Employee Portion", default=0)
+    ytd_employee_rrsp_erp = fields.Float("Year To Date Employee Portion ERP", default=0, store=True,)
+
+    year_to_date_employer_rrsp = fields.Float("Year To Date Employer Portion", default=0, store=True,
+                                              compute="_compute_ytd_rrsp")
+    ytd_previous_employer_rrsp = fields.Float("Previous Year To Date Employer Portion", default=0)
+    ytd_employer_rrsp_erp = fields.Float("Year To Date Employer Portion ERP", default=0, store=True,)
+
     @api.constrains('year')
     def _check_year(self):
         self.ensure_one()
@@ -459,7 +474,7 @@ class HrEmployeeYTDPayrollInformation(models.Model):
             year = self.env.context['year'] if 'year' in self.env.context else self.year
             payslip_ytd = rec.head_id._get_ytd_payslip_line_ids(int(year))
             if self.env.context['type'] == "ALL":
-                for i in ["CPP", "CPP2", "PI","EI","EI_EMPLOYER"]:
+                for i in ["CPP", "CPP2", "PI","EI","EI_EMPLOYER","RRSP","RRSP_EMPLOYER"]:
                     rec.head_id._update_ytd_cpp_pi_ei(payslip_ytd,i,int(year))
             else:
                 rec.head_id._update_ytd_cpp_pi_ei(payslip_ytd,rec.env.context.get('type'),int(year))
@@ -471,3 +486,9 @@ class HrEmployeeYTDPayrollInformation(models.Model):
     def update_ytd_tax(self):
         for rec in self:
             rec.head_id.update_ytd_tax(int(self.year),rec)
+
+    @api.depends("ytd_previous_employee_rrsp", "ytd_employee_rrsp_erp","ytd_previous_employer_rrsp","ytd_employer_rrsp_erp")
+    def _compute_ytd_rrsp(self):
+        for rec in self:
+            rec.year_to_date_employee_rrsp = rec.ytd_previous_employee_rrsp + rec.ytd_employee_rrsp_erp
+            rec.year_to_date_employer_rrsp = rec.ytd_previous_employer_rrsp + rec.ytd_employer_rrsp_erp
