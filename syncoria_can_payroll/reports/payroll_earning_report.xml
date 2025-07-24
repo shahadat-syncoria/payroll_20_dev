@@ -37,6 +37,7 @@
                                     <th name="cpp2">CPP2 Deductions</th>
                                     <th name="ei">EI Deductions</th>
                                     <th name="employer_ei">Employer EI Deductions</th>
+                                     <th name="employer_contribuition">Employer Contribution</th>
                                     <th name="wsib">WSIB Premium</th>
                                 </tr>
 
@@ -87,7 +88,7 @@
 
 
                                             <td name="employer_ei"><span t-esc="round(line['employer_ei'], 2)"/><span t-esc="currency" /></td>
-
+                                            <td name="employer_con"><span t-esc="round(line['employer_contribution'], 2)"/><span t-esc="currency" /></td>
                                             <td name="wsib"><span t-esc="round(line['wsib'], 2)"/><span t-esc="currency" /></td>
                                         </tr>
                                     </t>
@@ -105,6 +106,7 @@
                                         <td>
 
                                         </td>
+                                        <td></td>
                                         <td>
                                             <span t-esc="round(line['total_gross'],2)"/>
                                             <span t-esc="currency" />
@@ -139,6 +141,10 @@
                                         </td>
                                         <td name="total_employer_ei">
                                             <span t-esc="round(line['employer_ei'],2)"/>
+                                            <span t-esc="currency" />
+                                        </td>
+                                                <td name="total_employer_con">
+                                            <span t-esc="round(line['employer_contribution'],2)"/>
                                             <span t-esc="currency" />
                                         </td>
                                         <td name="total_wsib">

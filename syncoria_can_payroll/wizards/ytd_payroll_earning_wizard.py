@@ -50,6 +50,11 @@ class YTDPayrollEarning(models.TransientModel):
         compute="_compute_employee_ids",
         store=True,
     )
+    payslip_state = fields.Selection([("paid", "Paid"),
+                                      ("done", "Done"),
+                                      ("verify", "Waiting"),
+                                      ("all", "All")],
+                                     string="Payslip State", default="paid")
 
     @api.depends('date_from','date_to')
     def _compute_employee_ids(self):
@@ -85,14 +90,19 @@ class YTDPayrollEarning(models.TransientModel):
         currency = self.env.company.currency_id.symbol
 
         all_employee_totals = []
+        domain = [
+            ('date_from', '>=', date_from),
+            ('date_to', '<=', date_to)
+        ]
+        if self.payslip_state and self.payslip_state != 'all':
+            domain += [('state', '=', self.payslip_state)]
+        else:
+            domain += [('state', 'not in', ['cancel', 'draft'])]
+
 
         for employee in self.employee_ids:
-            payslips = self.env['hr.payslip'].search([
-                ('employee_id', '=', employee.id),
-                ('state', '=', 'paid'),
-                ('date_from', '>=', date_from),
-                ('date_to', '<=', date_to)
-            ])
+
+            payslips = self.env['hr.payslip'].search(domain+[('employee_id', '=', employee.id)])
 
             totals = {
                 'total_gross': 0.0,

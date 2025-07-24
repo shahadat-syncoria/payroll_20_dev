@@ -6,22 +6,34 @@ import json
 import xlsxwriter
 from odoo import models
 from odoo.tools import date_utils
-
+from datetime import datetime, date
+import calendar
 
 class EmployeeNetPay(models.TransientModel):
     _name = "payroll.earning.wizard"
     _description = "Payroll Earning Report"
 
 
-    date_from = fields.Date("Date From")
-    date_to = fields.Date("Date To")
+    date_from = fields.Date("Date From",default=lambda self: date(date.today().year, 1, 1))
+    date_to = fields.Date("Date To",default=lambda self: date.today().replace(
+            day=calendar.monthrange(date.today().year, date.today().month)[1]
+        ))
+
+    payslip_state = fields.Selection([("paid","Paid"),("done","Done"),("verify","Waiting"),("all","All")],
+                                     string="Payslip State", default="paid")
 
     def get_payslip_ids(self):
-        payslip_ids = self.env['hr.payslip'].search([
-            ('state', 'in', ['paid']),
+        domain = [
             ('date_from', '>=', self.date_from),
             ('date_to', '<=', self.date_to)
-        ], order="date_from asc")
+        ]
+        if self.payslip_state and self.payslip_state != 'all':
+            domain += [('state', '=', self.payslip_state)]
+        else:
+            domain += [('state', 'not in', ['cancel', 'draft'])]
+
+        payslip_ids = self.env['hr.payslip'].search(domain, order="date_from asc")
+
         currency = self.env.company.currency_id
         grouped_payslip_data = {}
         totals = {
@@ -34,11 +46,21 @@ class EmployeeNetPay(models.TransientModel):
             'prov_tax': 0.0,
             'total_gross': 0.0,
             'total_insurable_earnings': 0.0,
+            'employer_contribution': 0.0,
             'wsib': 0.0
         }
 
         for rec in payslip_ids:
-            wsib = rec.company_id.wsib
+            wsib_rate = rec.company_id.wsib
+            employee = rec.employee_id
+            line_ids = rec.line_ids
+
+            def get_amount(code):
+                return line_ids.filtered(lambda l: l.code == code).amount or 0.0
+
+            insurable_earnings = get_amount("I_Earning")
+            wsib_amount = (insurable_earnings * wsib_rate) / 100 if employee.is_wsib_applicable else 0.0
+
             pay_cycle = rec.pay_cycle.paystub_group_name
             if pay_cycle not in grouped_payslip_data:
                 grouped_payslip_data[pay_cycle] = {
@@ -48,51 +70,44 @@ class EmployeeNetPay(models.TransientModel):
 
             payslip_data = {
                 "pay_period": rec.pay_cycle_period.name if rec.pay_cycle_period else '',
-                "employee_name": rec.employee_id.name,
-                "total_gross": rec.line_ids.search([("slip_id", "=", rec.id), ("code", "=", "GROSS")]).amount,
-                "total_insurable_earnings": rec.line_ids.search(
-                    [("slip_id", "=", rec.id), ("code", "=", "I_Earning")]).amount,
-                "net_pay": rec.line_ids.search([("slip_id", "=", rec.id), ("code", "=", "NET")]).amount,
-                "fed_tax": rec.line_ids.search([("slip_id", "=", rec.id), ("code", "=", "FTAX")]).amount,
-                "prov_tax": rec.line_ids.search([("slip_id", "=", rec.id), ("code", "=", "OTAX")]).amount,
-                "cpp": rec.line_ids.search([("slip_id", "=", rec.id), ("code", "=", "CPP")]).amount,
-                "cpp2": rec.line_ids.search([("slip_id", "=", rec.id), ("code", "=", "CPP2")]).amount,
-                "ei": rec.line_ids.search([("slip_id", "=", rec.id), ("code", "=", "EI")]).amount,
-                "employer_ei": rec.line_ids.search([("slip_id", "=", rec.id), ("code", "=", "EI_EMPLOYER")]).amount,
-                "wsib": (rec.line_ids.search(
-                    [("slip_id", "=", rec.id), ("code", "=", "I_Earning")]).amount * wsib) /100
+                "employee_name": employee.name,
+                "employee_code": employee.employee_code or '',
+                "total_gross": get_amount("GROSS"),
+                "total_insurable_earnings": insurable_earnings,
+                "net_pay": get_amount("NET"),
+                "fed_tax": get_amount("FTAX"),
+                "prov_tax": get_amount("OTAX"),
+                "cpp": get_amount("CPP"),
+                "cpp2": get_amount("CPP2"),
+                "ei": get_amount("EI"),
+                "employer_ei": get_amount("EI_EMPLOYER"),
+                "employer_contribution": get_amount("EMP_CON"),
+                "wsib": wsib_amount
             }
-            totals['total_gross'] += rec.line_ids.search([("slip_id", "=", rec.id), ("code", "=", "GROSS")]).amount
-            totals['total_insurable_earnings'] += rec.line_ids.search(
-                [("slip_id", "=", rec.id), ("code", "=", "I_Earning")]).amount  # Total Insurable Earnings
-            totals['net_pay'] += rec.line_ids.search([("slip_id", "=", rec.id), ("code", "=", "NET")]).amount  # Net Pay
-            totals['fed_tax'] += rec.line_ids.search(
-                [("slip_id", "=", rec.id), ("code", "=", "FTAX")]).amount  # Federal Tax Deduction
-            totals['prov_tax'] += rec.line_ids.search(
-                [("slip_id", "=", rec.id), ("code", "=", "OTAX")]).amount  # Provincial Tax Deduction
-            totals['cpp'] += rec.line_ids.search(
-                [("slip_id", "=", rec.id), ("code", "=", "CPP")]).amount  # CPP Deduction
-            totals['cpp2'] += rec.line_ids.search(
-                [("slip_id", "=", rec.id), ("code", "=", "CPP2")]).amount  # CPP2 Deduction
-            totals['ei'] += rec.line_ids.search([("slip_id", "=", rec.id), ("code", "=", "EI")]).amount  # EI Deduction
-            totals['employer_ei'] += rec.line_ids.search(
-                [("slip_id", "=", rec.id), ("code", "=", "EI_EMPLOYER")]).amount
-            totals['wsib'] += (rec.line_ids.search(
-                    [("slip_id", "=", rec.id), ("code", "=", "I_Earning")]).amount * wsib) /100
 
-            # Append the payslip data to the appropriate pay_cycle group
+            # Add to totals
+            totals['total_gross'] += payslip_data['total_gross']
+            totals['total_insurable_earnings'] += payslip_data['total_insurable_earnings']
+            totals['net_pay'] += payslip_data['net_pay']
+            totals['fed_tax'] += payslip_data['fed_tax']
+            totals['prov_tax'] += payslip_data['prov_tax']
+            totals['cpp'] += payslip_data['cpp']
+            totals['cpp2'] += payslip_data['cpp2']
+            totals['ei'] += payslip_data['ei']
+            totals['employer_ei'] += payslip_data['employer_ei']
+            totals['employer_contribution'] += payslip_data['employer_contribution']
+            totals['wsib'] += wsib_amount
+
             grouped_payslip_data[pay_cycle]['payslips'].append(payslip_data)
-
-
 
         datas = {
             'date_range': f"{self.date_from} to {self.date_to}",
             'grouped_payslips': grouped_payslip_data,
             'totals': totals,
-            'currency':currency.symbol
+            'currency': currency.symbol
         }
-        return datas
 
+        return datas
 
 
     def print_report(self):

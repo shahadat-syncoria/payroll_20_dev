@@ -11,7 +11,14 @@
                             <field name="date_from" required="1" />
                             <field name="date_to" required="1"/>
                         </group>
-
+                         <group>
+                            <field name="payslip_state" required="1" />
+                        </group>
+                    </group>
+                     <group>
+                         <p style="color:#888888; font-style:italic;">
+                                    Note: Payslips in <strong>Draft</strong> and <strong>Cancelled</strong> states are excluded from the "All" selection.
+                                </p>
                     </group>
                     <footer>
                         <button string="PDF File" type="object" name="print_report" class="oe_highlight"/>
