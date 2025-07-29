@@ -473,6 +473,10 @@ class InheritedHrPayslip(models.Model):
                     "emp_province": emp_province,
                     "date_of_birth": date_of_birth
                 }
+            payslip.message_post(
+                body=f"{payload}",
+
+            )
 
             # Make the API call ******************************************************************
             try:
@@ -497,6 +501,10 @@ class InheritedHrPayslip(models.Model):
                 }
                 response = requests.post(final_url+end_point, json=payload, headers=header)
                 response_data = response.json()
+                payslip.message_post(
+                    body=f"{response_data}",
+
+                )
                 if 'FTAX' not in response_data:
                     raise ValidationError(f"Failed to call the API: {response_data['detail'] if 'detail' in response_data else response_data['results']}")
                 payslip.api_response_json = response_data
