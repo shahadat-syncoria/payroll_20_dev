@@ -418,6 +418,7 @@ class InheritedHrPayslip(models.Model):
             pay_lines = payslip._get_payslip_lines()
             I = 0
             F = 0
+            Emp_F = 0
             B = 0
             V = 0
             V_list = ['ADJUST_VP','VP']
@@ -430,6 +431,8 @@ class InheritedHrPayslip(models.Model):
                     V += x['amount']
                 if x['code'] == 'RRSP':
                     F = x['amount']
+                if x['code'] == 'RRSP_EMPLOYER':
+                    Emp_F = x['amount']
             # Parameters for the API request
             P = payslip.pay_cycle.pay_cycle
             D = emp_line_obj.ytd_cpp
@@ -452,6 +455,7 @@ class InheritedHrPayslip(models.Model):
                     "B1": B1,
                     "D": D,
                     "F": F,
+                    "Emp_F": Emp_F,
                     "F1": 0,
                     "F2": 0,
                     "F3": 0,
