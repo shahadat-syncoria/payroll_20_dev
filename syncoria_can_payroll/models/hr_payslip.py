@@ -425,8 +425,8 @@ class InheritedHrPayslip(models.Model):
             for x in pay_lines:
                 if self.env['hr.salary.rule'].sudo().browse(x['salary_rule_id']).is_irregular_payment:
                     B += x['amount']
-                if x['code'] == 'GROSS':
-                    I = x['amount']
+                if self.env['hr.salary.rule'].sudo().browse(x['salary_rule_id']).category_id.code == "GROSS":
+                    I += x['amount']
                 if x['code'] in V_list:
                     V += x['amount']
                 if x['code'] == 'RRSP':

@@ -6,7 +6,7 @@
             <field name="name">Overtime</field>
             <field name="sequence" eval="70"/>
             <field name="code">OVERTIME</field>
-            <field name="category_id" ref="syncoria_can_payroll.additional_allowance"/>
+            <field name="category_id" ref="hr_payroll.GROSS"/>
             <field name="appears_on_payslip" eval='True'/>
             <field name="active" eval="1"/>
             <field name="amount_select">code</field>

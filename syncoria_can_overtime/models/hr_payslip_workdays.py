@@ -19,7 +19,8 @@ class SyncoriaWorkedDays(models.Model):
         super(SyncoriaWorkedDays, self)._compute_amount()
 
         for rec in self:
-            lines = self.env["overtime.thresholds.line"].search([])
+            lines = rec.payslip_id.contract_id.overtime_threshold_id.line_ids
+
             for line in lines:
 
                 if line.work_entry_id.code == rec.code:
