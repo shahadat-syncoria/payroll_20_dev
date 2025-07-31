@@ -44,7 +44,12 @@ class InheritedHrPayslipOvertime(models.Model):
 
             return overtime_hour_rate
 
+    def _get_date_range_overtime(self):
 
+        date_from = self.date_from
+        date_to = self.date_to
+
+        return date_from, date_to
 
     def calculate_overtime(self):
         _logger.info(f"Payslip ID===>{self.id}")
@@ -64,9 +69,11 @@ class InheritedHrPayslipOvertime(models.Model):
         # Get the start and end date of the payslip
         slip_tz = pytz.timezone(self.contract_id.resource_calendar_id.tz)
         utc = pytz.timezone('UTC')
-        payslip_start_date = slip_tz.localize(datetime.combine(self.date_from, time.min)).astimezone(utc).replace(tzinfo=None)
+        date_from, date_to = self._get_date_range_overtime()
+
+        payslip_start_date = slip_tz.localize(datetime.combine(date_from, time.min)).astimezone(utc).replace(tzinfo=None)
         # payslip_start_date = datetime.combine(self.date_from, time.min)
-        payslip_end_date = slip_tz.localize(datetime.combine(self.date_to, time.max)).astimezone(utc).replace(tzinfo=None)
+        payslip_end_date = slip_tz.localize(datetime.combine(date_to, time.max)).astimezone(utc).replace(tzinfo=None)
         # payslip_end_date = datetime.combine(self.date_to, time.max)
 
         _logger.info(f"Start date:{payslip_start_date} and End Date: {payslip_end_date}")
