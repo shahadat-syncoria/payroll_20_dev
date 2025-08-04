@@ -26,8 +26,8 @@
             </xpath>
 
                  <xpath expr="//field[@name='payment_report']" position="after">
-                       <label for="overtime_start_date" string="Overtime Period" invisible="not (pay_cycle_period.overtime_start_date and pay_cycle_period.overtime_start_date)"/>
-                    <div invisible="not (pay_cycle_period.overtime_start_date and pay_cycle_period.overtime_start_date)">
+                       <label for="overtime_start_date" string="Overtime Period" invisible="not (overtime_start_date and overtime_start_date)"/>
+                    <div invisible="not (overtime_start_date and overtime_start_date)">
                         <field name="overtime_start_date" class="oe_inline" readonly="1"/> - <field name="overtime_end_date" class="oe_inline" readonly="1"/>
                     </div>
                 </xpath>
