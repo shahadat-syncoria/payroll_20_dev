@@ -36,6 +36,7 @@
         'views/hr_attendance_overtime_store.xml',
         'views/hr_employee_view.xml',
         'views/hr_payslip.xml',
+        'views/paycycle_configuration.xml',
 
         'wizards/manual_input_wiz.xml'
 

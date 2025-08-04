@@ -21,6 +21,9 @@ class InheritedHrPayslipOvertime(models.Model):
     total_stored_overtime_amount = fields.Float("Stored Overtime Hours",
                                                 related="employee_id.total_stored_overtime_amount")
 
+    overtime_start_date = fields.Date(related="pay_cycle_period.overtime_start_date")
+    overtime_end_date = fields.Date(related="pay_cycle_period.overtime_end_date")
+
     def _check_banked_overtime_constrain(self, banked_overtime_other_input):
         self.ensure_one()
         if banked_overtime_other_input.amount > self.total_stored_overtime_amount:
@@ -45,11 +48,12 @@ class InheritedHrPayslipOvertime(models.Model):
             return overtime_hour_rate
 
     def _get_date_range_overtime(self):
-
-        date_from = self.date_from
-        date_to = self.date_to
-
-        return date_from, date_to
+        ot_from = self.overtime_start_date
+        ot_to = self.overtime_end_date
+        if ot_from and ot_to:
+            return ot_from, ot_to
+        else:
+            return self.date_from,self.date_to
 
     def calculate_overtime(self):
         _logger.info(f"Payslip ID===>{self.id}")

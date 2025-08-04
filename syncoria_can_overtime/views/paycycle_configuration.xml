@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <!-- Inherit the original view -->
+        <record id="inherit_paycycle_configuration_form_view" model="ir.ui.view">
+            <field name="name">paycycle.config.form.inherit</field>
+            <field name="model">paycycle.config</field>
+            <field name="inherit_id" ref="syncoria_can_payroll.paycycle_configuration_form_view"/>
+            <field name="arch" type="xml">
+                <xpath expr="//notebook/page[@name='pay_periods']/group/field/form/field/list/field[@name='end_date']" position="after">
+                    <field name="overtime_start_date" width="200px"/>
+                    <field name="overtime_end_date" width="200px"/>
+                </xpath>
+            </field>
+        </record>
+
+    </data>
+</odoo>
