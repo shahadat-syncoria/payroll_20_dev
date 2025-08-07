@@ -8,6 +8,7 @@ from odoo.exceptions import UserError, ValidationError
 
 from odoo.modules.module import get_module_resource
 from datetime import datetime
+import re
 
 from pypdf import PdfReader, PdfWriter
 
@@ -382,7 +383,7 @@ class RecordOfEmployee(models.Model):
         ET.SubElement(b16, "FN").text = self.name_of_issuer_id.name.split(" ")[-1] if self.name_of_issuer_id else ""
         ET.SubElement(b16, "LN").text = self.name_of_issuer_id.name.split(" ")[0] if self.name_of_issuer_id else ""
         ET.SubElement(b16, "AC").text = self.area_code
-        ET.SubElement(b16, "TEL").text = self.telephone_no[3:] if self.telephone_no and len(self.telephone_no) > 3 else ''
+        ET.SubElement(b16, "TEL").text = re.sub(r'\D', '', self.telephone_no)[3:] if self.telephone_no and len(re.sub(r'\D', '', self.telephone_no)) > 3 else ''
 
 
         # VACATION PAY INFORMATION
@@ -454,7 +455,7 @@ class RecordOfEmployee(models.Model):
                 # fields = reader.get_fields()
 
                     writer.append(reader)
-                    rec.compute_roe()
+                    # rec.compute_roe()
 
                     has_last_payment =  self.vacation_amount_ids.sorted(key=lambda r: r.reference, reverse=True)[:1]
                     rec.vacation_pay_amount = f'{has_last_payment.amount:.2f}' if has_last_payment else ''
