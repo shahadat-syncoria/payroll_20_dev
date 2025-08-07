@@ -116,7 +116,7 @@ class RecordOfEmployee(models.Model):
     name_of_issuer_id = fields.Many2one(
         "hr.employee",
         string="22-Name of Issuer",
-
+        default=lambda self: self.env['hr.employee'].search([('user_id', '=', self.env.uid)], limit=1).id
     )
     payslip_ids = fields.One2many("hr.payslip", "roe_id", string="15c-PaySlip")
     vacation_pay_ids = fields.One2many("hr.vacation.pay", "roe_id", string="Vacation Pay")
@@ -256,18 +256,21 @@ class RecordOfEmployee(models.Model):
             employee = self.employee_id
             payslip_ids = self.get_payslip_ids()
             has_last_payment = self.vacation_amount_ids.sorted(key=lambda r: r.reference, reverse=True)[:1]
+            issuer_phone = self.name_of_issuer_id.work_phone if self.name_of_issuer_id else ''
+            area_code = issuer_phone[:3] if issuer_phone else ''
+            last_day_worked = self.last_day_worked
 
             line_obj = self.employee_id.payroll_line_ids.filtered(lambda x: x.year == datetime.now().year)
             self.write({
                 "company_id": employee.company_id,
-                "name_of_issuer_id" : self.env['hr.employee'].search([('user_id', '=', self.env.uid)], limit=1).id,
+                # "name_of_issuer_id" : self.env['hr.employee'].search([('user_id', '=', self.env.uid)], limit=1).id,
                 'employee_lnm': employee.name.split(" ")[-1],  # FIX: Add field on employee
                 'employee_fnm': employee.name.split(" ")[0],  # FIX: Add field on employee
                 'employee_init': employee.name.split(" ")[0][0],
                 "pay_period_id": employee.contract_id.salary_pay_cycle,
                 "social_insurance_number": employee.identification_id,
                 "first_day_worked": employee.contract_id.date_start,
-                "last_day_worked": employee.contract_id.date_end,
+                "last_day_worked": employee.contract_id.date_end or last_day_worked,
                 "final_pay_period_ending_date": payslip_ids[0].date_to if payslip_ids else '',
                 "occupation": employee.job_id.name,
                 "cra_payroll_acc_num": employee.company_id.payroll_account_number,
@@ -277,8 +280,8 @@ class RecordOfEmployee(models.Model):
                 "payslip_ids": payslip_ids,
                 "vacation_amount_ids": self._get_vacation_amount(),
                 "vacation_pay_amount": round(has_last_payment.amount,2) if has_last_payment else '',
-                "telephone_no": self.name_of_issuer_id.work_phone if self.name_of_issuer_id else '',
-                "area_code": self.telephone_no[:3] if self.telephone_no else ''
+                "telephone_no": issuer_phone,
+                "area_code": area_code,
             })
 
         # ======================== Generate and download T4 xml ===========================
