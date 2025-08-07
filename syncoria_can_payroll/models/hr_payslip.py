@@ -421,10 +421,16 @@ class InheritedHrPayslip(models.Model):
             Emp_F = 0
             B = 0
             V = 0
+            PI = 0
+            IE = 0
             V_list = ['ADJUST_VP','VP']
             for x in pay_lines:
                 if self.env['hr.salary.rule'].sudo().browse(x['salary_rule_id']).is_irregular_payment:
                     B += x['amount']
+                if self.env['hr.salary.rule'].sudo().browse(x['salary_rule_id']).is_pensionable:
+                    PI += x['amount']
+                if self.env['hr.salary.rule'].sudo().browse(x['salary_rule_id']).is_insurable_earning:
+                    IE += x['amount']
                 if self.env['hr.salary.rule'].sudo().browse(x['salary_rule_id']).category_id.code == "GROSS":
                     I += x['amount']
                 if x['code'] in V_list:
@@ -452,6 +458,8 @@ class InheritedHrPayslip(models.Model):
                     "I": I,
                     "P": P,
                     "B": B,
+                    "PI":PI,
+                    "IE":IE,
                     "B1": B1,
                     "D": D,
                     "F": F,
