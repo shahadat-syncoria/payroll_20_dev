@@ -392,6 +392,36 @@ class InheritedHrPayslip(models.Model):
 
         return res
 
+    def _payslip_line_ytd_total(self):
+        self.ensure_one()  # Ensure single record
+
+        # Get the YTD payslip lines for the employee and year
+        line_ids = self.employee_id._get_ytd_payslip_line_ids(self.year)
+
+        # Get the salary rules from the contract's structure
+        rules = self.employee_id.contract_id.structure_type_id.default_struct_id.rule_ids
+
+        ytd_totals = {}
+        for rule in rules:
+            # Filter lines matching the salary rule
+            rule_lines = line_ids.filtered(lambda line: line.salary_rule_id.id == rule.id)
+            ytd_totals[rule.code] = round(sum(rule_lines.mapped('total')), 2)
+
+        return ytd_totals
+
+    # def _get_payslip_lines(self):
+    #     # Call original method to get line values
+    #     line_vals = super()._get_payslip_lines()
+    #
+    #     # Get YTD totals for this payslip
+    #     ytd_dict = self._payslip_line_ytd_total()
+    #
+    #     # Add YTD amount to each line if rule code exists
+    #     for line in line_vals:
+    #         code = line.get('code')
+    #         line['ytd'] = ytd_dict.get(code, 0.0) + line['total']
+    #
+    #     return line_vals
 
     def action_payslip_refresh(self):
         for x in self:
@@ -404,7 +434,9 @@ class InheritedHrPayslip(models.Model):
         payslips.line_ids.unlink()
         self.env.flush_all()
         today = fields.Date.today()
+
         for payslip in payslips:
+            ytd_dict = payslip._payslip_line_ytd_total()
             emp_line_obj = payslip.employee_id.payroll_line_ids.filtered(lambda x: x.year == str(payslip.date_to.year))
             number = payslip.number or self.env['ir.sequence'].next_by_code('salary.slip')
             payslip.write({
@@ -542,11 +574,11 @@ class InheritedHrPayslip(models.Model):
                     otax  = response_data['OTAX'] if response_data else 0
                     x['amount'], x['total'] = otax, otax
 
-                if x['code'] == 'CPP':
-                    cpp  = response_data['CPP'] if response_data else 0
+                if x['code'] in ['CPP', 'CPP_EMPLOYER']:
+                    cpp = response_data['CPP'] if response_data else 0
                     x['amount'], x['total'] = cpp, cpp
 
-                if x['code'] == 'CPP2':
+                if x['code'] in ['CPP2', 'CPP2_EMPLOYER']:
                     cpp2  = response_data['CPP2'] if response_data else 0
                     x['amount'], x['total'] = cpp2, cpp2
 
@@ -576,6 +608,9 @@ class InheritedHrPayslip(models.Model):
                     net_amount = round(positive_amount - neg_amount, 2)
                     x['amount'] = net_amount
                     x['total'] = net_amount
+
+                code = x.get('code')
+                x['ytd'] = ytd_dict.get(code, 0.0) + x['total']
 
             self.env['hr.payslip.line'].create(pay_lines)
         return True
