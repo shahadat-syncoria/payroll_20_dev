@@ -258,6 +258,44 @@ else:
             </field>
         </record>
 
+                <record id="rule_ca_life_insurance_employer" model="hr.salary.rule">
+            <field name="name">Life Insurance Employer</field>
+            <field name="sequence" eval="230"/>
+            <field name="code">LIFE_INSURANCE_EMP</field>
+            <field name="category_id" ref="hr_payroll.COMP"/>
+            <field name="appears_on_payslip" eval="1"/>
+            <field name="active" eval="1"/>
+            <field name="amount_select">code</field>
+            <field name="struct_id" ref="syncoria_can_payroll.structure_can_employee"/>
+            <field name="condition_select">python</field>
+            <field name="condition_python">result = contract.benefit_plans and contract.life_insurance_employer >0.0</field>
+            <field name="amount_python_compute">
+if contract.life_insurance_employer > 0.0 and contract.life_insurance_employer_type == "percent":
+    result = GROSS *(contract.life_insurance_employer/100)
+else:
+    result = contract.life_insurance_employer
+            </field>
+        </record>
+
+        <record id="rule_ca_medical_insurance_employer" model="hr.salary.rule">
+            <field name="name">Medical Insurance Employer</field>
+            <field name="sequence" eval="230"/>
+            <field name="code">MEDICAL_INSURANCE_EMP</field>
+            <field name="category_id" ref="hr_payroll.COMP"/>
+            <field name="appears_on_payslip" eval="1"/>
+            <field name="active" eval="1"/>
+            <field name="amount_select">code</field>
+            <field name="struct_id" ref="syncoria_can_payroll.structure_can_employee"/>
+            <field name="condition_select">python</field>
+            <field name="condition_python">result = contract.benefit_plans and contract.medical_insurance_employer >0.0</field>
+            <field name="amount_python_compute">
+if contract.medical_insurance_employer > 0.0 and contract.medical_insurance_employer_type == "percent":
+    result = GROSS *(contract.medical_insurance_employer/100)
+else:
+    result = contract.medical_insurance_employer
+            </field>
+        </record>
+
 <!--        xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx WORKER xxxxxxxxxxxxxxxxxxxxxxxxxx-->
 
         <!--        =================== GROSS ======================-->

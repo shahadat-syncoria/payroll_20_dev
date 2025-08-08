@@ -108,11 +108,15 @@ class InheritedResPartner(models.Model):
     benefit_plans = fields.Boolean("Benefit Plans",default=False)
 
 
-    life_insurance = fields.Float("Life Insurance")
+    life_insurance = fields.Float("Employee Portion")
     life_insurance_type = fields.Selection(deduction_amount_type, default="percent")
+    life_insurance_employer = fields.Float("Employer Portion")
+    life_insurance_employer_type = fields.Selection(deduction_amount_type, default="percent")
 
-    medical_insurance = fields.Float("Medical Insurance")
+    medical_insurance = fields.Float("Employee Portion")
     medical_insurance_type = fields.Selection(deduction_amount_type, default="percent")
+    medical_insurance_employer = fields.Float("Employer Portion")
+    medical_insurance_employer_type = fields.Selection(deduction_amount_type, default="percent")
 
     # To get the paycycle of the employee from its structure_type_id if the paycycle is not selected.
     @api.model_create_multi
