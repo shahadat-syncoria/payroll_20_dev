@@ -17,7 +17,7 @@
     'version': '18.0.0.1',
 
     # any module necessary for this one to work correctly
-    'depends': ['timesheet_grid','syncoria_can_payroll'],
+    'depends': ['timesheet_grid','syncoria_can_payroll','hr_work_entry_contract'],
 
     # always loaded
     'data': [

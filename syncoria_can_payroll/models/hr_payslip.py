@@ -171,6 +171,8 @@ class InheritedHrPayslip(models.Model):
             if is_pay_cycle and not rec.contract_id.is_hourly:
                 if rec.contract_id.work_entry_source in ['attendance','calendar']:
                     result += round(rec._get_worked_days_line_amount('WORK100'),2)
+                elif rec.contract_id.work_entry_source == 'timesheet_hours':
+                    result += round(rec._get_worked_days_line_amount('TIMESHEET_WORK100'),2)
             elif is_pay_cycle and rec.contract_id.is_hourly:
                 if rec.contract_id.work_entry_source in ['attendance','calendar']:
                     result += round(rec._get_worked_days_line_amount('WORK100'),2)

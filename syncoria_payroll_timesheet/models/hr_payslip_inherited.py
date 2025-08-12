@@ -5,16 +5,12 @@ class InheritedHrPaySlip(models.Model):
     _inherit = "hr.payslip"
 
     def _get_new_worked_days_lines(self):
-        """
-                Overtime added to workdays line
-                This function will run if overtime_method is
-        """
+
         res = super()._get_new_worked_days_lines()
         for payslip in self:
-            if payslip.employee_id and payslip.contract_id and payslip.contract_id.is_hourly and payslip.contract_id.work_entry_source == 'timesheet_hours':
+            if payslip.employee_id and payslip.contract_id  and payslip.contract_id.work_entry_source == 'timesheet_hours':
                 employee = payslip.employee_id
                 avg_working_hour_per_day = payslip.contract_id.resource_calendar_id.hours_per_day
-                payslip.wage_type = "hourly"
                 employees_grid_data = [{
                     'id': employee.id,
                     'display_name': employee.name,

@@ -10,5 +10,14 @@ class SyncoriaWorkedDays(models.Model):
         super(SyncoriaWorkedDays,self)._compute_amount()
 
         for rec in self:
-            if rec.payslip_id.contract_id.is_hourly and rec.payslip_id.contract_id.work_entry_source == 'timesheet_hours' and rec.code==self.env.ref('syncoria_payroll_timesheet.sync_work_type_timesheet').code:
-                rec.amount = rec.number_of_hours * rec.payslip_id.contract_id.hourly_rate
+            if rec.payslip_id.contract_id.work_entry_source == 'timesheet_hours' and rec.code==self.env.ref('syncoria_payroll_timesheet.sync_work_type_timesheet').code:
+                if rec.payslip_id.contract_id.is_hourly:
+                    rec.amount = rec.number_of_hours * rec.payslip_id.contract_id.hourly_rate
+                else:
+                    hourly_rate = (rec.payslip_id.contract_id.wage * 12) / (
+                            rec.payslip_id.contract_id.resource_calendar_id.full_time_required_hours * 52)
+                    # rec.amount =  rec.payslip_id.contract_id.contract_wage * rec.number_of_hours / (rec.payslip_id.sum_worked_hours or 1) if rec.payslip_id.contract_id.is_fixed else hourly_rate * rec.number_of_hours
+                    rec.amount = rec.payslip_id.contract_id.paycycle_wage if rec.payslip_id.contract_id.is_fixed else hourly_rate * rec.number_of_hours
+
+
+

@@ -149,8 +149,8 @@
                 <xpath expr="//field[@name='wage_type']" position="after">
 
 
-                       <field invisible="work_entry_source == 'timesheet_hours' or wage_type == 'hourly'" name="paycycle_wage"/>
-                    <field invisible="work_entry_source == 'timesheet_hours' or wage_type == 'hourly'" name="is_fixed"/>
+                       <field invisible="wage_type == 'hourly'" name="paycycle_wage"/>
+                    <field invisible="wage_type == 'hourly'" name="is_fixed"/>
                     <field invisible="1" name="is_hourly"/>
                     <field invisible="wage_type != 'hourly'" name="hourly_rate"/>
                 </xpath>
