@@ -65,6 +65,7 @@
         'views/res_users.xml',
         'views/hr_salary_rule.xml',
         'views/payroll_portal_templates.xml',
+        'views/hr_payslip_ytd_opening.xml',
 
         # 'views/templates.xml',
 

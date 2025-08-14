@@ -395,35 +395,47 @@ class InheritedHrPayslip(models.Model):
         return res
 
     def _payslip_line_ytd_total(self):
-        self.ensure_one()  # Ensure single record
+        self.ensure_one()
 
-        # Get the YTD payslip lines for the employee and year
         line_ids = self.employee_id._get_ytd_payslip_line_ids(self.year)
 
-        # Get the salary rules from the contract's structure
         rules = self.employee_id.contract_id.structure_type_id.default_struct_id.rule_ids
+
+        opening_rec = self.env['hr.payslip.ytd.opening'].search([
+            ('employee_id', '=', self.employee_id.id),
+            ('year', '=', self.year),
+            ('contract_id', '=', self.contract_id.id),
+            ('company_id', '=', self.company_id.id),
+        ], limit=1)
+
+
+        opening_dict = {}
+        if opening_rec:
+            for line in opening_rec.ytd_opening_lines:
+                opening_dict[line.salary_rule_id.code] = line.opening_amount
+
 
         ytd_totals = {}
         for rule in rules:
-            # Filter lines matching the salary rule
-            rule_lines = line_ids.filtered(lambda line: line.salary_rule_id.id == rule.id)
-            ytd_totals[rule.code] = round(sum(rule_lines.mapped('total')), 2)
+            payslip_total = sum(line.total for line in line_ids if line.salary_rule_id.id == rule.id)
+            opening_total = opening_dict.get(rule.code, 0.0)
+            ytd_totals[rule.code] = round(payslip_total + opening_total, 2)
 
         return ytd_totals
 
-    # def _get_payslip_lines(self):
-    #     # Call original method to get line values
-    #     line_vals = super()._get_payslip_lines()
-    #
-    #     # Get YTD totals for this payslip
-    #     ytd_dict = self._payslip_line_ytd_total()
-    #
-    #     # Add YTD amount to each line if rule code exists
-    #     for line in line_vals:
-    #         code = line.get('code')
-    #         line['ytd'] = ytd_dict.get(code, 0.0) + line['total']
-    #
-    #     return line_vals
+    def _get_payslip_lines(self):
+        # Call original method to get line values
+        line_vals = super()._get_payslip_lines()
+
+        # Get YTD totals for this payslip
+        ytd_dict = self._payslip_line_ytd_total()
+
+        # Add YTD amount to each line if rule code exists
+        for line in line_vals:
+            code = line.get('code')
+            line['ytd'] = ytd_dict.get(code, 0.0)
+
+        return line_vals
 
     def action_payslip_refresh(self):
         for x in self:
@@ -611,8 +623,8 @@ class InheritedHrPayslip(models.Model):
                     x['amount'] = net_amount
                     x['total'] = net_amount
 
-                code = x.get('code')
-                x['ytd'] = ytd_dict.get(code, 0.0) + x['total']
+                # code = x.get('code')
+                # x['ytd'] = ytd_dict.get(code, 0.0) + x['total']
 
             self.env['hr.payslip.line'].create(pay_lines)
         return True
