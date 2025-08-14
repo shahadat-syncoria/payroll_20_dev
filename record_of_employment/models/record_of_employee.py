@@ -258,7 +258,8 @@ class RecordOfEmployee(models.Model):
             payslip_ids = self.get_payslip_ids()
             has_last_payment = self.vacation_amount_ids.sorted(key=lambda r: r.reference, reverse=True)[:1]
             issuer_phone = self.company_id.phone if self.company_id else ''
-            area_code = issuer_phone[:3] if issuer_phone else ''
+            phone = issuer_phone.replace("+1", "").replace(" ", "").replace("-", "")
+            area_code = phone[:3] if phone else ''
             last_day_worked = self.last_day_worked
 
             line_obj = self.employee_id.payroll_line_ids.filtered(lambda x: x.year == datetime.now().year)
@@ -281,7 +282,7 @@ class RecordOfEmployee(models.Model):
                 "payslip_ids": payslip_ids,
                 "vacation_amount_ids": self._get_vacation_amount(),
                 "vacation_pay_amount": round(has_last_payment.amount,2) if has_last_payment else '',
-                "telephone_no": issuer_phone,
+                "telephone_no": phone,
                 "area_code": area_code,
             })
 
