@@ -33,6 +33,7 @@
 
                         </group>
                         <group string="Employer Information">
+                            <field name="company_id"/>
                             <field name="name_of_issuer_id"/>
                             <field name="telephone_no"/>
                             <field name="area_code"/>

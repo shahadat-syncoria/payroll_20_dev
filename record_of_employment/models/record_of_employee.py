@@ -59,7 +59,7 @@ class RecordOfEmployee(models.Model):
 
     xml_content = fields.Text(string='XML Content')
     employee_id = fields.Many2one("hr.employee", string="9-Employee")
-    company_id = fields.Many2one("res.company", string="Company")
+    company_id = fields.Many2one("res.company", string="4-Employer's Name",default=lambda self: self.env.company)
     state = fields.Selection([
         ('draft', 'New'),
         ('done', 'Done'),
@@ -257,13 +257,13 @@ class RecordOfEmployee(models.Model):
             employee = self.employee_id
             payslip_ids = self.get_payslip_ids()
             has_last_payment = self.vacation_amount_ids.sorted(key=lambda r: r.reference, reverse=True)[:1]
-            issuer_phone = self.name_of_issuer_id.work_phone if self.name_of_issuer_id else ''
+            issuer_phone = self.company_id.phone if self.company_id else ''
             area_code = issuer_phone[:3] if issuer_phone else ''
             last_day_worked = self.last_day_worked
 
             line_obj = self.employee_id.payroll_line_ids.filtered(lambda x: x.year == datetime.now().year)
             self.write({
-                "company_id": employee.company_id,
+                # "company_id": employee.company_id,
                 # "name_of_issuer_id" : self.env['hr.employee'].search([('user_id', '=', self.env.uid)], limit=1).id,
                 'employee_lnm': employee.name.split(" ")[-1],  # FIX: Add field on employee
                 'employee_fnm': employee.name.split(" ")[0],  # FIX: Add field on employee
@@ -345,8 +345,8 @@ class RecordOfEmployee(models.Model):
 
         # EMPLOYEE INFORMATION
         b9 = ET.SubElement(roe, "B9")
-        ET.SubElement(b9, "FN").text = self.employee_lnm or " "
-        ET.SubElement(b9, "LN").text = self.employee_fnm or " "
+        ET.SubElement(b9, "FN").text = self.employee_fnm or " "
+        ET.SubElement(b9, "LN").text = self.employee_lnm or " "
         ET.SubElement(b9, "A1").text = self.employee_addr_l1_txt or " "
         ET.SubElement(b9, "A2").text = self.employee_addr_l2_txt or " "
         ET.SubElement(b9, "A3").text = self.employee_cntry_cd.name or " "
@@ -380,8 +380,8 @@ class RecordOfEmployee(models.Model):
         ET.SubElement(b16, "CD").text = str(
             dict(self._fields['reason_for_issuing_roe'].selection).get(self.reason_for_issuing_roe).split("-")[
                 0]) if self.reason_for_issuing_roe else "" or " "
-        ET.SubElement(b16, "FN").text = self.name_of_issuer_id.name.split(" ")[-1] if self.name_of_issuer_id else ""
-        ET.SubElement(b16, "LN").text = self.name_of_issuer_id.name.split(" ")[0] if self.name_of_issuer_id else ""
+        ET.SubElement(b16, "FN").text = self.company_id.name.split(" ")[0] if self.company_id else ""
+        ET.SubElement(b16, "LN").text = self.company_id.name.split(" ")[-1] if self.company_id else ""
         ET.SubElement(b16, "AC").text = self.area_code
         ET.SubElement(b16, "TEL").text = re.sub(r'\D', '', self.telephone_no)[3:] if self.telephone_no and len(re.sub(r'\D', '', self.telephone_no)) > 3 else ''
 
@@ -462,7 +462,7 @@ class RecordOfEmployee(models.Model):
                     data = {
                         'sl_no': rec.serial_no or '',
                         'employee_info': f'{rec.employee_id.name}\n{rec.employee_id.private_street or ""},{rec.employee_id.private_street2 or ""},{rec.employee_id.private_city or ""},{rec.employee_id.private_country_id.name or ""}' or '',
-                        'employer_info': f'{rec.name_of_issuer_id.name}\n{rec.name_of_issuer_id.private_street or ""},{rec.name_of_issuer_id.private_street2 or ""},{rec.name_of_issuer_id.private_city or ""},{rec.name_of_issuer_id.private_country_id.name or ""}' or '',
+                        'employer_info': f'{rec.company_id.name}\n{rec.company_id.street or ""},{rec.company_id.street2 or ""},{rec.company_id.city or ""},{rec.company_id.country_id.name or ""}' or '',
                         'pay_period_type': rec.pay_period_id.paystub_group_name or '',
                         'unique_id2': '',
                         'employer_payroll_ref': rec.employer_payroll_ref or '',
