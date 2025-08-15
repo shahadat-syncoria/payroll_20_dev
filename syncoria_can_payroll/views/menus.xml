@@ -76,6 +76,12 @@
                 parent="menu_hr_salary_tax_configuration"
                 sequence="40"
                 action="prov_tax_act_window"/>
+           <menuitem id="menu_hr_payslip_ytd_opening"
+              name="YTD Opening Balances"
+              parent="syncoria_can_payroll.menu_hr_salary_tax_configuration"
+              action="action_hr_payslip_ytd_opening"
+              sequence="1"/>
+
 
 
 
