@@ -29,6 +29,8 @@ class InheritedHrPaySlip(models.Model):
                     # 'amount': timesheet_hours*payslip.contract_id.hourly_rate
 
                 }))
+                attendance_type_id = self.env.ref('hr_work_entry.work_entry_type_attendance').id
+                res = [entry for entry in res if entry[2]['work_entry_type_id'] != attendance_type_id]
 
         return res
 
