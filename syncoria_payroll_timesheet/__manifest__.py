@@ -17,12 +17,13 @@
     'version': '18.0.0.1',
 
     # any module necessary for this one to work correctly
-    'depends': ['timesheet_grid','syncoria_can_payroll','hr_work_entry_contract'],
+    'depends': ['timesheet_grid','syncoria_can_payroll','hr_work_entry_contract','hr_payroll'],
 
     # always loaded
     'data': [
         'security/ir.model.access.csv',
         'data/data.xml',
+        'views/hr_payslip.xml',
         # 'views/views.xml',
         # 'views/templates.xml',
         # 'views/hr_contract_inherited_view.xml'
