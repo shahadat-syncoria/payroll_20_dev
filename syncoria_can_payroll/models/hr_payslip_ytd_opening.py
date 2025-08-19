@@ -90,7 +90,7 @@ class HrPayslipYTDOpening(models.Model):
                 }))
 
         # Append the new rules without removing existing amounts
-        self.ytd_opening_lines = list(self.ytd_opening_lines) + line_values
+        self.ytd_opening_lines = line_values
 
 
 
