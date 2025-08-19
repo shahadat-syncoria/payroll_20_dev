@@ -77,7 +77,7 @@ class SyncoriaHrEmployeeManualWizard(models.TransientModel):
             work_entries_by_contract[work_entry.contract_id] |= work_entry
 
         for contract, work_entries in work_entries_by_contract.items():
-            if contract.work_entry_source != 'calendar':
+            if contract.work_entry_source not in ['calendar','timesheet_hours']:
                 continue
             calendar_start = pytz.utc.localize(
                 datetime.combine(max(contract.date_start, payslip_run.date_start), time.min))
@@ -199,7 +199,8 @@ class SyncoriaEmployeeManualInputLine(models.TransientModel):
     manual_input_wizard_id= fields.Many2one("hr.payslip.employee.manual.wizard")
     create_draft_id= fields.Many2one("hr.payslip.create.draft.wizard")
     employee_id = fields.Many2one("hr.employee", string="Employee Name")
-    slip_id = fields.Many2one("hr.payslip", string="Slip_id")
+    slip_id = fields.Many2one("hr.payslip", string="Slip_id",store=True)
+    struct_id = fields.Many2one("hr.payroll.structure", string="Struct_id",store=True)
 
     attendance_hours = fields.Float(string="Attendance Number of Hours")
     overtime_hours = fields.Float(string="Overtime Number of Hours")

@@ -63,3 +63,36 @@ class InheritedHrPaySlip(models.Model):
                 'default_employee_id': self.employee_id.id
             }
         }
+
+    def compute_workdays_manual_input(self, manual_input_ids):
+        super(InheritedHrPaySlip, self).compute_workdays_manual_input(manual_input_ids)
+        for rec in self:
+
+            manual_input_line_id = manual_input_ids.filtered(lambda x: x.employee_id == rec.employee_id)
+            timesheet_hour = manual_input_line_id.attendance_hours
+            avg_working_hour_per_day = rec.contract_id.resource_calendar_id.hours_per_day
+            work_entry_id = self.env.ref('syncoria_payroll_timesheet.sync_work_type_timesheet').id
+
+            existing_line = rec.worked_days_line_ids.filtered(
+                lambda l: l.work_entry_type_id.id == work_entry_id
+            )
+            worked_days_lines = []
+
+            if timesheet_hour and  rec.contract_id.work_entry_source == "timesheet_hours":
+                if existing_line:
+                    existing_line.write({
+                        'number_of_days': timesheet_hour / avg_working_hour_per_day,
+                        'number_of_hours': timesheet_hour,
+                        'name': 'Attendance',
+                    })
+                else :
+                    rec.write({
+                        'worked_days_line_ids': [(0, 0, {
+                            'work_entry_type_id': work_entry_id,
+                            'name': 'Timesheet Log',
+                            'number_of_days': timesheet_hour / avg_working_hour_per_day,
+                            'number_of_hours': timesheet_hour,
+                        })]
+                    })
+
+            rec.worked_days_line_ids = worked_days_lines

@@ -5,11 +5,24 @@
         <field name="model">hr.payslip.create.draft.wizard</field>
         <field name="arch" type="xml">
             <form string="Create Draft Payslips Wizard">
-                    <field name="draft_line_ids" widget="one2many_list" nolabel="1">
+                <group>
+                    <group>
+                        <field name="is_bulk_upload" />
+                    <field name="upload_filename" invisible="1"/>
+                    <field name="upload_file" filename="upload_filename" invisible="not is_bulk_upload"/>
+                    </group>
+                     <group>
+                         <button string="Download Template" type="object" name="action_download_template" class="btn-primary" invisible="not is_bulk_upload"/>
+                     </group>
+
+
+                </group>
+                   <group>
+                        <field name="draft_line_ids" widget="one2many_list" nolabel="1" invisible="is_bulk_upload">
                         <list editable="bottom">
                             <field name="employee_id"/>
                             <field name="attendance_hours" widget="float_time"/>
-                            <field name="overtime_hours"/>
+                            <field name="overtime_hours" />
                              <field name="stat_overtime_hours"/>
                                 <field name="payout_vacation_pay_paycycle" optional="hide"/>
                                 <field name="ytd_vac_pay_amount" optional="hide" readonly="1" force_save="1"/>
@@ -19,11 +32,14 @@
                                 <field name="retro" optional="hide"/>
                         </list>
                     </field>
+                   </group>
+
 
                 <footer>
-                    <button string="Generate Draft Payslips" type="object" name="action_generate_draft_payslips" class="btn-primary"/>
-                    <button string="Compute Sheet" type="object" name="compute_sheet" class="btn-secondary"/>
-                    <button string="Cancel" class="btn-secondary" special="cancel"/>
+                    <button string="Generate Draft Payslips" type="object" name="action_generate_draft_payslips" class="btn-primary" invisible="is_bulk_upload"/>
+                    <button string="Process Payslips" type="object" name="action_process_upload_to_slips" class="btn-primary" invisible="not is_bulk_upload"/>
+                    <button string="Compute Sheet" type="object" name="compute_sheet" class="btn-secondary" invisible="is_bulk_upload"/>
+                    <button string="Cancel" class="btn-secondary" special="cancel" />
                 </footer>
             </form>
         </field>
