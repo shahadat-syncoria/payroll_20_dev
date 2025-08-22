@@ -198,7 +198,7 @@ class VacationPayslip(models.Model):
             except Exception as e:
                 payslip.message_post(body=f"Vacation Pay Error:{e}")
 
-        super(VacationPayslip, self).compute_sheet()
+        res = super(VacationPayslip, self).compute_sheet()
         for payslip in payslips:
             if payslip.payout_vacation_pay_paycycle and not payslip.employee_id.is_adjust_vacation_pay_leave:
                 payslip.create_adjusted_vac_pay()
@@ -208,7 +208,7 @@ class VacationPayslip(models.Model):
             if last_vac_pay and not payslip.payout_vacation_pay_paycycle:
                 payslip.create_adjusted_vac_pay()
 
-        return super(VacationPayslip, self).compute_sheet()
+        return res
 
     def create_adjusted_vac_pay(self):
         adjusted_input_type = self.env.ref('syncoria_can_vacation_pay.input_ca_adjusted_vac_pay').id
