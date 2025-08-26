@@ -46,6 +46,26 @@ result = (categories['GROSS'] + categories['ALW']+categories['ADD_ALLOWANCE']) -
 
         </record>
 
+        <!--        ============================ UNPAID ===================-->
+        <record id="rule_ca_unpaid_pay" model="hr.salary.rule">
+            <field name="name">Unpaid</field>
+            <field name="sequence" eval="300"/>
+            <field name="code">UNPAID_PAY</field>
+            <field name="category_id" ref="hr_payroll.DED"/>
+            <field name="appears_on_payslip" eval='True'/>
+            <field name="active" eval="1"/>
+            <field name="amount_select">code</field>
+            <field name="struct_id" ref="syncoria_can_payroll.structure_can_employee"/>
+            <field name="condition_select">python</field>
+            <field name="condition_python">result = 'LEAVE90' in worked_days</field>
+
+            <field name="amount_python_compute">
+result = abs(worked_days['LEAVE90'].amount)
+result_name = worked_days['LEAVE90'].name
+            </field>
+        </record>
+
+
 <!--        ============================ EXPENSE ===================-->
         <record id="rule_ca_expense" model="hr.salary.rule">
             <field name="name">EXPENSES</field>

@@ -12,6 +12,11 @@
                     <field name="is_insurable_hour"/>
 
                 </xpath>
+
+                <xpath expr="//field[@name='unpaid_structure_ids']" position="after">
+                    <field name="is_negative_amount"/>
+
+                </xpath>
             </field>
 
         </record>
