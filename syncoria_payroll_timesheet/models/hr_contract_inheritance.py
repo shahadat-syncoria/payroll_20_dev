@@ -25,7 +25,7 @@ class InheritedContract(models.Model):
         return super().generate_work_entries(date_start, date_stop, force)
 
     def _get_attendance_intervals(self, start_dt, end_dt):
-        super()._get_attendance_intervals(start_dt, end_dt)
+        mapped_intervals = super()._get_attendance_intervals(start_dt, end_dt)
         # {resource: intervals}
         employees_by_calendar = defaultdict(lambda: self.env['hr.employee'])
         for contract in self:
@@ -34,13 +34,13 @@ class InheritedContract(models.Model):
             employees_by_calendar[contract.resource_calendar_id] |= contract.employee_id
         result = dict()
         for calendar, employees in employees_by_calendar.items():
-            result.update(calendar._attendance_intervals_batch(
+            mapped_intervals.update(calendar._attendance_intervals_batch(
                 start_dt,
                 end_dt,
                 resources=employees.resource_id,
                 tz=pytz.timezone(calendar.tz)
             ))
-        return result
+        return mapped_intervals
 
 
     # def _get_work_entries_values(self, date_start, date_stop):
