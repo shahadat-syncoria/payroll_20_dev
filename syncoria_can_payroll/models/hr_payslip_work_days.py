@@ -21,6 +21,5 @@ class SyncoriaWorkedDays(models.Model):
                     rec.amount = rec.payslip_id.contract_id.paycycle_wage if rec.payslip_id.contract_id.is_fixed else hourly_rate * rec.number_of_hours
                 if  rec.work_entry_type_id.is_leave:
                     rec.amount = hourly_rate * rec.number_of_hours
-            elif rec.payslip_id.struct_id in rec.work_entry_type_id.unpaid_structure_ids:
                 if  rec.work_entry_type_id.is_leave and rec.work_entry_type_id.is_negative_amount:
                     rec.amount = -(hourly_rate * rec.number_of_hours)
