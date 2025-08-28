@@ -51,7 +51,7 @@ result = (categories['GROSS'] + categories['ALW']+categories['ADD_ALLOWANCE']) -
             <field name="name">Unpaid</field>
             <field name="sequence" eval="300"/>
             <field name="code">UNPAID_PAY</field>
-            <field name="category_id" ref="hr_payroll.DED"/>
+            <field name="category_id" ref="syncoria_can_payroll.CALC"/>
             <field name="appears_on_payslip" eval='True'/>
             <field name="active" eval="1"/>
             <field name="amount_select">code</field>
