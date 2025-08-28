@@ -97,9 +97,6 @@ class SyncoriaCreateDraftWizard(models.TransientModel):
         # Define columns
         columns = [   "Slip ID",
                       "Employee Name",
-                      "Regular Hours",
-                      "Overtime Hours",
-                      "Statutory Overtime Hours"
                   ] + [field for field in input_codes]
 
         # Build rows
@@ -108,9 +105,6 @@ class SyncoriaCreateDraftWizard(models.TransientModel):
             row = [
                 line[2]["slip_id"],
                 line[2]["employee_id"].name,
-                line[2]["attendance_hours"],
-                line[2]["overtime_hours"],
-                line[2]["stat_overtime_hours"],
             ]
             # Add input codes (default 0.0 if missing)
             for field in input_codes:
@@ -163,12 +157,12 @@ class SyncoriaCreateDraftWizard(models.TransientModel):
         except Exception as e:
             raise UserError(f"Failed to read Excel file: {str(e)}")
 
-        required_columns = ["Employee Name", "Regular Hours", "Overtime Hours", "Statutory Overtime Hours"]
-        missing_columns = [col for col in required_columns if col not in df.columns]
-        if missing_columns:
-            raise UserError(f"Missing required columns in Excel: {', '.join(missing_columns)}")
 
-        other_input_columns = [col for col in df.columns if col not in required_columns]
+        # missing_columns = [col for col in required_columns if col not in df.columns]
+        # if missing_columns:
+        #     raise UserError(f"Missing required columns in Excel: {', '.join(missing_columns)}")
+
+        other_input_columns = [col for col in df.columns ]
 
         hr_input_obj = self.env['hr.payslip.input']
 
@@ -179,26 +173,6 @@ class SyncoriaCreateDraftWizard(models.TransientModel):
                 continue  # Skip rows with no matching employee/payslip
 
 
-            mapping = {
-                "Regular Hours": "input_regular_hours_code",  # replace with actual code
-                "Overtime Hours": "input_overtime_code",
-                "Statutory Overtime Hours": "input_stat_ot_code",
-            }
-
-            # for key, code in mapping.items():
-            #     amount = row.get(key, 0.0)
-            #     input_line = slip.input_line_ids.filtered(lambda l: l.code == code)
-            #     if input_line:
-            #         input_line.amount = amount
-            #     else:
-            #         hr_input_obj.create({
-            #             "payslip_id": slip.id,
-            #             "input_type_id": self.env.ref(f"hr_payroll.{code}").id,
-            #             "amount": amount,
-            #             "code": code,
-            #         })
-
-            # Other inputs dynamically
             for field in other_input_columns:
                 amount = row.get(field, 0.0)
                 input_line = slip.input_line_ids.filtered(lambda l: l.code == field)
@@ -215,7 +189,7 @@ class SyncoriaCreateDraftWizard(models.TransientModel):
                             "code": field,
                         })
         self.compute_sheet()
-        self.action_generate_draft_payslips()
+
 
         return {
             'type': 'ir.actions.client',

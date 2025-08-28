@@ -36,7 +36,7 @@
 
 
                 <footer>
-                    <button string="Generate Draft Payslips" type="object" name="action_generate_draft_payslips" class="btn-primary" invisible="is_bulk_upload"/>
+                    <button string="Generate Draft Payslips" type="object" name="action_generate_draft_payslips" class="btn-primary"/>
                     <button string="Process Payslips" type="object" name="action_process_upload_to_slips" class="btn-primary" invisible="not is_bulk_upload"/>
                     <button string="Compute Sheet" type="object" name="compute_sheet" class="btn-secondary" invisible="is_bulk_upload"/>
                     <button string="Cancel" class="btn-secondary" special="cancel" />
