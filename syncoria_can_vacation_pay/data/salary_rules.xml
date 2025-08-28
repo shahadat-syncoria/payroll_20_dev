@@ -36,7 +36,7 @@ result_name = inputs['Vacation_Pay'].name
         </record>
          <record id="rule_ca_adjusted_vacation_pay" model="hr.salary.rule">
             <field name="name">Adjusted Vacation Pay</field>
-            <field name="sequence" eval="340"/>
+            <field name="sequence" eval="88"/>
             <field name="code">ADJUST_VP</field>
             <field name="category_id" ref="syncoria_can_payroll.additional_allowance"/>
             <field name="appears_on_payslip" eval='True'/>
