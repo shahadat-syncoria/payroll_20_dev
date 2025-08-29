@@ -40,6 +40,10 @@
 <!--                <xpath expr="//field[@name='move_id']" position="after">-->
 <!--                    <field name="api_response_json" force_save="1"/>-->
 <!--                </xpath>-->
+
+                <xpath expr="//field[@name='worked_days_line_ids']/list/field[@name='ytd']" position="attributes">
+                    <attribute name="column_invisible">1</attribute>
+                </xpath>
             </field>
         </record>
         <record id="hr_payslip_list_inherit" model="ir.ui.view">

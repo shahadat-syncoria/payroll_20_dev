@@ -70,6 +70,6 @@ class SyncoriaHrEmployeeManualInputLineOvertime(models.TransientModel):
     @api.constrains("overtime_hours")
     def _check_overtime_hours(self):
         for rec in self:
-            if rec.employee_id.total_stored_overtime < rec.overtime_hours:
+            if rec.employee_id.overtime_method == 'banked_overtime' and rec.employee_id.total_stored_overtime < rec.overtime_hours:
                 raise UserError("Overtime hours cannot be greater then Banked Overtime.")
 
