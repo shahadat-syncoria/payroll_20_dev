@@ -10,13 +10,13 @@
                     <attribute name="invisible">1</attribute>
                 </xpath>
 
-<!--                Salary Structure -->
-                <xpath expr="//separator[1]" position="attributes">
-                    <attribute name="invisible">1</attribute>
-                </xpath>
-                <xpath expr="//div[1]" position="attributes">
-                    <attribute name="invisible">1</attribute>
-                </xpath>
+<!--&lt;!&ndash;                Salary Structure &ndash;&gt;-->
+<!--                <xpath expr="//separator[1]" position="attributes">-->
+<!--                    <attribute name="invisible">1</attribute>-->
+<!--                </xpath>-->
+<!--                <xpath expr="//div[1]" position="attributes">-->
+<!--                    <attribute name="invisible">1</attribute>-->
+<!--                </xpath>-->
 
 <!--                Department filter-->
                 <xpath expr="//separator[2]" position="attributes">
