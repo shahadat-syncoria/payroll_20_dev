@@ -31,6 +31,23 @@
                 <xpath expr="//div[2]" position="attributes">
                     <attribute name="invisible">1</attribute>
                 </xpath>
+
+                <xpath expr="//field[@name='employee_ids']" position="replace">
+                    <field name="line_ids">
+                        <list editable="bottom">
+                            <field name="is_remove" no_label="1"/>
+                            <field name="employee_id"/>
+                            <field name="work_email"/>
+                            <field name="department_id"/>
+                            <field name="structure_type_id"/>
+                        </list>
+                    </field>
+                </xpath>
+
+                <xpath expr="//footer" position="inside">
+                    <button name="action_select_all" type="object" string="Select All" class="btn-secondary"/>
+                    <button name="action_remove" type="object" string="Remove" class="btn-danger"/>
+                </xpath>
             </field>
     </record>
     <record id="hr_payroll.action_hr_payslip_by_employees" model="ir.actions.act_window">

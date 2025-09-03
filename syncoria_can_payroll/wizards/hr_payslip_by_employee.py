@@ -1,41 +1,183 @@
+# -*- coding: utf-8 -*-
 from collections import defaultdict
-from datetime import datetime, date, time
-from dateutil.relativedelta import relativedelta
+from datetime import datetime, time
 import pytz
 
 from odoo import api, fields, models, _
 from odoo.exceptions import UserError
 from odoo.tools import format_date
+from dateutil.relativedelta import relativedelta
 
 
 class SyncoriaHrPayslipEmployees(models.TransientModel):
-    _inherit = 'hr.payslip.employees'
+    _inherit = "hr.payslip.employees"
 
+    # New One2many field to manage employees with checkbox
+    line_ids = fields.One2many(
+        "hr.payslip.employees.line",
+        "wizard_id",
+        string="Employees"
+    )
 
-
-
-    def _get_employees(self):
-        res = super(SyncoriaHrPayslipEmployees,self)._get_employees()
-        context = self.env.context
-        if 'active_model' in context and context.get('active_model') == 'hr.payslip.run':
-            hr_payslip_run= self.env['hr.payslip.run'].browse(context.get('active_id'))
-            contract_domain = [('contract_ids.state', 'in', ('open',)),
-                               ('company_id', '=', self.env.company.id),
-                               ('contract_ids.salary_pay_cycle','in',hr_payslip_run.pay_cycle.ids)]
-            employees = self.env['hr.employee'].search(contract_domain)
-            return employees
-
+    # Override default_get → populate line_ids from _get_employees()
+    @api.model
+    def default_get(self, fields_list):
+        res = super().default_get(fields_list)
+        employees = self._get_employees()
+        if employees:
+            res["line_ids"] = [(0, 0, {"employee_id": emp.id}) for emp in employees]
         return res
-    @api.onchange('employee_ids')
-    def _onchange_employee_domain(self):
-        for rec in self:
-            context = rec.env.context
-            hr_payslip_run = rec.env['hr.payslip.run'].browse(context.get('active_id'))
-            employee_domains =  rec.env['hr.employee'].search( [('contract_ids.state', 'in', ('open',)),
-                               ('company_id', '=', rec.env.company.id),
-                               ('contract_ids.salary_pay_cycle','in',hr_payslip_run.pay_cycle.ids)]).ids
-            return {'domain': {'employee_ids': [('id', 'in', employee_domains)]}}
 
+    @api.onchange('department_id', 'job_id', 'structure_type_id')
+    def _onchange_filters(self):
+        """Recompute line_ids when filters change (like employee_ids used to)."""
+        for wizard in self:
+            domain = wizard.get_employees_domain()
+            employees = self.env['hr.employee'].search(domain)
+            wizard.line_ids = [(5, 0, 0)]  # clear existing
+            wizard.line_ids = [(0, 0, {"employee_id": emp.id}) for emp in employees]
+
+    def compute_sheet(self):
+        self.ensure_one()
+        if not self.env.context.get("active_id"):
+            from_date = fields.Date.to_date(self.env.context.get("default_date_start"))
+            end_date = fields.Date.to_date(self.env.context.get("default_date_end"))
+            today = fields.date.today()
+            first_day = today + relativedelta(day=1)
+            last_day = today + relativedelta(day=31)
+            if from_date == first_day and end_date == last_day:
+                batch_name = from_date.strftime("%B %Y")
+            else:
+                batch_name = _("From %(from_date)s to %(end_date)s",
+                               from_date=format_date(self.env, from_date),
+                               end_date=format_date(self.env, end_date))
+            payslip_run = self.env["hr.payslip.run"].create({
+                "name": batch_name,
+                "date_start": from_date,
+                "date_end": end_date,
+            })
+        else:
+            payslip_run = self.env["hr.payslip.run"].browse(self.env.context.get("active_id"))
+
+        # Get employees from line_ids excluding removed ones
+        employees = self.line_ids.filtered(lambda l: not l.is_remove).mapped("employee_id")
+
+        if not employees:
+            raise UserError(_("You must select employee(s) to generate payslip(s)."))
+
+        # Prevent duplicate payslips for the same employee
+        employees -= payslip_run.slip_ids.employee_id
+        success_result = {
+            "type": "ir.actions.act_window",
+            "res_model": "hr.payslip.run",
+            "views": [[False, "form"]],
+            "res_id": payslip_run.id,
+        }
+        if not employees:
+            payslip_run.slip_ids.write({"state": "verify"})
+            payslip_run.state = "verify"
+            return success_result
+
+        Payslip = self.env["hr.payslip"]
+
+        contracts = employees._get_contracts(
+            payslip_run.date_start, payslip_run.date_end, states=["open", "close"]
+        ).filtered(lambda c: c.active)
+        contracts.generate_work_entries(payslip_run.date_start, payslip_run.date_end)
+        work_entries = self.env["hr.work.entry"].search([
+            ("date_start", "<=", payslip_run.date_end + relativedelta(days=1)),
+            ("date_stop", ">=", payslip_run.date_start + relativedelta(days=-1)),
+            ("employee_id", "in", employees.ids),
+        ])
+        for slip in payslip_run.slip_ids:
+            slip_tz = pytz.timezone(
+                slip.contract_id.resource_calendar_id.tz
+                or slip.employee_id.tz
+                or slip.company_id.resource_calendar_id.tz
+                or "UTC"
+            )
+            utc = pytz.timezone("UTC")
+            date_from = slip_tz.localize(datetime.combine(slip.date_from, time.min)).astimezone(utc).replace(tzinfo=None)
+            date_to = slip_tz.localize(datetime.combine(slip.date_to, time.max)).astimezone(utc).replace(tzinfo=None)
+            payslip_work_entries = work_entries.filtered_domain([
+                ("contract_id", "=", slip.contract_id.id),
+                ("date_stop", "<=", date_to),
+                ("date_start", ">=", date_from),
+            ])
+            payslip_work_entries._check_undefined_slots(slip.date_from, slip.date_to)
+
+        default_values = Payslip.default_get(Payslip.fields_get())
+        payslips_vals = []
+        for contract in contracts:
+            values = dict(default_values, **{
+                "name": _("New Payslip"),
+                "employee_id": contract.employee_id.id,
+                "payslip_run_id": payslip_run.id,
+                "date_from": payslip_run.date_start,
+                "date_to": payslip_run.date_end,
+                "contract_id": contract.id,
+                "struct_id": self.structure_id.id or contract.structure_type_id.default_struct_id.id,
+            })
+            payslips_vals.append(values)
+
+        payslips = Payslip.with_context(tracking_disable=True).create(payslips_vals)
+        payslips._compute_name()
+        payslips.compute_sheet()
+        payslip_run.slip_ids.write({"state": "verify"})
+        payslip_run.state = "verify"
+
+        return success_result
+
+    def _refresh_wizard(self):
+        """Return action to reopen wizard without closing it."""
+        return {
+            "type": "ir.actions.act_window",
+            "res_model": self._name,
+            "view_mode": "form",
+            "target": "new",  # keep popup
+            "context": self.env.context,  # keep current context
+        }
+
+    def action_select_all(self):
+        """Mark all employees as removed (set is_remove=True)."""
+        for wizard in self:
+            wizard.line_ids.write({"is_remove": True})
+        return {
+            "type": "ir.actions.act_window",
+            "res_model": "hr.payslip.employees",
+            "res_id": self.id,
+            "view_mode": "form",
+            "target": "new",  # <- stay as wizard
+        }
+
+    def action_remove(self):
+        """Delete employees where is_remove=True."""
+        for wizard in self:
+            to_remove = wizard.line_ids.filtered(lambda l: l.is_remove)
+            to_remove.unlink()
+        return {
+            "type": "ir.actions.act_window",
+            "res_model": "hr.payslip.employees",
+            "res_id": self.id,
+            "view_mode": "form",
+            "target": "new",  # <- stay as wizard
+        }
+
+
+
+class HrPayslipEmployeesLine(models.TransientModel):
+    _name = "hr.payslip.employees.line"
+    _description = "Payslip Employees Line"
+
+    wizard_id = fields.Many2one("hr.payslip.employees", required=True, ondelete="cascade")
+    employee_id = fields.Many2one("hr.employee", required=True)
+    is_remove = fields.Boolean("Remove", default=False)
+
+    # Related fields for display
+    work_email = fields.Char(related="employee_id.work_email", readonly=True)
+    department_id = fields.Many2one(related="employee_id.department_id", readonly=True)
+    job_id = fields.Many2one(related="employee_id.job_id", readonly=True)
+    structure_type_id = fields.Many2one(related="employee_id.structure_type_id", readonly=True)
 
 class SyncoriaHrEmployeeManualWizard(models.TransientModel):
     _name = "hr.payslip.employee.manual.wizard"
