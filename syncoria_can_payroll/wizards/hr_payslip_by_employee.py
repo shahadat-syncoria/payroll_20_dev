@@ -41,7 +41,7 @@ class SyncoriaHrPayslipEmployees(models.TransientModel):
             wizard.line_ids = [(0, 0, {"employee_id": emp.id}) for emp in employees]
 
     def compute_sheet(self):
-        super().compute_sheet()
+        # super().compute_sheet()
 
         self.ensure_one()
         if not self.payslip_run_id:
