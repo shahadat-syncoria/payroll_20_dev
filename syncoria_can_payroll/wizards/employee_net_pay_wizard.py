@@ -37,7 +37,7 @@ class EmployeeNetPay(models.TransientModel):
 
     def get_payslip_ids(self):
         payslip_ids = self.env['hr.payslip'].search(
-            [('pay_cycle_period', '=', self.payperiod.id), ("state", "in", ['paid'])])
+            [('pay_cycle_period', '=', self.payperiod.id), ("state", "in", ['paid', 'done'])])
         payslip_data = []
         for rec in payslip_ids:
             payslip_data.append({
