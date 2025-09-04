@@ -12,20 +12,23 @@ from dateutil.relativedelta import relativedelta
 class SyncoriaHrPayslipEmployees(models.TransientModel):
     _inherit = "hr.payslip.employees"
 
-    # New One2many field to manage employees with checkbox
     line_ids = fields.One2many(
         "hr.payslip.employees.line",
         "wizard_id",
         string="Employees"
     )
+    payslip_run_id = fields.Many2one("hr.payslip.run", string="Payslip Run")
 
-    # Override default_get → populate line_ids from _get_employees()
+
+
     @api.model
     def default_get(self, fields_list):
         res = super().default_get(fields_list)
         employees = self._get_employees()
         if employees:
             res["line_ids"] = [(0, 0, {"employee_id": emp.id}) for emp in employees]
+        if self.env.context.get("active_model") == "hr.payslip.run":
+            res["payslip_run_id"] = self.env.context.get("active_id")
         return res
 
     @api.onchange('department_id', 'job_id', 'structure_type_id')
@@ -34,12 +37,15 @@ class SyncoriaHrPayslipEmployees(models.TransientModel):
         for wizard in self:
             domain = wizard.get_employees_domain()
             employees = self.env['hr.employee'].search(domain)
-            wizard.line_ids = [(5, 0, 0)]  # clear existing
+            wizard.line_ids = [(5, 0, 0)]
             wizard.line_ids = [(0, 0, {"employee_id": emp.id}) for emp in employees]
 
     def compute_sheet(self):
+        super().compute_sheet()
+
         self.ensure_one()
-        if not self.env.context.get("active_id"):
+        if not self.payslip_run_id:
+
             from_date = fields.Date.to_date(self.env.context.get("default_date_start"))
             end_date = fields.Date.to_date(self.env.context.get("default_date_end"))
             today = fields.date.today()
@@ -57,15 +63,15 @@ class SyncoriaHrPayslipEmployees(models.TransientModel):
                 "date_end": end_date,
             })
         else:
-            payslip_run = self.env["hr.payslip.run"].browse(self.env.context.get("active_id"))
+            payslip_run = self.payslip_run_id
 
-        # Get employees from line_ids excluding removed ones
+
         employees = self.line_ids.filtered(lambda l: not l.is_remove).mapped("employee_id")
 
         if not employees:
             raise UserError(_("You must select employee(s) to generate payslip(s)."))
 
-        # Prevent duplicate payslips for the same employee
+
         employees -= payslip_run.slip_ids.employee_id
         success_result = {
             "type": "ir.actions.act_window",
@@ -134,8 +140,8 @@ class SyncoriaHrPayslipEmployees(models.TransientModel):
             "type": "ir.actions.act_window",
             "res_model": self._name,
             "view_mode": "form",
-            "target": "new",  # keep popup
-            "context": self.env.context,  # keep current context
+            "target": "new",
+            "context": self.env.context,
         }
 
     def action_select_all(self):
@@ -147,7 +153,7 @@ class SyncoriaHrPayslipEmployees(models.TransientModel):
             "res_model": "hr.payslip.employees",
             "res_id": self.id,
             "view_mode": "form",
-            "target": "new",  # <- stay as wizard
+            "target": "new",
         }
 
     def action_remove(self):
@@ -160,7 +166,7 @@ class SyncoriaHrPayslipEmployees(models.TransientModel):
             "res_model": "hr.payslip.employees",
             "res_id": self.id,
             "view_mode": "form",
-            "target": "new",  # <- stay as wizard
+            "target": "new",
         }
 
 
