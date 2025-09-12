@@ -78,5 +78,5 @@ class SyncoriaHrVacation(models.Model):
     def banked_overtime_amount(self):
         overtime_input_type = self.env.ref('syncoria_can_overtime.input_ca_bank_overtime').id
         for rec in self:
-            if rec.input_type_id.id == overtime_input_type and rec.amount > round(rec.payslip_id.total_stored_overtime_amount,2):
+            if rec.payslip_id.employee_id.overtime_method =='banked_overtime' and rec.input_type_id.id == overtime_input_type and rec.amount > round(rec.payslip_id.total_stored_overtime_amount,2):
                 raise ValidationError(_("Requested overtime greater than stored banked overtime amount!!"))
