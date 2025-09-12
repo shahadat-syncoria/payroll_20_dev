@@ -26,8 +26,9 @@ class InheritedHrPayslipOvertime(models.Model):
 
     def _check_banked_overtime_constrain(self, banked_overtime_other_input):
         self.ensure_one()
-        if banked_overtime_other_input.amount > self.total_stored_overtime_amount:
-            raise ValidationError(_("Requested overtime greater than stored banked overtime amount!!"))
+        for rec in self:
+            if rec.employee_id.overtime_method =='banked_overtime' and banked_overtime_other_input.amount > rec.total_stored_overtime_amount:
+                raise ValidationError(_("Requested overtime greater than stored banked overtime amount!!"))
 
 
     # ========================================= New Overtime Concept =============================================
