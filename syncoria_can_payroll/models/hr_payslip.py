@@ -187,6 +187,23 @@ class InheritedHrPayslip(models.Model):
 
         return result
 
+    def _get_new_worked_days_lines(self):
+
+        res = super()._get_new_worked_days_lines()
+        unpaid_work_entry = self.env["hr.work.entry.type"].search([("is_leave","=",True),("is_negative_amount","=", True)]).ids
+        avg_working_hour_per_day = self.contract_id.resource_calendar_id.hours_per_day
+        new_worked_days_lines = []
+        for entry in res:
+            entry_data = entry[2]
+            if entry_data['work_entry_type_id'] in unpaid_work_entry:
+                unpaid_hour = -entry_data['number_of_hours']
+                entry_data['number_of_hours'] = unpaid_hour
+                entry_data['number_of_days'] = unpaid_hour / avg_working_hour_per_day
+            new_worked_days_lines.append(entry)
+        res = new_worked_days_lines
+
+        return res
+
     # ================== Work days line based on manual input ==============
     def compute_workdays_manual_input(self, manual_input_ids):
         """
