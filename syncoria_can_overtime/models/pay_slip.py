@@ -393,12 +393,15 @@ class InheritedHrPayslipOvertime(models.Model):
             avg_working_hour_per_day = rec.contract_id.resource_calendar_id.hours_per_day
             worked_days_lines = []
             input_line = []
-            # if over_time_hour > 0.0:
-            #     input_line.append((0, 0, {
-            #         'input_type_id': self.env.ref('syncoria_can_overtime.input_ca_bank_overtime').id,
-            #         'name': "overtime",
-            #         'amount': rec._get_hourly_rate() * over_time_hour,
-            #     }))
+            if over_time_hour > 0.0:
+                worked_days_lines.append((0, 0, {
+                    'work_entry_type_id': self.env.ref('syncoria_can_overtime.sync_overtime_work_entry_type').id,
+                    'name': 'Canada Overtime hours',
+                    'number_of_days': over_time_hour / avg_working_hour_per_day,
+                    'number_of_hours': over_time_hour,
+                    # 'amount': timesheet_hours*payslip.contract_id.hourly_rate
+
+                }))
             if stat_over_time_hour > 0.0:
                 worked_days_lines.append((0, 0, {
                     'work_entry_type_id': self.env.ref('syncoria_can_overtime.sync_stat_overtime_work_entry_type').id,
