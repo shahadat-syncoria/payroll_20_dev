@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from collections import defaultdict
-from datetime import datetime, time
+from datetime import datetime, date, time, timedelta
 import pytz
 
 from odoo import api, fields, models, _
@@ -188,10 +188,46 @@ class HrPayslipEmployeesLine(models.TransientModel):
 class SyncoriaHrEmployeeManualWizard(models.TransientModel):
     _name = "hr.payslip.employee.manual.wizard"
     _description = "HR Employee Manual Wizard"
+
+    def _get_attendance_hours(self, hr_payslip_run, employee):
+        # Build an inclusive datetime window for the payslip run
+        start_dt = datetime.combine(hr_payslip_run.date_start, time.min)
+        # use next-day 00:00 as an exclusive upper bound (cleaner math)
+        end_dt = datetime.combine(hr_payslip_run.date_end + timedelta(days=1), time.min)
+
+        WorkEntry = self.env['hr.work.entry']
+        WorkEntryType = self.env['hr.work.entry.type']
+
+        # Try to detect "attendance" types robustly across versions:
+        attendance_types = WorkEntryType.search([
+            ('code', 'in', ['WORK100','TIMESHEET_WORK100'])
+        ])
+
+        domain = [
+            ('employee_id', '=', employee.id),
+            # overlap with [start_dt, end_dt)
+            ('date_start', '<', end_dt),
+            ('date_stop', '>', start_dt),
+        ]
+        if attendance_types:
+            domain.append(('work_entry_type_id', 'in', attendance_types.ids))
+
+        entries = WorkEntry.search(domain)
+
+        total_hours = 0.0
+        for we in entries:
+            s = max(we.date_start, start_dt)
+            e = min(we.date_stop, end_dt)
+            if e > s:
+                total_hours += (e - s).total_seconds() / 3600.0
+
+        return total_hours
+
     @api.model
-    def _get_default_attendance_hours(self,hr_payslip_run,employee_id):
-        if not employee_id.contract_id.is_hourly:
-            return (hr_payslip_run.date_end - hr_payslip_run.date_start).days *employee_id.contract_id.standard_calendar_id.hours_per_day
+    def _get_default_attendance_hours(self, hr_payslip_run, employee):
+
+        if not employee.contract_id.is_hourly:
+            return self._get_attendance_hours(hr_payslip_run, employee)
         else:
             return 0.0
 
