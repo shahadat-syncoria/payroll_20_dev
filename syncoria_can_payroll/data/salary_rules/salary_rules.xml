@@ -101,45 +101,17 @@ result_name = inputs['EXPENSES'].name
             <field name="struct_id" ref="syncoria_can_payroll.structure_can_employee"/>
             <field name="condition_select">none</field>
             <field name="amount_python_compute">
-gross = 0.0
-vp = 0.0
-ad_vp = 0.0
-bonus = 0.0
-retro = 0.0
-ot =0.0
-b_ot = 0.0
-com = 0.0
-stat_ot = 0.0
-exp = 0.0
-final_result =0.0
+final_result = 0.0
 
-for rule in rules:
-    if rules[rule].is_insurable_earning:
-        rule_code = rules[rule].code
-        if rule_code == 'GROSS':
-            gross = GROSS
-        elif rule_code == 'ADJUST_VP':
-            ad_vp = ADJUST_VP
-        elif rule_code == 'VP':
-            vp = VP
-        elif rule_code == 'BONUS':
-            bonus = BONUS
-        elif rule_code == 'RETRO':
-            retro = RETRO
-        elif rule_code == 'OVERTIME':
-            ot = OVERTIME
-        elif rule_code == 'BANKED_OVERTIME':
-            b_ot = BANKED_OVERTIME
-        elif rule_code == 'COMMISSION':
-            com = COMMISSION
-        elif rule_code == 'STAT_OVERTIME':
-            stat_ot = STAT_OVERTIME
-        elif rule_code == 'EXPENSE':
-            exp = EXPENSE
-
-        final_result = gross+ vp+ ad_vp+ bonus+ ot+ retro+ b_ot+ com+ stat_ot + exp
+for code, values in result_rules.items():
+    rule_obj = payslip.struct_id.rule_ids.filtered(lambda r: r.code == code)
+    if rule_obj and rule_obj.is_insurable_earning:
+        final_result += values.get('total', 0.0)
 
 result = final_result
+result_rate = 100
+result_qty = 1
+
             </field>
 
 
@@ -157,12 +129,12 @@ result = final_result
             <field name="amount_select">code</field>
             <field name="struct_id" ref="syncoria_can_payroll.structure_can_employee"/>
             <field name="condition_select">python</field>
-            <field name="condition_python">result = contract.rrsp_amount > 0.0</field>
+            <field name="condition_python">result = employee.rrsp_amount > 0.0</field>
             <field name="amount_python_compute">
-if contract.rrsp_amount > 0.0 and contract.rrsp_type == "percent":
-    result = GROSS *(contract.rrsp_amount/100)
+if employee.rrsp_amount > 0.0 and employee.rrsp_type == "percent":
+    result = GROSS *(employee.rrsp_amount/100)
 else:
-    result = contract.rrsp_amount
+    result = employee.rrsp_amount
             </field>
         </record>
 <!--        GARNISHMENT       -->
@@ -176,12 +148,12 @@ else:
             <field name="amount_select">code</field>
             <field name="struct_id" ref="syncoria_can_payroll.structure_can_employee"/>
             <field name="condition_select">python</field>
-            <field name="condition_python">result = contract.garnishment and contract.wage_garnishment >0.0</field>
+            <field name="condition_python">result = employee.garnishment and employee.wage_garnishment >0.0</field>
             <field name="amount_python_compute">
-if contract.wage_garnishment > 0.0 and contract.wage_garnishment_type == "percent":
-    result = GROSS *(contract.wage_garnishment/100)
+if employee.wage_garnishment > 0.0 and employee.wage_garnishment_type == "percent":
+    result = GROSS *(employee.wage_garnishment/100)
 else:
-    result = contract.wage_garnishment
+    result = employee.wage_garnishment
             </field>
         </record>
 
@@ -195,12 +167,12 @@ else:
             <field name="amount_select">code</field>
             <field name="struct_id" ref="syncoria_can_payroll.structure_can_employee"/>
             <field name="condition_select">python</field>
-            <field name="condition_python">result = contract.garnishment and contract.bank_garnishment >0.0</field>
+            <field name="condition_python">result = employee.garnishment and employee.bank_garnishment >0.0</field>
             <field name="amount_python_compute">
-if contract.bank_garnishment > 0.0 and contract.bank_garnishment_type == "percent":
-    result = GROSS *(contract.bank_garnishment/100)
+if employee.bank_garnishment > 0.0 and employee.bank_garnishment_type == "percent":
+    result = GROSS *(employee.bank_garnishment/100)
 else:
-    result = contract.bank_garnishment
+    result = employee.bank_garnishment
             </field>
         </record>
 
@@ -214,12 +186,12 @@ else:
             <field name="amount_select">code</field>
             <field name="struct_id" ref="syncoria_can_payroll.structure_can_employee"/>
             <field name="condition_select">python</field>
-            <field name="condition_python">result = contract.garnishment and contract.alimony_garnishment >0.0</field>
+            <field name="condition_python">result = employee.garnishment and employee.alimony_garnishment >0.0</field>
             <field name="amount_python_compute">
-if contract.alimony_garnishment > 0.0 and contract.alimony_garnishment_type == "percent":
-    result = GROSS *(contract.alimony_garnishment/100)
+if employee.alimony_garnishment > 0.0 and employee.alimony_garnishment_type == "percent":
+    result = GROSS *(employee.alimony_garnishment/100)
 else:
-    result = contract.alimony_garnishment
+    result = employee.alimony_garnishment
             </field>
         </record>
 
@@ -233,12 +205,12 @@ else:
             <field name="amount_select">code</field>
             <field name="struct_id" ref="syncoria_can_payroll.structure_can_employee"/>
             <field name="condition_select">python</field>
-            <field name="condition_python">result = contract.garnishment and contract.child_support_garnishment >0.0</field>
+            <field name="condition_python">result = employee.garnishment and employee.child_support_garnishment >0.0</field>
             <field name="amount_python_compute">
-if contract.child_support_garnishment > 0.0 and contract.child_support_garnishment_type == "percent":
-    result = GROSS *(contract.child_support_garnishment/100)
+if employee.child_support_garnishment > 0.0 and employee.child_support_garnishment_type == "percent":
+    result = GROSS *(employee.child_support_garnishment/100)
 else:
-    result = contract.child_support_garnishment
+    result = employee.child_support_garnishment
             </field>
         </record>
         <!--        =================== Benefit Plans ======================-->
@@ -253,12 +225,12 @@ else:
             <field name="amount_select">code</field>
             <field name="struct_id" ref="syncoria_can_payroll.structure_can_employee"/>
             <field name="condition_select">python</field>
-            <field name="condition_python">result = contract.benefit_plans and contract.life_insurance >0.0</field>
+            <field name="condition_python">result = employee.benefit_plans and employee.life_insurance >0.0</field>
             <field name="amount_python_compute">
-if contract.life_insurance > 0.0 and contract.life_insurance_type == "percent":
-    result = GROSS *(contract.life_insurance/100)
+if employee.life_insurance > 0.0 and employee.life_insurance_type == "percent":
+    result = GROSS *(employee.life_insurance/100)
 else:
-    result = contract.life_insurance
+    result = employee.life_insurance
             </field>
         </record>
 
@@ -272,12 +244,12 @@ else:
             <field name="amount_select">code</field>
             <field name="struct_id" ref="syncoria_can_payroll.structure_can_employee"/>
             <field name="condition_select">python</field>
-            <field name="condition_python">result = contract.benefit_plans and contract.medical_insurance >0.0</field>
+            <field name="condition_python">result = employee.benefit_plans and employee.medical_insurance >0.0</field>
             <field name="amount_python_compute">
-if contract.medical_insurance > 0.0 and contract.medical_insurance_type == "percent":
-    result = GROSS *(contract.medical_insurance/100)
+if employee.medical_insurance > 0.0 and employee.medical_insurance_type == "percent":
+    result = GROSS *(employee.medical_insurance/100)
 else:
-    result = contract.medical_insurance
+    result = employee.medical_insurance
             </field>
         </record>
 
@@ -291,12 +263,12 @@ else:
             <field name="amount_select">code</field>
             <field name="struct_id" ref="syncoria_can_payroll.structure_can_employee"/>
             <field name="condition_select">python</field>
-            <field name="condition_python">result = contract.benefit_plans and contract.life_insurance_employer >0.0</field>
+            <field name="condition_python">result = employee.benefit_plans and employee.life_insurance_employer >0.0</field>
             <field name="amount_python_compute">
-if contract.life_insurance_employer > 0.0 and contract.life_insurance_employer_type == "percent":
-    result = GROSS *(contract.life_insurance_employer/100)
+if employee.life_insurance_employer > 0.0 and employee.life_insurance_employer_type == "percent":
+    result = GROSS *(employee.life_insurance_employer/100)
 else:
-    result = contract.life_insurance_employer
+    result = employee.life_insurance_employer
             </field>
         </record>
 
@@ -310,12 +282,12 @@ else:
             <field name="amount_select">code</field>
             <field name="struct_id" ref="syncoria_can_payroll.structure_can_employee"/>
             <field name="condition_select">python</field>
-            <field name="condition_python">result = contract.benefit_plans and contract.medical_insurance_employer >0.0</field>
+            <field name="condition_python">result = employee.benefit_plans and employee.medical_insurance_employer >0.0</field>
             <field name="amount_python_compute">
-if contract.medical_insurance_employer > 0.0 and contract.medical_insurance_employer_type == "percent":
-    result = GROSS *(contract.medical_insurance_employer/100)
+if employee.medical_insurance_employer > 0.0 and employee.medical_insurance_employer_type == "percent":
+    result = GROSS *(employee.medical_insurance_employer/100)
 else:
-    result = contract.medical_insurance_employer
+    result = employee.medical_insurance_employer
             </field>
         </record>
 
@@ -452,10 +424,10 @@ result = final_result
             <field name="amount_select">code</field>
             <field name="struct_id" ref="syncoria_can_payroll.structure_can_worker"/>
             <field name="condition_select">python</field>
-            <field name="condition_python">result = contract.rrsp_amount > 0.0</field>
+            <field name="condition_python">result = employee.rrsp_amount > 0.0</field>
             <field name="amount_python_compute">
-                if contract.rrsp_amount > 0.0 and contract.rrsp_type == "percent":
-                result = GROSS *(contract.rrsp_amount/100)
+                if employee.rrsp_amount > 0.0 and employee.rrsp_type == "percent":
+                result = GROSS *(employee.rrsp_amount/100)
                 else:
                 result = rrsp_amount
             </field>
@@ -473,12 +445,12 @@ result = final_result
             <field name="amount_select">code</field>
             <field name="struct_id" ref="syncoria_can_payroll.structure_can_worker"/>
             <field name="condition_select">python</field>
-            <field name="condition_python">result = contract.garnishment and contract.wage_garnishment >0.0</field>
+            <field name="condition_python">result = employee.garnishment and employee.wage_garnishment >0.0</field>
             <field name="amount_python_compute">
-if contract.wage_garnishment > 0.0 and contract.wage_garnishment_type == "percent":
-    result = GROSS *(contract.wage_garnishment/100)
+if employee.wage_garnishment > 0.0 and employee.wage_garnishment_type == "percent":
+    result = GROSS *(employee.wage_garnishment/100)
 else:
-    result = contract.wage_garnishment
+    result = employee.wage_garnishment
             </field>
         </record>
 
@@ -492,12 +464,12 @@ else:
             <field name="amount_select">code</field>
             <field name="struct_id" ref="syncoria_can_payroll.structure_can_worker"/>
             <field name="condition_select">python</field>
-            <field name="condition_python">result = contract.garnishment and contract.bank_garnishment >0.0</field>
+            <field name="condition_python">result = employee.garnishment and employee.bank_garnishment >0.0</field>
             <field name="amount_python_compute">
-if contract.bank_garnishment > 0.0 and contract.bank_garnishment_type == "percent":
-    result = GROSS *(contract.bank_garnishment/100)
+if employee.bank_garnishment > 0.0 and employee.bank_garnishment_type == "percent":
+    result = GROSS *(employee.bank_garnishment/100)
 else:
-    result = contract.bank_garnishment
+    result = employee.bank_garnishment
             </field>
         </record>
 
@@ -511,12 +483,12 @@ else:
             <field name="amount_select">code</field>
             <field name="struct_id" ref="syncoria_can_payroll.structure_can_worker"/>
             <field name="condition_select">python</field>
-            <field name="condition_python">result = contract.garnishment and contract.alimony_garnishment >0.0</field>
+            <field name="condition_python">result = employee.garnishment and employee.alimony_garnishment >0.0</field>
             <field name="amount_python_compute">
-if contract.alimony_garnishment > 0.0 and contract.alimony_garnishment_type == "percent":
-    result = GROSS *(contract.alimony_garnishment/100)
+if employee.alimony_garnishment > 0.0 and employee.alimony_garnishment_type == "percent":
+    result = GROSS *(employee.alimony_garnishment/100)
 else:
-    result = contract.alimony_garnishment
+    result = employee.alimony_garnishment
             </field>
         </record>
 
@@ -530,12 +502,12 @@ else:
             <field name="amount_select">code</field>
             <field name="struct_id" ref="syncoria_can_payroll.structure_can_worker"/>
             <field name="condition_select">python</field>
-            <field name="condition_python">result = contract.garnishment and contract.child_support_garnishment >0.0</field>
+            <field name="condition_python">result = employee.garnishment and employee.child_support_garnishment >0.0</field>
             <field name="amount_python_compute">
-if contract.child_support_garnishment > 0.0 and contract.child_support_garnishment_type == "percent":
-    result = GROSS *(contract.child_support_garnishment/100)
+if employee.child_support_garnishment > 0.0 and employee.child_support_garnishment_type == "percent":
+    result = GROSS *(employee.child_support_garnishment/100)
 else:
-    result = contract.child_support_garnishment
+    result = employee.child_support_garnishment
             </field>
         </record>
 
@@ -551,12 +523,12 @@ else:
             <field name="amount_select">code</field>
             <field name="struct_id" ref="syncoria_can_payroll.structure_can_worker"/>
             <field name="condition_select">python</field>
-            <field name="condition_python">result = contract.benefit_plans and contract.life_insurance >0.0</field>
+            <field name="condition_python">result = employee.benefit_plans and employee.life_insurance >0.0</field>
             <field name="amount_python_compute">
-if contract.life_insurance > 0.0 and contract.life_insurance_type == "percent":
-    result = GROSS *(contract.life_insurance/100)
+if employee.life_insurance > 0.0 and employee.life_insurance_type == "percent":
+    result = GROSS *(employee.life_insurance/100)
 else:
-    result = contract.life_insurance
+    result = employee.life_insurance
             </field>
         </record>
 
@@ -570,12 +542,12 @@ else:
             <field name="amount_select">code</field>
             <field name="struct_id" ref="syncoria_can_payroll.structure_can_worker"/>
             <field name="condition_select">python</field>
-            <field name="condition_python">result = contract.benefit_plans and contract.medical_insurance >0.0</field>
+            <field name="condition_python">result = employee.benefit_plans and employee.medical_insurance >0.0</field>
             <field name="amount_python_compute">
-if contract.medical_insurance > 0.0 and contract.medical_insurance_type == "percent":
-    result = GROSS *(contract.medical_insurance/100)
+if employee.medical_insurance > 0.0 and employee.medical_insurance_type == "percent":
+    result = GROSS *(employee.medical_insurance/100)
 else:
-    result = contract.medical_insurance
+    result = employee.medical_insurance
             </field>
         </record>
 

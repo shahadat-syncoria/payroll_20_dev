@@ -142,7 +142,7 @@ class PayrollPaycycle(models.Model):
     # A pay cycle cannot be deleted if a employee is attached in that paycycle
     def unlink(self):
         for rec in self:
-            is_linked_paycycle = self.env["hr.contract"].search_count([('salary_pay_cycle.id','=', rec.id),('state','!=', 'cancel')],limit=1)
+            is_linked_paycycle = self.env["hr.version"].search_count([('salary_pay_cycle.id','=', rec.id),('state','!=', 'cancel')],limit=1)
             if is_linked_paycycle > 0:
                 raise ValidationError(_("You cannot delete a pay cycle which have a employee."))
 

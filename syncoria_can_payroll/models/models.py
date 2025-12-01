@@ -7,7 +7,7 @@ from odoo import models, fields, api, _
 import xml.etree.ElementTree as ET
 from odoo.exceptions import UserError
 
-from odoo.modules.module import get_module_resource
+from odoo.modules import get_resource_from_path
 import datetime
 
 from pypdf import PdfReader, PdfWriter
@@ -80,13 +80,13 @@ class StatementOfRemuneration(models.Model):
         tracking=True, help='Status of the T4 form', default='draft')
 
     # employee_contract = fields.Many2one(
-    #     comodel_name='hr.contract',
+    #     comodel_name='hr.version',
     #     string='Employee Contract',
     #     required=True,
     #     # domain=lambda self: self._domain_contract_ids(),
     #     # domain=[('employee_id','=' ,employee_id)],
     # )
-    employee_contract = fields.Many2one('hr.contract', string="Employee Contract")
+    employee_contract = fields.Many2one('hr.version', string="Employee Contract")
 
     # ======================= Previous =============================
     #     employment_income = fields.Float("Employment Income")
@@ -635,7 +635,7 @@ class StatementOfRemuneration(models.Model):
 
     @api.onchange('employee_id')
     def _onchage_contract_ids(self):
-        contract_domain_id = self.env['hr.contract'].search([
+        contract_domain_id = self.env['hr.version'].search([
             ('company_id', '=', self.company_id.id),
             ('employee_id', '=', self.employee_id.id),
             ('state', '=', 'open'),
@@ -1082,7 +1082,7 @@ class StatementOfRemuneration(models.Model):
         for rec in employees:
             if rec.state == 'done':
                 try:
-                    get_path = get_module_resource('syncoria_can_payroll', 'utils')
+                    get_path = get_resource_from_path('syncoria_can_payroll', 'utils')
                     output_folder_path = os.path.expanduser(os.getenv("HOME")) + "/outPdf/"
                     if not os.path.isdir(output_folder_path):
                         os.mkdir(output_folder_path)

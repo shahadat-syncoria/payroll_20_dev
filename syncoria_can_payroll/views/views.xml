@@ -196,7 +196,7 @@
                 <search string="Search Contract">
                     <field name="name" string="Contract"/>
                     <field name="employee_id" string="Employee"/>
-                    <group expand="0" string="Group By">
+                    <group>
                         <filter context="{'group_by': 'employee_id'}" domain="[]" name="group_by_employee" string="Employee"/>
                     </group>
                 </search></field>

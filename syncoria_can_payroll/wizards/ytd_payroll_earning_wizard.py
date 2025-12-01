@@ -52,7 +52,7 @@ class YTDPayrollEarning(models.TransientModel):
     )
     payslip_state = fields.Selection([("paid", "Paid"),
                                       ("done", "Done"),
-                                      ("verify", "Waiting"),
+                                      ("validated", "Waiting"),
                                       ("all", "All")],
                                      string="Payslip State", default="paid")
 
@@ -70,7 +70,7 @@ class YTDPayrollEarning(models.TransientModel):
                 start_of_year = self.date_from
                 end_of_year = self.date_to
 
-            contracts = self.env['hr.contract'].search([
+            contracts = self.env['hr.version'].search([
                 ('state', '=', 'open'),
                 '|', ('date_end', '>=', start_of_year), ('date_end', '=', False),
                 ('date_start', '<=', end_of_year),

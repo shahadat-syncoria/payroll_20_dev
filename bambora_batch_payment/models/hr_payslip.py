@@ -36,7 +36,7 @@ class HrPayslipBatchPayment(models.Model):
 
     state = fields.Selection([
         ('draft', 'Draft'),
-        ('verify', 'Waiting'),
+        ('validated', 'Waiting'),
         ('done', 'Done'),
         ('waiting', 'Bambora waiting'),
         ('paid', 'Paid'),

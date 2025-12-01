@@ -105,21 +105,19 @@
                                     <group string='YTD Tax Amount'>
 
 
-
-                                            <label for="ytd_previous_fed_tax" class="oe_inline"/>
+                                        <label for="ytd_previous_fed_tax" class="oe_inline"/>
                                         <div class="o_row">
                                             <field name="ytd_previous_fed_tax"/>
                                             <button name="update_ytd_tax" type="object"
                                                     help="Update ERP YTD Tax" title="Update ERP YTD Tax"
                                                     icon="fa-refresh"/>
                                         </div>
-                                            <field name="ytd_fed_tax_erp" readonly="1"/>
-                                            <field name="ytd_fed_tax"/>
+                                        <field name="ytd_fed_tax_erp" readonly="1"/>
+                                        <field name="ytd_fed_tax"/>
 
-                                            <field name="ytd_previous_prov_tax"/>
-                                            <field name="ytd_prov_tax_erp" readonly="1"/>
-                                            <field name="ytd_prov_tax"/>
-
+                                        <field name="ytd_previous_prov_tax"/>
+                                        <field name="ytd_prov_tax_erp" readonly="1"/>
+                                        <field name="ytd_prov_tax"/>
 
 
                                     </group>
@@ -132,13 +130,12 @@
                                                     help="Update ERP YTD Tax" title="Update ERP YTD Tax"
                                                     icon="fa-refresh"/>
                                         </div>
-                                            <field name="ytd_employee_rrsp_erp" readonly="1"/>
-                                            <field name="ytd_previous_employee_rrsp"/>
+                                        <field name="ytd_employee_rrsp_erp" readonly="1"/>
+                                        <field name="ytd_previous_employee_rrsp"/>
 
-                                            <field name="year_to_date_employer_rrsp"/>
-                                            <field name="ytd_employer_rrsp_erp" readonly="1"/>
-                                            <field name="ytd_previous_employer_rrsp"/>
-
+                                        <field name="year_to_date_employer_rrsp"/>
+                                        <field name="ytd_employer_rrsp_erp" readonly="1"/>
+                                        <field name="ytd_previous_employer_rrsp"/>
 
 
                                     </group>
@@ -167,14 +164,17 @@
                     </page>
                 </xpath>
 
-                <xpath expr="//group[@name='active_group']" position="inside">
-                    <field name="territory_of_employment"/>
-                    <field name="is_portal_user"/>
-                    <field name="portal_user_id" invisible="not is_portal_user"/>
-                    <field name="is_vacation_pay_carry_over"/>
+                <xpath expr="//group[@name='managers']" position="after">
+                    <group name="payroll_settings" string="Payroll">
+                        <field name="territory_of_employment"/>
+                        <field name="is_portal_user"/>
+                        <field name="portal_user_id" invisible="not is_portal_user"/>
+                        <field name="is_vacation_pay_carry_over"/>
 
-                    <field name="is_cpp_exempt"/>
-                    <field name="is_ei_exempt"/>
+                        <field name="is_cpp_exempt"/>
+                        <field name="is_ei_exempt"/>
+                    </group>
+
                 </xpath>
                 <xpath expr="//group[@name='identification_group']" position="after">
                     <group string="T4 Information">
@@ -185,9 +185,91 @@
                         <field name="employee_prov_pip_xmpt_cd"/>
 
                     </group>
+                </xpath>
 
+                <xpath expr="//field[@name='structure_type_id']" position="after">
+                    <field name="salary_pay_cycle"/>
+                </xpath>
+                <xpath expr="//field[@name='wage_type']" position="after">
+
+                    <field invisible="wage_type == 'hourly'" name="paycycle_wage"/>
+                    <field invisible="wage_type == 'hourly'" name="is_fixed"/>
+                    <field invisible="1" name="is_hourly"/>
+                    <!--                    <field invisible="wage_type != 'hourly'" name="hourly_wage"/>-->
+                </xpath>
+                <xpath expr="//group[@name='contract']" position="after">
+                    <group name="remuneration_info" string="Remuneration Information">
+                        <field name="federal_amount_from_td1"/>
+                        <field name="federal_claim_code_from_td1"/>
+                        <field name="proviancial_amount_from_td1"/>
+                        <field name="provincial_claim_code_from_td1"/>
+                        <field name="deductions" required="1"/>
+                    </group>
+                    <group name="deductions" string="Deductions">
+
+                        <group>
+                            <field name="garnishment" widget="boolean_toggle"/>
+                            <label for="wage_garnishment" invisible="garnishment != True"/>
+                            <div class="o_row" invisible="garnishment != True">
+                                <field name="wage_garnishment"/>
+                                <field name="wage_garnishment_type"/>
+                            </div>
+                            <label for="bank_garnishment" invisible="garnishment != True"/>
+                            <div class="o_row" invisible="garnishment != True">
+                                <field name="bank_garnishment"/>
+                                <field name="bank_garnishment_type"/>
+                            </div>
+                            <label for="alimony_garnishment" invisible="garnishment != True"/>
+                            <div class="o_row" invisible="garnishment != True">
+                                <field name="alimony_garnishment"/>
+                                <field name="alimony_garnishment_type"/>
+                            </div>
+                            <label for="child_support_garnishment" invisible="garnishment != True"/>
+                            <div class="o_row" invisible="garnishment != True">
+                                <field name="child_support_garnishment"/>
+                                <field name="child_support_garnishment_type"/>
+                            </div>
+                        </group>
+                    </group>
+                    <!--                    <group>-->
+                    <!--                        <field name="benefit_plans" widget="boolean_toggle"/>-->
+                    <!--                    </group>-->
+                    <!--                    <group invisible="benefit_plans != True">-->
+
+                    <group name="life_insurance" string="Life Insurance">
+                        <label for="life_insurance"/>
+                        <div class="o_row">
+                            <field name="life_insurance"/>
+                            <field name="life_insurance_type"/>
+                        </div>
+                        <label for="life_insurance_employer"/>
+                        <div class="o_row">
+                            <field name="life_insurance_employer"/>
+                            <field name="life_insurance_employer_type"/>
+                        </div>
+                    </group>
+                    <group name="medical_insurance" string="Medical Insurance">
+                        <label for="medical_insurance"/>
+                        <div class="o_row">
+                            <field name="medical_insurance"/>
+                            <field name="medical_insurance_type"/>
+                        </div>
+                        <label for="medical_insurance_employer"/>
+                        <div class="o_row">
+                            <field name="medical_insurance_employer"/>
+                            <field name="medical_insurance_employer_type"/>
+                        </div>
+                    </group>
+
+                    <!--                    </group>-->
 
                 </xpath>
+                <!--                <xpath expr="//div[@name='wage']" position="attributes">-->
+                <!--                    <attribute name="invisible">1</attribute>-->
+                <!--                </xpath>-->
+                <!--               <xpath expr="//field[@name='schedule_pay']" position="attributes">-->
+                <!--                    <attribute name="invisible">1</attribute>-->
+                <!--                </xpath>-->
             </field>
         </record>
 

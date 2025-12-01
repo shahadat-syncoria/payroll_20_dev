@@ -50,7 +50,7 @@ class HrVacationPay(models.Model):
     description = fields.Text(string="Description",groups='hr_holidays.group_hr_holidays_user')
     department_id = fields.Many2one(related="employee_id.department_id",string="Department", store=True,groups='hr_holidays.group_hr_holidays_user')
     job_id = fields.Many2one(related="employee_id.job_id",string="Job",groups='hr_holidays.group_hr_holidays_user')
-    contract_id = fields.Many2one(related="employee_id.contract_id",string="Contract",groups='hr_holidays.group_hr_holidays_user')
+    version_id = fields.Many2one(related="employee_id.version_id",string="Contract",groups='hr_holidays.group_hr_holidays_user')
     vacation_type = fields.Selection([('time_wise',"Time Store"),('cash_wise',"Cash Store"),
                                       ],string="Vacation Type",default='cash_wise',compute='_compute_vacation_type',store=True,groups='hr_holidays.group_hr_holidays_user')
 

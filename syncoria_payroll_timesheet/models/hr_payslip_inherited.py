@@ -10,9 +10,9 @@ class InheritedHrPaySlip(models.Model):
 
         res = super()._get_new_worked_days_lines()
         for payslip in self:
-            if payslip.employee_id and payslip.contract_id  and payslip.contract_id.work_entry_source == 'timesheet_hours':
+            if payslip.employee_id and payslip.version_id  and payslip.version_id.work_entry_source == 'timesheet_hours':
                 employee = payslip.employee_id
-                avg_working_hour_per_day = payslip.contract_id.resource_calendar_id.hours_per_day
+                avg_working_hour_per_day = payslip.version_id.resource_calendar_id.hours_per_day
                 employees_grid_data = [{
                     'id': employee.id,
                     'display_name': employee.name,
@@ -28,7 +28,7 @@ class InheritedHrPaySlip(models.Model):
                     'name': 'Timesheet Log',
                     'number_of_days': timesheet_hours/avg_working_hour_per_day,
                     'number_of_hours': timesheet_hours,
-                    # 'amount': timesheet_hours*payslip.contract_id.hourly_rate
+                    # 'amount': timesheet_hours*payslip.version_id.hourly_wage
 
                 }))
                 attendance_type_id = self.env.ref('hr_work_entry.work_entry_type_attendance').id
@@ -70,7 +70,7 @@ class InheritedHrPaySlip(models.Model):
 
             manual_input_line_id = manual_input_ids.filtered(lambda x: x.employee_id == rec.employee_id)
             timesheet_hour = manual_input_line_id.attendance_hours
-            avg_working_hour_per_day = rec.contract_id.resource_calendar_id.hours_per_day
+            avg_working_hour_per_day = rec.version_id.resource_calendar_id.hours_per_day
             work_entry_id = self.env.ref('syncoria_payroll_timesheet.sync_work_type_timesheet').id
 
             existing_line = rec.worked_days_line_ids.filtered(
@@ -78,7 +78,7 @@ class InheritedHrPaySlip(models.Model):
             )
             worked_days_lines = []
 
-            if timesheet_hour and  rec.contract_id.work_entry_source == "timesheet_hours":
+            if timesheet_hour and  rec.version_id.work_entry_source == "timesheet_hours":
                 if existing_line:
                     existing_line.write({
                         'number_of_days': timesheet_hour / avg_working_hour_per_day,

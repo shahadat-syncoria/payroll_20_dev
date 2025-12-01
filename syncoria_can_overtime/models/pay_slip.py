@@ -34,16 +34,16 @@ class InheritedHrPayslipOvertime(models.Model):
     # ========================================= New Overtime Concept =============================================
     def _get_hourly_rate(self):
         for rec in self:
-            if not rec.contract_id.is_hourly:
+            if not rec.version_id.is_hourly:
                 overtime_pay_percent = self.env['hr.rule.parameter'].sudo()._get_parameter_from_code(
                     'can_overtime_pay_percent', raise_if_not_found=False)
-                current_hourly_rate = (rec.contract_id.wage * 12) / (
-                        rec.contract_id.resource_calendar_id.full_time_required_hours * 52)
+                current_hourly_rate = (rec.version_id.wage * 12) / (
+                        rec.version_id.resource_calendar_id.full_time_required_hours * 52)
                 overtime_hour_rate = (current_hourly_rate * (overtime_pay_percent / 100))
             else:
                 overtime_pay_percent = self.env['hr.rule.parameter'].sudo()._get_parameter_from_code(
                     'can_overtime_pay_percent', raise_if_not_found=False)
-                current_hourly_rate = rec.contract_id.hourly_rate
+                current_hourly_rate = rec.version_id.hourly_wage
                 overtime_hour_rate = (current_hourly_rate * (overtime_pay_percent / 100))
 
             return overtime_hour_rate
@@ -61,18 +61,18 @@ class InheritedHrPayslipOvertime(models.Model):
         overtime_data = {}
         overtime_hours = 0
         weekly_overtime_hours = {}
-        if self.contract_id.overtime_threshold_selection == "fixed":
-            full_week_hours = self.contract_id.overtime_threshold
-        if self.contract_id.overtime_threshold_selection == "range":
-            thresholds = self.contract_id.overtime_threshold_id.line_ids
+        if self.version_id.overtime_threshold_selection == "fixed":
+            full_week_hours = self.version_id.overtime_threshold
+        if self.version_id.overtime_threshold_selection == "range":
+            thresholds = self.version_id.overtime_threshold_id.line_ids
             full_week_hours = min(
                 thresholds.mapped('start_threshold')
             ) if thresholds else 0.0
-        # full_week_hours = self.contract_id.overtime_threshold
-        work_entry_source =self.contract_id.work_entry_source
+        # full_week_hours = self.version_id.overtime_threshold
+        work_entry_source =self.version_id.work_entry_source
         employee = self.employee_id
         # Get the start and end date of the payslip
-        slip_tz = pytz.timezone(self.contract_id.resource_calendar_id.tz)
+        slip_tz = pytz.timezone(self.version_id.resource_calendar_id.tz)
         utc = pytz.timezone('UTC')
         date_from, date_to = self._get_date_range_overtime()
 
@@ -238,9 +238,9 @@ class InheritedHrPayslipOvertime(models.Model):
         result = self.distribute_hours_from_thresholds(weekly_overtime_hours)
 
 
-        if self.contract_id.overtime_threshold_selection == "fixed":
-            overtime_data[self.contract_id.overtime_threshold] = overtime_hours
-        if self.contract_id.overtime_threshold_selection == "range":
+        if self.version_id.overtime_threshold_selection == "fixed":
+            overtime_data[self.version_id.overtime_threshold] = overtime_hours
+        if self.version_id.overtime_threshold_selection == "range":
             overtime_data = result
         _logger.info(f"overtime_data")
         return overtime_data
@@ -249,7 +249,7 @@ class InheritedHrPayslipOvertime(models.Model):
         """
           Aggregates hours across all weeks into each threshold bucket.
           """
-        thresholds = self.contract_id.overtime_threshold_id.line_ids.sorted('start_threshold')  # Ensure sorted by start
+        thresholds = self.version_id.overtime_threshold_id.line_ids.sorted('start_threshold')  # Ensure sorted by start
         summary = {}
 
         for threshold in thresholds:
@@ -279,7 +279,7 @@ class InheritedHrPayslipOvertime(models.Model):
 
         if self.employee_id.overtime_method in ['banked_overtime', 'paycycle_out'] and self.pay_cycle_period:
             overtime_data = self.calculate_overtime()  # e.g. {'threshold 40': 1.25, 'threshold 41.25': 6.75}
-            avg_working_hour_per_day = self.contract_id.resource_calendar_id.hours_per_day
+            avg_working_hour_per_day = self.version_id.resource_calendar_id.hours_per_day
 
             for threshold_label, overtime_hours in overtime_data.items():
                 if overtime_hours <= 0:
@@ -334,8 +334,8 @@ class InheritedHrPayslipOvertime(models.Model):
                 existing_overtime = self.env['hr.attendance.overtime.store'].search([("payment_pay_period", "=", rec.pay_cycle_period.id),('year','=',int(rec.date_from.year)),('employee_id', '=', rec.employee_id.id)])
                 banked_overtime = rec.worked_days_line_ids.filtered(
                     lambda x: x.work_entry_type_id.code in ["BNK_OVERTIME"])
-                current_hourly_rate = (rec.employee_id.contract_id.wage * 12) / (
-                        rec.employee_id.contract_id.resource_calendar_id.full_time_required_hours * 52)
+                current_hourly_rate = (rec.employee_id.version_id.wage * 12) / (
+                        rec.employee_id.version_id.resource_calendar_id.full_time_required_hours * 52)
                 overtime_hour_rate = (current_hourly_rate * (overtime_pay_percent / 100))
                 if  not existing_overtime:
                     if banked_overtime.number_of_hours >0.0:
@@ -356,7 +356,7 @@ class InheritedHrPayslipOvertime(models.Model):
 
     def compute_sheet(self):
         input_type = self.env.ref('syncoria_can_overtime.input_ca_bank_overtime').id
-        payslips = self.filtered(lambda slip: slip.state in ['draft', 'verify'])
+        payslips = self.filtered(lambda slip: slip.state in ['draft', 'validated'])
         for payslip in payslips:
             try:
                 des_name = ","
@@ -390,7 +390,7 @@ class InheritedHrPayslipOvertime(models.Model):
             manual_input_line_id = manual_input_ids.filtered(lambda x: x.employee_id == rec.employee_id)
             over_time_hour = manual_input_line_id.overtime_hours
             stat_over_time_hour = manual_input_line_id.stat_overtime_hours
-            avg_working_hour_per_day = rec.contract_id.resource_calendar_id.hours_per_day
+            avg_working_hour_per_day = rec.version_id.resource_calendar_id.hours_per_day
             worked_days_lines = []
             input_line = []
             if over_time_hour > 0.0:
@@ -399,7 +399,7 @@ class InheritedHrPayslipOvertime(models.Model):
                     'name': 'Canada Overtime hours',
                     'number_of_days': over_time_hour / avg_working_hour_per_day,
                     'number_of_hours': over_time_hour,
-                    # 'amount': timesheet_hours*payslip.contract_id.hourly_rate
+                    # 'amount': timesheet_hours*payslip.version_id.hourly_wage
 
                 }))
             if stat_over_time_hour > 0.0:
@@ -408,7 +408,7 @@ class InheritedHrPayslipOvertime(models.Model):
                     'name': 'Statutory Holidays Overtime',
                     'number_of_days': stat_over_time_hour / avg_working_hour_per_day,
                     'number_of_hours': stat_over_time_hour,
-                    # 'amount': timesheet_hours*payslip.contract_id.hourly_rate
+                    # 'amount': timesheet_hours*payslip.version_id.hourly_wage
 
                 }))
             rec.worked_days_line_ids = worked_days_lines

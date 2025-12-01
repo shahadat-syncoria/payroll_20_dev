@@ -59,9 +59,9 @@ class RoeEarningPerEmployee(models.TransientModel):
         payslip_datas,total_hour = self._get_employee_payslip()
         datas = {
             'employee_name': self.employee_id.name,
-            'hire_date': self.employee_id.first_contract_date.strftime('%Y-%m-%d') if self.employee_id.contract_id.date_end else None,
-            'term_date': self.employee_id.contract_id.date_end.strftime('%Y-%m-%d') if self.employee_id.contract_id.date_end else None,
-            'paygroup': PAYGROUP.get(f'{self.employee_id.contract_id.structure_type_id.default_schedule_pay}'),
+            'hire_date': self.employee_id.first_contract_date.strftime('%Y-%m-%d') if self.employee_id.version_id.date_end else None,
+            'term_date': self.employee_id.version_id.date_end.strftime('%Y-%m-%d') if self.employee_id.version_id.date_end else None,
+            'paygroup': PAYGROUP.get(f'{self.employee_id.version_id.structure_type_id.default_schedule_pay}'),
             'payslips': payslip_datas,
             'total_hours': total_hour
 

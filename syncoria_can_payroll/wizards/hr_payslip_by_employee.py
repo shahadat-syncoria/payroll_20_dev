@@ -9,165 +9,165 @@ from odoo.tools import format_date
 from dateutil.relativedelta import relativedelta
 
 
-class SyncoriaHrPayslipEmployees(models.TransientModel):
-    _inherit = "hr.payslip.employees"
-
-    line_ids = fields.One2many(
-        "hr.payslip.employees.line",
-        "wizard_id",
-        string="Employees"
-    )
-    payslip_run_id = fields.Many2one("hr.payslip.run", string="Payslip Run")
-
-
-
-    @api.model
-    def default_get(self, fields_list):
-        res = super().default_get(fields_list)
-        employees = self._get_employees()
-        if employees:
-            res["line_ids"] = [(0, 0, {"employee_id": emp.id}) for emp in employees]
-        if self.env.context.get("active_model") == "hr.payslip.run":
-            res["payslip_run_id"] = self.env.context.get("active_id")
-        return res
-
-    @api.onchange('department_id', 'job_id', 'structure_type_id')
-    def _onchange_filters(self):
-        """Recompute line_ids when filters change (like employee_ids used to)."""
-        for wizard in self:
-            domain = wizard.get_employees_domain()
-            employees = self.env['hr.employee'].search(domain)
-            wizard.line_ids = [(5, 0, 0)]
-            wizard.line_ids = [(0, 0, {"employee_id": emp.id}) for emp in employees]
-
-    def compute_sheet(self):
-        # super().compute_sheet()
-
-        self.ensure_one()
-        if not self.payslip_run_id:
-
-            from_date = fields.Date.to_date(self.env.context.get("default_date_start"))
-            end_date = fields.Date.to_date(self.env.context.get("default_date_end"))
-            today = fields.date.today()
-            first_day = today + relativedelta(day=1)
-            last_day = today + relativedelta(day=31)
-            if from_date == first_day and end_date == last_day:
-                batch_name = from_date.strftime("%B %Y")
-            else:
-                batch_name = _("From %(from_date)s to %(end_date)s",
-                               from_date=format_date(self.env, from_date),
-                               end_date=format_date(self.env, end_date))
-            payslip_run = self.env["hr.payslip.run"].create({
-                "name": batch_name,
-                "date_start": from_date,
-                "date_end": end_date,
-            })
-        else:
-            payslip_run = self.payslip_run_id
-
-
-        employees = self.line_ids.filtered(lambda l: not l.is_remove).mapped("employee_id")
-
-        if not employees:
-            raise UserError(_("You must select employee(s) to generate payslip(s)."))
-
-
-        employees -= payslip_run.slip_ids.employee_id
-        success_result = {
-            "type": "ir.actions.act_window",
-            "res_model": "hr.payslip.run",
-            "views": [[False, "form"]],
-            "res_id": payslip_run.id,
-        }
-        if not employees:
-            payslip_run.slip_ids.write({"state": "verify"})
-            payslip_run.state = "verify"
-            return success_result
-
-        Payslip = self.env["hr.payslip"]
-
-        contracts = employees._get_contracts(
-            payslip_run.date_start, payslip_run.date_end, states=["open", "close"]
-        ).filtered(lambda c: c.active)
-        contracts.generate_work_entries(payslip_run.date_start, payslip_run.date_end)
-        work_entries = self.env["hr.work.entry"].search([
-            ("date_start", "<=", payslip_run.date_end + relativedelta(days=1)),
-            ("date_stop", ">=", payslip_run.date_start + relativedelta(days=-1)),
-            ("employee_id", "in", employees.ids),
-        ])
-        for slip in payslip_run.slip_ids:
-            slip_tz = pytz.timezone(
-                slip.contract_id.resource_calendar_id.tz
-                or slip.employee_id.tz
-                or slip.company_id.resource_calendar_id.tz
-                or "UTC"
-            )
-            utc = pytz.timezone("UTC")
-            date_from = slip_tz.localize(datetime.combine(slip.date_from, time.min)).astimezone(utc).replace(tzinfo=None)
-            date_to = slip_tz.localize(datetime.combine(slip.date_to, time.max)).astimezone(utc).replace(tzinfo=None)
-            payslip_work_entries = work_entries.filtered_domain([
-                ("contract_id", "=", slip.contract_id.id),
-                ("date_stop", "<=", date_to),
-                ("date_start", ">=", date_from),
-            ])
-            payslip_work_entries._check_undefined_slots(slip.date_from, slip.date_to)
-
-        default_values = Payslip.default_get(Payslip.fields_get())
-        payslips_vals = []
-        for contract in contracts:
-            values = dict(default_values, **{
-                "name": _("New Payslip"),
-                "employee_id": contract.employee_id.id,
-                "payslip_run_id": payslip_run.id,
-                "date_from": payslip_run.date_start,
-                "date_to": payslip_run.date_end,
-                "contract_id": contract.id,
-                "struct_id": self.structure_id.id or contract.structure_type_id.default_struct_id.id,
-            })
-            payslips_vals.append(values)
-
-        payslips = Payslip.with_context(tracking_disable=True).create(payslips_vals)
-        payslips._compute_name()
-        payslips.compute_sheet()
-        payslip_run.slip_ids.write({"state": "verify"})
-        payslip_run.state = "verify"
-
-        return success_result
-
-    def _refresh_wizard(self):
-        """Return action to reopen wizard without closing it."""
-        return {
-            "type": "ir.actions.act_window",
-            "res_model": self._name,
-            "view_mode": "form",
-            "target": "new",
-            "context": self.env.context,
-        }
-
-    def action_select_all(self):
-        """Mark all employees as removed (set is_remove=True)."""
-        for wizard in self:
-            wizard.line_ids.write({"is_remove": True})
-        return {
-            "type": "ir.actions.act_window",
-            "res_model": "hr.payslip.employees",
-            "res_id": self.id,
-            "view_mode": "form",
-            "target": "new",
-        }
-
-    def action_remove(self):
-        """Delete employees where is_remove=True."""
-        for wizard in self:
-            to_remove = wizard.line_ids.filtered(lambda l: l.is_remove)
-            to_remove.unlink()
-        return {
-            "type": "ir.actions.act_window",
-            "res_model": "hr.payslip.employees",
-            "res_id": self.id,
-            "view_mode": "form",
-            "target": "new",
-        }
+# class SyncoriaHrPayslipEmployees(models.TransientModel):
+#     _inherit = "hr.payslip.employees"
+#
+#     line_ids = fields.One2many(
+#         "hr.payslip.employees.line",
+#         "wizard_id",
+#         string="Employees"
+#     )
+#     payslip_run_id = fields.Many2one("hr.payslip.run", string="Payslip Run")
+#
+#
+#
+#     @api.model
+#     def default_get(self, fields_list):
+#         res = super().default_get(fields_list)
+#         employees = self._get_employees()
+#         if employees:
+#             res["line_ids"] = [(0, 0, {"employee_id": emp.id}) for emp in employees]
+#         if self.env.context.get("active_model") == "hr.payslip.run":
+#             res["payslip_run_id"] = self.env.context.get("active_id")
+#         return res
+#
+#     @api.onchange('department_id', 'job_id', 'structure_type_id')
+#     def _onchange_filters(self):
+#         """Recompute line_ids when filters change (like employee_ids used to)."""
+#         for wizard in self:
+#             domain = wizard.get_employees_domain()
+#             employees = self.env['hr.employee'].search(domain)
+#             wizard.line_ids = [(5, 0, 0)]
+#             wizard.line_ids = [(0, 0, {"employee_id": emp.id}) for emp in employees]
+#
+#     def compute_sheet(self):
+#         # super().compute_sheet()
+#
+#         self.ensure_one()
+#         if not self.payslip_run_id:
+#
+#             from_date = fields.Date.to_date(self.env.context.get("default_date_start"))
+#             end_date = fields.Date.to_date(self.env.context.get("default_date_end"))
+#             today = fields.date.today()
+#             first_day = today + relativedelta(day=1)
+#             last_day = today + relativedelta(day=31)
+#             if from_date == first_day and end_date == last_day:
+#                 batch_name = from_date.strftime("%B %Y")
+#             else:
+#                 batch_name = _("From %(from_date)s to %(end_date)s",
+#                                from_date=format_date(self.env, from_date),
+#                                end_date=format_date(self.env, end_date))
+#             payslip_run = self.env["hr.payslip.run"].create({
+#                 "name": batch_name,
+#                 "date_start": from_date,
+#                 "date_end": end_date,
+#             })
+#         else:
+#             payslip_run = self.payslip_run_id
+#
+#
+#         employees = self.line_ids.filtered(lambda l: not l.is_remove).mapped("employee_id")
+#
+#         if not employees:
+#             raise UserError(_("You must select employee(s) to generate payslip(s)."))
+#
+#
+#         employees -= payslip_run.slip_ids.employee_id
+#         success_result = {
+#             "type": "ir.actions.act_window",
+#             "res_model": "hr.payslip.run",
+#             "views": [[False, "form"]],
+#             "res_id": payslip_run.id,
+#         }
+#         if not employees:
+#             payslip_run.slip_ids.write({"state": "verify"})
+#             payslip_run.state = "verify"
+#             return success_result
+#
+#         Payslip = self.env["hr.payslip"]
+#
+#         contracts = employees._get_contracts(
+#             payslip_run.date_start, payslip_run.date_end, states=["open", "close"]
+#         ).filtered(lambda c: c.active)
+#         contracts.generate_work_entries(payslip_run.date_start, payslip_run.date_end)
+#         work_entries = self.env["hr.work.entry"].search([
+#             ("date_start", "<=", payslip_run.date_end + relativedelta(days=1)),
+#             ("date_stop", ">=", payslip_run.date_start + relativedelta(days=-1)),
+#             ("employee_id", "in", employees.ids),
+#         ])
+#         for slip in payslip_run.slip_ids:
+#             slip_tz = pytz.timezone(
+#                 slip.contract_id.resource_calendar_id.tz
+#                 or slip.employee_id.tz
+#                 or slip.company_id.resource_calendar_id.tz
+#                 or "UTC"
+#             )
+#             utc = pytz.timezone("UTC")
+#             date_from = slip_tz.localize(datetime.combine(slip.date_from, time.min)).astimezone(utc).replace(tzinfo=None)
+#             date_to = slip_tz.localize(datetime.combine(slip.date_to, time.max)).astimezone(utc).replace(tzinfo=None)
+#             payslip_work_entries = work_entries.filtered_domain([
+#                 ("contract_id", "=", slip.contract_id.id),
+#                 ("date_stop", "<=", date_to),
+#                 ("date_start", ">=", date_from),
+#             ])
+#             payslip_work_entries._check_undefined_slots(slip.date_from, slip.date_to)
+#
+#         default_values = Payslip.default_get(Payslip.fields_get())
+#         payslips_vals = []
+#         for contract in contracts:
+#             values = dict(default_values, **{
+#                 "name": _("New Payslip"),
+#                 "employee_id": contract.employee_id.id,
+#                 "payslip_run_id": payslip_run.id,
+#                 "date_from": payslip_run.date_start,
+#                 "date_to": payslip_run.date_end,
+#                 "contract_id": contract.id,
+#                 "struct_id": self.structure_id.id or contract.structure_type_id.default_struct_id.id,
+#             })
+#             payslips_vals.append(values)
+#
+#         payslips = Payslip.with_context(tracking_disable=True).create(payslips_vals)
+#         payslips._compute_name()
+#         payslips.compute_sheet()
+#         payslip_run.slip_ids.write({"state": "verify"})
+#         payslip_run.state = "verify"
+#
+#         return success_result
+#
+#     def _refresh_wizard(self):
+#         """Return action to reopen wizard without closing it."""
+#         return {
+#             "type": "ir.actions.act_window",
+#             "res_model": self._name,
+#             "view_mode": "form",
+#             "target": "new",
+#             "context": self.env.context,
+#         }
+#
+#     def action_select_all(self):
+#         """Mark all employees as removed (set is_remove=True)."""
+#         for wizard in self:
+#             wizard.line_ids.write({"is_remove": True})
+#         return {
+#             "type": "ir.actions.act_window",
+#             "res_model": "hr.payslip.employees",
+#             "res_id": self.id,
+#             "view_mode": "form",
+#             "target": "new",
+#         }
+#
+#     def action_remove(self):
+#         """Delete employees where is_remove=True."""
+#         for wizard in self:
+#             to_remove = wizard.line_ids.filtered(lambda l: l.is_remove)
+#             to_remove.unlink()
+#         return {
+#             "type": "ir.actions.act_window",
+#             "res_model": "hr.payslip.employees",
+#             "res_id": self.id,
+#             "view_mode": "form",
+#             "target": "new",
+#         }
 
 
 
@@ -175,7 +175,7 @@ class HrPayslipEmployeesLine(models.TransientModel):
     _name = "hr.payslip.employees.line"
     _description = "Payslip Employees Line"
 
-    wizard_id = fields.Many2one("hr.payslip.employees", required=True, ondelete="cascade")
+    # wizard_id = fields.Many2one("hr.payslip.employees", required=True, ondelete="cascade")
     employee_id = fields.Many2one("hr.employee", required=True)
     is_remove = fields.Boolean("Remove", default=False)
 
@@ -226,7 +226,7 @@ class SyncoriaHrEmployeeManualWizard(models.TransientModel):
     @api.model
     def _get_default_attendance_hours(self, hr_payslip_run, employee):
 
-        if not employee.contract_id.is_hourly:
+        if not employee.version_id.is_hourly:
             return self._get_attendance_hours(hr_payslip_run, employee)
         else:
             return 0.0
@@ -258,7 +258,7 @@ class SyncoriaHrEmployeeManualWizard(models.TransientModel):
         """
         work_entries_by_contract = defaultdict(lambda: self.env['hr.work.entry'])
         for work_entry in work_entries:
-            work_entries_by_contract[work_entry.contract_id] |= work_entry
+            work_entries_by_contract[work_entry.version_id] |= work_entry
 
         for contract, work_entries in work_entries_by_contract.items():
             if contract.work_entry_source not in ['calendar','timesheet_hours']:
@@ -313,7 +313,7 @@ class SyncoriaHrEmployeeManualWizard(models.TransientModel):
             'res_id': payslip_run.id,
         }
         if not employees:
-            payslip_run.state = 'verify'
+            payslip_run.state = 'validated'
             return success_result
 
         payslips = self.env['hr.payslip']
@@ -336,7 +336,7 @@ class SyncoriaHrEmployeeManualWizard(models.TransientModel):
         #         work_entries_by_contract = defaultdict(lambda: self.env['hr.work.entry'])
         #
         #         for work_entry in work_entries.filtered(lambda w: w.state == 'conflict'):
-        #             work_entries_by_contract[work_entry.contract_id] |= work_entry
+        #             work_entries_by_contract[work_entry.version_id] |= work_entry
         #
         #         for contract, work_entries in work_entries_by_contract.items():
         #             conflicts = work_entries._to_intervals()
@@ -360,7 +360,7 @@ class SyncoriaHrEmployeeManualWizard(models.TransientModel):
                 'payslip_run_id': payslip_run.id,
                 'date_from': payslip_run.date_start,
                 'date_to': payslip_run.date_end,
-                'contract_id': contract.id,
+                'version_id': contract.id,
                 'struct_id': contract.structure_type_id.default_struct_id.id,
             })
             payslips_vals.append(values)
@@ -372,7 +372,7 @@ class SyncoriaHrEmployeeManualWizard(models.TransientModel):
         # payslips._compute_name()
         # payslips.compute_workdays_manual_input(self.manual_input_ids)
         # payslips.compute_sheet()
-        payslip_run.state = 'verify'
+        payslip_run.state = 'validated'
 
         return success_result
 

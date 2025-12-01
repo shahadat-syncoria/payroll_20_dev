@@ -1,5 +1,5 @@
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
-from odoo import conf, http, _
+from odoo import  http, _
 from odoo.addons.portal.controllers.portal import CustomerPortal, pager as portal_pager
 from odoo.http import  request, route, content_disposition
 

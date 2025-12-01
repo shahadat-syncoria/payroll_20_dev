@@ -43,7 +43,7 @@ class HrOvertimePayRequest(models.Model):
     description = fields.Text(string="Description")
     department_id = fields.Many2one(related="employee_id.department_id",string="Department", store=True)
     job_id = fields.Many2one(related="employee_id.job_id",string="Job")
-    contract_id = fields.Many2one(related="employee_id.contract_id",string="Contract")
+    version_id = fields.Many2one(related="employee_id.version_id",string="Contract")
 
 
     remaining_overtime = fields.Float(string="Remaining Overtime",compute='_compute_remaining_overtime',help="Remaining Overtime")

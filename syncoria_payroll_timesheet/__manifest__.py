@@ -14,10 +14,10 @@
     'website': "https://www.syncoria.com",
 
     'category': 'Human Resources/Payroll',
-    'version': '18.0.0.1',
+    'version': '19.0.0.1',
 
     # any module necessary for this one to work correctly
-    'depends': ['timesheet_grid','syncoria_can_payroll','hr_work_entry_contract','hr_payroll'],
+    'depends': ['timesheet_grid','syncoria_can_payroll','hr_work_entry','hr_payroll'],
 
     # always loaded
     'data': [

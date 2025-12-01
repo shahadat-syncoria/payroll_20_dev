@@ -3,7 +3,7 @@
     <data>
         <record id="structure_can_employee" model="hr.payroll.structure">
             <field name="name">Canadian Employee Pay</field>
-            <field name="type_id" ref="hr_contract.structure_type_employee"/>
+            <field name="type_id" ref="hr.structure_type_employee"/>
             <field name="country_id" ref="base.ca"/>
             <field eval="[]" name="rule_ids"/>
 
@@ -12,7 +12,7 @@
 
         <record id="structure_can_worker" model="hr.payroll.structure">
             <field name="name">Canadian Worker Pay</field>
-            <field name="type_id" ref="hr_contract.structure_type_worker"/>
+            <field name="type_id" ref="hr.structure_type_worker"/>
             <field eval="[]" name="rule_ids"/>
             <field name="country_id" ref="base.ca"/>
         </record>

@@ -67,7 +67,7 @@ class TestWizard(models.TransientModel):
     # def _onchage_deperatment(self):
     #     self.ensure_one()
     #     domain = [('department_id', 'child_of', self.department_ids.ids)]
-    #     domain += [('contract_id','!=',False)]
+    #     domain += [('version_id','!=',False)]
     #     dep_wise_employee = self.env['hr.employee'].search(domain)
     #     if self.department_ids:
     #         # self.employee_ids = [(6, 0, [])]
@@ -93,11 +93,11 @@ class TestWizard(models.TransientModel):
             else:
                 try:
                     # employee_contract = employee.contract_ids.filtered_domain([('state','=','open')])
-                    if employee.contract_id:
+                    if employee.version_id:
                         values = {
                             'employee_id': employee.id,
                             'year':self.year,
-                            'employee_contract':employee.contract_id.id
+                            'employee_contract':employee.version_id.id
 
                         }
                         record = statement_remuneration.create(values)

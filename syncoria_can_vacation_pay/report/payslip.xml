@@ -37,7 +37,7 @@
                         </t>
                      <t t-if="vac_report in ['both', 'hours']">
                             <td>
-                                <span t-esc="round((o.employee_id.allocated_vacation_leave * o.employee_id.contract_id.resource_calendar_id.hours_per_day),2)"/>
+                                <span t-esc="round((o.employee_id.allocated_vacation_leave * o.employee_id.version_id.resource_calendar_id.hours_per_day),2)"/>
                             </td>
                         </t>
                     <td>

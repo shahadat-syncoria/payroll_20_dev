@@ -13,7 +13,7 @@
     'website': "https://www.syncoria.com",
 
     'category': 'Human Resources/Payroll',
-    'version': '17.1',
+    'version': '19.0.0.1',
     'installable': True,
     'application': True,
 

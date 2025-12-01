@@ -98,7 +98,7 @@ class VacationPayslip(models.Model):
                     payslip_ytd_ids) == 1 else line_obj.previous_vac_pay_amount
                 line_obj.vac_pay_amount_taken = vac_pay_earned_taken + carry_vac_pay_amount_taken
 
-    def _calculate_vacation_pay(self, vacation_duration, contract_id):
+    def _calculate_vacation_pay(self, vacation_duration, version_id):
         print(vacation_duration)
         # get_gross = list(filter(lambda a: a.get('code') == 'GROSS', self._get_payslip_lines()))
         # amount = 0.00
@@ -107,9 +107,9 @@ class VacationPayslip(models.Model):
 
         # if get_gross:
         # amount = get_gross[0].get('amount')
-        amount = contract_id.wage * 12
-        hourly_amount = contract_id.hourly_rate if contract_id.is_hourly else (
-                    (contract_id.wage * 12) / (self.contract_id.resource_calendar_id.full_time_required_hours * 52))
+        amount = version_id.wage * 12
+        hourly_amount = version_id.hourly_wage if version_id.is_hourly else (
+                    (version_id.wage * 12) / (self.version_id.resource_calendar_id.full_time_required_hours * 52))
         if hourly_amount > 0.0:
             # vacation_slab_id = self.env['hr.vacation.slab'].search(
             #     [
@@ -130,7 +130,7 @@ class VacationPayslip(models.Model):
     def compute_sheet(self):
         # if self.env["ir.config_parameter"].sudo().get_param('syncoria_can_vacation_pay.vac_pay_type') == 'time_wise':
         input_type = self.env.ref('syncoria_can_vacation_pay.input_ca_vac_pay').id
-        payslips = self.filtered(lambda slip: slip.state in ['draft', 'verify'])
+        payslips = self.filtered(lambda slip: slip.state in ['draft', 'validated'])
         adjusted_input_type = self.env.ref('syncoria_can_vacation_pay.input_ca_adjusted_vac_pay').id
         for payslip in payslips:
             # line_obj = payslip.employee_id.payroll_line_ids.filtered(lambda x: x.year == str(payslip.date_to.year))
@@ -144,7 +144,7 @@ class VacationPayslip(models.Model):
                 if self.env["ir.config_parameter"].sudo().get_param(
                         'syncoria_can_vacation_pay.vac_pay_type') == 'time_wise':
                     calculate_vacation_pay = payslip._calculate_vacation_pay(sum(vacation_pay_ids.mapped('duration')),
-                                                                             payslip.contract_id)
+                                                                             payslip.version_id)
                 if self.env["ir.config_parameter"].sudo().get_param(
                         'syncoria_can_vacation_pay.vac_pay_type') == 'cash_wise':
                     calculate_vacation_pay = sum(vacation_pay_ids.mapped('vacation_pay_amount'))
@@ -171,10 +171,10 @@ class VacationPayslip(models.Model):
                         lambda
                             x: x.work_entry_type_id.deduct_from_gross and x.work_entry_type_id.is_leave and x.work_entry_type_id.is_adjusted_with_vacation_pay).mapped(
                         'number_of_days'))
-                    vacation_pay_one_day_hour = payslip.contract_id.resource_calendar_id.hours_per_day
-                    hourly_rate = round((payslip.contract_id.wage * 12) / (
-                            payslip.contract_id.resource_calendar_id.full_time_required_hours * 52), 2)
-                    adjust_vac_pay_amount = (unpaid_days * vacation_pay_one_day_hour) * hourly_rate
+                    vacation_pay_one_day_hour = payslip.version_id.resource_calendar_id.hours_per_day
+                    hourly_wage = round((payslip.version_id.wage * 12) / (
+                            payslip.version_id.resource_calendar_id.full_time_required_hours * 52), 2)
+                    adjust_vac_pay_amount = (unpaid_days * vacation_pay_one_day_hour) * hourly_wage
 
                     # ========================== Reserved Vacation =================================
                     currently_stored_vac_amount = payslip.employee_id.ytd_vac_pay_amount - abs(calculate_vacation_pay)
@@ -327,69 +327,69 @@ class VacationPayslip(models.Model):
             Where amount depends on current hourly rate.
         """
         self.ensure_one()
-        contract = self.employee_id.contract_id
-        hourly_rate = (contract.wage * 12) / (contract.resource_calendar_id.full_time_required_hours * 52)
+        contract = self.employee_id.version_id
+        hourly_wage = (contract.wage * 12) / (contract.resource_calendar_id.full_time_required_hours * 52)
 
-        total_amount = round(hourly_rate * (total_taken_leave * contract.resource_calendar_id.hours_per_day), 3) or 0.0
+        total_amount = round(hourly_wage * (total_taken_leave * contract.resource_calendar_id.hours_per_day), 3) or 0.0
 
         return total_amount
 
-    def _prepare_slip_lines(self, date, line_ids):
-        super(VacationPayslip, self)._prepare_slip_lines(date, line_ids)
-        self.ensure_one()
-        precision = self.env['decimal.precision'].precision_get('Payroll')
-        new_lines = []
-        for line in self.line_ids.filtered(lambda line: line.category_id):
-            amount = line.total
-            if line.code == 'NET':  # Check if the line is the 'Net Salary'.
-                for tmp_line in self.line_ids.filtered(lambda line: line.category_id):
-                    if tmp_line.salary_rule_id.not_computed_in_net:  # Adjust amount for non-computed rules.
-                        if amount > 0:
-                            amount -= abs(tmp_line.total)
-                        elif amount < 0:
-                            amount += abs(tmp_line.total)
-            if float_is_zero(amount, precision_digits=precision):
-                continue
-
-            if line.code == 'ACCRUED_VP':
-                debit_account_id = line.employee_id.account_debit.id
-                credit_account_id = line.employee_id.account_credit.id
-            else:
-                debit_account_id = line.salary_rule_id.account_debit.id
-                credit_account_id = line.salary_rule_id.account_credit.id
-
-            if debit_account_id:  # If the rule has a debit account.
-                debit = amount if amount > 0.0 else 0.0
-                credit = -amount if amount < 0.0 else 0.0
-
-                debit_line = next(self._get_existing_lines(
-                    line_ids + new_lines, line, debit_account_id, debit, credit), False)
-
-
-                if not debit_line:
-                    debit_line = self._prepare_line_values(line, debit_account_id, date, debit, credit)
-                    debit_line['tax_ids'] = [(4, tax_id) for tax_id in line.salary_rule_id.account_debit.tax_ids.ids]
-                    new_lines.append(debit_line)
-                else:
-                    debit_line['debit'] += debit
-                    debit_line['credit'] += credit
-
-            if credit_account_id:  # If the rule has a credit account.
-                debit = -amount if amount < 0.0 else 0.0
-                credit = amount if amount > 0.0 else 0.0
-
-                credit_line = next(self._get_existing_lines(
-                    line_ids + new_lines, line, credit_account_id, debit, credit), False)
-
-
-                if not credit_line:
-                    credit_line = self._prepare_line_values(line, credit_account_id, date, debit, credit)
-                    credit_line['tax_ids'] = [(4, tax_id) for tax_id in line.salary_rule_id.account_credit.tax_ids.ids]
-                    new_lines.append(credit_line)
-                else:
-                    credit_line['debit'] += debit
-                    credit_line['credit'] += credit
-        return new_lines
+    # def _prepare_slip_lines(self, date, line_ids):
+    #     super(VacationPayslip, self)._prepare_slip_lines(date, line_ids)
+    #     self.ensure_one()
+    #     precision = self.env['decimal.precision'].precision_get('Payroll')
+    #     new_lines = []
+    #     for line in self.line_ids.filtered(lambda line: line.category_id):
+    #         amount = line.total
+    #         if line.code == 'NET':  # Check if the line is the 'Net Salary'.
+    #             for tmp_line in self.line_ids.filtered(lambda line: line.category_id):
+    #                 if tmp_line.salary_rule_id.not_computed_in_net:  # Adjust amount for non-computed rules.
+    #                     if amount > 0:
+    #                         amount -= abs(tmp_line.total)
+    #                     elif amount < 0:
+    #                         amount += abs(tmp_line.total)
+    #         if float_is_zero(amount, precision_digits=precision):
+    #             continue
+    #
+    #         if line.code == 'ACCRUED_VP':
+    #             debit_account_id = line.employee_id.account_debit.id
+    #             credit_account_id = line.employee_id.account_credit.id
+    #         else:
+    #             debit_account_id = line.salary_rule_id.account_debit.id
+    #             credit_account_id = line.salary_rule_id.account_credit.id
+    #
+    #         if debit_account_id:  # If the rule has a debit account.
+    #             debit = amount if amount > 0.0 else 0.0
+    #             credit = -amount if amount < 0.0 else 0.0
+    #
+    #             debit_line = next(self._get_existing_lines(
+    #                 line_ids + new_lines, line, debit_account_id, debit, credit), False)
+    #
+    #
+    #             if not debit_line:
+    #                 debit_line = self._prepare_line_values(line, debit_account_id, date, debit, credit)
+    #                 debit_line['tax_ids'] = [(4, tax_id) for tax_id in line.salary_rule_id.account_debit.tax_ids.ids]
+    #                 new_lines.append(debit_line)
+    #             else:
+    #                 debit_line['debit'] += debit
+    #                 debit_line['credit'] += credit
+    #
+    #         if credit_account_id:  # If the rule has a credit account.
+    #             debit = -amount if amount < 0.0 else 0.0
+    #             credit = amount if amount > 0.0 else 0.0
+    #
+    #             credit_line = next(self._get_existing_lines(
+    #                 line_ids + new_lines, line, credit_account_id, debit, credit), False)
+    #
+    #
+    #             if not credit_line:
+    #                 credit_line = self._prepare_line_values(line, credit_account_id, date, debit, credit)
+    #                 credit_line['tax_ids'] = [(4, tax_id) for tax_id in line.salary_rule_id.account_credit.tax_ids.ids]
+    #                 new_lines.append(credit_line)
+    #             else:
+    #                 credit_line['debit'] += debit
+    #                 credit_line['credit'] += credit
+    #     return new_lines
 
 
 class AccountPaymentRegister(models.TransientModel):

@@ -155,7 +155,7 @@
             <field name="model">tax.slab</field>
             <field name="arch" type="xml">
                 <search string="Tax Slabs">
-                    <group expand="1" string="Group By">
+                    <group >
                         <!--                        <filter string="Example Field" name="example_field" domain="[]"-->
                         <!--                                context="{'group_by':'example_field'}"/>-->
                     </group>

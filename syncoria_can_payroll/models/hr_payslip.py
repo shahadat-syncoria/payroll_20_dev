@@ -27,7 +27,7 @@ class InheritedHrPayslip(models.Model):
     paid_date = fields.Date(string="Paid Date", readonly=True, store=True, copy=False,
                   )
 
-    pay_cycle = fields.Many2one('paycycle.config', related='contract_id.salary_pay_cycle', readonly=True)
+    pay_cycle = fields.Many2one('paycycle.config', related='version_id.salary_pay_cycle', readonly=True)
     pay_cycle_period = fields.Many2one('paycycle.period')
     pay_cycle_period_ids_domain = fields.Binary(
         compute='_compute_pay_cycle_period_domain', readonly=True,
@@ -163,21 +163,21 @@ class InheritedHrPayslip(models.Model):
         rec = self.browse(pay_slip)
         result = 0.0
         try:
-            is_pay_cycle = rec.contract_id.salary_pay_cycle.pay_cycle
+            is_pay_cycle = rec.version_id.salary_pay_cycle.pay_cycle
             gross_work_entry_type = self.env['hr.work.entry.type'].search([('is_gross', '=',True)])
             deduct_from_gross_work_entry_type = self.env['hr.work.entry.type'].search([('deduct_from_gross', '=',True)])
-            result += sum([round(rec._get_worked_days_line_amount(gross_entry_type.code),2) if gross_entry_type.code else 0.0 for gross_entry_type in gross_work_entry_type])
-            result -= sum([abs(round(rec._get_worked_days_line_amount(deduct_gross_entry_type.code),2)) if deduct_gross_entry_type.code else 0.0 for deduct_gross_entry_type in deduct_from_gross_work_entry_type])
-            if is_pay_cycle and not rec.contract_id.is_hourly:
-                if rec.contract_id.work_entry_source in ['attendance','calendar']:
-                    result += round(rec._get_worked_days_line_amount('WORK100'),2)
-                elif rec.contract_id.work_entry_source == 'timesheet_hours':
-                    result += round(rec._get_worked_days_line_amount('TIMESHEET_WORK100'),2)
-            elif is_pay_cycle and rec.contract_id.is_hourly:
-                if rec.contract_id.work_entry_source in ['attendance','calendar']:
-                    result += round(rec._get_worked_days_line_amount('WORK100'),2)
-                elif rec.contract_id.work_entry_source == 'timesheet_hours':
-                    result += round(rec._get_worked_days_line_amount('TIMESHEET_WORK100'),2)
+            result += sum([round(rec._get_worked_days_line_values_orm(gross_entry_type.code),2) if gross_entry_type.code else 0.0 for gross_entry_type in gross_work_entry_type])
+            result -= sum([abs(round(rec._get_worked_days_line_values_orm(deduct_gross_entry_type.code),2)) if deduct_gross_entry_type.code else 0.0 for deduct_gross_entry_type in deduct_from_gross_work_entry_type])
+            if is_pay_cycle and not rec.version_id.is_hourly:
+                if rec.version_id.work_entry_source in ['attendance','calendar']:
+                    result += round(rec._get_worked_days_line_values_orm('WORK100'),2)
+                elif rec.version_id.work_entry_source == 'timesheet_hours':
+                    result += round(rec._get_worked_days_line_values_orm('TIMESHEET_WORK100'),2)
+            elif is_pay_cycle and rec.version_id.is_hourly:
+                if rec.version_id.work_entry_source in ['attendance','calendar']:
+                    result += round(rec._get_worked_days_line_values_orm('WORK100'),2)
+                elif rec.version_id.work_entry_source == 'timesheet_hours':
+                    result += round(rec._get_worked_days_line_values_orm('TIMESHEET_WORK100'),2)
                 else:
                     result = 0.0
             else:
@@ -191,7 +191,7 @@ class InheritedHrPayslip(models.Model):
 
         res = super()._get_new_worked_days_lines()
         unpaid_work_entry = self.env["hr.work.entry.type"].search([("is_leave","=",True),("is_negative_amount","=", True)]).ids
-        avg_working_hour_per_day = self.contract_id.resource_calendar_id.hours_per_day
+        avg_working_hour_per_day = self.version_id.resource_calendar_id.hours_per_day
         new_worked_days_lines = []
         for entry in res:
             entry_data = entry[2]
@@ -226,11 +226,11 @@ class InheritedHrPayslip(models.Model):
             bonus = manual_input_line_id.bonus
             commission = manual_input_line_id.commission
             retro = manual_input_line_id.retro
-            avg_working_hour_per_day = rec.contract_id.resource_calendar_id.hours_per_day
+            avg_working_hour_per_day = rec.version_id.resource_calendar_id.hours_per_day
             # rec.worked_days_line_ids.unlink()
             # rec.input_line_ids.unlink()
             worked_days_lines = []
-            if attendance_hour > 0.0 and rec.contract_id.work_entry_source in ["calendar","attendance"] :
+            if attendance_hour > 0.0 and rec.version_id.work_entry_source in ["calendar","attendance"] :
                 if existing_line:
                     existing_line.write({
                         'number_of_days': attendance_hour / avg_working_hour_per_day,
@@ -253,7 +253,7 @@ class InheritedHrPayslip(models.Model):
             #         'name': 'Overtime',
             #         'number_of_days': over_time_hour / avg_working_hour_per_day,
             #         'number_of_hours': over_time_hour,
-            #         # 'amount': timesheet_hours*payslip.contract_id.hourly_rate
+            #         # 'amount': timesheet_hours*payslip.version_id.hourly_wage
             #
             #     }))
             # if stat_over_time_hour > 0.0:
@@ -262,7 +262,7 @@ class InheritedHrPayslip(models.Model):
             #         'name': 'Statutory Holidays Overtime',
             #         'number_of_days': stat_over_time_hour / avg_working_hour_per_day,
             #         'number_of_hours': stat_over_time_hour,
-            #         # 'amount': timesheet_hours*payslip.contract_id.hourly_rate
+            #         # 'amount': timesheet_hours*payslip.version_id.hourly_wage
             #
             #     }))
 
@@ -312,8 +312,8 @@ class InheritedHrPayslip(models.Model):
         for slip in self.filtered(lambda p: p.date_to):
             slip.warning_message = False
             warnings = []
-            if slip.contract_id and (slip.date_from < slip.contract_id.date_start
-                                     or (slip.contract_id.date_end and slip.date_to > slip.contract_id.date_end)):
+            if slip.version_id and (slip.date_from < slip.version_id.date_start
+                                     or (slip.version_id.date_end and slip.date_to > slip.version_id.date_end)):
                 warnings.append(_("The period selected does not match the contract validity period."))
 
             if slip.date_to > date_utils.end_of(fields.Date.today(), 'month'):
@@ -339,7 +339,7 @@ class InheritedHrPayslip(models.Model):
 
     def action_payslip_email_send(self):
         self.ensure_one()
-        if not self.state in ('verify', 'done', 'paid'):
+        if not self.state in ('validated', 'done', 'paid'):
             raise UserError("Email can not be sent in this state!")
         ir_model_data = self.env['ir.model.data']
         try:
@@ -416,12 +416,12 @@ class InheritedHrPayslip(models.Model):
 
         line_ids = self.employee_id._get_ytd_payslip_line_ids(self.year)
 
-        rules = self.employee_id.contract_id.structure_type_id.default_struct_id.rule_ids
+        rules = self.employee_id.version_id.structure_type_id.default_struct_id.rule_ids
 
         opening_rec = self.env['hr.payslip.ytd.opening'].search([
             ('employee_id', '=', self.employee_id.id),
             ('year', '=', self.year),
-            ('contract_id', '=', self.contract_id.id),
+            ('version_id', '=', self.version_id.id),
             ('company_id', '=', self.company_id.id),
         ], limit=1)
 
@@ -461,7 +461,7 @@ class InheritedHrPayslip(models.Model):
 
     # inherited compute_sheet method for tax api call
     def compute_sheet(self):
-        payslips = self.filtered(lambda slip: slip.state in ['draft', 'verify'])
+        payslips = self.filtered(lambda slip: slip.state in ['draft', 'validated'])
         payslips.line_ids.unlink()
         self.env.flush_all()
         today = fields.Date.today()
@@ -469,10 +469,10 @@ class InheritedHrPayslip(models.Model):
         for payslip in payslips:
             ytd_dict = payslip._payslip_line_ytd_total()
             emp_line_obj = payslip.employee_id.payroll_line_ids.filtered(lambda x: x.year == str(payslip.date_to.year))
-            number = payslip.number or self.env['ir.sequence'].next_by_code('salary.slip')
+            # number = payslip.number or self.env['ir.sequence'].next_by_code('salary.slip')
             payslip.write({
-                'number': number,
-                'state': 'verify',
+                # 'number': number,
+                'state': 'validated',
                 'compute_date': today
             })
 
@@ -510,10 +510,10 @@ class InheritedHrPayslip(models.Model):
             ytd_pi = emp_line_obj.ytd_pi
             emp_province = payslip.employee_id.territory_of_employment.code
             B1 = emp_line_obj.year_to_date_irregular_payment
-            federal_amount_from_td1 = payslip.contract_id.federal_amount_from_td1
-            proviancial_amount_from_td1 = payslip.contract_id.proviancial_amount_from_td1
+            federal_amount_from_td1 = payslip.version_id.federal_amount_from_td1
+            proviancial_amount_from_td1 = payslip.version_id.proviancial_amount_from_td1
             date_of_birth = str(payslip.employee_id.birthday)
-            amount_withdraw = payslip.contract_id.rrsp_amount_withdraw
+            amount_withdraw = payslip.version_id.rrsp_amount_withdraw
             if date_of_birth == 'False':
                 raise ValidationError("Employee Date of Birth Mandatory")
             payroll_year = payslip.date_to.year
@@ -621,7 +621,7 @@ class InheritedHrPayslip(models.Model):
                     emp_ei  = response_data['EI_EMPLOYER'] if response_data else 0
                     x['amount'], x['total'] = emp_ei, emp_ei
 
-                # Verify whether cpp and ei exempt are enabled, and if so, set them to 0 respectively.
+                # validated whether cpp and ei exempt are enabled, and if so, set them to 0 respectively.
                 if payslip.employee_id.is_cpp_exempt and x['code'] in ['CPP','CPP2','CPP_EMPLOYER','CPP2_EMPLOYER']:
                     x['amount'], x['total'] = 0,0
 

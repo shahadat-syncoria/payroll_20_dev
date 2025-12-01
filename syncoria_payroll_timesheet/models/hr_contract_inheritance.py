@@ -4,11 +4,11 @@ import pytz
 from pytz import timezone
 
 from odoo import fields, models
-from odoo.addons.hr_work_entry_contract.models.hr_work_intervals import WorkIntervals
+
 
 
 class InheritedContract(models.Model):
-    _inherit = "hr.contract"
+    _inherit = "hr.version"
 
 
     work_entry_source = fields.Selection(selection_add=[('timesheet_hours', 'Timesheet Hours')],

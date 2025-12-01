@@ -17,8 +17,8 @@ class SyncoriaCreateDraftWizard(models.TransientModel):
 
     @api.model
     def _get_default_attendance_hours(self,hr_payslip_run,employee_id):
-        if not employee_id.contract_id.is_hourly:
-            return (hr_payslip_run.date_end - hr_payslip_run.date_start).days *employee_id.contract_id.standard_calendar_id.hours_per_day
+        if not employee_id.version_id.is_hourly:
+            return (hr_payslip_run.date_end - hr_payslip_run.date_start).days *employee_id.version_id.standard_calendar_id.hours_per_day
         else:
             return 0.0
 

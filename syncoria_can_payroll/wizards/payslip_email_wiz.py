@@ -20,7 +20,7 @@ class PayslipEmailWizard(models.TransientModel):
             payslip_records = self.env['hr.payslip'].browse(active_ids)
             payslip_ids = []
             employee_ids = []
-            if not any(c.state in ('verify', 'done', 'paid') for c in payslip_records):
+            if not any(c.state in ('validated', 'done', 'paid') for c in payslip_records):
                 raise UserError("No eligible payslip found to be sent!")
             if any(c.state in ('draft', 'cancel') for c in payslip_records):
                 defaults['is_show_warning'] = True
@@ -54,12 +54,12 @@ class PayslipEmailWizard(models.TransientModel):
 
     # def my_method(self, a, k=None):
     #     print('executed with a: %s and k: %s', a, k)
-
-    def action_payslip_email_send(self):
-        self.with_delay().action_payslip_email_with_delay()
+    #TODO: need to work on this for queue job cron jobrunner for 19
+    # def action_payslip_email_send(self):
+    #     self.with_delay().action_payslip_email_with_delay()
 
     # It will call the job queue action in background asynchronously.
-    def action_payslip_email_with_delay(self):
+    def action_payslip_email_send(self):
         template = self._get_email_template()
         if not template:
             return

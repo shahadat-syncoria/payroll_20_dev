@@ -17,12 +17,12 @@
             <field name="amount_select">code</field>
             <field name="struct_id" ref="syncoria_can_payroll.structure_can_employee"/>
             <field name="condition_select">python</field>
-            <field name="condition_python">result = contract.employer_rrsp > 0.0</field>
+            <field name="condition_python">result = employee.employer_rrsp > 0.0</field>
             <field name="amount_python_compute">
-if contract.employer_rrsp > 0.0 and contract.employer_rrsp_type == "percent":
-    result = GROSS *(contract.employer_rrsp/100)
+if employee.employer_rrsp > 0.0 and employee.employer_rrsp_type == "percent":
+    result = GROSS *(employee.employer_rrsp/100)
 else:
-    result = contract.employer_rrsp
+    result = employee.employer_rrsp
             </field>
         </record>
 
@@ -36,12 +36,12 @@ else:
             <field name="amount_select">code</field>
             <field name="struct_id" ref="syncoria_can_payroll.structure_can_worker"/>
             <field name="condition_select">python</field>
-            <field name="condition_python">result = contract.employer_rrsp > 0.0</field>
+            <field name="condition_python">result = employee.employer_rrsp > 0.0</field>
             <field name="amount_python_compute">
-if contract.employer_rrsp > 0.0 and contract.employer_rrsp_type == "percent":
-    result = GROSS *(contract.employer_rrsp/100)
+if employee.employer_rrsp > 0.0 and employee.employer_rrsp_type == "percent":
+    result = GROSS *(employee.employer_rrsp/100)
 else:
-    result = contract.employer_rrsp
+    result = employee.employer_rrsp
             </field>
         </record>
     </data>

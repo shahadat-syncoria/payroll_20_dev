@@ -13,7 +13,7 @@
                 <xpath expr="//button[@name='action_payslip_cancel']" position="before">
                     <button invisible="state not in ['draft','verify']" icon="fa-refresh" string="Refresh" name="action_payslip_refresh" type="object"/>
                 </xpath>
-                <xpath expr="//field[@name='contract_domain_ids']" position="after">
+                <xpath expr="//field[@name='date']" position="after">
                     <field name="paid_date"/>
                 </xpath>
                 <xpath expr="//field[@name='date_from']" position="attributes">

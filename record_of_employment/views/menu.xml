@@ -4,7 +4,7 @@
     <menuitem
         id="menu_hr_payroll_record_of_employment"
         name="Record of Employment"
-        parent="hr_work_entry_contract_enterprise.menu_hr_payroll_root"
+        parent="hr_work_entry_enterprise.menu_hr_payroll_root"
         sequence="85"
         groups="hr_payroll.group_hr_payroll_manager"/>
         <!--        # Main Form Menu-->

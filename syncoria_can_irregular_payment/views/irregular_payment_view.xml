@@ -88,7 +88,7 @@
                     <field name="name"/>
                     <field name="description"/>
                     <separator/>
-                    <group expand="1" string="Group By">
+                    <group >
                         <filter context="{'group_by':'date'}" domain="[]" name="date" string="Date"/>
                         <filter context="{'group_by':'state'}" domain="[]" name="state" string="State"/>
                         <filter context="{'group_by':'department_id'}" domain="[]" name="department_id" string="Department"/>

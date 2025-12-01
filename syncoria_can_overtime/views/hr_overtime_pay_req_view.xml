@@ -28,7 +28,7 @@
                                 <field groups="hr_holidays.group_hr_holidays_manager,hr_holidays.group_hr_holidays_user" name="employee_id"/>
                                 <field name="department_id"/>
                                 <field name="job_id"/>
-                                <field name="contract_id"/>
+                                <field name="version_id"/>
                                 <field name="description"/>
                             </group>
                             <group string="Overtime Pay Request Information">
@@ -58,7 +58,7 @@
             <field name="arch" type="xml">
                 <search string="Overtime Pay Request">
                     <field name="employee_id"/>
-                    <group expand="1" string="Group By">
+                    <group>
                         <filter context="{'group_by':'employee_id'}" domain="[]" name="group_employee_id" string="Employee"/>
                     </group>
                 </search>

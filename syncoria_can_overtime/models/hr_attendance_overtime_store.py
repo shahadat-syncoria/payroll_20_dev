@@ -48,12 +48,12 @@ class AttendanceOvertimeStore(models.Model):
             # Overtime rate and amount calculation
             overtime_pay_percent = self.env['hr.rule.parameter'].sudo()._get_parameter_from_code(
                 'can_overtime_pay_percent', raise_if_not_found=False)
-            current_hourly_rate = (employee.contract_id.wage * 12) / (
-                    employee.contract_id.resource_calendar_id.full_time_required_hours * 52)
+            current_hourly_rate = (employee.version_id.wage * 12) / (
+                    employee.version_id.resource_calendar_id.full_time_required_hours * 52)
             overtime_hour_rate = (current_hourly_rate * (overtime_pay_percent / 100))
 
             print("Employee=>"+employee.name)
-            paycycle_period_ids=employee.contract_id.salary_pay_cycle.paycycle_period_ids.filtered(lambda x: fields.Date.today() > x.start_date )
+            paycycle_period_ids=employee.version_id.salary_pay_cycle.paycycle_period_ids.filtered(lambda x: fields.Date.today() > x.start_date )
             # self.search([('employee_id', '=', employee.id)]).duration_store = 0.0
             for paycyle in paycycle_period_ids:
 

@@ -65,7 +65,7 @@
             <field name="model">paycycle.config</field>
             <field name="arch" type="xml">
                 <search string="Pay cycle Configuration">
-                    <group expand="1" string="Group By">
+                    <group>
                         <filter string="Pay cycle Field" name="pay_cycle" domain="[]"
                                 context="{'group_by':'pay_cycle'}"/>
                     </group>

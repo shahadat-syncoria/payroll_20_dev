@@ -26,11 +26,11 @@ def calculate_irr_bonuses_annual_tax(payslip,claim_code,year,pay_cycle,paycycle_
     annual_irr_pay_tax = irr_pay_tax * pay_cycle
     return annual_irr_pay_tax,tax_amount_gross_without_irr
 
-is_pay_cycle = contract.salary_pay_cycle.pay_cycle
+is_pay_cycle = employee.salary_pay_cycle.pay_cycle
 if is_pay_cycle:
     pay_cycle = int(is_pay_cycle)
-    claim_code = contract.federal_claim_code_from_td1
-    year =  contract.deductions.slab_year
+    claim_code = employee.federal_claim_code_from_td1
+    year =  employee.deductions.slab_year
 
     paycycle_gross = GROSS-categories['PRE_TAX_DEDUCTION']
 
@@ -81,11 +81,11 @@ def calculate_irr_bonuses_annual_tax(payslip,claim_code,year,pay_cycle,paycycle_
     annual_irr_pay_tax = irr_pay_tax * pay_cycle
     return annual_irr_pay_tax,tax_amount_gross_without_irr
 
-is_pay_cycle = contract.salary_pay_cycle.pay_cycle
+is_pay_cycle = employee.salary_pay_cycle.pay_cycle
 if is_pay_cycle:
     pay_cycle = int(is_pay_cycle)
-    claim_code = contract.provincial_claim_code_from_td1
-    year =  contract.deductions.slab_year
+    claim_code = employee.provincial_claim_code_from_td1
+    year =  employee.deductions.slab_year
 
     paycycle_gross = GROSS-categories['PRE_TAX_DEDUCTION']
 
@@ -136,11 +136,11 @@ def calculate_irr_bonuses_annual_tax(payslip,claim_code,year,pay_cycle,paycycle_
     annual_irr_pay_tax = irr_pay_tax * pay_cycle
     return annual_irr_pay_tax,tax_amount_gross_without_irr
 
-is_pay_cycle = contract.salary_pay_cycle.pay_cycle
+is_pay_cycle = employee.salary_pay_cycle.pay_cycle
 if is_pay_cycle:
     pay_cycle = int(is_pay_cycle)
-    claim_code = contract.federal_claim_code_from_td1
-    year =  contract.deductions.slab_year
+    claim_code = employee.federal_claim_code_from_td1
+    year =  employee.deductions.slab_year
 
     paycycle_gross = GROSS-categories['PRE_TAX_DEDUCTION']
 
@@ -191,11 +191,11 @@ def calculate_irr_bonuses_annual_tax(payslip,claim_code,year,pay_cycle,paycycle_
     annual_irr_pay_tax = irr_pay_tax * pay_cycle
     return annual_irr_pay_tax,tax_amount_gross_without_irr
 
-is_pay_cycle = contract.salary_pay_cycle.pay_cycle
+is_pay_cycle = employee.salary_pay_cycle.pay_cycle
 if is_pay_cycle:
     pay_cycle = int(is_pay_cycle)
-    claim_code = contract.provincial_claim_code_from_td1
-    year =  contract.deductions.slab_year
+    claim_code = employee.provincial_claim_code_from_td1
+    year =  employee.deductions.slab_year
 
     paycycle_gross = GROSS-categories['PRE_TAX_DEDUCTION']
 

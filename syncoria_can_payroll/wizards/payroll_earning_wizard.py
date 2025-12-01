@@ -19,7 +19,7 @@ class EmployeeNetPay(models.TransientModel):
             day=calendar.monthrange(date.today().year, date.today().month)[1]
         ))
 
-    payslip_state = fields.Selection([("paid","Paid"),("done","Done"),("verify","Waiting"),("all","All")],
+    payslip_state = fields.Selection([("paid","Paid"),("done","Done"),("validated","Waiting"),("all","All")],
                                      string="Payslip State", default="paid")
 
     def get_payslip_ids(self):

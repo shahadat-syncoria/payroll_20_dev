@@ -18,7 +18,7 @@ deduction_amount_type = [
 
 
 class InheritedResPartner(models.Model):
-    _inherit = 'hr.contract'
+    _inherit = 'hr.version'
 
     is_cpp_qpp_xmpt_cd = fields.Boolean(string="Canada Pension Plan or Quebec Pension Plan Exempt", default=False)
     is_ei_xmpt_cd = fields.Boolean(string="Employment Insurance Exempt", default=False)
@@ -75,7 +75,7 @@ class InheritedResPartner(models.Model):
     # ========================= Hourly Configuration =======================
     is_hourly = fields.Boolean(string="Is Hourly?", compute="_compute_is_hourly", store=True)
     is_fixed = fields.Boolean(string="Is Fixed Salary?", default=True,help="Salary will be fixed according to Pay cycle wage regardless worked hour")
-    hourly_rate = fields.Float(string="Hourly Rate")
+
     paycycle_wage = fields.Float(string="Pay Cycle Wage", tracking=True)
 
     # =========================== Deductions ===================================
@@ -158,11 +158,11 @@ class InheritedResPartner(models.Model):
             else:
                 rec.wage = 0.0
 
-    @api.onchange("hourly_rate")
+    @api.onchange("hourly_wage")
     def _onchange_hourly_wage(self):
         for rec in self:
-            if rec.hourly_rate:
-                rec.hourly_wage = rec.hourly_rate
+            if rec.hourly_wage:
+                rec.hourly_wage = rec.hourly_wage
             else:
                 rec.hourly_wage = 0.0
     @api.depends("wage_type")
@@ -174,10 +174,10 @@ class InheritedResPartner(models.Model):
                 rec.is_hourly = False
 
 
-    @api.constrains('hourly_rate')
+    @api.constrains('hourly_wage')
     def _constraint_hourly_rate(self):
         for rec in self:
-            if rec.is_hourly and rec.hourly_rate <= 0.0:
+            if rec.is_hourly and rec.hourly_wage <= 0.0:
                 raise UserError("Hourly Rate should be greater than 0.")
 
     # @api.depends('structure_type_id')

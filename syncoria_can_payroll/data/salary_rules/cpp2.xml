@@ -14,7 +14,7 @@
 <!--            <field name="exemption_id" ref="cpp_exempt"/>-->
             <field name="amount_python_compute">
                 <![CDATA[
-is_pay_cycle = contract.salary_pay_cycle.pay_cycle
+is_pay_cycle = employee.salary_pay_cycle.pay_cycle
 if is_pay_cycle:
     pay_cycle = int(is_pay_cycle)
     gross = 0.0
@@ -58,11 +58,11 @@ if is_pay_cycle:
     main_gross = final_result
     PM = 12
     line_obj = employee.payroll_line_ids.filtered(lambda x: x.year == str(payslip.date_to.year))
-    calculation_1 = contract.deductions.cpp2_emp_employ_contrib * (PM / 12) - line_obj.ytd_cpp2 if line_obj else 0.0
+    calculation_1 = employee.deductions.cpp2_emp_employ_contrib * (PM / 12) - line_obj.ytd_cpp2 if line_obj else 0.0
     ytd_pi = line_obj.ytd_pi if line_obj else 0.0
 
-    W = max(ytd_pi, contract.deductions.cpp_max_an_pen_earn)
-    calculation_2 = (ytd_pi + main_gross - W) * (contract.deductions.cpp2_emp_employ_rate / 100)
+    W = max(ytd_pi, employee.deductions.cpp_max_an_pen_earn)
+    calculation_2 = (ytd_pi + main_gross - W) * (employee.deductions.cpp2_emp_employ_rate / 100)
     final_cpp2 = min(calculation_1, calculation_2)
     if final_cpp2 < 0.00:
         result = 0.00
@@ -114,7 +114,7 @@ result=CPP2
 <!--            <field name="exemption_id" ref="cpp_exempt"/>-->
             <field name="amount_python_compute">
                 <![CDATA[
-is_pay_cycle = contract.salary_pay_cycle.pay_cycle
+is_pay_cycle = employee.salary_pay_cycle.pay_cycle
 if is_pay_cycle:
     pay_cycle = int(is_pay_cycle)
     gross = 0.0
@@ -158,11 +158,11 @@ if is_pay_cycle:
     main_gross = final_result
     PM = 12
     line_obj = employee.payroll_line_ids.filtered(lambda x: x.year == str(payslip.date_to.year))
-    calculation_1 = contract.deductions.cpp2_emp_employ_contrib * (PM / 12) - line_obj.ytd_cpp2 if line_obj else 0.0
+    calculation_1 = employee.deductions.cpp2_emp_employ_contrib * (PM / 12) - line_obj.ytd_cpp2 if line_obj else 0.0
     ytd_pi = line_obj.ytd_pi if line_obj else 0.0
 
-    W = max(ytd_pi, contract.deductions.cpp_max_an_pen_earn)
-    calculation_2 = (ytd_pi + main_gross - W) * (contract.deductions.cpp2_emp_employ_rate / 100)
+    W = max(ytd_pi, employee.deductions.cpp_max_an_pen_earn)
+    calculation_2 = (ytd_pi + main_gross - W) * (employee.deductions.cpp2_emp_employ_rate / 100)
     final_cpp2 = min(calculation_1, calculation_2)
     if final_cpp2 < 0.00:
         result = 0.00
@@ -200,24 +200,24 @@ result=CPP2
 
 
 <!--        ========================== Previous CPP calculation ===========-->
-        <!--is_pay_cycle = contract.salary_pay_cycle.pay_cycle-->
+        <!--is_pay_cycle = employee.salary_pay_cycle.pay_cycle-->
 <!--if is_pay_cycle:-->
 <!--    pay_cycle = int(is_pay_cycle)-->
 
 <!--    main_gross = GROSS-->
 <!--    irregular_gross = abs(categories['ADD_ALLOWANCE'])-->
 
-<!--    yearly_gross = (main_gross * pay_cycle - contract.deductions.cpp_basic_exem) + irregular_gross-->
+<!--    yearly_gross = (main_gross * pay_cycle - employee.deductions.cpp_basic_exem) + irregular_gross-->
 
-<!--    if yearly_gross < contract.deductions.cpp_max_con_earn:-->
-<!--        final_result = (((main_gross * pay_cycle - contract.deductions.cpp_basic_exem) * (-->
-<!--                    contract.deductions.cpp_emp_employ_rate / 100)) / pay_cycle) + (-->
-<!--                               irregular_gross * (contract.deductions.cpp_emp_employ_rate / 100))-->
+<!--    if yearly_gross < employee.deductions.cpp_max_con_earn:-->
+<!--        final_result = (((main_gross * pay_cycle - employee.deductions.cpp_basic_exem) * (-->
+<!--                    employee.deductions.cpp_emp_employ_rate / 100)) / pay_cycle) + (-->
+<!--                               irregular_gross * (employee.deductions.cpp_emp_employ_rate / 100))-->
 
 <!--    else:-->
-<!--        final_result = (((contract.deductions.cpp_max_an_pen_earn - contract.deductions.cpp_basic_exem) * (-->
-<!--                    contract.deductions.cpp_emp_employ_rate / 100)) / pay_cycle) + (-->
-<!--                               irregular_gross * (contract.deductions.cpp_emp_employ_rate / 100))-->
+<!--        final_result = (((employee.deductions.cpp_max_an_pen_earn - employee.deductions.cpp_basic_exem) * (-->
+<!--                    employee.deductions.cpp_emp_employ_rate / 100)) / pay_cycle) + (-->
+<!--                               irregular_gross * (employee.deductions.cpp_emp_employ_rate / 100))-->
 <!--    if final_result < 0.0:-->
 <!--        final_result = 0.0-->
 <!--    result = final_result-->

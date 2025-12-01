@@ -32,7 +32,7 @@
                     </button>
                 </div>
 
-                <xpath expr="//group[@name='active_group']" position="after">
+                <xpath expr="//group[@name='managers']" position="after">
                     <group string="Vacation Information">
                     <label for="vacation_pay_allocation_start"/>
                     <div class="o_row">

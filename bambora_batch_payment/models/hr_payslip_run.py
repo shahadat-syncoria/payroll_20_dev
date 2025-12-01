@@ -6,7 +6,7 @@ class BamboraHrPayslipRun(models.Model):
 
     # state = fields.Selection([
     #     ('draft', 'New'),
-    #     ('verify', 'Confirmed'),
+    #     ('validated', 'Confirmed'),
     #     ('close', 'Done'),
     #     ('waiting', 'Bambora Waiting'),
     #     ('paid', 'Paid'),

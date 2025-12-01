@@ -11,6 +11,10 @@ class HrEmployeeOvertime(models.Model):
                                         ('paycycle_out', 'Payout by Paycycle')],default='no_overtime', string='Overtime Method',groups="hr.group_hr_user")
     total_stored_overtime=fields.Float("Stored Overtime Hours", compute='_compute_total_store_overtime', digits=(16, 2))
     total_stored_overtime_amount=fields.Float("Stored Overtime Amount", compute='_compute_total_store_overtime')
+    overtime_threshold = fields.Float(readonly=False, related="version_id.overtime_threshold", inherited=True, groups="hr.group_hr_manager")
+    overtime_threshold_selection = fields.Selection(readonly=False, related="version_id.overtime_threshold_selection", inherited=True, groups="hr.group_hr_manager")
+
+    overtime_threshold_id = fields.Many2one(readonly=False, related="version_id.overtime_threshold_id", inherited=True, groups="hr.group_hr_manager")
 
     def _compute_total_store_overtime(self):
         for rec in self:

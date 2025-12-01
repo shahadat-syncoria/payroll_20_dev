@@ -8,11 +8,11 @@ class HrPayslipYTDOpening(models.Model):
     _rec_name = 'employee_id'
 
     employee_id = fields.Many2one('hr.employee', string="Employee", required=True)
-    contract_domain_ids = fields.Many2many('hr.contract', compute='_compute_contract_domain_ids')
-    contract_id = fields.Many2one(
-        'hr.contract', string='Contract',
+    contract_domain_ids = fields.Many2many('hr.version', compute='_compute_contract_domain_ids')
+    version_id = fields.Many2one(
+        'hr.version', string='Contract',
         domain="[('id', 'in', contract_domain_ids)]",
-        compute='_compute_contract_id', store=True, readonly=False)
+        compute='_compute_version_id', store=True, readonly=False)
     struct_id = fields.Many2one('hr.payroll.structure', string="Structure",compute='_compute_struct_id')
     year = fields.Selection(
         year_selection,
@@ -42,30 +42,30 @@ class HrPayslipYTDOpening(models.Model):
 
 
 
-    @api.depends('contract_id')
+    @api.depends('version_id')
     def _compute_struct_id(self):
         for slip in self.filtered(lambda p: not p.struct_id):
-            slip.struct_id = slip.contract_id.structure_type_id.default_struct_id \
-                             or slip.employee_id.contract_id.structure_type_id.default_struct_id
+            slip.struct_id = slip.version_id.structure_type_id.default_struct_id \
+                             or slip.employee_id.version_id.structure_type_id.default_struct_id
 
     @api.depends('employee_id', 'contract_domain_ids')
-    def _compute_contract_id(self):
+    def _compute_version_id(self):
         for slip in self:
-            if slip.contract_id and slip.employee_id == slip.contract_id.employee_id:
+            if slip.version_id and slip.employee_id == slip.version_id.employee_id:
                 continue
-            slip.contract_id = False
+            slip.version_id = False
             if not slip.employee_id or not slip.contract_domain_ids:
                 continue
             # Add a default contract if not already defined or invalid
             contracts = slip.contract_domain_ids.filtered(lambda c: c.state == 'open')
             if not contracts:
                 continue
-            slip.contract_id = contracts[0]._origin
+            slip.version_id = contracts[0]._origin
 
     @api.depends('company_id', 'employee_id')
     def _compute_contract_domain_ids(self):
         for payslip in self:
-            payslip.contract_domain_ids = self.env['hr.contract'].search([
+            payslip.contract_domain_ids = self.env['hr.version'].search([
                 ('company_id', '=', payslip.company_id.id),
                 ('employee_id', '=', payslip.employee_id.id),
                 ('state', 'in', ['open', 'close']),

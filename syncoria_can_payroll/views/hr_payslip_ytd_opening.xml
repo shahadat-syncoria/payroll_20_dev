@@ -37,7 +37,7 @@
                     <group>
                         <field name="employee_id"/>
                         <field name="year"/>
-                        <field name="contract_id"/>
+                        <field name="version_id"/>
                         <field name="struct_id"/>
                         <field name="currency_id"/>
                         <field name="company_id"/>

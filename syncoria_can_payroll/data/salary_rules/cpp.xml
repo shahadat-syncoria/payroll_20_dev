@@ -15,7 +15,7 @@
 <!--            <field name="exemption_id" ref="cpp_exempt"/>-->
             <field name="amount_python_compute">
                 <![CDATA[
-is_pay_cycle = contract.salary_pay_cycle.pay_cycle
+is_pay_cycle = employee.salary_pay_cycle.pay_cycle
 if is_pay_cycle:
     pay_cycle = int(is_pay_cycle)
     gross = 0.0
@@ -61,8 +61,8 @@ if is_pay_cycle:
     main_gross = final_result
     PM= 12
     line_obj = employee.payroll_line_ids.filtered(lambda x: x.year == str(payslip.date_to.year))
-    calculation_1 =  contract.deductions.cpp_emp_employ_contrib * (PM/12) - line_obj.ytd_cpp ;
-    calculation_2 =   (contract.deductions.cpp_emp_employ_rate / 100) * (main_gross -(contract.deductions.cpp_basic_exem /pay_cycle))
+    calculation_1 =  employee.deductions.cpp_emp_employ_contrib * (PM/12) - line_obj.ytd_cpp ;
+    calculation_2 =   (employee.deductions.cpp_emp_employ_rate / 100) * (main_gross -(employee.deductions.cpp_basic_exem /pay_cycle))
     final_cpp = min(calculation_1,calculation_2)
     if final_cpp < 0.00:
         result = 0.00
@@ -114,7 +114,7 @@ result=CPP
 <!--            <field name="exemption_id" ref="cpp_exempt"/>-->
             <field name="amount_python_compute">
                 <![CDATA[
-is_pay_cycle = contract.salary_pay_cycle.pay_cycle
+is_pay_cycle = employee.salary_pay_cycle.pay_cycle
 if is_pay_cycle:
     pay_cycle = int(is_pay_cycle)
     gross = 0.0
@@ -158,8 +158,8 @@ if is_pay_cycle:
     main_gross = final_result
     PM= 12
     line_obj = employee.payroll_line_ids.filtered(lambda x: x.year == str(payslip.date_to.year))
-    calculation_1 =  contract.deductions.cpp_emp_employ_contrib * (PM/12) - line_obj.ytd_cpp ;
-    calculation_2 =   (contract.deductions.cpp_emp_employ_rate / 100) * (main_gross -(contract.deductions.cpp_basic_exem /pay_cycle))
+    calculation_1 =  employee.deductions.cpp_emp_employ_contrib * (PM/12) - line_obj.ytd_cpp ;
+    calculation_2 =   (employee.deductions.cpp_emp_employ_rate / 100) * (main_gross -(employee.deductions.cpp_basic_exem /pay_cycle))
     final_cpp = min(calculation_1,calculation_2)
     if final_cpp < 0.00:
         result = 0.00

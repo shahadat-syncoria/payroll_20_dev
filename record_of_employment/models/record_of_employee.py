@@ -6,7 +6,7 @@ import xml.etree.ElementTree as ET
 from lxml import etree
 from odoo.exceptions import UserError, ValidationError
 
-from odoo.modules.module import get_module_resource
+from odoo.modules import get_resource_from_path
 from datetime import datetime
 import re
 
@@ -294,7 +294,7 @@ class RecordOfEmployee(models.Model):
             xml_content = rec.generate_roe_xml()
 
             # validate schema
-            get_path = get_module_resource('record_of_employment', 'utils/xml_schema')
+            get_path = get_resource_from_path('record_of_employment', 'utils/xml_schema')
             # etree.XMLSchema(xmlschema_doc)
             schema = etree.XMLSchema(file=get_path + '/' + 'PayrollExtractXmlV2.xsd')
             # xml_doc = etree.parse(source=get_path + '/' + 'test.xml')
@@ -438,7 +438,7 @@ class RecordOfEmployee(models.Model):
         for rec in self:
             if rec.state == 'done':
                 try:
-                    get_path = get_module_resource('record_of_employment', 'utils')
+                    get_path = get_resource_from_path('record_of_employment', 'utils')
                     output_folder_path = os.path.expanduser(os.getenv("HOME")) + "/outPdf/"
                     if not os.path.isdir(output_folder_path):
                         os.mkdir(output_folder_path)

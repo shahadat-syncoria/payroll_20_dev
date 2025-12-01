@@ -21,7 +21,7 @@ class IrregularPayslip(models.Model):
             bonus_input_type = rec.env.ref('syncoria_can_irregular_payment.input_ca_bonus_pay').id
             retro_input_type = rec.env.ref('syncoria_can_irregular_payment.input_ca_retro_pay').id
             commission_input_type = rec.env.ref('syncoria_can_irregular_payment.input_ca_commission').id
-            payslips = rec.filtered(lambda slip: slip.state in ['draft', 'verify'])
+            payslips = rec.filtered(lambda slip: slip.state in ['draft', 'validated'])
             for payslip in payslips:
                 try:
                     des_name = ","

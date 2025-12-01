@@ -83,7 +83,7 @@
                         <page name="payslips" string="Payslips">
                             <sheet>
                                 <field name="payslip_ids"><list create="false" default_order="number asc" delete="false">
-                                        <field name="number"/>
+<!--                                        <field name="number"/>-->
                                         <field name="name"/>
                                         <field name="pay_cycle_period"/>
                                         <field name="date_to"/>

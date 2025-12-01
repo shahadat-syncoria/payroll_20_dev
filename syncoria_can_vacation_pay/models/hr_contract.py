@@ -2,7 +2,7 @@ from odoo import fields, models, api, _
 from odoo.exceptions import UserError
 
 class InheritedContractVac(models.Model):
-    _inherit = 'hr.contract'
+    _inherit = 'hr.version'
 
     def create(self, vals):
         res = super(InheritedContractVac, self).create(vals)

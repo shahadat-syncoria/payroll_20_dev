@@ -11,13 +11,21 @@ class HrIrregularPayment(models.Model):
     _rec_name = "name"
 
     def _get_available_contracts_domain(self):
+        # return [
+        #     ('version_id.state', 'in', ('open', 'close')),
+        #     ('company_id', '=', self.env.company.id),
+        #     ('version_id.date_start', '<=', self.date),
+        #     '|',  # Logical OR operator
+        #     ('version_id.date_end', '>=', self.date),
+        #     ('version_id.date_end', '=', False)  # Handles empty end date
+        # ]
         return [
-            ('contract_id.state', 'in', ('open', 'close')),
             ('company_id', '=', self.env.company.id),
-            ('contract_id.date_start', '<=', self.date),
-            '|',  # Logical OR operator
-            ('contract_id.date_end', '>=', self.date),
-            ('contract_id.date_end', '=', False)  # Handles empty end date
+            ('contract_date_start', '<=', self.date),
+            '|',
+            ('contract_date_end', '=', False),
+            ('contract_date_end', '>=', self.date),
+            # ('date_version', '<=', date_end),
         ]
 
     def _get_employee_line(self):
@@ -74,7 +82,7 @@ class HrIrregularPayment(models.Model):
             if rec.department_id:
                 domain += [('department_id', 'child_of', rec.department_id.id)]
             if rec.paycycle_ids:
-                domain += [('contract_id.salary_pay_cycle', 'in', rec.paycycle_ids.ids)]
+                domain += [('version_id.salary_pay_cycle', 'in', rec.paycycle_ids.ids)]
 
             domain_wise_employee = self.env['hr.employee'].search(domain)
             rec.line_ids = [(6, 0, [])]
@@ -133,7 +141,7 @@ class EmployeeWiseIrregularPay(models.Model):
         return self.irr_pay_id.amount or 0.0
 
     def _get_available_contracts_domain(self):
-        return [('contract_ids.state', 'in', ('open', 'close')), ('company_id', '=', self.env.company.id)]
+        return [('version_ids.state', 'in', ('open', 'close')), ('company_id', '=', self.env.company.id)]
 
     irr_pay_id = fields.Many2one('hr.irregular.pay')
     employee_id = fields.Many2one('hr.employee',domain=lambda self:self._get_available_contracts_domain())

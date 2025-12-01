@@ -18,6 +18,11 @@ EMPLOYMENT_CODE = [
     ('17', "Fishers - Self-employed"),
 ]
 
+deduction_amount_type = [
+    ("percent","%"),
+    ("fixed","CAD"),
+]
+
 class InhertitedHrEmployee(models.Model):
     _inherit = 'hr.employee'
 
@@ -129,6 +134,57 @@ class InhertitedHrEmployee(models.Model):
     is_cpp_exempt = fields.Boolean("CPP Exempt", default=False,groups="hr.group_hr_user")
     is_ei_exempt = fields.Boolean("EI Exempt", default=False,groups="hr.group_hr_user")
 
+#================================== for 19 making related with hr.version======================
+    federal_amount_from_td1 = fields.Float(readonly=False, related="version_id.federal_amount_from_td1", inherited=True, groups="hr.group_hr_manager")
+    proviancial_amount_from_td1 = fields.Float(readonly=False, related="version_id.proviancial_amount_from_td1", inherited=True, groups="hr.group_hr_manager")
+
+    federal_claim_code_from_td1 = fields.Selection(readonly=False, related="version_id.federal_claim_code_from_td1", inherited=True, groups="hr.group_hr_manager")
+
+    provincial_claim_code_from_td1 = fields.Selection(readonly=False, related="version_id.provincial_claim_code_from_td1", inherited=True, groups="hr.group_hr_manager")
+
+    deductions = fields.Many2one(readonly=False, related="version_id.deductions", inherited=True, groups="hr.group_hr_manager")
+
+    salary_pay_cycle = fields.Many2one(readonly=False, related="version_id.salary_pay_cycle", inherited=True, groups="hr.group_hr_manager")
+    # ========================= Hourly Configuration =======================
+    is_hourly = fields.Boolean(readonly=False, related="version_id.is_hourly", inherited=True, groups="hr.group_hr_manager")
+    is_fixed = fields.Boolean(readonly=False, related="version_id.is_fixed", inherited=True, groups="hr.group_hr_manager")
+    paycycle_wage = fields.Float(readonly=False, related="version_id.paycycle_wage", inherited=True, groups="hr.group_hr_manager")
+
+    # =========================== Deductions ===================================
+    rrsp_amount = fields.Float(readonly=False, related="version_id.rrsp_amount", inherited=True, groups="hr.group_hr_manager")
+    rrsp_type = fields.Selection(readonly=False, related="version_id.rrsp_type", inherited=True, groups="hr.group_hr_manager")
+
+    employer_rrsp = fields.Float(readonly=False, related="version_id.employer_rrsp", inherited=True, groups="hr.group_hr_manager")
+    employer_rrsp_type = fields.Selection(readonly=False, related="version_id.employer_rrsp_type", inherited=True, groups="hr.group_hr_manager")
+
+    rrsp_amount_withdraw = fields.Boolean(readonly=False, related="version_id.rrsp_amount_withdraw", inherited=True, groups="hr.group_hr_manager")
+
+    garnishment = fields.Boolean(readonly=False, related="version_id.garnishment", inherited=True, groups="hr.group_hr_manager")
+    wage_garnishment = fields.Integer(readonly=False, related="version_id.wage_garnishment", inherited=True, groups="hr.group_hr_manager")
+    wage_garnishment_type = fields.Selection(readonly=False, related="version_id.wage_garnishment_type", inherited=True, groups="hr.group_hr_manager")
+
+    bank_garnishment = fields.Integer(readonly=False, related="version_id.bank_garnishment", inherited=True, groups="hr.group_hr_manager")
+    bank_garnishment_type = fields.Selection(readonly=False, related="version_id.bank_garnishment_type", inherited=True, groups="hr.group_hr_manager")
+
+    alimony_garnishment = fields.Integer(readonly=False, related="version_id.alimony_garnishment", inherited=True, groups="hr.group_hr_manager")
+    alimony_garnishment_type = fields.Selection(readonly=False, related="version_id.alimony_garnishment_type", inherited=True, groups="hr.group_hr_manager")
+
+    child_support_garnishment = fields.Integer(readonly=False, related="version_id.child_support_garnishment", inherited=True, groups="hr.group_hr_manager")
+    child_support_garnishment_type = fields.Selection(readonly=False, related="version_id.child_support_garnishment_type", inherited=True, groups="hr.group_hr_manager")
+
+    # =========================== Benefit Plans ===================================
+    benefit_plans = fields.Boolean(readonly=False, related="version_id.benefit_plans", inherited=True, groups="hr.group_hr_manager")
+
+    life_insurance = fields.Float(readonly=False, related="version_id.life_insurance", inherited=True, groups="hr.group_hr_manager")
+    life_insurance_type = fields.Selection(readonly=False, related="version_id.life_insurance_type", inherited=True, groups="hr.group_hr_manager")
+    life_insurance_employer = fields.Float(readonly=False, related="version_id.life_insurance_employer", inherited=True, groups="hr.group_hr_manager")
+    life_insurance_employer_type = fields.Selection(readonly=False, related="version_id.life_insurance_employer_type", inherited=True, groups="hr.group_hr_manager")
+
+    medical_insurance = fields.Float(readonly=False, related="version_id.medical_insurance", inherited=True, groups="hr.group_hr_manager")
+    medical_insurance_type = fields.Selection(readonly=False, related="version_id.medical_insurance_type", inherited=True, groups="hr.group_hr_manager")
+    medical_insurance_employer = fields.Float(readonly=False, related="version_id.medical_insurance_employer", inherited=True, groups="hr.group_hr_manager")
+    medical_insurance_employer_type = fields.Selection(readonly=False, related="version_id.medical_insurance_employer_type", inherited=True, groups="hr.group_hr_manager")
+
     @api.depends("ytd_previous_irre_payment", "ytd_previous_irre_payment_erp")
     def _compute_ytd_irre_payment(self):
         for rec in self:
@@ -169,6 +225,14 @@ class InhertitedHrEmployee(models.Model):
         for rec in self:
             rec.ytd_ei_employer = rec.ytd_ei_employer_erp + rec.ytd_previous_ei_employer
 
+    @api.onchange("paycycle_wage")
+    def _onchange_wage(self):
+        for rec in self:
+            if rec.paycycle_wage:
+                rec.wage = (rec.paycycle_wage * int(
+                    rec.salary_pay_cycle.pay_cycle or rec.structure_type_id.default_pay_cycle.pay_cycle)) / 12
+            else:
+                rec.wage = 0.0
 
     def _get_ytd_payslip_line_ids(self, year):
         """
@@ -252,12 +316,12 @@ class InhertitedHrEmployee(models.Model):
     @api.depends('ytd_previous_irre_prov_amount', 'last_paycycle_gross')
     def compute_ytd_previous_irre_fed_tax(self):
         for rec in self:
-            is_pay_cycle = rec.contract_id.salary_pay_cycle.pay_cycle
+            is_pay_cycle = rec.version_id.salary_pay_cycle.pay_cycle
             paycycle_gross = rec.last_paycycle_gross
             if is_pay_cycle:
                 pay_cycle = int(is_pay_cycle)
-                claim_code = rec.contract_id.federal_claim_code_from_td1
-                year = rec.contract_id.deductions.slab_year
+                claim_code = rec.version_id.federal_claim_code_from_td1
+                year = rec.version_id.deductions.slab_year
                 total_gross_with_irr = (rec.ytd_previous_irre_prov_amount / pay_cycle) + paycycle_gross
 
                 tax_amount_gross_without_irr = rec.env['fed.tax'].get_tax_amount(paycycle_gross, claim_code, year,
@@ -271,12 +335,12 @@ class InhertitedHrEmployee(models.Model):
     @api.depends('ytd_previous_irre_prov_amount','last_paycycle_gross')
     def compute_ytd_previous_irre_prov_tax(self):
         for rec in self:
-            is_pay_cycle = rec.contract_id.salary_pay_cycle.pay_cycle
+            is_pay_cycle = rec.version_id.salary_pay_cycle.pay_cycle
             paycycle_gross = rec.last_paycycle_gross
             if is_pay_cycle:
                 pay_cycle = int(is_pay_cycle)
-                claim_code = rec.contract_id.federal_claim_code_from_td1
-                year = rec.contract_id.deductions.slab_year
+                claim_code = rec.version_id.federal_claim_code_from_td1
+                year = rec.version_id.deductions.slab_year
                 total_gross_with_irr = (rec.ytd_previous_irre_prov_amount / pay_cycle) + paycycle_gross
 
                 tax_amount_gross_without_irr = rec.env['prov.tax'].get_tax_amount(paycycle_gross, claim_code, year,
@@ -304,11 +368,10 @@ class InhertitedHrEmployee(models.Model):
                     raise UserError("This User is already mapped with another employee!")
 
 
-    @api.depends('first_contract_date')
+    @api.depends('version_id')
     def compute_first_contract_date(self):
         for rec in self:
-            if rec.first_contract_date:
-                rec.sync_first_contract_date = rec.first_contract_date
+            rec.sync_first_contract_date = rec._get_first_version_date()
 
     @api.model
     def action_statement_remuneration_wizard(self):
@@ -336,7 +399,7 @@ class HrEmployeeYTDPayrollInformation(models.Model):
     _description = 'Hr Employee YTD Payroll Information'
 
     head_id = fields.Many2one('hr.employee')
-    contract_id = fields.Many2one('hr.contract',related='head_id.contract_id', store=True)
+    version_id = fields.Many2one('hr.version',related='head_id.version_id', store=True)
     last_paycycle_gross = fields.Float(related='head_id.last_paycycle_gross', store=True)
     ytd_previous_irre_prov_amount = fields.Float(related='head_id.ytd_previous_irre_prov_amount', store=True)
     year = fields.Selection(
@@ -453,12 +516,12 @@ class HrEmployeeYTDPayrollInformation(models.Model):
     @api.depends('ytd_previous_irre_prov_amount', 'last_paycycle_gross')
     def compute_ytd_previous_irre_fed_tax(self):
         for rec in self:
-            is_pay_cycle = rec.contract_id.salary_pay_cycle.pay_cycle
+            is_pay_cycle = rec.version_id.salary_pay_cycle.pay_cycle
             paycycle_gross = rec.last_paycycle_gross
             if is_pay_cycle:
                 pay_cycle = int(is_pay_cycle)
-                claim_code = rec.contract_id.federal_claim_code_from_td1
-                year = rec.contract_id.deductions.slab_year
+                claim_code = rec.version_id.federal_claim_code_from_td1
+                year = rec.version_id.deductions.slab_year
                 total_gross_with_irr = (rec.ytd_previous_irre_prov_amount / pay_cycle) + paycycle_gross
 
                 tax_amount_gross_without_irr = rec.env['fed.tax'].get_tax_amount(paycycle_gross, claim_code, year,

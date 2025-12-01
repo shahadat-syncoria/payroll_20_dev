@@ -152,7 +152,7 @@
                        <field invisible="wage_type == 'hourly'" name="paycycle_wage"/>
                     <field invisible="wage_type == 'hourly'" name="is_fixed"/>
                     <field invisible="1" name="is_hourly"/>
-                    <field invisible="wage_type != 'hourly'" name="hourly_rate"/>
+                    <field invisible="wage_type != 'hourly'" name="hourly_wage"/>
                 </xpath>
                 <xpath expr="//div[@name='wage']" position="attributes">
                     <attribute name="invisible">1</attribute>

@@ -17,11 +17,14 @@
     # Check https://github.com/odoo/odoo/blob/16.0/odoo/addons/base/data/ir_module_category_data.xml
     # for the full list
     'category': 'Human Resources/Payroll',
-    'version': '18.0.3.15',
+    'version': '19.0.0.1',
+    'installable': True,
+    'application': True,
 
     # any module necessary for this one to work correctly
-    'depends': ['base', 'hr_payroll', 'hr_work_entry', 'hr_payroll_account', 'portal', 'queue_job_cron_jobrunner'],
-    "external_dependencies": {"python": ["requests"]},
+    # 'depends': ['base', 'hr_payroll', 'hr_work_entry', 'hr_payroll_account', 'portal', 'queue_job_cron_jobrunner'],
+    'depends': ['base', 'hr_payroll', 'hr_work_entry', 'hr_payroll_account', 'portal'],
+    # "external_dependencies": {"python": ["requests"]},
     # always loaded
     'data': [
         'security/ir.model.access.csv',
@@ -57,12 +60,12 @@
         'views/views.xml',
         'views/hr_employee.xml',
         'views/res_partner.xml',
-        'views/hr_contract.xml',
+        # 'views/hr_contract.xml',
         'views/hr_payslip.xml',
         'views/hr_payslip_run.xml',
         'views/hr_work_entry_type_view.xml',
         'views/res_company_views.xml',
-        'views/res_users.xml',
+        # 'views/res_users.xml',
         'views/hr_salary_rule.xml',
         'views/payroll_portal_templates.xml',
         'views/hr_payslip_ytd_opening.xml',
@@ -74,7 +77,7 @@
         'wizards/remittance_summary_wizard_views.xml',
         'wizards/receiver_general_wizard_views.xml',
         'wizards/t4_wizard_view.xml',
-        'wizards/hr_payroll_payslip_by_employee_views.xml',
+        # 'wizards/hr_payroll_payslip_by_employee_views.xml',
         'wizards/employee_net_pay_wizard_views.xml',
         'wizards/payroll_earning_wizard_views.xml',
         'wizards/payroll_update_wizard_views.xml',
@@ -101,9 +104,12 @@
     'assets': {
         'web.assets_frontend': [
             'syncoria_can_payroll/static/src/css/table.css',
-        ]
+        ],
+        'web.assets_backend': [
+            'syncoria_can_payroll/static/src/**/*'
+        ],
+
     },
     'license': 'LGPL-3',
-    'installable': True,
-    'application': True,
+
 }

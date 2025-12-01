@@ -7,7 +7,7 @@ from . import models
 from . import hr_employee
 from . import res_partner
 from . import hr_payroll
-from . import hr_contract
+from . import hr_version
 from . import hr_payslip
 from . import hr_payslip_work_days
 

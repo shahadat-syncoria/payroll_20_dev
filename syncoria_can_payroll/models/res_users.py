@@ -4,7 +4,7 @@ from datetime import datetime
 
 
 class InheritedResUser(models.Model):
-    _inherit = ['res.users']
+    _inherit = 'res.users'
 
 
     # ========================================== YTD Information ===================================

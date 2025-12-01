@@ -1,22 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <data>
+<!--        button for the vaacation pay -->
+<!--        <record id="view_res_users_form_sync_vac_can_view" model="ir.ui.view">-->
+<!--            <field name="model">res.users</field>-->
+<!--            <field name="inherit_id" ref="hr.res_users_view_form_profile"/>-->
+<!--            <field name="arch" type="xml">-->
 
-        <record id="view_res_users_form_sync_vac_can_view" model="ir.ui.view">
-            <field name="model">res.users</field>
-            <field name="inherit_id" ref="hr.res_users_view_form_profile"/>
-            <field name="arch" type="xml">
+<!--                <div name="button_box" position="inside">-->
 
-                <div name="button_box" position="inside">
-
-                    <button name="action_view_employee_vacation_pay"
-                            type="object"
-                            class="oe_stat_button"
-                            icon="fa-money" >
-                        <field name="ytd_vac_pay_amount" icon="fa-money" widget="statinfo"/>
-                    </button>
-                </div>
-            </field>
-        </record>
+<!--                    <button name="action_view_employee_vacation_pay"-->
+<!--                            type="object"-->
+<!--                            class="oe_stat_button"-->
+<!--                            icon="fa-money" >-->
+<!--                        <field name="ytd_vac_pay_amount" icon="fa-money" widget="statinfo"/>-->
+<!--                    </button>-->
+<!--                </div>-->
+<!--            </field>-->
+<!--        </record>-->
     </data>
 </odoo>
