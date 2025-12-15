@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates id="template" xml:space="preserve">
+    <t t-name="syncoria_can_payroll.VersionPayrunListController.Buttons"
+       t-inherit="hr_payroll.VersionPayrunListController.Buttons"
+       t-inherit-mode="extension">
+
+        <!-- Add your button -->
+        <xpath expr="." position="inside">
+            <button class="btn btn-info"
+                    t-on-click="selectEmployees">
+                Select
+            </button>
+        </xpath>
+
+    </t>
+</templates>
+

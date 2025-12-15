@@ -7,7 +7,6 @@ import { PayslipBatchFormController } from "@hr_payroll/views/payslip_run_form/h
 
 patch(PayslipBatchFormController.prototype ,{
     async selectEmployees() {
-        console.log("✅ Patched selectEmployees with pay_cycle support -----------------------------------");
 
         const pay_cycle = this.model.root.data.pay_cycle || false;
         const pay_cycle_period = this.model.root.data.pay_cycle_period?.id || false;
@@ -21,18 +20,20 @@ patch(PayslipBatchFormController.prototype ,{
                 serializeDate(this.model.root.data.date_end),
                 this.model.root.data.structure_id?.id,
                 this.model.root.data.company_id?.id,
-                this.model.root.data.pay_cycle,
-
+                pay_cycle,
 
             ]
         );
-
+        console.log("this.model.root.resId", this.model.root.resId)
         return this.actionService.doAction({
             ...employeeListAction,
-            help: markup(employeeListAction.help),
             context: {
-                raw_record: this.model.root.data,
+                ...(employeeListAction.context || {}),
+                date_start: this.model.root.data.date_start,
+                date_end: this.model.root.data.date_end,
+                pay_cycle_period:this.model.root.data.pay_cycle_period
             },
         });
+
     },
 });

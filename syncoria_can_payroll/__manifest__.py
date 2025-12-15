@@ -106,7 +106,7 @@
             'syncoria_can_payroll/static/src/css/table.css',
         ],
         'web.assets_backend': [
-            'syncoria_can_payroll/static/src/**/*'
+            'syncoria_can_payroll/static/src/**/*',
         ],
 
     },

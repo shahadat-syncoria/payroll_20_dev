@@ -24,7 +24,7 @@
                 <xpath expr="//field[@name='schedule_pay']" position="after">
 
                         <field name="pay_cycle_year" required="1" readonly="state in ['close','paid']"/>
-                        <field name="pay_cycle" required="1" readonly="state in ['close','paid']"/>
+                        <field name="pay_cycle" readonly="state in ['close','paid']"/>
 
                         <field domain="[('id','in',pay_cycle_period_ids_domain)]" invisible="pay_cycle == False" name="pay_cycle_period" required="pay_cycle != False" readonly="state in ['close','paid']" force_save="1"/>
                         <field invisible="1" name="pay_cycle_period_ids_domain"/>

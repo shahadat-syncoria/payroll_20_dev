@@ -255,3 +255,16 @@ class PayrollHrPayslipRun(models.Model):
 
         return 1
 
+    def action_open_manual_wizard_from_list(self, employee_ids):
+        action = self.env['ir.actions.act_window']._for_xml_id(
+            'syncoria_can_payroll.action_hr_employee_manual_input_wiz'
+        )
+        action['context'] = {
+            'selected_employee_ids': employee_ids,
+
+
+        }
+
+        return action
+
+

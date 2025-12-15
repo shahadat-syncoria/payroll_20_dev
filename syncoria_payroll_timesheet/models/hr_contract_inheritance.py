@@ -16,13 +16,13 @@ class InheritedContract(models.Model):
 
 
 
-    def generate_work_entries(self, date_start, date_stop, force=False):
-        # for contract in self:
-        #     if contract.work_entry_source == 'timesheet_hours':
-        #         continue
-        # self = self.filtered(lambda w: w.work_entry_source != 'timesheet_hours')
-
-        return super().generate_work_entries(date_start, date_stop, force)
+    # def generate_work_entries(self, date_start, date_stop, force=False):
+    #     # for contract in self:
+    #     #     if contract.work_entry_source == 'timesheet_hours':
+    #     #         continue
+    #     # self = self.filtered(lambda w: w.work_entry_source != 'timesheet_hours')
+    #
+    #     return super().generate_work_entries(date_start, date_stop, force)
 
     def _get_attendance_intervals(self, start_dt, end_dt):
         mapped_intervals = super()._get_attendance_intervals(start_dt, end_dt)

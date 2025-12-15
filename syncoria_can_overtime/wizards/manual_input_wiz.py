@@ -37,25 +37,24 @@ class SyncoriaHrEmployeeManualWizardOvertime(models.TransientModel):
             'res_id': self.id
         }
 
-    def _get_employees(self):
+    def _default_manual_input_ids(self):
 
-        employee_data = super()._get_employees()
+        employee_data = super()._default_manual_input_ids()
 
         # Context and related data
         context = self.env.context
-        if 'active_model' in context and context.get('active_model') == 'hr.payslip.run':
-            hr_payslip_run = self.env['hr.payslip.run'].browse(context.get('active_id'))
 
-            # Iterate over the original result to append overtime hours
-            for record in employee_data:
-                employee_id = record[2]['employee_id']
-                employee = self.env['hr.employee'].browse(employee_id)
 
-                # Compute or fetch overtime hours for the employee
-                overtime_hours = employee.total_stored_overtime
+        # Iterate over the original result to append overtime hours
+        for record in employee_data:
+            employee_id = record[2]['employee_id']
+            employee = self.env['hr.employee'].browse(employee_id)
 
-                # Append overtime hours to the employee record
-                record[2]['banked_overtime'] = overtime_hours
+            # Compute or fetch overtime hours for the employee
+            overtime_hours = employee.total_stored_overtime
+
+            # Append overtime hours to the employee record
+            record[2]['banked_overtime'] = overtime_hours
 
         return employee_data
 
