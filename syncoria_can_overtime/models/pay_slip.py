@@ -81,6 +81,10 @@ class InheritedHrPayslipOvertime(models.Model):
         payslip_end_date = slip_tz.localize(datetime.combine(date_to, time.max)).astimezone(utc).replace(tzinfo=None)
         # payslip_end_date = datetime.combine(self.date_to, time.max)
 
+        payslip_start_date =payslip_start_date.date()
+        payslip_end_date = payslip_end_date.date()
+
+
         _logger.info(f"Start date:{payslip_start_date} and End Date: {payslip_end_date}")
 
         # Find the Monday of the start week and Sunday of the end week
@@ -94,16 +98,18 @@ class InheritedHrPayslipOvertime(models.Model):
         # Retrieve work entries for the payslip period
         work_entries = self.env['hr.work.entry'].search([
             ('employee_id', '=', self.employee_id.id),
-            ('date_start', '>=', first_monday),
-            ('date_stop', '<=', last_sunday),
+            ('date', '>=', first_monday),
+            ('date', '<=', last_sunday),
             ('state','in',['draft','validated'])
         ])
 
         # Initialize week tracking
         # current_week_start = datetime.combine(first_monday, time.min)
         current_week_start = slip_tz.localize(datetime.combine(first_monday, time.min)).astimezone(utc).replace(tzinfo=None)
+        current_week_start = current_week_start.date()
         # current_week_end = datetime.combine((current_week_start + timedelta(days=4)), time.max)
         current_week_end = slip_tz.localize(datetime.combine((current_week_start + timedelta(days=4)), time.max)).astimezone(utc).replace(tzinfo=None)
+        current_week_end =current_week_end.date()
         first_week = True
         if work_entry_source != "timesheet_hours":
             # Iterate through full weeks
@@ -111,13 +117,13 @@ class InheritedHrPayslipOvertime(models.Model):
                 # Get work entries for the current week
                 _logger.info(f"Week Start:{current_week_start} and current_week_end: {current_week_end} and IS first week:{first_week}")
                 weekly_work_entries = work_entries.filtered(
-                    lambda we: we.date_start >= current_week_start and we.date_stop <= current_week_end
+                    lambda we: current_week_start <= we.date <= current_week_end
                 )
-                _logger.info(f"Weekly Work entries:{weekly_work_entries[-1].date_start if weekly_work_entries else None} and {weekly_work_entries[-1].date_stop if weekly_work_entries else None}\n")
+                _logger.info(f"Weekly Work entries:{weekly_work_entries[-1].date if weekly_work_entries else None} and {weekly_work_entries[-1].date if weekly_work_entries else None}\n")
 
                 # Calculate weekly hours
                 weekly_hours = sum(
-                    [(we.date_stop - we.date_start).total_seconds() / 3600 for we in weekly_work_entries]
+                    [we.duration for we in weekly_work_entries]
                 )
                 _logger.info(f"Weekly Hour:{weekly_hours}\n")
 
@@ -129,8 +135,8 @@ class InheritedHrPayslipOvertime(models.Model):
                     if payslip_start_date.weekday() != 0 and first_week:
                         _logger.info(f"First Partial Week===>")
                         first_partial_week_hours = sum(
-                            [(we.date_stop - we.date_start).total_seconds() / 3600 for we in work_entries.filtered(
-                                lambda we: we.date_start >= first_monday and we.date_stop < payslip_start_date
+                            [we.duration for we in work_entries.filtered(
+                                lambda we: first_monday <= we.date < payslip_start_date
                             )]
                         )
                         _logger.info(f"First Partial Week Hour:{first_partial_week_hours} and Date Start: {first_monday} and End date:{payslip_start_date}")
@@ -147,25 +153,23 @@ class InheritedHrPayslipOvertime(models.Model):
                     else:
                         overtime = weekly_hours - full_week_hours
                         overtime_hours += overtime
-                        weekly_overtime_hours[str(current_week_start.date())] = overtime
+                        weekly_overtime_hours[str(current_week_start)] = overtime
                 # Move to the next week
                 current_week_start += timedelta(days=7)
                 # current_week_start = datetime.combine(current_week_start, time.min)
                 current_week_start = slip_tz.localize(datetime.combine(current_week_start, time.min)).astimezone(utc).replace(tzinfo=None)
+                current_week_start = current_week_start.date()
                 _logger.info(f"Next Week Start: {current_week_start})")
                 current_week_end = current_week_start + timedelta(days=4)
                 # current_week_end = datetime.combine(current_week_end, time.max)
                 current_week_end = slip_tz.localize(datetime.combine(current_week_end, time.max)).astimezone(utc).replace(tzinfo=None)
+                current_week_end = current_week_end.date()
                 first_week = False
                 _logger.info(f"Next Week Ends: {current_week_end})")
         else:
             while current_week_start <= last_sunday:
                 # Get work entries for the current week
                 _logger.info(f"Week Start:{current_week_start} and current_week_end: {current_week_end} and IS first week:{first_week}")
-                # weekly_work_entries = work_entries.filtered(
-                #     lambda we: we.date_start >= current_week_start and we.date_stop <= current_week_end
-                # )
-                # _logger.info(f"Weekly Work entries:{weekly_work_entries[-1].date_start if weekly_work_entries else None} and {weekly_work_entries[-1].date_stop if weekly_work_entries else None}\n")
 
                 # Calculate weekly hours
                 working_hours = employee.get_timesheet_and_working_hours_for_employees(
@@ -202,45 +206,25 @@ class InheritedHrPayslipOvertime(models.Model):
                     else:
                         overtime = weekly_hours - full_week_hours
                         overtime_hours += overtime
-                        weekly_overtime_hours[str(current_week_start.date())] = overtime
+                        weekly_overtime_hours[str(current_week_start)] = overtime
 
                 # Move to the next week
                 current_week_start += timedelta(days=7)
-                # current_week_start = datetime.combine(current_week_start, time.min)
                 current_week_start = slip_tz.localize(datetime.combine(current_week_start, time.min)).astimezone(utc).replace(tzinfo=None)
                 _logger.info(f"Next Week Start: {current_week_start})")
+                current_week_start = current_week_start.date()
                 current_week_end = current_week_start + timedelta(days=4)
-                # current_week_end = datetime.combine(current_week_end, time.max)
                 current_week_end = slip_tz.localize(datetime.combine(current_week_end, time.max)).astimezone(utc).replace(tzinfo=None)
+                current_week_end = current_week_end.date()
                 first_week = False
                 _logger.info(f"Next Week Ends: {current_week_end})")
 
-        # Handle partial weeks:
-        # If the pay period starts in the middle of the week
-        # if payslip_start_date.weekday() != 0:
-        #     first_partial_week_hours = sum(
-        #         [(we.date_stop - we.date_start).total_seconds() / 3600 for we in work_entries.filtered(
-        #             lambda we: we.date_start.date() < first_monday and we.date_stop.date() >= first_monday
-        #         )]
-        #     )
-        #     if first_partial_week_hours > full_week_hours:
-        #         overtime_hours += first_partial_week_hours - full_week_hours
-
-        # If the pay period ends in the middle of the week
-        # if payslip_end_date.weekday() != 5:
-        #     last_partial_week_hours = sum(
-        #         [(we.date_stop - we.date_start).total_seconds() / 3600 for we in work_entries.filtered(
-        #             lambda we: we.date_start.date() > last_sunday and we.date_stop.date() <= last_sunday
-        #         )]
-        #     )
-        #     if last_partial_week_hours > full_week_hours:
-        #         overtime_hours += last_partial_week_hours - full_week_hours
         result = self.distribute_hours_from_thresholds(weekly_overtime_hours)
 
 
-        if self.version_id.overtime_threshold_selection == "fixed":
-            overtime_data[self.version_id.overtime_threshold] = overtime_hours
-        if self.version_id.overtime_threshold_selection == "range":
+        if self.employee_id.overtime_threshold_selection == "fixed":
+            overtime_data[self.employee_id.overtime_threshold] = overtime_hours
+        if self.employee_id.overtime_threshold_selection == "range":
             overtime_data = result
         _logger.info(f"overtime_data")
         return overtime_data
@@ -249,7 +233,7 @@ class InheritedHrPayslipOvertime(models.Model):
         """
           Aggregates hours across all weeks into each threshold bucket.
           """
-        thresholds = self.version_id.overtime_threshold_id.line_ids.sorted('start_threshold')  # Ensure sorted by start
+        thresholds = self.employee_id.overtime_threshold_id.line_ids.sorted('start_threshold')  # Ensure sorted by start
         summary = {}
 
         for threshold in thresholds:
