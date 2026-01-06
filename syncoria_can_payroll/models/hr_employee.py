@@ -142,7 +142,7 @@ class InhertitedHrEmployee(models.Model):
 
     provincial_claim_code_from_td1 = fields.Selection(readonly=False, related="version_id.provincial_claim_code_from_td1", inherited=True, groups="hr.group_hr_manager")
 
-    deductions = fields.Many2one(readonly=False, related="version_id.deductions", inherited=True, groups="hr.group_hr_manager")
+    # deductions = fields.Many2one(readonly=False, related="version_id.deductions", inherited=True, groups="hr.group_hr_manager")
 
     salary_pay_cycle = fields.Many2one(readonly=False, related="version_id.salary_pay_cycle", inherited=True, groups="hr.group_hr_manager")
     # ========================= Hourly Configuration =======================

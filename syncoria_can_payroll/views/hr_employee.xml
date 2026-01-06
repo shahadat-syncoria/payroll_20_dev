@@ -203,7 +203,7 @@
                         <field name="federal_claim_code_from_td1"/>
                         <field name="proviancial_amount_from_td1"/>
                         <field name="provincial_claim_code_from_td1"/>
-                        <field name="deductions" required="1"/>
+<!--                        <field name="deductions" required="1"/>-->
                     </group>
                     <group name="deductions" string="Deductions">
 
