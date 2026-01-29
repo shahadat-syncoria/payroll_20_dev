@@ -151,6 +151,9 @@ class InheritedHrPayslip(models.Model):
                 # rec.employee_id.update_ytd_tax(rec.date_to.year)
         return res
 
+    @api.depends('employee_id.current_version_id', 'version_id.last_modified_date', 'date_from')
+    def _compute_is_wrong_version(self):
+       pass
     # ================== Report ======================
     def _get_paygroup(self, value):
         return PAYGROUP.get(value)
