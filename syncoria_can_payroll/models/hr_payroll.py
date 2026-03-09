@@ -13,7 +13,7 @@ class HrPayrollStructureType(models.Model):
             self.default_schedule_pay = 'monthly'
 
         elif self.default_pay_cycle.pay_cycle == '24':
-            self.default_schedule_pay = 'bi-monthly'
+            self.default_schedule_pay = 'semi-monthly'
 
         elif self.default_pay_cycle.pay_cycle == '26':
             self.default_schedule_pay = 'bi-weekly'

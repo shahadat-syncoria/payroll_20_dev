@@ -26,6 +26,20 @@ class PayrollHrPayslipRun(models.Model):
 
     is_manual_input = fields.Boolean(compute='_compute_is_manual_input')
 
+    @api.onchange('pay_cycle')
+    def _onchage_schedule_pay(self):
+        self.ensure_one()
+        if self.pay_cycle.pay_cycle == '12':
+            self.schedule_pay = 'monthly'
+
+        elif self.pay_cycle.pay_cycle == '24':
+            self.schedule_pay = 'semi-monthly'
+
+        elif self.pay_cycle.pay_cycle == '26':
+            self.schedule_pay = 'bi-weekly'
+        elif self.pay_cycle.pay_cycle == '52':
+            self.schedule_pay = 'weekly'
+
 
     def _compute_is_manual_input(self):
         with_user = self.env['ir.config_parameter'].sudo()

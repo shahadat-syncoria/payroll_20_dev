@@ -25,8 +25,15 @@ patch(VersionPayrunListController.prototype, {
         };
     },
     async selectEmployees() {
-        const selectedEmployeeIds = this.model.root?.selection?.map(rec => rec.resId) || [];
+        const versionIds = this.model.root.selection.map(r => r.resId);
 
+        const employeeIds = await this.orm.call(
+            "hr.version",
+            "read",
+            [versionIds, ["employee_id"]]
+        );
+
+        const selectedEmployeeIds = employeeIds.map(r => r.employee_id[0]);
         const payslipRunId = this.props.context.payslip_run_id;
 
         if (!selectedEmployeeIds.length) {

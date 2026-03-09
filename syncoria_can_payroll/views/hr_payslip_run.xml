@@ -21,7 +21,7 @@
                     <attribute name="force_save">
                         1</attribute>
                 </xpath>
-                <xpath expr="//field[@name='schedule_pay']" position="after">
+                <xpath expr="//field[@name='schedule_pay']" position="before">
 
                         <field name="pay_cycle_year" required="1" readonly="state in ['close','paid']"/>
                         <field name="pay_cycle" readonly="state in ['close','paid']"/>
@@ -31,7 +31,7 @@
 
                 </xpath>
                 <xpath expr="//field[@name='schedule_pay']" position="attributes">
-                    <attribute name="invisible">1</attribute>
+                    <attribute name="readonly">1</attribute>
                 </xpath>
             </field>
         </record>
