@@ -48,38 +48,12 @@ result_name = inputs['Vacation_Pay'].name
 
             <field name="amount_python_compute">
 employee._get_employee_allocated_leave()
-gross = 0.0
-vp = 0.0
-ad_vp = 0.0
-bonus = 0.0
-retro = 0.0
-ot =0.0
-b_ot = 0.0
-com = 0.0
-stat_ot = 0.0
 final_result = 0.0
 if payslip.payout_vacation_pay_paycycle:
-    for rule in rules:
-        if rules[rule].is_vacation_pay:
-            rule_code = rules[rule].code
-            if rule_code == 'GROSS':
-                gross = GROSS
-            elif rule_code == 'VP':
-                vp = VP
-            elif rule_code == 'BONUS':
-                bonus = BONUS
-            elif rule_code == 'RETRO':
-                retro = RETRO
-            elif rule_code == 'OVERTIME':
-                ot = OVERTIME
-            elif rule_code == 'BANKED_OVERTIME':
-                b_ot = BANKED_OVERTIME
-            elif rule_code == 'COMMISSION':
-                com = COMMISSION
-            elif rule_code == 'STAT_OVERTIME':
-                stat_ot = STAT_OVERTIME
-
-            final_result = gross+ vp+ ad_vp+ bonus+ ot+ retro+ b_ot+ com+ stat_ot
+    for code, values in result_rules.items():
+        rule_obj = payslip.struct_id.rule_ids.filtered(lambda r: r.code == code)
+        if rule_obj and rule_obj.is_vacation_pay:
+            final_result += values.get('total', 0.0)
     insurable_amount = final_result
     vac_percentage = employee.allocated_vac_percentage
     result= (insurable_amount*(vac_percentage/100))
@@ -106,43 +80,17 @@ elif 'Adjusted_Vacation_Pay' in inputs:
 
             <field name="amount_python_compute">
 employee._get_employee_allocated_leave()
-gross = 0.0
-vp = 0.0
-ad_vp = 0.0
-bonus = 0.0
-retro = 0.0
-ot =0.0
-b_ot = 0.0
-com = 0.0
-stat_ot = 0.0
 final_result = 0.0
 
-for rule in rules:
-    if rules[rule].is_vacation_pay:
-        rule_code = rules[rule].code
-        if rule_code == 'GROSS':
-            gross = GROSS
-        elif rule_code == 'ADJUST_VP':
-            ad_vp = ADJUST_VP
-        elif rule_code == 'VP':
-            vp = VP
-        elif rule_code == 'BONUS':
-            bonus = BONUS
-        elif rule_code == 'RETRO':
-            retro = RETRO
-        elif rule_code == 'OVERTIME':
-            ot = OVERTIME
-        elif rule_code == 'BANKED_OVERTIME':
-            b_ot = BANKED_OVERTIME
-        elif rule_code == 'COMMISSION':
-            com = COMMISSION
-        elif rule_code == 'STAT_OVERTIME':
-            stat_ot = STAT_OVERTIME
-
-        final_result = gross+ vp+ ad_vp+ bonus+ ot+ retro+ b_ot+ com+ stat_ot
+for code, values in result_rules.items():
+    rule_obj = payslip.struct_id.rule_ids.filtered(lambda r: r.code == code)
+    if rule_obj and rule_obj.is_vacation_pay:
+        final_result += values.get('total', 0.0)
 insurable_amount = final_result
 vac_percentage = employee.allocated_vac_percentage
 result= (insurable_amount*(vac_percentage/100))
+result_rate = 100
+result_qty = 1
             </field>
 
 
@@ -203,43 +151,17 @@ result_name = inputs['Adjusted_Vacation_Pay'].name
                     <field name="condition_python">result = 'Adjusted_Vacation_Pay' not in inputs</field>
             <field name="amount_python_compute">
 employee._get_employee_allocated_leave()
-gross = 0.0
-vp = 0.0
-ad_vp = 0.0
-bonus = 0.0
-retro = 0.0
-ot =0.0
-b_ot = 0.0
-com = 0.0
-stat_ot = 0.0
 final_result = 0.0
 
-for rule in rules:
-    if rules[rule].is_vacation_pay:
-        rule_code = rules[rule].code
-        if rule_code == 'GROSS':
-            gross = GROSS
-        elif rule_code == 'ADJUST_VP':
-            ad_vp = ADJUST_VP
-        elif rule_code == 'VP':
-            vp = VP
-        elif rule_code == 'BONUS':
-            bonus = BONUS
-        elif rule_code == 'RETRO':
-            retro = RETRO
-        elif rule_code == 'OVERTIME':
-            ot = OVERTIME
-        elif rule_code == 'BANKED_OVERTIME':
-            b_ot = BANKED_OVERTIME
-        elif rule_code == 'COMMISSION':
-            com = COMMISSION
-        elif rule_code == 'STAT_OVERTIME':
-            stat_ot = STAT_OVERTIME
-
-        final_result = gross+ vp+ ad_vp+ bonus+ ot+ retro+ b_ot+ com+ stat_ot
+for code, values in result_rules.items():
+    rule_obj = payslip.struct_id.rule_ids.filtered(lambda r: r.code == code)
+    if rule_obj and rule_obj.is_vacation_pay:
+        final_result += values.get('total', 0.0)
 insurable_amount = final_result
 vac_percentage = employee.allocated_vac_percentage
 result= (insurable_amount*(vac_percentage/100))
+result_rate = 100
+result_qty = 1
             </field>
 
 

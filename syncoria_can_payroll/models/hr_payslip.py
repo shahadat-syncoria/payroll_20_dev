@@ -64,7 +64,7 @@ class InheritedHrPayslip(models.Model):
             if slip.payslip_run_id:
                 slip.update({
                     'year' :slip.payslip_run_id.pay_cycle_year,
-                    'pay_cycle_period': slip.payslip_run_id.pay_cycle_period,
+                    # 'pay_cycle_period': slip.payslip_run_id.pay_cycle_period,
                 })
 
     # ======================================================

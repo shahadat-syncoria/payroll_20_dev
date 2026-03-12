@@ -31,7 +31,8 @@ patch(PayslipBatchFormController.prototype ,{
                 ...(employeeListAction.context || {}),
                 date_start: this.model.root.data.date_start,
                 date_end: this.model.root.data.date_end,
-                pay_cycle_period:this.model.root.data.pay_cycle_period
+                pay_cycle_period:this.model.root.data.pay_cycle_period,
+                raw_record: this.model.root.data,
             },
         });
 

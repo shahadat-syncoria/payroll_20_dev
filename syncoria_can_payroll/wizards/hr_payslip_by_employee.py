@@ -38,7 +38,7 @@ class SyncoriaHrEmployeeManualWizard(models.TransientModel):
             date_end = fields.Date.from_string(date_end)
 
         start_dt = datetime.combine(date_start, time.min)
-        end_dt = datetime.combine(date_end + timedelta(days=1), time.min)
+        end_dt = datetime.combine(date_end, time.min)
 
         WorkEntry = self.env['hr.work.entry']
         WorkEntryType = self.env['hr.work.entry.type']
@@ -51,8 +51,8 @@ class SyncoriaHrEmployeeManualWizard(models.TransientModel):
         domain = [
             ('employee_id', '=', employee.id),
             # overlap with [start_dt, end_dt)
-            ('date', '<', end_dt),
-            ('date', '>', start_dt),
+            ('date', '<=', end_dt),
+            ('date', '>=', start_dt),
         ]
         if attendance_types:
             domain.append(('work_entry_type_id', 'in', attendance_types.ids))
