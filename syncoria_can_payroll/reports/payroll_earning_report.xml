@@ -106,7 +106,7 @@
                                         <td>
 
                                         </td>
-                                        <td></td>
+<!--                                        <td></td>-->
                                         <td>
                                             <span t-esc="round(line['total_gross'],2)"/>
                                             <span t-esc="currency" />

@@ -59,7 +59,7 @@ class EmployeeNetPay(models.TransientModel):
                 return line_ids.filtered(lambda l: l.code == code).amount or 0.0
 
             insurable_earnings = get_amount("I_Earning")
-            wsib_amount = (insurable_earnings * wsib_rate) / 100 if employee.is_wsib_applicable else 0.0
+            wsib_amount = (insurable_earnings * wsib_rate) / 100
 
             pay_cycle = rec.pay_cycle.paystub_group_name
             if pay_cycle not in grouped_payslip_data:
@@ -71,7 +71,7 @@ class EmployeeNetPay(models.TransientModel):
             payslip_data = {
                 "pay_period": rec.pay_cycle_period.name if rec.pay_cycle_period else '',
                 "employee_name": employee.name,
-                "employee_code": employee.employee_code or '',
+                "employee_code": '',
                 "total_gross": get_amount("GROSS"),
                 "total_insurable_earnings": insurable_earnings,
                 "net_pay": get_amount("NET"),

@@ -71,7 +71,7 @@ class YTDPayrollEarning(models.TransientModel):
                 end_of_year = self.date_to
 
             contracts = self.env['hr.version'].search([
-                ('state', '=', 'open'),
+                ('active', '!=', False),
                 '|', ('date_end', '>=', start_of_year), ('date_end', '=', False),
                 ('date_start', '<=', end_of_year),
             ])
