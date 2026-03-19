@@ -1,0 +1,21 @@
+[MASTER]
+load-plugins=pylint_odoo,pylint_odoo_manifest_syncoria
+
+[MESSAGES CONTROL]
+disable=
+    missing-module-docstring,
+    line-too-long,
+    trailing-newlines,
+    manifest-required-author,
+    manifest-deprecated-key,
+    license-allowed,
+    manifest-version-format,
+    missing-readme,
+    manifest-required-key,
+    manifest-data-duplicated
+
+[FORMAT]
+max-line-length=120
+
+[REPORTS]
+score=no

@@ -1,0 +1,19 @@
+repos:
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.5.0
+    hooks:
+      - id: ruff
+        args: [--fix, --no-unsafe-fixes]
+        stages: [commit]
+        files: \.py$
+      - id: ruff-format
+        files: \.py$
+
+  - repo: local
+    hooks:
+      - id: syncoria-manifest-lint
+        name: Syncoria Manifest Lint
+        entry: python -m pylint --rcfile=.pylintrc
+        language: system
+        pass_filenames: true
+        files: ^syncoria[^/\\]*/__manifest__\.py$
