@@ -1,13 +1,18 @@
 {
     "name": "Bambora Batch Payment",
-    "version": "18.0.1.0.0",
-    "category": "Accounts",
+    "version": "19.1.1",
     "summary": "Bambora Bank-to-Bank EFT/ACH/Batch Payment",
+    "description": "Bambora Bank-to-Bank EFT/ACH/Batch Payment",
     "author": "Syncoria Inc.",
     "website": "https://www.syncoria.com",
     "company": "Syncoria Inc.",
     "maintainer": "Syncoria Inc.",
-    "depends": ["account", "payment", "sale","syncoria_can_payroll"],
+    "license": "OPL-1",
+    "support": "support@syncoria.com",
+    "price": 5000,
+    "currency": "USD",
+    "category": "Accounts",
+    "depends": ["account", "payment", "sale", "syncoria_can_payroll"],
     "images": [
         "static/description/banner.png",
     ],
@@ -28,18 +33,14 @@
         "data/bamboraeft.xml",
         "data/cron_data.xml",
         "data/custom_email.xml",
-        "data/emails/payment_refuse_email.xml"
+        "data/emails/payment_refuse_email.xml",
     ],
     # "assets": {
-    #         'web.assets_frontend': [
-    #             'bambora_batch_payment/static/src/js/payment_form.js',
+    #         "web.assets_frontend": [
+    #             "bambora_batch_payment/static/src/js/payment_form.js",
     #         ],
     # },
-    "price": 1000,
-    "currency": "USD",
-    "license": "AGPL-3",
-    "support": "support@syncoria.com",
-    'application': True,
+    "application": True,
     "pre_init_hook": "pre_init_check",
     "uninstall_hook": "uninstall_hook",
 }
