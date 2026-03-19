@@ -129,7 +129,7 @@ class PayrollHrPayslipRun(models.Model):
         for rec in self:
             if all(slip.state in ['paid'] for slip in rec.mapped('slip_ids')):
                 rec.write({
-                    'state': 'paid'
+                    'state': '03_paid'
                 })
 
     def action_close(self):

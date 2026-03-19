@@ -64,7 +64,7 @@ class InheritedHrPayslip(models.Model):
             if slip.payslip_run_id:
                 slip.update({
                     'year' :slip.payslip_run_id.pay_cycle_year,
-                    # 'pay_cycle_period': slip.payslip_run_id.pay_cycle_period,
+                    'pay_cycle_period': slip.payslip_run_id.pay_cycle_period if slip.payslip_run_id.pay_cycle_period else slip.pay_cycle_period,
                 })
 
     # ======================================================
@@ -106,7 +106,7 @@ class InheritedHrPayslip(models.Model):
                 })
 
     def action_payslip_paid(self):
-        if any(slip.state not in ['done', 'waiting'] for slip in self):
+        if any(slip.state not in ['validated'] for slip in self):
             raise UserError(_('Cannot mark payslip as paid if not confirmed or waiting.'))
         self.write({'state': 'paid', 'paid_date': fields.Date.today()})
         # ================= YTD Information Update =========

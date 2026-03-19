@@ -6,7 +6,8 @@ import xml.etree.ElementTree as ET
 from lxml import etree
 from odoo.exceptions import UserError, ValidationError
 
-from odoo.modules import get_resource_from_path
+from odoo.tools.misc import file_path
+from lxml import etree
 from datetime import datetime
 import re
 
@@ -222,7 +223,7 @@ class RecordOfEmployee(models.Model):
 
                 vacation_data.append((0, 0, {
                     "payslip_id": payslip.id,
-                    "reference":payslip.number,
+                    "reference":payslip.name,
                     "vacation_pay_type": [(6, 0, vac_info.ids)],  # Use Many2many relation with the input records
                     "amount": total_vacation_amount,
                 }))
@@ -269,10 +270,10 @@ class RecordOfEmployee(models.Model):
                 'employee_lnm': employee.name.split(" ")[-1],  # FIX: Add field on employee
                 'employee_fnm': employee.name.split(" ")[0],  # FIX: Add field on employee
                 'employee_init': employee.name.split(" ")[0][0],
-                "pay_period_id": employee.contract_id.salary_pay_cycle,
+                "pay_period_id": employee.salary_pay_cycle,
                 "social_insurance_number": employee.identification_id,
-                "first_day_worked": employee.contract_id.date_start,
-                "last_day_worked": employee.contract_id.date_end or last_day_worked,
+                "first_day_worked": employee.version_id.date_start,
+                "last_day_worked": employee.version_id.date_end or last_day_worked,
                 "final_pay_period_ending_date": payslip_ids[0].date_to if payslip_ids else '',
                 "occupation": employee.job_id.name,
                 "cra_payroll_acc_num": employee.company_id.payroll_account_number,
@@ -293,13 +294,17 @@ class RecordOfEmployee(models.Model):
         for rec in self:
             xml_content = rec.generate_roe_xml()
 
-            # validate schema
-            get_path = get_resource_from_path('record_of_employment', 'utils/xml_schema')
-            # etree.XMLSchema(xmlschema_doc)
-            schema = etree.XMLSchema(file=get_path + '/' + 'PayrollExtractXmlV2.xsd')
-            # xml_doc = etree.parse(source=get_path + '/' + 'test.xml')
-            xml_doc = etree.fromstring(xml_content.encode('utf-8'))
-            # Validate the XML document
+            xsd_path = file_path(
+                'record_of_employment/utils/xml_schema/PayrollExtractXmlV2.xsd'
+            )
+
+            schema = etree.XMLSchema(file=xsd_path)
+
+            xml_doc = etree.ElementTree(
+                etree.fromstring(xml_content.encode('utf-8'))
+            )
+
+
 
             try:
                 if not schema.validate(xml_doc):
@@ -438,7 +443,11 @@ class RecordOfEmployee(models.Model):
         for rec in self:
             if rec.state == 'done':
                 try:
-                    get_path = get_resource_from_path('record_of_employment', 'utils')
+
+                    pdf_template_path = file_path(
+                        'record_of_employment/utils/roe.pdf'
+                    )
+
                     output_folder_path = os.path.expanduser(os.getenv("HOME")) + "/outPdf/"
                     if not os.path.isdir(output_folder_path):
                         os.mkdir(output_folder_path)
@@ -449,7 +458,7 @@ class RecordOfEmployee(models.Model):
 
                     filename = output_folder_path + pdf_name
 
-                    reader = PdfReader(get_path + '/' + "roe.pdf")
+                    reader = PdfReader(pdf_template_path)
                     writer = PdfWriter()
 
                 # page = reader.pages[0]

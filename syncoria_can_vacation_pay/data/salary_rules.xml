@@ -59,8 +59,8 @@ if payslip.payout_vacation_pay_paycycle:
     result= (insurable_amount*(vac_percentage/100))
 elif 'Adjusted_Vacation_Pay' in inputs:
     result = inputs['Adjusted_Vacation_Pay'].amount
-    result_name = inputs['Adjusted_Vacation_Pay'].name
-
+result_rate = 100
+result_qty = 1
             </field>
 
 

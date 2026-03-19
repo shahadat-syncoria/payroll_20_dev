@@ -8,6 +8,8 @@ import xml.etree.ElementTree as ET
 from odoo.exceptions import UserError
 
 from odoo.modules import get_resource_from_path
+from odoo.tools.misc import file_path
+
 import datetime
 
 from pypdf import PdfReader, PdfWriter
@@ -638,7 +640,7 @@ class StatementOfRemuneration(models.Model):
         contract_domain_id = self.env['hr.version'].search([
             ('company_id', '=', self.company_id.id),
             ('employee_id', '=', self.employee_id.id),
-            ('state', '=', 'open'),
+            ('active', '!=', False),
             # ('date_start', '<=', payslip.date_to),
             # '|',
             # ('date_end', '>=', payslip.date_from),
@@ -1082,7 +1084,10 @@ class StatementOfRemuneration(models.Model):
         for rec in employees:
             if rec.state == 'done':
                 try:
-                    get_path = get_resource_from_path('syncoria_can_payroll', 'utils')
+                    pdf_template_path = file_path(
+                        'syncoria_can_payroll/utils/t4-fill-23e.pdf'
+                    )
+
                     output_folder_path = os.path.expanduser(os.getenv("HOME")) + "/outPdf/"
                     if not os.path.isdir(output_folder_path):
                         os.mkdir(output_folder_path)
@@ -1092,7 +1097,7 @@ class StatementOfRemuneration(models.Model):
                         datetime.datetime.now().strftime("%m%d%Y%H%M%S%f")) + ".pdf"
                     filename = output_folder_path + pdf_name
 
-                    reader = PdfReader(get_path + '/' + "t4-fill-23e.pdf")
+                    reader = PdfReader(pdf_template_path)
                     # fields = reader.get_fields()
                     # print(fields)
                     writer = PdfWriter()
