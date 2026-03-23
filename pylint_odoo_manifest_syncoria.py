@@ -4,8 +4,10 @@ import subprocess
 
 from astroid import nodes
 from pylint.checkers import BaseChecker
+from pathlib import Path
+import sys
 
-
+_checked_repo = False
 REQUIRED_VALUES = {
     "author": "Syncoria Inc.",
     "website": "https://www.syncoria.com",
@@ -58,10 +60,40 @@ class ManifestChecker(BaseChecker):
             "invalid-manifest-version-for-branch",
             "Manifest version does not match the current Git branch series.",
         ),
+        "E9006": (
+            "Missing LICENSE file in module '%s'",
+            "missing-license-file",
+            "Each syncoria module must include a LICENSE file.",
+        ),
     }
 
+    def _check_license_files(self):
+        repo_root = Path.cwd()
+
+        missing = []
+
+        for module in repo_root.iterdir():
+            if module.is_dir() and module.name.startswith("syncoria"):
+                if not (module / "LICENSE").exists():
+                    missing.append(module.name)
+
+        if missing:
+            print("❌ Missing LICENSE files:")
+            for m in missing:
+                print(f" - {m}")
+            sys.exit(1)
+
     def visit_module(self, node: nodes.Module) -> None:
+        global _checked_repo
+        # Run repo-level check once
+        if not _checked_repo:
+            self._check_license_files()
+            _checked_repo = True
         if not node.file or not node.file.endswith("__manifest__.py"):
+            return
+
+        module_dir = os.path.basename(os.path.dirname(node.file))
+        if not module_dir.startswith("syncoria"):
             return
 
         for child in node.body:
