@@ -22,3 +22,8 @@ class PayrollHrPayslipRun(models.Model):
             'payslip_run_id': self.id,
             'export_format': export_format
         }).generate_txt_payment_report()
+        return {
+            'type': 'ir.actions.act_url',
+            'url': f'/web/content/?model=hr.payslip.run&id={self.id}&field=direct_deposit_txt&download=true&filename={self.direct_deposit_txt_filename}',
+            'target': 'self',
+        }

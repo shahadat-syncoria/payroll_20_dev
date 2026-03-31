@@ -26,6 +26,8 @@ class InheritedHrPayslip(models.Model):
 
     paid_date = fields.Date(string="Paid Date", readonly=True, store=True, copy=False,
                   )
+    pay_date = fields.Date(related="pay_cycle_period.pay_date")
+
 
     pay_cycle = fields.Many2one('paycycle.config', related='version_id.salary_pay_cycle', readonly=True)
     pay_cycle_period = fields.Many2one('paycycle.period')
@@ -108,11 +110,19 @@ class InheritedHrPayslip(models.Model):
     def action_payslip_paid(self):
         if any(slip.state not in ['validated'] for slip in self):
             raise UserError(_('Cannot mark payslip as paid if not confirmed or waiting.'))
-        self.write({'state': 'paid', 'paid_date': fields.Date.today()})
+        self.write({'state': 'paid', 'paid_date': self.pay_date if self.pay_date else fields.Date.today()})
         # ================= YTD Information Update =========
         # for slip in self:
         #     slip.employee_id.with_context({"type":"ALL"}).update_ytd_erp() # "ALL" is for update YTD of CPP,CPP2,PI
         #     slip.employee_id.update_ytd_irregular_payments_tax() # "ALL" is for update YTD of CPP,CPP2,PI
+
+    def action_payslip_done(self):
+        res = super().action_payslip_done()
+        for rec in self:
+            rec.write({
+                'paid_date': rec.pay_date
+            })
+        return res
 
     def action_payslip_cancel(self):
         super(InheritedHrPayslip,self).action_payslip_cancel()

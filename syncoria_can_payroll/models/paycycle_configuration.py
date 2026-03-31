@@ -242,6 +242,8 @@ class PaycyclePeriod(models.Model):
     name = fields.Char("Pay Period")
     start_date = fields.Date("Start Date")
     end_date = fields.Date("End Date")
+    pay_date = fields.Date("Pay Date")
+
 
 
     # A pay period cannot be deleted if there is a generated payslip for that pay period

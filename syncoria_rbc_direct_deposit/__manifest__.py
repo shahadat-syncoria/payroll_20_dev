@@ -25,9 +25,15 @@ This Module is for RBC Direct Download
         # 'security/ir.model.access.csv',
         "views/views.xml",
         "views/templates.xml",
-        "views/hr_payslip_run.xml",
+        # "views/hr_payslip_run.xml",
         "views/res_partner.xml",
+        "views/res_config_settings_views.xml",
     ],
+    'assets': {
+        'web.assets_backend': [
+            'syncoria_rbc_direct_deposit/static/src/**/*',
+        ],
+    },
     # only loaded in demonstration mode
     "demo": [
         "demo/demo.xml",

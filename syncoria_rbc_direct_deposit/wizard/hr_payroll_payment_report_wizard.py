@@ -9,6 +9,8 @@ from odoo import fields, models, _
 from odoo.exceptions import UserError, ValidationError
 from odoo.tools import format_list
 from odoo.tools.misc import format_date
+from decimal import Decimal, ROUND_HALF_UP
+
 
 _logger = logging.getLogger(__name__)
 
@@ -25,48 +27,52 @@ class HrPayrollPaymentReportWizardInherit(models.TransientModel):
         }
     )
 
-
-
     def _create_txt_binary(self):
 
-        client_number = self.env.company.partner_id.rbc_client_number.zfill(10)
+        client_number = self.env.company.partner_id.rbc_client_number
         client_name = self.env.company.partner_id.name
         today = datetime.today()
         julian_date = f"{today.year}{today.timetuple().tm_yday:03d}"
         currency = self.env.company.partner_id.currency_id.name
-        file_creation_number = "TEST" # for production we need to remove test with meaningful number
+        # file_creation_number = "TEST"  # for production we need to remove test with meaningful number
+        if not self.company_id.production:
+            file_creation_number = "TEST"
+        else:
+            file_creation_number = self.env.company._generate_fcn()
         language_code = "E"
         country = "CAN"
         record_count = 1
-
-
 
         valid_employees = []
         errors = []
 
         if not client_number:
             errors.append(f"Missing RBC assigned client number for the company")
+        else:
+            client_number_zfill = client_number.zfill(10)
 
-        output = StringIO()
-        output.write(
-            f"$$AA01STD0152[TEST[NL$$"
-        )
-        output.write("\r\n")
-        output.write(
-            f"{record_count:06d}AHDR{client_number}{client_name.ljust(30)[:30]}{file_creation_number}{julian_date}{currency}1".ljust(
-                152)+ "\r\n"
-        )
+            header = f"$$AAPDSTD0152[PROD[NL$$" if self.company_id.production else f"$$AA01STD0152[TEST[NL$$"
+
+            output = StringIO()
+            output.write(
+                header
+            )
+            output.write("\r\n")
+            output.write(
+                f"{record_count:06d}AHDR{client_number_zfill}{client_name.ljust(30)[:30]}{file_creation_number}{julian_date}{currency}1".ljust(
+                    152) + "\r\n"
+            )
         # output.write("\n")
 
         for i, employee in enumerate(self.payslip_ids):
             try:
                 # Validate Required Fields
-                customer_number = employee.employee_id.barcode
-                institution_number = getattr(employee.employee_id.bank_account_id.bank_id, 'bic', '')
-                branch_number = getattr(employee.employee_id.bank_account_id, 'rbc_bank_transit_no', '')
-                account_number = getattr(employee.employee_id.bank_account_id, 'acc_number', '')
-                employee_currency_name = getattr(employee.employee_id.bank_account_id.currency_id, 'display_name', '')
-                payment_amount = employee.net_wage or 0.0
+                customer_number = employee.employee_code if 'employee_code' in employee.employee_id._fields else employee.employee_id.barcode
+                institution_number = getattr(employee.employee_id.bank_account_ids[0].bank_id, 'bic', '')
+                branch_number = getattr(employee.employee_id.bank_account_ids[0], 'rbc_bank_transit_no', '')
+                account_number = getattr(employee.employee_id.bank_account_ids[0], 'acc_number', '')
+                employee_currency_name = getattr(employee.employee_id.bank_account_ids[0].currency_id, 'display_name','')
+                payment_amount = Decimal(employee.net_wage) or 0.0
                 payment_date = f"{employee.paid_date.year}{employee.paid_date.timetuple().tm_yday:03d}"
                 customer_name = employee.employee_id.name
 
@@ -89,12 +95,12 @@ class HrPayrollPaymentReportWizardInherit(models.TransientModel):
                 if not errors:  # Only add employee if no errors
                     valid_employees.append({
                         "customer_number": customer_number.ljust(4),
-                        "payment_number": i + 1,
+                        "payment_number": 00,
                         "institution_number": institution_number,
                         "branch_number": branch_number.ljust(5)[:5],
                         "account_number": account_number,
                         "employee_currency_name": employee_currency_name,
-                        "payment_amount": payment_amount,
+                        "payment_amount": (payment_amount * 100).quantize(0, ROUND_HALF_UP),
                         "payment_date": payment_date,
                         "customer_name": customer_name.ljust(30)[:30],
                     })
@@ -105,49 +111,55 @@ class HrPayrollPaymentReportWizardInherit(models.TransientModel):
         # Log errors if any
         if errors:
             self.payslip_run_id.message_post(body="<br/>".join(errors))
-            self.payslip_run_id.direct_deposit_txt=None
+            self.payslip_run_id.direct_deposit_txt = None
             self.env.cr.commit()
-            raise ValidationError(_("There are some missing information. Please refresh the browser and check the log for more details."))
-
+            raise ValidationError(_(
+                "There are some missing information:\n\n%s"
+            ) % ("\n".join(errors)))
         else:
-            total_payment_amount = sum(emp["payment_amount"] for emp in valid_employees)
+            # total_payment_amount = sum(emp["payment_amount"] for emp in valid_employees)
             record_count += 1
 
             for employee in valid_employees:
                 record = (
-                    f"{record_count:06d}C"
-                    f"200" # may need to replace with meaningful number
-                    f"{client_number}"
-                    f" "
-                    f"{employee['customer_number'].ljust(19)[:19]}"
-                    f"{employee['payment_number']:02d}"
-                    f"{employee['institution_number']}{employee['branch_number']}"
-                    f"{employee['account_number'].ljust(18)[:18]}"
-                    f" "
-                    f"{int(employee['payment_amount'] * 100):010d}"
-                    f"      "
-                    f"{employee['payment_date']}"
-                    f"{employee['customer_name']}"
-                    f"{language_code}"
-                    f" "
-                    f"{client_name.ljust(15)[:15]}"
-                    f"{employee['employee_currency_name']}"
-                    f" "
-                    f"{country}"
-                    f"    "
-                    f"N"
-                ).ljust(152)+ "\r\n"
-                output.write(record )
+                             f"{record_count:06d}C"
+                             f"200"  # may need to replace with meaningful number
+                             f"{client_number_zfill}"
+                             f" "
+                             f"{employee['customer_number'].ljust(19)[:19]}"
+                             f"{employee['payment_number']:02d}"
+                             f"{employee['institution_number']}{employee['branch_number']}"
+                             f"{employee['account_number'].ljust(18)[:18]}"
+                             f" "
+                             f"{int(employee['payment_amount']):010d}"
+                             f"      "
+                             f"{employee['payment_date']}"
+                             f"{employee['customer_name']}"
+                             f"{language_code}"
+                             f" "
+                             f"{client_name.ljust(15)[:15]}"
+                             f"{employee['employee_currency_name']}"
+                             f" "
+                             f"{country}"
+                             f"    "
+                             f"N"
+                         ).ljust(152) + "\r\n"
+                output.write(record)
                 record_count += 1
+            detail_total = sum(
+                int(emp["payment_amount"])
+                for emp in valid_employees
+            )
+
+
 
             output.write(
-                f"{record_count:06d}ZTRL{client_number}{len(valid_employees):06d}{int(total_payment_amount * 100):014d}{'0' * 28}".ljust(
-                    152)+ "\r\n"
+                f"{record_count:06d}ZTRL{client_number_zfill}{len(valid_employees):06d}{int(detail_total):014d}{'0' * 28}".ljust(
+                    152) + "\r\n"
             )
 
             content = output.getvalue()
             return base64.encodebytes(content.encode())
-
     def _write_file_txt(self, payment_report, extension, filename=''):
 
 
