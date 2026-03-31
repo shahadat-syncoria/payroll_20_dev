@@ -282,7 +282,8 @@ class SyncoriaHrEmployeeManualWizard(models.TransientModel):
 
         payslip_run.state = '01_ready'
 
-        return 1
+        return  payslip_run.action_open_payslips()
+
 
 class SyncoriaEmployeeManualInputLine(models.TransientModel):
     _name = "hr.employee.manual.input.line"

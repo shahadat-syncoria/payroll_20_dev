@@ -8,7 +8,7 @@
         <xpath expr="." position="inside">
             <button class="btn btn-info"
                     t-on-click="selectEmployees">
-                Select
+                Manually Generate Payslips
             </button>
         </xpath>
 
