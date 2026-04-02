@@ -5,8 +5,8 @@
        t-inherit-mode="extension">
 
         <!-- Add your button -->
-        <xpath expr="." position="inside">
-            <button class="btn btn-info"
+        <xpath expr="//button[@t-on-click='generatePayslips']" position="replace">
+            <button class="btn btn-primary"
                     t-on-click="selectEmployees">
                 Manually Generate Payslips
             </button>

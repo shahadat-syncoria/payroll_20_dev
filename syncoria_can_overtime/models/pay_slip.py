@@ -377,7 +377,23 @@ class InheritedHrPayslipOvertime(models.Model):
             avg_working_hour_per_day = rec.version_id.resource_calendar_id.hours_per_day
             worked_days_lines = []
             input_line = []
-            if over_time_hour > 0.0:
+            overtime_wet = self.env.ref(
+                'syncoria_can_overtime.sync_overtime_work_entry_type',
+                raise_if_not_found=False
+            )
+            stat_overtime_wet = self.env.ref(
+                'syncoria_can_overtime.sync_stat_overtime_work_entry_type',
+                raise_if_not_found=False
+            )
+            overtime_exists = any(
+                line.work_entry_type_id == overtime_wet
+                for line in rec.worked_days_line_ids
+            )
+            sat_overtime_exists = any(
+                line.work_entry_type_id == stat_overtime_wet
+                for line in rec.worked_days_line_ids
+            )
+            if over_time_hour > 0.0 and not overtime_exists:
                 worked_days_lines.append((0, 0, {
                     'work_entry_type_id': self.env.ref('syncoria_can_overtime.sync_overtime_work_entry_type').id,
                     'name': 'Canada Overtime hours',
@@ -386,7 +402,7 @@ class InheritedHrPayslipOvertime(models.Model):
                     # 'amount': timesheet_hours*payslip.version_id.hourly_wage
 
                 }))
-            if stat_over_time_hour > 0.0:
+            if stat_over_time_hour > 0.0 and not sat_overtime_exists:
                 worked_days_lines.append((0, 0, {
                     'work_entry_type_id': self.env.ref('syncoria_can_overtime.sync_stat_overtime_work_entry_type').id,
                     'name': 'Statutory Holidays Overtime',
