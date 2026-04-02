@@ -58,6 +58,8 @@
                         </group>
                         <group string="Pay Cycle Information">
                             <field name="pay_period_id"/>
+<!--                            <field name="first_day_worked_selection"/>-->
+                            <field name="contract_domain_ids" invisible="1"/>
                             <field name="first_day_worked"/>
                             <field name="last_day_worked"/>
                             <field name="final_pay_period_ending_date"/>
@@ -73,6 +75,14 @@
                             <field name="vacation_pay_start_date"/>
                             <field name="vacation_pay_end_date"/>
                             <field name="statutory_holiday_pay_amount"/>
+                        </group>
+                           <group string="19.Paid/Sick/Maternity/parental leave Payments">
+                            <field name="psl_date"/>
+                            <field name="psl_amount"/>
+                            <field name="wli_date"/>
+                            <field name="wli_amount"/>
+                            <field name="parental_date"/>
+                            <field name="parental_amount"/>
                         </group>
                         <group string="Reason For Issuing the roe">
                             <field name="reason_for_issuing_roe"/>
@@ -94,14 +104,14 @@
                         </page>
                         <page name="vac_pay" string="Vacation Pay">
                             <sheet>
-<!--                                <field name="vacation_pay_ids"><list create="false" default_order="paid_date asc" delete="false">-->
+<!--                                <field name="vacation_pay_ids"><tree create="false" default_order="paid_date asc" delete="false">-->
 <!--                                        <field name="employee_id"/>-->
 <!--                                        <field name="duration"/>-->
 <!--                                        <field name="paid_date"/>-->
 <!--                                        <field decoration-info="state == 'draft'" decoration-success="state == state in ('validate','paid')" decoration-warning="state in ('refuse','cancel')" name="state" widget="badge"/>-->
 <!--                                        <field name="vacation_pay_amount"/>-->
 <!--                                        <field name="is_last_pay"/>-->
-<!--                                    </list></field>-->
+<!--                                    </tree></field>-->
                                  <field name="vacation_amount_ids"><list create="false" default_order="reference asc" delete="false">
                                         <field name="reference"/>
                                         <field name="payslip_id"/>
@@ -111,6 +121,28 @@
 <!--                                        <field name="vacation_pay_amount"/>-->
 <!--                                        <field name="is_last_pay"/>-->
                                     </list></field>
+                            </sheet>
+                        </page>
+                        <page name="statutory_holiday" string="Statutory Holiday Pay">
+                            <sheet>
+                                 <field name="statutory_holiday_ids">
+                                     <list editable="bottom">
+                                        <field name="statutory_date"/>
+                                        <field name="statutory_amount"/>
+                                    </list>
+                                 </field>
+                            </sheet>
+                        </page>
+                         <page name="other_monies" string="Other Monies">
+                            <sheet>
+                                 <field name="other_monies_ids">
+                                     <list editable="bottom">
+                                        <field name="name"/>
+                                        <field name="start_date"/>
+                                        <field name="end_date"/>
+                                        <field name="amount"/>
+                                    </list>
+                                 </field>
                             </sheet>
                         </page>
                     </notebook>

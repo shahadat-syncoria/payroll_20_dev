@@ -58,6 +58,14 @@ class RecordOfEmployee(models.Model):
     _description = "Record of Employee"
     # _rec_name = ""
 
+    def _compute_contract_domain_ids(self):
+        for payslip in self:
+            payslip.contract_domain_ids = self.env['hr.version'].search([
+                ('company_id', '=', payslip.company_id.id),
+                ('employee_id', '=', payslip.employee_id.id),
+                # ('state', 'in', ['open', 'close']),
+            ])
+
     xml_content = fields.Text(string='XML Content')
     employee_id = fields.Many2one("hr.employee", string="9-Employee")
     company_id = fields.Many2one("res.company", string="4-Employer's Name",default=lambda self: self.env.company)
@@ -94,10 +102,16 @@ class RecordOfEmployee(models.Model):
     expected_date_of_recall = fields.Selection([("not_returning", "N-Not Returning"), ("unknown", "U-Unknown"),
                                                 ("expected_date_recall", "Y-Expected Date Of Recall")],
                                                default="not_returning", string="14.Expected Date Of Recall")
-    expected_date = fields.Date(string="Date Of Recall" ,default=fields.Date.today())
+    expected_date = fields.Date(string="Date Of Recall" )
     # is_returning = fields.Boolean(string="Is Returning?")
     social_insurance_number = fields.Char(string="8-Social Insurance Number")
     first_day_worked = fields.Date(string="10-First Day Worked")
+    contract_domain_ids = fields.Many2many('hr.version', compute='_compute_contract_domain_ids')
+    first_day_worked_selection = fields.Many2one(
+        'hr.version',
+        string="Select First Day",
+        domain="[('id', 'in', contract_domain_ids)]",
+    )
     last_day_worked = fields.Date(string="11-Last Day Worked")
     final_pay_period_ending_date = fields.Date(string="12-Final Pay Period Ending Date")
     occupation = fields.Char(string="13-Occupation")
@@ -123,6 +137,16 @@ class RecordOfEmployee(models.Model):
     payslip_ids = fields.One2many("hr.payslip", "roe_id", string="15c-PaySlip")
     vacation_pay_ids = fields.One2many("hr.vacation.pay", "roe_id", string="Vacation Pay")
     vacation_amount_ids = fields.One2many("vacation.amount", "roe_id", string="Vacation Pay")
+    statutory_holiday_ids = fields.One2many("statutory.holiday", "roe_id", string="Statutory Holiday Pay")
+    other_monies_ids = fields.One2many("other.monies", "roe_id", string="Other Monies")
+
+    psl_date = fields.Date(string="PSL Date")
+    wli_date = fields.Date(string="WLI Date")
+    parental_date = fields.Date(string="Maternal/Parental Date")
+
+    psl_amount = fields.Float(string="PSL Amount")
+    wli_amount = fields.Float(string="WLI Amount")
+    parental_amount = fields.Float(string="Maternal/Parental Amount")
 
     issuing_date = fields.Date.today()
 
@@ -190,11 +214,46 @@ class RecordOfEmployee(models.Model):
             'target': 'new',
         }
 
-    def get_payslip_ids(self):
-        employee_payslip_ids = self.env['hr.payslip'].search(
-            [('employee_id', '=', self.employee_id.id), ("state", "=", "paid")]).sorted(reverse=True,
-                                                                                        key=lambda x: x.date_to)
-        return employee_payslip_ids
+    def get_payslip_ids(self, limit_type="default"):
+        """
+        limit_type = "default" → for insurable hours
+        limit_type = "earning" → for insurable earnings
+        """
+        pay_cycle = self.employee_id.version_id.salary_pay_cycle.pay_cycle
+
+
+        # ----------------------------------------------------
+        # LIMIT CONFIGURATION
+        # ----------------------------------------------------
+        default_limits = {
+            "52": 53,
+            "26": 27,
+            "24": 25,
+            "12": 13,
+        }
+
+        earning_limits = {
+            "52": 27,
+            "26": 14,
+            "24": 13,
+            "12": 7,
+        }
+
+        # Pick limit based on argument
+        if limit_type == "earning":
+            limit = earning_limits.get(pay_cycle, 13)
+        else:
+            limit = default_limits.get(pay_cycle, 25)
+
+        payslips = self.env['hr.payslip'].search(
+            [
+                ('employee_id', '=', self.employee_id.id),
+                ("state", "=", "paid")
+            ],
+            limit=limit
+        ).sorted(reverse=True, key=lambda x: x.date_to)
+
+        return payslips
 
     def get_vacation_pay_ids(self):
         employee_vacation_pay_ids = self.env['hr.vacation.pay'].search(
@@ -205,7 +264,7 @@ class RecordOfEmployee(models.Model):
     def _get_vacation_amount(self):
         self.write({'vacation_amount_ids': [(5, 0, 0)]})
 
-        payslips = self.get_payslip_ids()
+        payslips = self.get_payslip_ids(limit_type="default")
         adjusted_input_type = self.env.ref('syncoria_can_vacation_pay.input_ca_adjusted_vac_pay').id
         input_type = self.env.ref('syncoria_can_vacation_pay.input_ca_vac_pay').id
         vacation_data = []
@@ -232,7 +291,7 @@ class RecordOfEmployee(models.Model):
         return vacation_data
 
     def _get_insurable_earning(self):
-        employee_payslip_ids = self.get_payslip_ids()
+        employee_payslip_ids = self.get_payslip_ids(limit_type="earning")
 
 
         total_insurable_earning = 0.0
@@ -244,7 +303,7 @@ class RecordOfEmployee(models.Model):
         return total_insurable_earning
 
     def _get_insurable_hour(self):
-        employee_payslip_ids = self.get_payslip_ids()
+        employee_payslip_ids = self.get_payslip_ids(limit_type="default")
 
         total_insurable_hour = 0.0
 
@@ -256,7 +315,9 @@ class RecordOfEmployee(models.Model):
     def compute_roe(self):
         if self.employee_id:
             employee = self.employee_id
-            payslip_ids = self.get_payslip_ids()
+            contracts = employee.version_ids
+            contract = sorted(contracts, key=lambda c: c.date_start or '9999-12-31')[0] if contracts else False
+            payslip_ids = self.get_payslip_ids(limit_type="default")
             has_last_payment = self.vacation_amount_ids.sorted(key=lambda r: r.reference, reverse=True)[:1]
             issuer_phone = self.company_id.phone if self.company_id else ''
             phone = issuer_phone.replace("+1", "").replace(" ", "").replace("-", "")
@@ -270,16 +331,17 @@ class RecordOfEmployee(models.Model):
                 'employee_lnm': employee.name.split(" ")[-1],  # FIX: Add field on employee
                 'employee_fnm': employee.name.split(" ")[0],  # FIX: Add field on employee
                 'employee_init': employee.name.split(" ")[0][0],
-                "pay_period_id": employee.salary_pay_cycle,
+                "pay_period_id": employee.version_id.salary_pay_cycle,
                 "social_insurance_number": employee.identification_id,
-                "first_day_worked": employee.version_id.date_start,
+                "first_day_worked_selection": contract,
+                "first_day_worked": contract.date_start,
                 "last_day_worked": employee.version_id.date_end or last_day_worked,
                 "final_pay_period_ending_date": payslip_ids[0].date_to if payslip_ids else '',
                 "occupation": employee.job_id.name,
                 "cra_payroll_acc_num": employee.company_id.payroll_account_number,
                 "employer_payroll_ref": self.company_id.employer_payroll_ref or '',
                 "total_insurable_hours": self._get_insurable_hour(),
-                "total_insurable_earnings": line_obj.ytd_pi,
+                "total_insurable_earnings": self._get_insurable_earning(),
                 "payslip_ids": payslip_ids,
                 "vacation_amount_ids": self._get_vacation_amount(),
                 "vacation_pay_amount": round(has_last_payment.amount,2) if has_last_payment else '',
@@ -376,7 +438,7 @@ class RecordOfEmployee(models.Model):
 
         # INSURABLE EARNING INFORMATION
         b15c = ET.SubElement(roe, "B15C")
-        for index, payslip in enumerate(self.get_payslip_ids(), start=1):
+        for index, payslip in enumerate(self.get_payslip_ids(limit_type="default"), start=1):
             pp = ET.SubElement(b15c, "PP")
             pp.set("nbr", str(index))
             ET.SubElement(pp, "AMT").text = str(round(payslip.insurable_earning, 2)) or " "
@@ -445,7 +507,7 @@ class RecordOfEmployee(models.Model):
                 try:
 
                     pdf_template_path = file_path(
-                        'record_of_employment/utils/roe.pdf'
+                        'record_of_employment/utils/roenew.pdf'
                     )
 
                     output_folder_path = os.path.expanduser(os.getenv("HOME")) + "/outPdf/"
@@ -461,80 +523,161 @@ class RecordOfEmployee(models.Model):
                     reader = PdfReader(pdf_template_path)
                     writer = PdfWriter()
 
-                # page = reader.pages[0]
-                # fields = reader.get_fields()
+
+                    # page = reader.pages[0]
+                    # fields = reader.get_fields()
+                    # print(reader.get_fields())
 
                     writer.append(reader)
                     # rec.compute_roe()
 
                     has_last_payment =  self.vacation_amount_ids.sorted(key=lambda r: r.reference, reverse=True)[:1]
                     rec.vacation_pay_amount = f'{has_last_payment.amount:.2f}' if has_last_payment else ''
-                    data = {
-                        'sl_no': rec.serial_no or '',
-                        'employee_info': f'{rec.employee_id.name}\n{rec.employee_id.private_street or ""},{rec.employee_id.private_street2 or ""},{rec.employee_id.private_city or ""},{rec.employee_id.private_country_id.name or ""}' or '',
-                        'employer_info': f'{rec.company_id.name}\n{rec.company_id.street or ""},{rec.company_id.street2 or ""},{rec.company_id.city or ""},{rec.company_id.country_id.name or ""}' or '',
-                        'pay_period_type': rec.pay_period_id.paystub_group_name or '',
-                        'unique_id2': '',
-                        'employer_payroll_ref': rec.employer_payroll_ref or '',
-                        'sl_issue_no': rec.social_insurance_number or '',
-                        'first_day': rec.first_day_worked.strftime('%d-%m-%Y') or '',
-                        'last_day_paid': rec.last_day_worked.strftime('%d-%m-%Y') if rec.last_day_worked else '' or '',
-                        'final_pay_period': rec.final_pay_period_ending_date.strftime('%d-%m-%Y') or '',
-                        'occupation': rec.occupation or '',
-                        'total_insurance_hour': round(rec._get_insurable_hour(), 2) or '',
-                        'total_insurance_earning': rec._get_insurable_earning() or '',
-                        'exp_date_recall': dict(rec._fields['expected_date_of_recall'].selection).get(
-                            rec.expected_date_of_recall) or '' if rec.expected_date_of_recall != 'expected_date_recall' else rec.expected_date.strftime('%d-%m-%Y'),
-                        'reason': dict(rec._fields['reason_for_issuing_roe'].selection).get(rec.reason_for_issuing_roe) or '',
-                        'telephone1': rec.telephone_no or '',
-                    'telephone2': rec.telephone_no or '',
-                    'sl_roe': rec.amended_serial_no or '',
-                    'postal_code': rec.employee_id.private_zip or '',
-                    'cra_payroll_acc': rec.cra_payroll_acc_num or '',
-                    'issuer_name': rec.name_of_issuer_id.name or '',
-                    'issue_date': datetime.now().strftime('%d-%m-%Y') or '',
-                    'vacation_pay': rec.vacation_pay_amount or '',
-                    'vacation_pay_start': rec.vacation_pay_start_date.strftime('%d-%m-%Y') if rec.vacation_pay_start_date else '',
-                    'vacation_pay_end': rec.vacation_pay_end_date.strftime('%d-%m-%Y') if rec.vacation_pay_end_date else '',
-                    'comment': rec.comments or '',
-                    'other_start_date1': None,
-                    'other_start_date2': None, 'other_start_date3': None, 'other_end_date1': None,
-                    'other_end_date2': None, 'other_end_date3': None,
-                    'CheckBox-14Yj7BWRzb': None, 'CheckBox-QFXjTBRVwq': None, 'CheckBox-f1WzgWGwMl': None,
-                    'CheckBox-djIjiRzJE7': None, 'CheckBox-3o38tjRP62': None, 'CheckBox-4qOCRr9Nrz': None,
-                    'CheckBox-eTaQV6ngRM': None, 'CheckBox-7aZtgMItxj': None,
-                    'comm_english': None, 'comm_french': None,
-                    'unique_id': None, 'Text-9vMCmQF1F1': None,
-                    'Text-yk2dZTKG-c': None, 'Text-0K3CUNZijm': None, 'Text-_e_t278CcP': None,
-                    'Text-UA8BMNPK9-': None, 'Text-nvSTgcUKe2': None, 'Text-qSSHJVKGp9': None,
-                    'Text-InbjcxfE6o': None, 'amount1': None, 'amount2': None, 'amount3': None, 'amount4': None,
-                    'holiday_pay': None,
+                    vacation_pay = (f"{rec.vacation_pay_start_date.strftime('%d-%m-%Y')} - "
+                                    f"{rec.vacation_pay_end_date.strftime('%d-%m-%Y')} ") \
+                        if rec.vacation_pay_start_date and rec.vacation_pay_end_date else ''
 
-                    }
-                    for index, payslip in enumerate(rec.get_payslip_ids(), start=1):
-                        date_field = f'pay_period_ending_date{index}'
-                        hours_field = f'insurable_hours{index}'
-                        earning_field = f'insurable_earning{index}'
+                    data = {'Text_1': rec.serial_no or '',
+                     'Text_2': rec.amended_serial_no or '',
+                     'Text_3':rec.employer_payroll_ref or '',
+                     'Text_4': f'{rec.company_id.name}\n{rec.company_id.street or ""},{rec.company_id.street2 or ""},'
+                               f'{rec.company_id.city or ""},{rec.company_id.state_id.name or ""},'
+                               f'{rec.company_id.country_id.name or ""}' or '',
+                     'Text_5': rec.cra_payroll_acc_num or '',
+                     'Text_6': rec.pay_period_id.paystub_group_name or '',
+                     'Text_7': rec.company_id.zip or '',
+                     'Text_8': rec.social_insurance_number or '',
+                     'Text_9':  f'{rec.employee_id.name}\n{rec.employee_id.private_street or ""},'
+                                f'{rec.employee_id.private_street2 or ""},{rec.employee_id.private_city or ""},'
+                                f'{rec.employee_id.private_state_id.name or ""},'
+                                f'{rec.employee_id.private_country_id.name or ""}' or '',
+                     'Text_10d': rec.first_day_worked.strftime('%d') or '',
+                     'Text_10m':  rec.first_day_worked.strftime('%m') or '',
+                     'Text_10y': rec.first_day_worked.strftime('%Y') or '',
+                     'Text_11d': rec.last_day_worked.strftime('%d') or '',
+                     'Text_11m':  rec.last_day_worked.strftime('%m'),
+                     'Text_11y': rec.last_day_worked.strftime('%Y'),
+                     'Text_12d': rec.final_pay_period_ending_date.strftime('%d') or '',
+                     'Text_12m': rec.final_pay_period_ending_date.strftime('%m') or '',
+                     'Text_12y':rec.final_pay_period_ending_date.strftime('%Y') or '',
+                     'Text_13': rec.occupation or '',
+                     'Checkbox_14a': "/Checkbox_14a" if rec.expected_date_of_recall != 'not_returning' else None,
+                     'Checkbox_14b': "/Checkbox_14b" if rec.expected_date_of_recall == 'not_returning' else None,
+                     'Text_14d': rec.expected_date.strftime('%d') if rec.expected_date else '',
+                     'Text_14m': rec.expected_date.strftime('%m') if rec.expected_date else '',
+                     'Text_14y': rec.expected_date.strftime('%Y') if rec.expected_date else '',
+                     'Text_15a': round(rec._get_insurable_hour(), 2) or '',
+                     'Text_15b': round(rec._get_insurable_earning(),2) or '',
+                     'Text_16a': dict(rec._fields['reason_for_issuing_roe'].selection).get(rec.reason_for_issuing_roe) or '',
+                     'Text_16b': '',
+                     'Text_16c':  rec.telephone_no or '',
+                     'Text_17aa': vacation_pay ,
+                     'Text_17ab': rec.vacation_pay_amount or '',
+                     'Text_18': rec.comments or '',
+                     'Text_19d1': rec.psl_date.strftime('%d') if rec.psl_date else '',
+                     'Text_19m1': rec.psl_date.strftime('%m') if rec.psl_date else '',
+                     'Text_19y1':rec.psl_date.strftime('%Y') if rec.psl_date else '',
+                     'Text_19a': rec.psl_amount,
+                     # 'Checkbox_19a1': {'/T': 'Checkbox_19a1', '/FT': '/Btn', '/V': '/Off',
+                     #                   '/_States_': ['/Checkbox_19a1', '/Off']},
+                     # 'Checkbox_19b1': {'/T': 'Checkbox_19b1', '/FT': '/Btn', '/V': '/Checkbox_19b1',
+                     #                   '/_States_': ['/Checkbox_19b1', '/Off']},
+                     'Text_19d2': rec.wli_date.strftime('%d') if rec.wli_date else '',
+                     'Text_19m2': rec.wli_date.strftime('%m') if rec.wli_date else '',
+                     'Text_19y2': rec.wli_date.strftime('%Y') if rec.wli_date else '',
+                     'Text_19b': rec.wli_amount or '',
+                     # 'Checkbox_19a2': {'/T': 'Checkbox_19a2', '/FT': '/Btn', '/_States_': ['/Checkbox_19a2', '/Off']},
+                     # 'Checkbox_19b2': {'/T': 'Checkbox_19b2', '/FT': '/Btn', '/_States_': ['/Checkbox_19b2', '/Off']},
+                     'Text_19d3': rec.parental_date.strftime('%d') if rec.parental_date else '',
+                     'Text_19m3': rec.parental_date.strftime('%m') if rec.parental_date else '',
+                     'Text_19y3': rec.parental_date.strftime('%Y') if rec.parental_date else '',
+                     'Text_19c': rec.parental_amount or '',
+                     # 'Checkbox_19a3': {'/T': 'Checkbox_19a3', '/FT': '/Btn', '/_States_': ['/Checkbox_19a3', '/Off']},
+                     # 'Checkbox_19b3': {'/T': 'Checkbox_19b3', '/FT': '/Btn', '/_States_': ['/Checkbox_19b3', '/Off']},
+                     'Checkbox_20a': '/Checkbox_20a',
+                     # 'Checkbox_20b': {'/T': 'Checkbox_20b', '/FT': '/Btn', '/V': '/Checkbox_20b',
+                     #                  '/_States_': ['/Checkbox_20b', '/Off']},
+                     'Text_21':  rec.telephone_no or '',
+                     'Text_22':  rec.name_of_issuer_id.name or '',
+                     'Text_22d': datetime.today().strftime('%d') or '',
+                     'Text_22m': datetime.now().strftime('%m') or '' ,
+                     'Text_22y': datetime.now().strftime('%Y') or ''}
 
-                        data[date_field] = payslip.date_to.strftime('%d-%m-%Y')
-                        data[hours_field] = round(payslip.insurable_hour, 2)
+                    # data = {
+                    #     'sl_no': rec.serial_no or '',
+                    #     'employee_info': f'{rec.employee_id.name}\n{rec.employee_id.private_street or ""},{rec.employee_id.private_street2 or ""},{rec.employee_id.private_city or ""},{rec.employee_id.private_country_id.name or ""}' or '',
+                    #     'employer_info': f'{rec.company_id.name}\n{rec.company_id.street or ""},{rec.company_id.street2 or ""},{rec.company_id.city or ""},{rec.company_id.country_id.name or ""}' or '',
+                    #     'pay_period_type': rec.pay_period_id.paystub_group_name or '',
+                    #     'unique_id2': '',
+                    #     'employer_payroll_ref': rec.employer_payroll_ref or '',
+                    #     'sl_issue_no': rec.social_insurance_number or '',
+                    #     'first_day': rec.first_day_worked.strftime('%d-%m-%Y') or '',
+                    #     'last_day_paid': rec.last_day_worked.strftime('%d-%m-%Y') if rec.last_day_worked else '' or '',
+                    #     'final_pay_period': rec.final_pay_period_ending_date.strftime('%d-%m-%Y') or '',
+                    #     'occupation': rec.occupation or '',
+                    #     'total_insurance_hour': round(rec._get_insurable_hour(), 2) or '',
+                    #     'total_insurance_earning': rec._get_insurable_earning() or '',
+                    #     'exp_date_recall': dict(rec._fields['expected_date_of_recall'].selection).get(
+                    #         rec.expected_date_of_recall) or '' if rec.expected_date_of_recall != 'expected_date_recall' else rec.expected_date.strftime('%d-%m-%Y'),
+                    #     'reason': dict(rec._fields['reason_for_issuing_roe'].selection).get(rec.reason_for_issuing_roe) or '',
+                    #     'telephone1': rec.telephone_no or '',
+                    # 'telephone2': rec.telephone_no or '',
+                    # 'sl_roe': rec.amended_serial_no or '',
+                    # 'postal_code': rec.employee_id.private_zip or '',
+                    # 'cra_payroll_acc': rec.cra_payroll_acc_num or '',
+                    # 'issuer_name': rec.name_of_issuer_id.name or '',
+                    # 'issue_date': datetime.now().strftime('%d-%m-%Y') or '',
+                    # 'vacation_pay': rec.vacation_pay_amount or '',
+                    # 'vacation_pay_start': rec.vacation_pay_start_date.strftime('%d-%m-%Y') if rec.vacation_pay_start_date else '',
+                    # 'vacation_pay_end': rec.vacation_pay_end_date.strftime('%d-%m-%Y') if rec.vacation_pay_end_date else '',
+                    # 'comment': rec.comments or '',
+                    # 'other_start_date1': None,
+                    # 'other_start_date2': None, 'other_start_date3': None, 'other_end_date1': None,
+                    # 'other_end_date2': None, 'other_end_date3': None,
+                    # 'CheckBox-14Yj7BWRzb': None, 'CheckBox-QFXjTBRVwq': None, 'CheckBox-f1WzgWGwMl': None,
+                    # 'CheckBox-djIjiRzJE7': None, 'CheckBox-3o38tjRP62': None, 'CheckBox-4qOCRr9Nrz': None,
+                    # 'CheckBox-eTaQV6ngRM': None, 'CheckBox-7aZtgMItxj': None,
+                    # 'comm_english': None, 'comm_french': None,
+                    # 'unique_id': None, 'Text-9vMCmQF1F1': None,
+                    # 'Text-yk2dZTKG-c': None, 'Text-0K3CUNZijm': None, 'Text-_e_t278CcP': None,
+                    # 'Text-UA8BMNPK9-': None, 'Text-nvSTgcUKe2': None, 'Text-qSSHJVKGp9': None,
+                    # 'Text-InbjcxfE6o': None, 'amount1': None, 'amount2': None, 'amount3': None, 'amount4': None,
+                    # 'holiday_pay': None,
+                    #
+                    # }
+                    for index, payslip in enumerate(rec.get_payslip_ids(limit_type="default"), start=1):
+                        earning_field = f'Text_15c{index}'
                         data[earning_field] = payslip.insurable_earning
 
-                    # Fetch values from employee_id.roe_paycycle_ids and continue numbering
-                    paycycle_index = index + 1  # Continue numbering from last payslip index
+                    for index, statutory in enumerate(rec.statutory_holiday_ids, start=1):
+                        amount = f'Text_17b{index}'
+                        day = f'Text_17bd{index}'
+                        month = f'Text_17bm{index}'
+                        year = f'Text_17by{index}'
 
-                    for paycycle in rec.employee_id.roe_paycycle_ids:
-                        date_field = f'pay_period_ending_date{paycycle_index}'
-                        hours_field = f'insurable_hours{paycycle_index}'
-                        earning_field = f'insurable_earning{paycycle_index}'
+                        data[amount] = statutory.statutory_amount
+                        data[day] = statutory.statutory_date.strftime('%d')
+                        data[month] = statutory.statutory_date.strftime('%m')
+                        data[year] = statutory.statutory_date.strftime('%Y')
 
-                        data[date_field] = paycycle.pay_period_date.strftime(
-                            '%d-%m-%Y') if paycycle.pay_period_date else ''
-                        data[hours_field] = round(paycycle.insurable_hour, 2)
-                        data[earning_field] = paycycle.insurable_earning
+                    for idx, other_monies in enumerate(rec.other_monies_ids, start=1):
+                        base_index = (idx - 1) * 2 + 1  # 1, 3, 5, ...
 
-                        paycycle_index += 1  # Increment index
-                    data = {key: str(value) if value is not None else "" for key, value in data.items()}
+                        # first set (odd index)
+                        name = f'Text_17c{base_index}'
+                        start_date = f'Text_17cdmy{base_index}'
+                        data[name] = other_monies.name
+                        data[start_date] = other_monies.start_date.strftime('%d/%m/%Y')
+
+                        # second set (even index)
+                        next_index = base_index + 1
+                        amount = f'Text_17c{next_index}'
+                        end_date = f'Text_17cdmy{next_index}'
+                        data[amount] = other_monies.amount
+                        data[end_date] = other_monies.end_date.strftime('%d/%m/%Y')
+
+
+                    data = {key: str(value) if value is not None else " " for key, value in data.items()}
                     writer.update_page_form_field_values(writer.pages[0], data)
 
                 # write "output" to pypdf-output.pdf
