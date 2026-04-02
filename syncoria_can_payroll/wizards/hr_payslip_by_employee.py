@@ -267,7 +267,9 @@ class SyncoriaHrEmployeeManualWizard(models.TransientModel):
                 'date_to': payslip_run.date_end,
                 'version_id': version.id,
                 'company_id': payslip_run.company_id.id,
-                'pay_cycle_period':pay_cycle_period.get('id')
+                'pay_cycle_period':pay_cycle_period.get('id'),
+                "payout_vacation_pay_paycycle": version.employee_id.payout_vacation_pay_paycycle,
+
             })
 
         payslip_run.slip_ids |= Payslip.with_context(tracking_disable=True).create(payslip_vals)

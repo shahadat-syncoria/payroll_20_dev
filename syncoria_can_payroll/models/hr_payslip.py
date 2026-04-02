@@ -228,6 +228,8 @@ class InheritedHrPayslip(models.Model):
             attendance_hour = manual_input_line_id.attendance_hours
             over_time_hour = manual_input_line_id.overtime_hours
             stat_over_time_hour = manual_input_line_id.stat_overtime_hours
+            payout_vacation = manual_input_line_id.payout_vacation_pay_paycycle
+
 
             attendance_type_id = self.env.ref('hr_work_entry.work_entry_type_attendance').id
 
@@ -308,6 +310,9 @@ class InheritedHrPayslip(models.Model):
                 }))
 
             rec.input_line_ids = input_line
+
+            if payout_vacation:
+                rec.payout_vacation_pay_paycycle = True
 
     #================ For Unique Work entry type ========
     # @api.constrains('worked_days_line_ids')

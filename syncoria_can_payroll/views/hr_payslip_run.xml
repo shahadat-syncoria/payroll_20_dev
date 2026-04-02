@@ -37,16 +37,17 @@
         </record>
 
 
-<!--    <record id="hr_payslip_create_draft_form" model="ir.ui.view">-->
-<!--        <field name="name">hr.payslip.create.draft.form</field>-->
-<!--        <field name="model">hr.payslip.run</field>-->
-<!--        <field name="inherit_id" ref="hr_payroll_account.hr_payslip_run_view_form"/>-->
-<!--        <field name="arch" type="xml">-->
-<!--&lt;!&ndash;            <xpath expr="//button[@name='action_validate']" position="replace">&ndash;&gt;-->
-<!--&lt;!&ndash;                <button name="action_draft_entry_wizard" type="object" string="Create Draft" invisible="state != 'verify'" class="oe_highlight" context="{'payslip_generate_pdf': True}" />&ndash;&gt;-->
-<!--&lt;!&ndash;             </xpath>&ndash;&gt;-->
-<!--        </field>-->
-<!--    </record>-->
+    <record id="hr_payslip_create_draft_kanban" model="ir.ui.view">
+        <field name="name">hr.payslip.create.draft.form</field>
+        <field name="model">hr.payslip.run</field>
+        <field name="inherit_id" ref="hr_payroll_account.hr_payslip_run_view_kanban"/>
+        <field name="arch" type="xml">
+             <button name='action_validate' position="replace">
+                <button name="action_draft_entry_wizard" type="object" string="Create Draft Entry" invisible="state != '01_ready' or empty_payslips or not payslip_count"
+                        class="oe_highlight" context="{'payslip_generate_pdf': True}" />
+            </button>
+        </field>
+    </record>
 
     </data>
 </odoo>
