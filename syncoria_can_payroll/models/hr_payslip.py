@@ -110,11 +110,12 @@ class InheritedHrPayslip(models.Model):
     def action_payslip_paid(self):
         if any(slip.state not in ['validated'] for slip in self):
             raise UserError(_('Cannot mark payslip as paid if not confirmed or waiting.'))
-        self.write({'state': 'paid', 'paid_date': self.pay_date if self.pay_date else fields.Date.today()})
-        # ================= YTD Information Update =========
-        # for slip in self:
-        #     slip.employee_id.with_context({"type":"ALL"}).update_ytd_erp() # "ALL" is for update YTD of CPP,CPP2,PI
-        #     slip.employee_id.update_ytd_irregular_payments_tax() # "ALL" is for update YTD of CPP,CPP2,PI
+
+        for slip in self:
+            slip.write({
+                'state': 'paid',
+                'paid_date': slip.pay_date if slip.pay_date else fields.Date.today()
+            })
 
     def action_payslip_done(self):
         res = super().action_payslip_done()
