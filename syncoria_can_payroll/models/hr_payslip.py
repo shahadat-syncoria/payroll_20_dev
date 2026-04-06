@@ -491,7 +491,7 @@ class InheritedHrPayslip(models.Model):
             # number = payslip.number or self.env['ir.sequence'].next_by_code('salary.slip')
             payslip.write({
                 # 'number': number,
-                'state': 'validated',
+                # 'state': 'draft',
                 'compute_date': today
             })
 

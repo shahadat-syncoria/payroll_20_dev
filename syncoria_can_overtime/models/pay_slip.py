@@ -147,7 +147,7 @@ class InheritedHrPayslipOvertime(models.Model):
                             _logger.info(f"first_partial_overtime_hours({first_partial_overtime_hours})")
                             overtime = (weekly_hours - full_week_hours) - first_partial_overtime_hours
                             overtime_hours += overtime
-                            weekly_overtime_hours[str(current_week_start.date())] = overtime
+                            weekly_overtime_hours[str(current_week_start)] = overtime
                             _logger.info(f"first_partial_overtime_hours({(weekly_hours - full_week_hours) - first_partial_overtime_hours})")
 
                     else:
@@ -200,7 +200,7 @@ class InheritedHrPayslipOvertime(models.Model):
                             _logger.info(f"first_partial_overtime_hours({first_partial_overtime_hours})")
                             overtime = (weekly_hours - full_week_hours) - first_partial_overtime_hours
                             overtime_hours += overtime
-                            weekly_overtime_hours[str(current_week_start.date())] = overtime
+                            weekly_overtime_hours[str(current_week_start)] = overtime
                             _logger.info(f"first_partial_overtime_hours({(weekly_hours - full_week_hours) - first_partial_overtime_hours})")
 
                     else:
