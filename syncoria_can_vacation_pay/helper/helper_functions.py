@@ -22,8 +22,6 @@ def month_selection(self):
         ('9', 'September'), ('10', 'October'), ('11', 'November'), ('12', 'December')
     ]
 
-
-
 def iso_weeks_in_year(year):
     year=int(year)
     # The ISO week number of Dec 28 is always the last ISO week of the year

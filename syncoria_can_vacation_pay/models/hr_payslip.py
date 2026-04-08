@@ -2,6 +2,8 @@ from odoo import fields, models, api, _
 from odoo.exceptions import UserError
 from odoo.tools import float_compare, float_is_zero, plaintext2html
 from datetime import datetime
+from ..helper.helper_functions import iso_weeks_in_year
+
 
 
 class VacationHrPayslipInput(models.Model):
@@ -133,6 +135,10 @@ class VacationPayslip(models.Model):
         payslips = self.filtered(lambda slip: slip.state in ['draft', 'validated'])
         adjusted_input_type = self.env.ref('syncoria_can_vacation_pay.input_ca_adjusted_vac_pay').id
         for payslip in payslips:
+            weeks_in_year = iso_weeks_in_year(payslip.year)
+
+            # weeks_in_year = iso_weeks_in_year(payslip.year)
+
             # line_obj = payslip.employee_id.payroll_line_ids.filtered(lambda x: x.year == str(payslip.date_to.year))
             try:
                 des_name = ","
@@ -166,15 +172,18 @@ class VacationPayslip(models.Model):
                 # ==================== Adjusted Vacation Pay ==============================
                 payslip.input_line_ids.filtered(
                     lambda x: x.input_type_id.id in [adjusted_input_type]).unlink()
-                if payslip.employee_id.is_adjust_vacation_pay_leave and not payslip.payout_vacation_pay_paycycle:
-                    unpaid_days = sum(payslip.worked_days_line_ids.filtered(
+                if payslip.employee_id.is_adjust_vacation_pay_leave :
+                    unpaid_hours = sum(payslip.worked_days_line_ids.filtered(
                         lambda
                             x: x.work_entry_type_id.deduct_from_gross and x.work_entry_type_id.is_leave and x.work_entry_type_id.is_adjusted_with_vacation_pay).mapped(
-                        'number_of_days'))
+                        'number_of_hours'))
                     vacation_pay_one_day_hour = payslip.version_id.resource_calendar_id.hours_per_day
-                    hourly_wage = round((payslip.version_id.wage * 12) / (
-                            payslip.version_id.resource_calendar_id.full_time_required_hours * 52), 2)
-                    adjust_vac_pay_amount = (unpaid_days * vacation_pay_one_day_hour) * hourly_wage
+                    if payslip.version_id.wage_type == "hourly":
+                        hourly_wage = payslip.version_id.hourly_wage
+                    else:
+                        hourly_wage = (payslip.version_id.wage * 12) / (
+                                payslip.version_id.resource_calendar_id.full_time_required_hours * weeks_in_year)
+                    adjust_vac_pay_amount = unpaid_hours  * hourly_wage
 
                     # ========================== Reserved Vacation =================================
                     currently_stored_vac_amount = payslip.employee_id.ytd_vac_pay_amount - abs(calculate_vacation_pay)

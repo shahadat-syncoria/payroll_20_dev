@@ -3,6 +3,8 @@ import logging
 from datetime import timedelta, datetime, time
 
 from dateutil.relativedelta import relativedelta
+from ..helper.helper_functions import iso_weeks_in_year
+
 
 from odoo import fields, models, _, api, Command
 from odoo.exceptions import UserError, ValidationError
@@ -34,11 +36,12 @@ class InheritedHrPayslipOvertime(models.Model):
     # ========================================= New Overtime Concept =============================================
     def _get_hourly_rate(self):
         for rec in self:
+            weeks_in_year = iso_weeks_in_year(rec.year)
             if not rec.version_id.is_hourly:
                 overtime_pay_percent = self.env['hr.rule.parameter'].sudo()._get_parameter_from_code(
                     'can_overtime_pay_percent', raise_if_not_found=False)
                 current_hourly_rate = (rec.version_id.wage * 12) / (
-                        rec.version_id.resource_calendar_id.full_time_required_hours * 52)
+                        rec.version_id.resource_calendar_id.full_time_required_hours * weeks_in_year)
                 overtime_hour_rate = (current_hourly_rate * (overtime_pay_percent / 100))
             else:
                 overtime_pay_percent = self.env['hr.rule.parameter'].sudo()._get_parameter_from_code(

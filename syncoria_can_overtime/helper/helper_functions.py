@@ -1,5 +1,4 @@
 from datetime import date
-
 def year_selection(self):
     """
     Never change this helper function !!!!!!!!!
@@ -21,8 +20,6 @@ def month_selection(self):
         ('5', 'May'), ('6', 'June'), ('7', 'July'), ('8', 'August'),
         ('9', 'September'), ('10', 'October'), ('11', 'November'), ('12', 'December')
     ]
-
-
 
 def iso_weeks_in_year(year):
     year=int(year)
