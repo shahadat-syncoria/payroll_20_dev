@@ -24,8 +24,8 @@
     "depends": ["base", "syncoria_can_payroll"],
     # always loaded
     "data": [
-        "views/hr_payslip.xml",
-        "views/hr_payslip_run.xml",
+        # "views/hr_payslip.xml",
+        # "views/hr_payslip_run.xml",
         # 'security/ir.model.access.csv',
         # 'views/views.xml',
         # 'views/templates.xml',
