@@ -8,10 +8,13 @@
             <field name="arch" type="xml">
                 <xpath expr="//field[@name='appears_on_payslip']" position="after">
                     <field name="cat_code" invisible="1"/>
-                    <field name="is_insurable_earning" invisible="cat_code not in ['GROSS','ADD_ALLOWANCE','ALW']"/>
-                    <field name="is_pensionable" invisible="cat_code not in ['GROSS','ADD_ALLOWANCE','ALW']"/>
-                    <field name="is_vacation_pay" invisible="cat_code not in ['GROSS','ADD_ALLOWANCE','ALW']"/>
-                    <field name="is_irregular_payment" invisible="code not in ['BONUS','RETRO','COMMISSION']"/>
+                    <field name="is_insurable_earning"/>
+                    <field name="is_pensionable"/>
+                    <field name="is_vacation_pay"/>
+                    <field name="is_rrsp"/>
+                    <field name="is_wsib"/>
+                    <field name="is_eht"/>
+                    <field name="is_irregular_payment"/>
 
                 </xpath>
             </field>

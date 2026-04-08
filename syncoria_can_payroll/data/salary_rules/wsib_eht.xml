@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="0">
+        <record id="rule_ca_wsib" model="hr.salary.rule">
+            <field name="name">WSIB</field>
+            <field name="sequence" eval="520"/>
+            <field name="code">WSIB</field>
+            <field name="category_id" ref="syncoria_can_payroll.CALC"/>
+            <field name="active" eval="1"/>
+            <field name="amount_select">code</field>
+            <field name="struct_id" ref="syncoria_can_payroll.structure_can_employee"/>
+            <field name="condition_select">none</field>
+            <field name="amount_python_compute">
+              <![CDATA[
+result=payslip.env['hr.payslip'].get_wsib_amount(payslip.id)
+                    ]]>
+            </field>
+
+
+        </record>
+
+          <record id="rule_ca_eht" model="hr.salary.rule">
+            <field name="name">EHT</field>
+            <field name="sequence" eval="530"/>
+            <field name="code">EHT</field>
+            <field name="category_id" ref="syncoria_can_payroll.CALC"/>
+            <field name="active" eval="1"/>
+            <field name="amount_select">code</field>
+            <field name="struct_id" ref="syncoria_can_payroll.structure_can_employee"/>
+            <field name="condition_select">none</field>
+            <field name="amount_python_compute">
+              <![CDATA[
+result=payslip.env['hr.payslip'].get_eht_amount(payslip.id)
+                    ]]>
+            </field>
+
+
+        </record>
+
+    </data>
+</odoo>

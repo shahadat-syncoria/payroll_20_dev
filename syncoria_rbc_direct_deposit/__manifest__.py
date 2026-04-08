@@ -25,7 +25,7 @@ This Module is for RBC Direct Download
         # 'security/ir.model.access.csv',
         "views/views.xml",
         "views/templates.xml",
-        # "views/hr_payslip_run.xml",
+        "views/hr_payslip_run.xml",
         "views/res_partner.xml",
         "views/res_config_settings_views.xml",
     ],

@@ -225,7 +225,7 @@ else:
             <field name="amount_select">code</field>
             <field name="struct_id" ref="syncoria_can_payroll.structure_can_employee"/>
             <field name="condition_select">python</field>
-            <field name="condition_python">result = employee.benefit_plans and employee.life_insurance >0.0</field>
+            <field name="condition_python">result =  employee.life_insurance >0.0</field>
             <field name="amount_python_compute">
 if employee.life_insurance > 0.0 and employee.life_insurance_type == "percent":
     result = GROSS *(employee.life_insurance/100)
@@ -244,7 +244,7 @@ else:
             <field name="amount_select">code</field>
             <field name="struct_id" ref="syncoria_can_payroll.structure_can_employee"/>
             <field name="condition_select">python</field>
-            <field name="condition_python">result = employee.benefit_plans and employee.medical_insurance >0.0</field>
+            <field name="condition_python">result =  employee.medical_insurance >0.0</field>
             <field name="amount_python_compute">
 if employee.medical_insurance > 0.0 and employee.medical_insurance_type == "percent":
     result = GROSS *(employee.medical_insurance/100)
@@ -263,7 +263,7 @@ else:
             <field name="amount_select">code</field>
             <field name="struct_id" ref="syncoria_can_payroll.structure_can_employee"/>
             <field name="condition_select">python</field>
-            <field name="condition_python">result = employee.benefit_plans and employee.life_insurance_employer >0.0</field>
+            <field name="condition_python">result =  employee.life_insurance_employer >0.0</field>
             <field name="amount_python_compute">
 if employee.life_insurance_employer > 0.0 and employee.life_insurance_employer_type == "percent":
     result = GROSS *(employee.life_insurance_employer/100)
@@ -282,7 +282,7 @@ else:
             <field name="amount_select">code</field>
             <field name="struct_id" ref="syncoria_can_payroll.structure_can_employee"/>
             <field name="condition_select">python</field>
-            <field name="condition_python">result = employee.benefit_plans and employee.medical_insurance_employer >0.0</field>
+            <field name="condition_python">result = employee.medical_insurance_employer >0.0</field>
             <field name="amount_python_compute">
 if employee.medical_insurance_employer > 0.0 and employee.medical_insurance_employer_type == "percent":
     result = GROSS *(employee.medical_insurance_employer/100)
@@ -523,7 +523,7 @@ else:
             <field name="amount_select">code</field>
             <field name="struct_id" ref="syncoria_can_payroll.structure_can_worker"/>
             <field name="condition_select">python</field>
-            <field name="condition_python">result = employee.benefit_plans and employee.life_insurance >0.0</field>
+            <field name="condition_python">result =  employee.life_insurance >0.0</field>
             <field name="amount_python_compute">
 if employee.life_insurance > 0.0 and employee.life_insurance_type == "percent":
     result = GROSS *(employee.life_insurance/100)
@@ -542,7 +542,7 @@ else:
             <field name="amount_select">code</field>
             <field name="struct_id" ref="syncoria_can_payroll.structure_can_worker"/>
             <field name="condition_select">python</field>
-            <field name="condition_python">result = employee.benefit_plans and employee.medical_insurance >0.0</field>
+            <field name="condition_python">result =  employee.medical_insurance >0.0</field>
             <field name="amount_python_compute">
 if employee.medical_insurance > 0.0 and employee.medical_insurance_type == "percent":
     result = GROSS *(employee.medical_insurance/100)

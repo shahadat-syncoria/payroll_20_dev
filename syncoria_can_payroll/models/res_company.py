@@ -12,6 +12,10 @@ class ResCompanyPayroll(models.Model):
                                                                                                                             -The last four characters must be numeric and greater than '0000'.")
     employer_payroll_ref = fields.Char(string="Employer's Payroll Reference Number")
     wsib = fields.Float(string="WSIB Premium Rate")
+    eht_rate = fields.Float(
+        string="EHT Rate",
+        digits=(16, 4)
+    )
 
     is_exemption = fields.Boolean(string="No Exemption")
     exemption_amount = fields.Float(string="Exemption Amount", default=1000000.0)

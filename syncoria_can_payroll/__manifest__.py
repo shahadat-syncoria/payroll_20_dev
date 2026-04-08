@@ -38,6 +38,7 @@
         "data/salary_rules/ei.xml",
         "data/salary_rules/tax.xml",
         "data/salary_rules/rrsp.xml",
+        "data/salary_rules/wsib_eht.xml",
         "data/emails/reminder_email.xml",
         "data/emails/batch_xml_send_email.xml",
         "data/emails/payslip_mail_template_data.xml",

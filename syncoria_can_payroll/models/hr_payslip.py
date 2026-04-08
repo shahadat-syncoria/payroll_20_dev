@@ -201,6 +201,31 @@ class InheritedHrPayslip(models.Model):
 
         return result
 
+    def get_wsib_amount(self,total_wsib_base):
+        wsib_amount = 0.0
+        if total_wsib_base:
+            for rec in self:
+
+                wsib_rate = rec.env.company.wsib
+
+                # wsib_amount = (total_wsib_base * wsib_rate) / 100 if rec.employee_id.is_wsib_applicable else 0.0
+                wsib_amount = (total_wsib_base * wsib_rate) / 100
+
+        return wsib_amount
+
+    def get_eht_amount(self,total_payroll):
+        eht_amount = 0.0
+        if total_payroll:
+            for rec in self:
+
+                total_tax =0.0
+                exemption_amount = rec.env.company.exemption_amount
+                eht_rate = rec.env.company.eht_rate
+                eht_amount = (total_payroll * eht_rate) / 100
+
+
+        return eht_amount
+
     def _get_new_worked_days_lines(self):
 
         res = super()._get_new_worked_days_lines()
@@ -612,8 +637,14 @@ class InheritedHrPayslip(models.Model):
             neg_amount_cat_list = ["DED", "PRE_TAX_DEDUCTION", "POST_TAX_DEDUCTION"]
             positive_amount = 0
             neg_amount = 0
+            wsib_amount = 0
+            eht_amount = 0
 
             for x in pay_lines:
+                if self.env['hr.salary.rule'].sudo().browse(x['salary_rule_id']).is_wsib:
+                    wsib_amount += x['amount']
+                if self.env['hr.salary.rule'].sudo().browse(x['salary_rule_id']).is_eht:
+                    eht_amount += x['amount']
                 category_code = self.env['hr.salary.rule'].sudo().browse(x['salary_rule_id']).category_id.code
                 # update data from api to payslip lines
                 if x['code'] == 'FTAX':
@@ -659,9 +690,17 @@ class InheritedHrPayslip(models.Model):
                     x['amount'] = net_amount
                     x['total'] = net_amount
 
-                # code = x.get('code')
-                # x['ytd'] = ytd_dict.get(code, 0.0) + x['total']
-
+                code = x.get('code')
+                x['ytd'] = ytd_dict.get(code, 0.0) + x['total']
+                if x['code'] == 'I_Earning':
+                    x['amount'] = IE
+                    x['total'] = IE
+                if x['code'] == 'WSIB':
+                    x['amount'] = self.get_wsib_amount(wsib_amount)
+                    x['total'] = self.get_wsib_amount(wsib_amount)
+                if x['code'] == 'EHT':
+                    x['amount'] =  self.get_eht_amount(eht_amount)
+                    x['total'] =  self.get_eht_amount(eht_amount)
             self.env['hr.payslip.line'].create(pay_lines)
         return True
 

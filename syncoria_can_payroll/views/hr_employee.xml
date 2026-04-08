@@ -260,7 +260,19 @@
                             <field name="medical_insurance_employer_type"/>
                         </div>
                     </group>
-
+                    <group name="employer_rrsp_contribution" string="Contribution">emo
+                        <label for="employer_rrsp"/>
+                        <div class="o_row">
+                            <field name="employer_rrsp"/>
+                            <field name="employer_rrsp_type"/>
+                        </div>
+                        <label for="rrsp_amount"/>
+                        <div class="o_row">
+                            <field name="rrsp_amount"/>
+                            <field name="rrsp_type"/>
+                        </div>
+                        <field name="rrsp_amount_withdraw"/>
+                    </group>
                     <!--                    </group>-->
 
                 </xpath>
