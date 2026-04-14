@@ -315,7 +315,7 @@ class SyncoriaEmployeeManualInputLine(models.TransientModel):
     @api.constrains("vac_pay")
     def _check_vac_pay(self):
         for rec in self:
-            if rec.ytd_vac_pay_amount < rec.vac_pay:
+            if rec.ytd_vac_pay_amount < rec.vac_pay and not rec.employee_id.is_vacation_pay_adjust_negative:
                 raise UserError("Vacation pay amount cannot be greater then Remaining Vacation Pay.")
 
 

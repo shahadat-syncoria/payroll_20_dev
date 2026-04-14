@@ -19,6 +19,7 @@ def generate_date_ranges(start_date, pay_cycle):
                 'name':current_date.strftime('%B')+'('+pay_cycle+')',
                 'start_date':current_date,
                 'end_date':end_date,
+                'pay_date':end_date,
             }))
             current_date = end_date + timedelta(days=1)
     elif pay_cycle == "24":
@@ -44,6 +45,7 @@ def generate_date_ranges(start_date, pay_cycle):
                 'name': month_name+' Pay period'+'('+pay_cycle+')',
                 'start_date': current_date,
                 'end_date': end_date,
+                'pay_date': end_date,
             }))
 
             current_date = end_date + timedelta(days=1)
@@ -65,6 +67,7 @@ def generate_date_ranges(start_date, pay_cycle):
                 'name': month_name+' Pay period'+'('+pay_cycle+')',
                 'start_date': current_date,
                 'end_date': end_date,
+                'pay_date': end_date,
             }))
             current_date = end_date + timedelta(days=1)
     elif pay_cycle == "52":
@@ -86,6 +89,7 @@ def generate_date_ranges(start_date, pay_cycle):
                 'name': month_name+' Pay period'+'('+pay_cycle+')',
                 'start_date': current_date,
                 'end_date': end_date,
+                'pay_date': end_date,
             }))
             current_date = end_date + timedelta(days=1)
     else:
