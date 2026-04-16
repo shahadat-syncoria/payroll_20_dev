@@ -40,8 +40,7 @@ class InheritedHrPayslipOvertime(models.Model):
             if not rec.version_id.is_hourly:
                 overtime_pay_percent = self.env['hr.rule.parameter'].sudo()._get_parameter_from_code(
                     'can_overtime_pay_percent', raise_if_not_found=False)
-                current_hourly_rate = (rec.version_id.wage * 12) / (
-                        rec.version_id.resource_calendar_id.full_time_required_hours * weeks_in_year)
+                current_hourly_rate = rec.fixed_wage_hourly_rate
                 overtime_hour_rate = (current_hourly_rate * (overtime_pay_percent / 100))
             else:
                 overtime_pay_percent = self.env['hr.rule.parameter'].sudo()._get_parameter_from_code(
@@ -321,8 +320,7 @@ class InheritedHrPayslipOvertime(models.Model):
                 existing_overtime = self.env['hr.attendance.overtime.store'].search([("payment_pay_period", "=", rec.pay_cycle_period.id),('year','=',int(rec.date_from.year)),('employee_id', '=', rec.employee_id.id)])
                 banked_overtime = rec.worked_days_line_ids.filtered(
                     lambda x: x.work_entry_type_id.code in ["BNK_OVERTIME"])
-                current_hourly_rate = (rec.employee_id.version_id.wage * 12) / (
-                        rec.employee_id.version_id.resource_calendar_id.full_time_required_hours * 52)
+                current_hourly_rate = rec.fixed_wage_hourly_rate
                 overtime_hour_rate = (current_hourly_rate * (overtime_pay_percent / 100))
                 if  not existing_overtime:
                     if banked_overtime.number_of_hours >0.0:

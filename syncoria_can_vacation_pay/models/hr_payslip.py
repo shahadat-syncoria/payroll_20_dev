@@ -110,8 +110,7 @@ class VacationPayslip(models.Model):
         # if get_gross:
         # amount = get_gross[0].get('amount')
         amount = version_id.wage * 12
-        hourly_amount = version_id.hourly_wage if version_id.is_hourly else (
-                    (version_id.wage * 12) / (self.version_id.resource_calendar_id.full_time_required_hours * 52))
+        hourly_amount = version_id.hourly_rate if version_id.is_hourly else self.fixed_wage_hourly_rate
         if hourly_amount > 0.0:
             # vacation_slab_id = self.env['hr.vacation.slab'].search(
             #     [
@@ -181,8 +180,7 @@ class VacationPayslip(models.Model):
                     if payslip.version_id.wage_type == "hourly":
                         hourly_wage = payslip.version_id.hourly_wage
                     else:
-                        hourly_wage = (payslip.version_id.wage * 12) / (
-                                payslip.version_id.resource_calendar_id.full_time_required_hours * weeks_in_year)
+                        hourly_wage = payslip.fixed_wage_hourly_rate
                     adjust_vac_pay_amount = unpaid_hours  * hourly_wage
 
                     # ========================== Reserved Vacation =================================
@@ -337,7 +335,7 @@ class VacationPayslip(models.Model):
         """
         self.ensure_one()
         contract = self.employee_id.version_id
-        hourly_wage = (contract.wage * 12) / (contract.resource_calendar_id.full_time_required_hours * 52)
+        hourly_wage = self.fixed_wage_hourly_rate
 
         total_amount = round(hourly_wage * (total_taken_leave * contract.resource_calendar_id.hours_per_day), 3) or 0.0
 

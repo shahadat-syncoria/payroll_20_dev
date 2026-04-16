@@ -48,8 +48,7 @@ class AttendanceOvertimeStore(models.Model):
             # Overtime rate and amount calculation
             overtime_pay_percent = self.env['hr.rule.parameter'].sudo()._get_parameter_from_code(
                 'can_overtime_pay_percent', raise_if_not_found=False)
-            current_hourly_rate = (employee.version_id.wage * 12) / (
-                    employee.version_id.resource_calendar_id.full_time_required_hours * 52)
+            current_hourly_rate = self.payslip_ids[0].fixed_wage_hourly_rate
             overtime_hour_rate = (current_hourly_rate * (overtime_pay_percent / 100))
 
             print("Employee=>"+employee.name)

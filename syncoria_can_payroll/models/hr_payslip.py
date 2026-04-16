@@ -5,7 +5,7 @@ from odoo.tools import date_utils
 from odoo import api, models, _
 from urllib.parse import urlsplit, urlunsplit
 from datetime import datetime
-from ..helper.helper_functions import year_selection
+from ..helper.helper_functions import year_selection,iso_weeks_in_year
 from collections import defaultdict, Counter
 
 
@@ -51,6 +51,18 @@ class InheritedHrPayslip(models.Model):
     fed_tax = fields.Float("Fed Tax",default=0)
     prov_tax = fields.Float("Prov Tax",default=0)
 
+    fixed_wage_hourly_rate = fields.Float(string="Fixed Wage Hourly Rate", help="Hourly Rate for fixed wage employee.",
+                                          compute='_compute_fixed_wage_hourly_rate')
+
+    @api.depends('employee_id.paycycle_wage')
+    def _compute_fixed_wage_hourly_rate(self):
+        for slip in self:
+            weeks_in_year = iso_weeks_in_year(slip.year)
+            employee = slip.employee_id
+            if employee.is_fixed:
+                slip.fixed_wage_hourly_rate = round((employee.paycycle_wage * len(slip.pay_cycle_period_ids_domain)) / (
+                        employee.resource_calendar_id.full_time_required_hours * weeks_in_year
+                ), 2)
 
     def _compute_is_manual_input(self):
         with_user = self.env['ir.config_parameter'].sudo()

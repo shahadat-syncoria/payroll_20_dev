@@ -15,7 +15,7 @@ class SyncoriaWorkedDays(models.Model):
     #         if rec.code == overtime_work_entry.code and rec.number_of_hours > rec.payslip_id.total_stored_overtime:
     #             raise UserError(_("Overtime can not be greater then stored overtime."))
 
-    @api.depends('is_paid', 'number_of_hours', 'payslip_id', 'version_id.wage', 'payslip_id.sum_worked_hours')
+    @api.depends('is_paid', 'number_of_hours', 'payslip_id', 'version_id.paycycle_wage', 'payslip_id.sum_worked_hours')
     def _compute_amount(self):
 
         super(SyncoriaWorkedDays, self)._compute_amount()
@@ -29,8 +29,7 @@ class SyncoriaWorkedDays(models.Model):
                 if line.work_entry_id.code == rec.code:
                     overtime_pay_percent = line.overtime_rate
                     if not rec.payslip_id.version_id.is_hourly:
-                        current_hourly_rate = round((rec.payslip_id.version_id.wage * 12) / (
-                                rec.payslip_id.version_id.resource_calendar_id.full_time_required_hours * weeks_in_year))
+                        current_hourly_rate = rec.payslip_id.fixed_wage_hourly_rate
                     else:
                         current_hourly_rate = rec.payslip_id.version_id.hourly_wage
                     overtime_hour_rate = (current_hourly_rate * (overtime_pay_percent / 100))
@@ -42,8 +41,7 @@ class SyncoriaWorkedDays(models.Model):
                     'syncoria_can_overtime.sync_banked_overtime_work_entry_type').code] and not rec.payslip_id.version_id.is_hourly:
                 overtime_pay_percent = self.env['hr.rule.parameter'].sudo()._get_parameter_from_code(
                     'can_overtime_pay_percent', raise_if_not_found=False)
-                current_hourly_rate = round((rec.payslip_id.version_id.wage * 12) / (
-                        rec.payslip_id.version_id.resource_calendar_id.full_time_required_hours * weeks_in_year))
+                current_hourly_rate = rec.payslip_id.fixed_wage_hourly_rate
                 overtime_hour_rate = (current_hourly_rate * (overtime_pay_percent / 100))
                 rec.amount = rec.number_of_hours * overtime_hour_rate
             if rec.code in [self.env.ref(
@@ -60,8 +58,7 @@ class SyncoriaWorkedDays(models.Model):
                     'syncoria_can_overtime.sync_stat_overtime_work_entry_type').code and not rec.payslip_id.version_id.is_hourly:
                 stat_overtime_pay_percent = self.env['hr.rule.parameter'].sudo()._get_parameter_from_code(
                     'can_stat_overtime_pay_percent', raise_if_not_found=False)
-                current_hourly_rate = (rec.payslip_id.version_id.wage * 12) / (
-                        rec.payslip_id.version_id.resource_calendar_id.full_time_required_hours * weeks_in_year)
+                current_hourly_rate = rec.payslip_id.fixed_wage_hourly_rate
                 stat_overtime_hour_rate = (current_hourly_rate * (stat_overtime_pay_percent / 100))
                 rec.amount = rec.number_of_hours * stat_overtime_hour_rate
             if rec.code == self.env.ref(
