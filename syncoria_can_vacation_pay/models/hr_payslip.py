@@ -79,7 +79,7 @@ class VacationPayslip(models.Model):
                     carry_vac_pay_amount_taken = previous_year_lines.vac_pay_amount_taken
 
             payslip_ytd_ids = employee.slip_ids.filtered(
-                lambda x: x.state == 'paid' and (x.date_to.year if x.date_to else x.write_date.year) == int(
+                lambda x: x.state == 'paid' and int(x.date_to.year if x.date_to else x.write_date.year) == int(
                     rec.date_to.year))
             vac_pay_earned_amount = sum(payslip_ytd_ids.mapped("vac_pay_earned_amount"))
             vac_pay_earned_taken = sum(payslip_ytd_ids.mapped("vac_pay_earned_taken"))
