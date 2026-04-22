@@ -26,23 +26,23 @@ else:
             </field>
         </record>
 
-         <record id="rule_ca_worker_employer_contribution" model="hr.salary.rule">
-            <field name="name">Employer Contribution</field>
-            <field name="sequence" eval="410"/>
-            <field name="code">RRSP_EMPLOYER</field>
-            <field name="category_id" ref="syncoria_can_payroll.employer_contribution"/>
-            <field name="appears_on_payslip" eval="1"/>
-            <field name="active" eval="1"/>
-            <field name="amount_select">code</field>
-            <field name="struct_id" ref="syncoria_can_payroll.structure_can_worker"/>
-            <field name="condition_select">python</field>
-            <field name="condition_python">result = employee.employer_rrsp > 0.0</field>
-            <field name="amount_python_compute">
-if employee.employer_rrsp > 0.0 and employee.employer_rrsp_type == "percent":
-    result = GROSS *(employee.employer_rrsp/100)
-else:
-    result = employee.employer_rrsp
-            </field>
-        </record>
+<!--         <record id="rule_ca_worker_employer_contribution" model="hr.salary.rule">-->
+<!--            <field name="name">Employer Contribution</field>-->
+<!--            <field name="sequence" eval="410"/>-->
+<!--            <field name="code">RRSP_EMPLOYER</field>-->
+<!--            <field name="category_id" ref="syncoria_can_payroll.employer_contribution"/>-->
+<!--            <field name="appears_on_payslip" eval="1"/>-->
+<!--            <field name="active" eval="1"/>-->
+<!--            <field name="amount_select">code</field>-->
+<!--            <field name="struct_id" ref="syncoria_can_payroll.structure_can_worker"/>-->
+<!--            <field name="condition_select">python</field>-->
+<!--            <field name="condition_python">result = employee.employer_rrsp > 0.0</field>-->
+<!--            <field name="amount_python_compute">-->
+<!--if employee.employer_rrsp > 0.0 and employee.employer_rrsp_type == "percent":-->
+<!--    result = GROSS *(employee.employer_rrsp/100)-->
+<!--else:-->
+<!--    result = employee.employer_rrsp-->
+<!--            </field>-->
+<!--        </record>-->
     </data>
 </odoo>

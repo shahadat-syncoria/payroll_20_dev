@@ -35,14 +35,14 @@
                                     <field name="ytd_pi" readonly="1"/>
                                 </group>
                             </group>
-                            <group string='YTD Irregular Tax' name="irre">
-                                <group>
-                                    <field name="ytd_irre_fed_tax" readonly="1"/>
-                                </group>
-                                <group>
-                                    <field name="ytd_irre_prov_tax" readonly="1"/>
-                                </group>
-                            </group>
+<!--                            <group string='YTD Irregular Tax' name="irre">-->
+<!--                                <group>-->
+<!--                                    <field name="ytd_irre_fed_tax" readonly="1"/>-->
+<!--                                </group>-->
+<!--                                <group>-->
+<!--                                    <field name="ytd_irre_prov_tax" readonly="1"/>-->
+<!--                                </group>-->
+<!--                            </group>-->
                         </group>
                     </page>
                 </notebook>

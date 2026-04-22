@@ -58,60 +58,60 @@ result_name = inputs['BNK_OVERTIME'].name
         </record>
 
 
-        <record id="rule_ca_overtime_pay_worker" model="hr.salary.rule">
-            <field name="name">Overtime</field>
-            <field name="sequence" eval="70"/>
-            <field name="code">WORKER_OVERTIME</field>
-            <field name="category_id" ref="syncoria_can_payroll.additional_allowance"/>
-            <field name="appears_on_payslip" eval='True'/>
-            <field name="active" eval="1"/>
-            <field name="amount_select">code</field>
-            <field name="struct_id" ref="syncoria_can_payroll.structure_can_worker"/>
-            <field name="condition_select">python</field>
-            <field name="condition_python">result = 'CAN_OVERTIME' in worked_days</field>
+<!--        <record id="rule_ca_overtime_pay_worker" model="hr.salary.rule">-->
+<!--            <field name="name">Overtime</field>-->
+<!--            <field name="sequence" eval="70"/>-->
+<!--            <field name="code">WORKER_OVERTIME</field>-->
+<!--            <field name="category_id" ref="syncoria_can_payroll.additional_allowance"/>-->
+<!--            <field name="appears_on_payslip" eval='True'/>-->
+<!--            <field name="active" eval="1"/>-->
+<!--            <field name="amount_select">code</field>-->
+<!--            <field name="struct_id" ref="syncoria_can_payroll.structure_can_worker"/>-->
+<!--            <field name="condition_select">python</field>-->
+<!--            <field name="condition_python">result = 'CAN_OVERTIME' in worked_days</field>-->
 
-            <field name="amount_python_compute">
-result = worked_days['CAN_OVERTIME'].amount
-result_name = worked_days['CAN_OVERTIME'].name
-            </field>
-
-
-        </record>
-        <record id="rule_ca_stat_overtime_pay_worker" model="hr.salary.rule">
-            <field name="name">Statutory Holiday Overtime</field>
-            <field name="sequence" eval="75"/>
-            <field name="code">WORKER_STAT_OVERTIME</field>
-            <field name="category_id" ref="syncoria_can_payroll.additional_allowance"/>
-            <field name="appears_on_payslip" eval='True'/>
-            <field name="active" eval="1"/>
-            <field name="amount_select">code</field>
-            <field name="struct_id" ref="syncoria_can_payroll.structure_can_worker"/>
-            <field name="condition_select">python</field>
-            <field name="condition_python">result = 'CAN_STAT_OVERTIME' in worked_days</field>
-
-            <field name="amount_python_compute">
-result = worked_days['CAN_STAT_OVERTIME'].amount
-result_name = worked_days['CAN_STAT_OVERTIME'].name
-            </field>
-        </record>
+<!--            <field name="amount_python_compute">-->
+<!--result = worked_days['CAN_OVERTIME'].amount-->
+<!--result_name = worked_days['CAN_OVERTIME'].name-->
+<!--            </field>-->
 
 
-        <record id="rule_ca_banked_overtime_pay_worker" model="hr.salary.rule">
-            <field name="name">BankedOvertime</field>
-            <field name="sequence" eval="70"/>
-            <field name="code">BANKED_OVERTIME</field>
-            <field name="category_id" ref="syncoria_can_payroll.additional_allowance"/>
-            <field name="appears_on_payslip" eval='True'/>
-            <field name="active" eval="1"/>
-            <field name="amount_select">code</field>
-            <field name="struct_id" ref="syncoria_can_payroll.structure_can_worker"/>
-            <field name="condition_select">python</field>
-            <field name="condition_python">result = 'BNK_OVERTIME' in inputs</field>
+<!--        </record>-->
+<!--        <record id="rule_ca_stat_overtime_pay_worker" model="hr.salary.rule">-->
+<!--            <field name="name">Statutory Holiday Overtime</field>-->
+<!--            <field name="sequence" eval="75"/>-->
+<!--            <field name="code">WORKER_STAT_OVERTIME</field>-->
+<!--            <field name="category_id" ref="syncoria_can_payroll.additional_allowance"/>-->
+<!--            <field name="appears_on_payslip" eval='True'/>-->
+<!--            <field name="active" eval="1"/>-->
+<!--            <field name="amount_select">code</field>-->
+<!--            <field name="struct_id" ref="syncoria_can_payroll.structure_can_worker"/>-->
+<!--            <field name="condition_select">python</field>-->
+<!--            <field name="condition_python">result = 'CAN_STAT_OVERTIME' in worked_days</field>-->
 
-            <field name="amount_python_compute">
-result = inputs['BNK_OVERTIME'].amount
-result_name = inputs['BNK_OVERTIME'].name
-            </field>
-        </record>
+<!--            <field name="amount_python_compute">-->
+<!--result = worked_days['CAN_STAT_OVERTIME'].amount-->
+<!--result_name = worked_days['CAN_STAT_OVERTIME'].name-->
+<!--            </field>-->
+<!--        </record>-->
+
+
+<!--        <record id="rule_ca_banked_overtime_pay_worker" model="hr.salary.rule">-->
+<!--            <field name="name">BankedOvertime</field>-->
+<!--            <field name="sequence" eval="70"/>-->
+<!--            <field name="code">BANKED_OVERTIME</field>-->
+<!--            <field name="category_id" ref="syncoria_can_payroll.additional_allowance"/>-->
+<!--            <field name="appears_on_payslip" eval='True'/>-->
+<!--            <field name="active" eval="1"/>-->
+<!--            <field name="amount_select">code</field>-->
+<!--            <field name="struct_id" ref="syncoria_can_payroll.structure_can_worker"/>-->
+<!--            <field name="condition_select">python</field>-->
+<!--            <field name="condition_python">result = 'BNK_OVERTIME' in inputs</field>-->
+
+<!--            <field name="amount_python_compute">-->
+<!--result = inputs['BNK_OVERTIME'].amount-->
+<!--result_name = inputs['BNK_OVERTIME'].name-->
+<!--            </field>-->
+<!--        </record>-->
     </data>
 </odoo>

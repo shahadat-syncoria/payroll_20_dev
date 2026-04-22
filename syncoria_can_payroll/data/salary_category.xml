@@ -10,12 +10,12 @@
 
         </record>
 
-        <record id="structure_can_worker" model="hr.payroll.structure">
-            <field name="name">Canadian Worker Pay</field>
-            <field name="type_id" ref="hr.structure_type_worker"/>
-            <field eval="[]" name="rule_ids"/>
-            <field name="country_id" ref="base.ca"/>
-        </record>
+<!--        <record id="structure_can_worker" model="hr.payroll.structure">-->
+<!--            <field name="name">Canadian Worker Pay</field>-->
+<!--            <field name="type_id" ref="hr.structure_type_worker"/>-->
+<!--            <field eval="[]" name="rule_ids"/>-->
+<!--            <field name="country_id" ref="base.ca"/>-->
+<!--        </record>-->
 
         <record id="CALC" model="hr.salary.rule.category">
             <field name="code">CALC</field>

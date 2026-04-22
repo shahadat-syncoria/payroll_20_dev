@@ -90,65 +90,65 @@ result_name = inputs['COMMISSION'].name
 
 
 
-        <record id="rule_ca_bonus_pay_worker" model="hr.salary.rule">
-            <field name="name">Bonus</field>
-            <field name="sequence" eval="50"/>
-            <field name="code">BONUS</field>
-            <field name="category_id" ref="syncoria_can_payroll.additional_allowance"/>
-            <field name="appears_on_payslip" eval='True'/>
-            <field name="active" eval="1"/>
-            <field name="amount_select">code</field>
-            <field name="struct_id" ref="syncoria_can_payroll.structure_can_worker"/>
-            <field name="condition_select">python</field>
-            <field name="condition_python">result = 'Bonus_Pay' in inputs</field>
+<!--        <record id="rule_ca_bonus_pay_worker" model="hr.salary.rule">-->
+<!--            <field name="name">Bonus</field>-->
+<!--            <field name="sequence" eval="50"/>-->
+<!--            <field name="code">BONUS</field>-->
+<!--            <field name="category_id" ref="syncoria_can_payroll.additional_allowance"/>-->
+<!--            <field name="appears_on_payslip" eval='True'/>-->
+<!--            <field name="active" eval="1"/>-->
+<!--            <field name="amount_select">code</field>-->
+<!--            <field name="struct_id" ref="syncoria_can_payroll.structure_can_worker"/>-->
+<!--            <field name="condition_select">python</field>-->
+<!--            <field name="condition_python">result = 'Bonus_Pay' in inputs</field>-->
 
-            <field name="amount_python_compute">
-result = inputs['Bonus_Pay'].amount
-result_name = inputs['Bonus_Pay'].name
-            </field>
-        </record>
-
-
-        <record id="rule_ca_retro_pay_worker" model="hr.salary.rule">
-            <field name="name">Retro Payment</field>
-            <field name="sequence" eval="70"/>
-            <field name="code">RETRO</field>
-            <field name="category_id" ref="syncoria_can_payroll.additional_allowance"/>
-            <field name="appears_on_payslip" eval='True'/>
-            <field name="active" eval="1"/>
-            <field name="amount_select">code</field>
-            <field name="struct_id" ref="syncoria_can_payroll.structure_can_worker"/>
-            <field name="condition_select">python</field>
-            <field name="condition_python">result = 'Retro_Pay' in inputs</field>
-
-            <field name="amount_python_compute">
-result = inputs['Retro_Pay'].amount
-result_name = inputs['Retro_Pay'].name
-            </field>
+<!--            <field name="amount_python_compute">-->
+<!--result = inputs['Bonus_Pay'].amount-->
+<!--result_name = inputs['Bonus_Pay'].name-->
+<!--            </field>-->
+<!--        </record>-->
 
 
-        </record>
+<!--        <record id="rule_ca_retro_pay_worker" model="hr.salary.rule">-->
+<!--            <field name="name">Retro Payment</field>-->
+<!--            <field name="sequence" eval="70"/>-->
+<!--            <field name="code">RETRO</field>-->
+<!--            <field name="category_id" ref="syncoria_can_payroll.additional_allowance"/>-->
+<!--            <field name="appears_on_payslip" eval='True'/>-->
+<!--            <field name="active" eval="1"/>-->
+<!--            <field name="amount_select">code</field>-->
+<!--            <field name="struct_id" ref="syncoria_can_payroll.structure_can_worker"/>-->
+<!--            <field name="condition_select">python</field>-->
+<!--            <field name="condition_python">result = 'Retro_Pay' in inputs</field>-->
+
+<!--            <field name="amount_python_compute">-->
+<!--result = inputs['Retro_Pay'].amount-->
+<!--result_name = inputs['Retro_Pay'].name-->
+<!--            </field>-->
+
+
+<!--        </record>-->
 
 
 
-         <record id="rule_ca_commission_worker" model="hr.salary.rule">
-            <field name="name">Commission</field>
-            <field name="sequence" eval="72"/>
-            <field name="code">COMMISSION</field>
-            <field name="category_id" ref="syncoria_can_payroll.additional_allowance"/>
-            <field name="appears_on_payslip" eval='True'/>
-            <field name="active" eval="1"/>
-            <field name="amount_select">code</field>
-            <field name="struct_id" ref="syncoria_can_payroll.structure_can_worker"/>
-            <field name="condition_select">python</field>
-            <field name="condition_python">result = 'COMMISSION' in inputs</field>
+<!--         <record id="rule_ca_commission_worker" model="hr.salary.rule">-->
+<!--            <field name="name">Commission</field>-->
+<!--            <field name="sequence" eval="72"/>-->
+<!--            <field name="code">COMMISSION</field>-->
+<!--            <field name="category_id" ref="syncoria_can_payroll.additional_allowance"/>-->
+<!--            <field name="appears_on_payslip" eval='True'/>-->
+<!--            <field name="active" eval="1"/>-->
+<!--            <field name="amount_select">code</field>-->
+<!--            <field name="struct_id" ref="syncoria_can_payroll.structure_can_worker"/>-->
+<!--            <field name="condition_select">python</field>-->
+<!--            <field name="condition_python">result = 'COMMISSION' in inputs</field>-->
 
-            <field name="amount_python_compute">
-result = inputs['COMMISSION'].amount
-result_name = inputs['COMMISSION'].name
-            </field>
+<!--            <field name="amount_python_compute">-->
+<!--result = inputs['COMMISSION'].amount-->
+<!--result_name = inputs['COMMISSION'].name-->
+<!--            </field>-->
 
 
-        </record>
+<!--        </record>-->
     </data>
 </odoo>

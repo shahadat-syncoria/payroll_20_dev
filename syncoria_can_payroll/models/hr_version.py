@@ -65,8 +65,8 @@ class InheritedResPartner(models.Model):
         ('CC10', 'CC 10'),
     ], string="Provincial Claim Code From TD1")
 
-    deductions = fields.Many2one('tax.slab', string='Payroll Deductions',
-                                 default=lambda self: self.env['tax.slab'].search([], limit=1))
+    # deductions = fields.Many2one('tax.slab', string='Payroll Deductions',
+                                 # default=lambda self: self.env['tax.slab'].search([], limit=1))
 
     salary_pay_cycle = fields.Many2one('paycycle.config',
                                        string='Salary Pay Cycle',

@@ -14,21 +14,7 @@
             <field name="struct_id" ref="syncoria_can_payroll.structure_can_employee"/>
 <!--            <field name="exemption_id" ref="cpp_exempt"/>-->
             <field name="amount_python_compute">
-                <![CDATA[
-
-main_gross = I_Earning
-line_obj = employee.payroll_line_ids.filtered(lambda x: x.year == str(payslip.date_to.year))
-calculation_1 =   employee.deductions.ei_max_emp_anu_prem - line_obj.ytd_ei ;
-calculation_2 =   (employee.deductions.ei_rate / 100) * main_gross
-final_ei = min(calculation_1,calculation_2)
-if final_ei < 0.00:
-    result = 0.00
-else:
-    result=final_ei
-
-
-
-                ]]>
+result = 0.0
             </field>
         </record>
 
@@ -44,80 +30,42 @@ else:
             <field name="struct_id" ref="syncoria_can_payroll.structure_can_employee"/>
 <!--            <field name="exemption_id" ref="cpp_exempt"/>-->
             <field name="amount_python_compute">
-                <![CDATA[
-
-main_gross = I_Earning
-line_obj = employee.payroll_line_ids.filtered(lambda x: x.year == str(payslip.date_to.year))
-calculation_1 =   employee.deductions.ei_max_employer_anu_prem - line_obj.ytd_ei_employer ;
-calculation_2 =   (employee.deductions.ei_employer_rate / 100) * main_gross
-final_ei = min(calculation_1,calculation_2)
-if final_ei < 0.00:
-    result = 0.00
-else:
-    result=final_ei
-
-                ]]>
+result = 0.0
             </field>
         </record>
 
 <!--        =============================== WORKER ========================-->
-         <record id="rule_ca_ei_worker" model="hr.salary.rule">
-            <field name="name">EI</field>
-            <field name="sequence" eval="110"/>
-            <field name="code">EI</field>
-            <field name="category_id" ref="hr_payroll.DED"/>
-            <field name="appears_on_payslip" eval="1"/>
-            <field name="active" eval="1"/>
-<!--            <field name="condition_select">none</field>-->
-            <field name="amount_select">code</field>
-            <field name="struct_id" ref="syncoria_can_payroll.structure_can_worker"/>
-<!--            <field name="exemption_id" ref="cpp_exempt"/>-->
-            <field name="amount_python_compute">
-                <![CDATA[
+<!--         <record id="rule_ca_ei_worker" model="hr.salary.rule">-->
+<!--            <field name="name">EI</field>-->
+<!--            <field name="sequence" eval="110"/>-->
+<!--            <field name="code">EI</field>-->
+<!--            <field name="category_id" ref="hr_payroll.DED"/>-->
+<!--            <field name="appears_on_payslip" eval="1"/>-->
+<!--            <field name="active" eval="1"/>-->
+<!--&lt;!&ndash;            <field name="condition_select">none</field>&ndash;&gt;-->
+<!--            <field name="amount_select">code</field>-->
+<!--            <field name="struct_id" ref="syncoria_can_payroll.structure_can_worker"/>-->
+<!--&lt;!&ndash;            <field name="exemption_id" ref="cpp_exempt"/>&ndash;&gt;-->
+<!--            <field name="amount_python_compute">-->
+<!--result=0.0-->
+<!--            </field>-->
+<!--        </record>-->
 
-main_gross = I_Earning
-
-calculation_1 =   employee.deductions.ei_max_emp_anu_prem - employee.ytd_ei ;
-calculation_2 =   (employee.deductions.ei_rate / 100) * main_gross
-final_ei = min(calculation_1,calculation_2)
-if final_ei < 0.00:
-    result = 0.00
-else:
-    result=final_ei
-
-
-
-                ]]>
-            </field>
-        </record>
-
-        <record id="rule_ca_ei_employer_worker" model="hr.salary.rule">
-            <field name="name">Employer EI</field>
-            <field name="sequence" eval="150"/>
-            <field name="code">EI_EMPLOYER</field>
-            <field name="category_id" ref="hr_payroll.COMP"/>
-            <field name="appears_on_payslip" eval="1"/>
-            <field name="active" eval="1"/>
-<!--            <field name="condition_select">none</field>-->
-            <field name="amount_select">code</field>
-            <field name="struct_id" ref="syncoria_can_payroll.structure_can_worker"/>
-<!--            <field name="exemption_id" ref="cpp_exempt"/>-->
-            <field name="amount_python_compute">
-                <![CDATA[
-
-main_gross = I_Earning
-
-calculation_1 =   employee.deductions.ei_max_employer_anu_prem - employee.ytd_ei_employer ;
-calculation_2 =   (employee.deductions.ei_employer_rate / 100) * main_gross
-final_ei = min(calculation_1,calculation_2)
-if final_ei < 0.00:
-    result = 0.00
-else:
-    result=final_ei
-
-                ]]>
-            </field>
-        </record>
+<!--        <record id="rule_ca_ei_employer_worker" model="hr.salary.rule">-->
+<!--            <field name="name">Employer EI</field>-->
+<!--            <field name="sequence" eval="150"/>-->
+<!--            <field name="code">EI_EMPLOYER</field>-->
+<!--            <field name="category_id" ref="hr_payroll.COMP"/>-->
+<!--            <field name="appears_on_payslip" eval="1"/>-->
+<!--            <field name="active" eval="1"/>-->
+<!--&lt;!&ndash;            <field name="condition_select">none</field>&ndash;&gt;-->
+<!--            <field name="amount_select">code</field>-->
+<!--            <field name="struct_id" ref="syncoria_can_payroll.structure_can_worker"/>-->
+<!--&lt;!&ndash;            <field name="exemption_id" ref="cpp_exempt"/>&ndash;&gt;-->
+<!--            <field name="amount_python_compute">-->
+<!--result =0.0-->
+<!--            </field>-->
+<!--        </record>-->
 
     </data>
 </odoo>

@@ -13,64 +13,7 @@
 <!--            <field name="condition_select">none</field>-->
 <!--            <field name="exemption_id" ref="cpp_exempt"/>-->
             <field name="amount_python_compute">
-                <![CDATA[
-is_pay_cycle = employee.salary_pay_cycle.pay_cycle
-if is_pay_cycle:
-    pay_cycle = int(is_pay_cycle)
-    gross = 0.0
-    vp = 0.0
-    ad_vp = 0.0
-    bonus = 0.0
-    retro = 0.0
-    ot = 0.0
-    b_ot = 0.0
-    com = 0.0
-    stat_ot = 0.0
-    final_result = 0.0
-    exp = 0.0
-
-    for rule in rules:
-        if rules[rule].is_pensionable:
-            rule_code = rules[rule].code
-            if rule_code == 'GROSS':
-                gross = GROSS
-            elif rule_code == 'ADJUST_VP':
-                ad_vp = ADJUST_VP
-            elif rule_code == 'VP':
-                vp = VP
-            elif rule_code == 'BONUS':
-                bonus = BONUS
-            elif rule_code == 'RETRO':
-                retro = RETRO
-            elif rule_code == 'OVERTIME':
-                ot = OVERTIME
-            elif rule_code == 'BANKED_OVERTIME':
-                b_ot = BANKED_OVERTIME
-            elif rule_code == 'COMMISSION':
-                com = COMMISSION
-            elif rule_code == 'STAT_OVERTIME':
-                stat_ot = STAT_OVERTIME
-            elif rule_code == 'EXPENSE':
-                exp = EXPENSE
-
-            final_result = gross + vp + ad_vp + bonus + ot + retro + b_ot + com + stat_ot + exp
-
-    main_gross = final_result
-    PM = 12
-    line_obj = employee.payroll_line_ids.filtered(lambda x: x.year == str(payslip.date_to.year))
-    calculation_1 = employee.deductions.cpp2_emp_employ_contrib * (PM / 12) - line_obj.ytd_cpp2 if line_obj else 0.0
-    ytd_pi = line_obj.ytd_pi if line_obj else 0.0
-
-    W = max(ytd_pi, employee.deductions.cpp_max_an_pen_earn)
-    calculation_2 = (ytd_pi + main_gross - W) * (employee.deductions.cpp2_emp_employ_rate / 100)
-    final_cpp2 = min(calculation_1, calculation_2)
-    if final_cpp2 < 0.00:
-        result = 0.00
-    else:
-        result = final_cpp2 if CPP <= 0 else 0.00
-else:
-    result = 0.00
-                    ]]>
+result = 0.00
             </field>
 
 
@@ -101,99 +44,42 @@ result=CPP2
 
 
 
-        <record id="rule_ca_cpp2_worker" model="hr.salary.rule">
-            <field name="name">CPP2</field>
-            <field name="sequence" eval="95"/>
-            <field name="code">CPP2</field>
-            <field name="category_id" ref="hr_payroll.DED"/>
-            <field name="appears_on_payslip" eval="1"/>
-            <field name="active" eval="1"/>
-            <field name="amount_select">code</field>
-            <field name="struct_id" ref="syncoria_can_payroll.structure_can_worker"/>
-<!--            <field name="condition_select">none</field>-->
-<!--            <field name="exemption_id" ref="cpp_exempt"/>-->
-            <field name="amount_python_compute">
-                <![CDATA[
-is_pay_cycle = employee.salary_pay_cycle.pay_cycle
-if is_pay_cycle:
-    pay_cycle = int(is_pay_cycle)
-    gross = 0.0
-    vp = 0.0
-    ad_vp = 0.0
-    bonus = 0.0
-    retro = 0.0
-    ot = 0.0
-    b_ot = 0.0
-    com = 0.0
-    stat_ot = 0.0
-    final_result = 0.0
-    exp = 0.0
-
-    for rule in rules:
-        if rules[rule].is_pensionable:
-            rule_code = rules[rule].code
-            if rule_code == 'GROSS':
-                gross = GROSS
-            elif rule_code == 'ADJUST_VP':
-                ad_vp = ADJUST_VP
-            elif rule_code == 'VP':
-                vp = VP
-            elif rule_code == 'BONUS':
-                bonus = BONUS
-            elif rule_code == 'RETRO':
-                retro = RETRO
-            elif rule_code == 'OVERTIME':
-                ot = OVERTIME
-            elif rule_code == 'BANKED_OVERTIME':
-                b_ot = BANKED_OVERTIME
-            elif rule_code == 'COMMISSION':
-                com = COMMISSION
-            elif rule_code == 'STAT_OVERTIME':
-                stat_ot = STAT_OVERTIME
-            elif rule_code == 'EXPENSE':
-                exp = EXPENSE
-
-            final_result = gross + vp + ad_vp + bonus + ot + retro + b_ot + com + stat_ot + exp
-
-    main_gross = final_result
-    PM = 12
-    line_obj = employee.payroll_line_ids.filtered(lambda x: x.year == str(payslip.date_to.year))
-    calculation_1 = employee.deductions.cpp2_emp_employ_contrib * (PM / 12) - line_obj.ytd_cpp2 if line_obj else 0.0
-    ytd_pi = line_obj.ytd_pi if line_obj else 0.0
-
-    W = max(ytd_pi, employee.deductions.cpp_max_an_pen_earn)
-    calculation_2 = (ytd_pi + main_gross - W) * (employee.deductions.cpp2_emp_employ_rate / 100)
-    final_cpp2 = min(calculation_1, calculation_2)
-    if final_cpp2 < 0.00:
-        result = 0.00
-    else:
-        result = final_cpp2 if CPP <= 0 else 0.00
-else:
-    result = 0.00
-                    ]]>
-            </field>
+<!--        <record id="rule_ca_cpp2_worker" model="hr.salary.rule">-->
+<!--            <field name="name">CPP2</field>-->
+<!--            <field name="sequence" eval="95"/>-->
+<!--            <field name="code">CPP2</field>-->
+<!--            <field name="category_id" ref="hr_payroll.DED"/>-->
+<!--            <field name="appears_on_payslip" eval="1"/>-->
+<!--            <field name="active" eval="1"/>-->
+<!--            <field name="amount_select">code</field>-->
+<!--            <field name="struct_id" ref="syncoria_can_payroll.structure_can_worker"/>-->
+<!--&lt;!&ndash;            <field name="condition_select">none</field>&ndash;&gt;-->
+<!--&lt;!&ndash;            <field name="exemption_id" ref="cpp_exempt"/>&ndash;&gt;-->
+<!--            <field name="amount_python_compute">-->
+<!--result = 0.00-->
+<!--            </field>-->
 
 
-        </record>
-        <record id="rule_ca_cpp2_employer_worker" model="hr.salary.rule">
-            <field name="name">Employer CPP2</field>
-            <field name="sequence" eval="135"/>
-            <field name="code">CPP2_EMPLOYER</field>
-            <field name="category_id" ref="hr_payroll.COMP"/>
-            <field name="appears_on_payslip" eval="1"/>
-            <field name="active" eval="1"/>
-            <field name="amount_select">code</field>
-            <field name="struct_id" ref="syncoria_can_payroll.structure_can_worker"/>
-<!--            <field name="condition_select">none</field>-->
-<!--            <field name="exemption_id" ref="cpp_exempt"/>-->
-            <field name="amount_python_compute">
-                <![CDATA[
-result=CPP2
-                    ]]>
-            </field>
+<!--        </record>-->
+<!--        <record id="rule_ca_cpp2_employer_worker" model="hr.salary.rule">-->
+<!--            <field name="name">Employer CPP2</field>-->
+<!--            <field name="sequence" eval="135"/>-->
+<!--            <field name="code">CPP2_EMPLOYER</field>-->
+<!--            <field name="category_id" ref="hr_payroll.COMP"/>-->
+<!--            <field name="appears_on_payslip" eval="1"/>-->
+<!--            <field name="active" eval="1"/>-->
+<!--            <field name="amount_select">code</field>-->
+<!--            <field name="struct_id" ref="syncoria_can_payroll.structure_can_worker"/>-->
+<!--&lt;!&ndash;            <field name="condition_select">none</field>&ndash;&gt;-->
+<!--&lt;!&ndash;            <field name="exemption_id" ref="cpp_exempt"/>&ndash;&gt;-->
+<!--            <field name="amount_python_compute">-->
+<!--                <![CDATA[-->
+<!--result=CPP2-->
+<!--                    ]]>-->
+<!--            </field>-->
 
 
-        </record>
+<!--        </record>-->
 
 
 

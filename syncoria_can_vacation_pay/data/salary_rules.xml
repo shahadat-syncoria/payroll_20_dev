@@ -100,71 +100,71 @@ result_qty = 1
         <!--        ======================== Worker ====================-->
 
 
-        <record id="rule_ca_vacation_pay_worker" model="hr.salary.rule">
-            <field name="name">Vacation Pay</field>
-            <field name="sequence" eval="30"/>
-            <field name="code">VP</field>
-            <field name="category_id" ref="syncoria_can_payroll.additional_allowance"/>
-            <field name="appears_on_payslip" eval='True'/>
-            <field name="active" eval="1"/>
-            <field name="amount_select">code</field>
-            <field name="struct_id" ref="syncoria_can_payroll.structure_can_worker"/>
-            <field name="condition_select">python</field>
-                    <field name="condition_python">result = 'Vacation_Pay' in inputs</field>
+<!--        <record id="rule_ca_vacation_pay_worker" model="hr.salary.rule">-->
+<!--            <field name="name">Vacation Pay</field>-->
+<!--            <field name="sequence" eval="30"/>-->
+<!--            <field name="code">VP</field>-->
+<!--            <field name="category_id" ref="syncoria_can_payroll.additional_allowance"/>-->
+<!--            <field name="appears_on_payslip" eval='True'/>-->
+<!--            <field name="active" eval="1"/>-->
+<!--            <field name="amount_select">code</field>-->
+<!--            <field name="struct_id" ref="syncoria_can_payroll.structure_can_worker"/>-->
+<!--            <field name="condition_select">python</field>-->
+<!--                    <field name="condition_python">result = 'Vacation_Pay' in inputs</field>-->
 
-            <field name="amount_python_compute">
-result = inputs['Vacation_Pay'].amount
-result_name = inputs['Vacation_Pay'].name
-            </field>
-
-
-        </record>
-        <record id="rule_ca_adjusted_vacation_pay_worker" model="hr.salary.rule">
-            <field name="name">Vacation Pay</field>
-            <field name="sequence" eval="32"/>
-            <field name="code">ADJUST_VP</field>
-            <field name="category_id" ref="syncoria_can_payroll.additional_allowance"/>
-            <field name="appears_on_payslip" eval='True'/>
-            <field name="active" eval="1"/>
-            <field name="amount_select">code</field>
-            <field name="struct_id" ref="syncoria_can_payroll.structure_can_worker"/>
-            <field name="condition_select">python</field>
-                    <field name="condition_python">result = 'Adjusted_Vacation_Pay' in inputs</field>
-
-            <field name="amount_python_compute">
-result = inputs['Adjusted_Vacation_Pay'].amount
-result_name = inputs['Adjusted_Vacation_Pay'].name
-            </field>
+<!--            <field name="amount_python_compute">-->
+<!--result = inputs['Vacation_Pay'].amount-->
+<!--result_name = inputs['Vacation_Pay'].name-->
+<!--            </field>-->
 
 
-        </record>
-        <record id="rule_ca_accrued_vacation_pay_worker" model="hr.salary.rule">
-            <field name="name">Accrued Vacation Pay</field>
-            <field name="sequence" eval="400"/>
-            <field name="code">ACCRUED_VP</field>
-            <field name="category_id" ref="syncoria_can_vacation_pay.vac_accrued"/>
-            <field name="appears_on_payslip" eval='True'/>
-            <field name="active" eval="1"/>
-            <field name="amount_select">code</field>
-            <field name="struct_id" ref="syncoria_can_payroll.structure_can_worker"/>
-           <field name="condition_select">python</field>
-                    <field name="condition_python">result = 'Adjusted_Vacation_Pay' not in inputs</field>
-            <field name="amount_python_compute">
-employee._get_employee_allocated_leave()
-final_result = 0.0
+<!--        </record>-->
+<!--        <record id="rule_ca_adjusted_vacation_pay_worker" model="hr.salary.rule">-->
+<!--            <field name="name">Vacation Pay</field>-->
+<!--            <field name="sequence" eval="32"/>-->
+<!--            <field name="code">ADJUST_VP</field>-->
+<!--            <field name="category_id" ref="syncoria_can_payroll.additional_allowance"/>-->
+<!--            <field name="appears_on_payslip" eval='True'/>-->
+<!--            <field name="active" eval="1"/>-->
+<!--            <field name="amount_select">code</field>-->
+<!--            <field name="struct_id" ref="syncoria_can_payroll.structure_can_worker"/>-->
+<!--            <field name="condition_select">python</field>-->
+<!--                    <field name="condition_python">result = 'Adjusted_Vacation_Pay' in inputs</field>-->
 
-for code, values in result_rules.items():
-    rule_obj = payslip.struct_id.rule_ids.filtered(lambda r: r.code == code)
-    if rule_obj and rule_obj.is_vacation_pay:
-        final_result += values.get('total', 0.0)
-insurable_amount = final_result
-vac_percentage = employee.allocated_vac_percentage
-result= (insurable_amount*(vac_percentage/100))
-result_rate = 100
-result_qty = 1
-            </field>
+<!--            <field name="amount_python_compute">-->
+<!--result = inputs['Adjusted_Vacation_Pay'].amount-->
+<!--result_name = inputs['Adjusted_Vacation_Pay'].name-->
+<!--            </field>-->
 
 
-        </record>
+<!--        </record>-->
+<!--        <record id="rule_ca_accrued_vacation_pay_worker" model="hr.salary.rule">-->
+<!--            <field name="name">Accrued Vacation Pay</field>-->
+<!--            <field name="sequence" eval="400"/>-->
+<!--            <field name="code">ACCRUED_VP</field>-->
+<!--            <field name="category_id" ref="syncoria_can_vacation_pay.vac_accrued"/>-->
+<!--            <field name="appears_on_payslip" eval='True'/>-->
+<!--            <field name="active" eval="1"/>-->
+<!--            <field name="amount_select">code</field>-->
+<!--            <field name="struct_id" ref="syncoria_can_payroll.structure_can_worker"/>-->
+<!--           <field name="condition_select">python</field>-->
+<!--                    <field name="condition_python">result = 'Adjusted_Vacation_Pay' not in inputs</field>-->
+<!--            <field name="amount_python_compute">-->
+<!--employee._get_employee_allocated_leave()-->
+<!--final_result = 0.0-->
+
+<!--for code, values in result_rules.items():-->
+<!--    rule_obj = payslip.struct_id.rule_ids.filtered(lambda r: r.code == code)-->
+<!--    if rule_obj and rule_obj.is_vacation_pay:-->
+<!--        final_result += values.get('total', 0.0)-->
+<!--insurable_amount = final_result-->
+<!--vac_percentage = employee.allocated_vac_percentage-->
+<!--result= (insurable_amount*(vac_percentage/100))-->
+<!--result_rate = 100-->
+<!--result_qty = 1-->
+<!--            </field>-->
+
+
+<!--        </record>-->
     </data>
 </odoo>

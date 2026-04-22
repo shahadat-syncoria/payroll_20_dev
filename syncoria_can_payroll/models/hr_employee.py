@@ -84,14 +84,14 @@ class InhertitedHrEmployee(models.Model):
 
 
     #========================================== need to remove this fields=====================================
-    ytd_irre_fed_tax = fields.Float("Year To Date Irregular Payment Fed Tax", default=0, groups="hr.group_hr_user")
-    ytd_irre_fed_tax_erp = fields.Float("Year To Date Irregular Payment Fed Tax ERP", default=0,groups="hr.group_hr_user")
-    ytd_previous_irre_fed_tax = fields.Float("Previous Year To Date Irregular Payment Fed Tax", default=0, store=True,compute='compute_ytd_previous_irre_fed_tax',groups="hr.group_hr_user")
-    ytd_irre_prov_tax = fields.Float("Year To Date Irregular Payment Prov Tax", default=0, groups="hr.group_hr_user")
-    ytd_irre_prov_tax_erp = fields.Float("Year To Date Irregular Payment Prov Tax ERP", default=0,groups="hr.group_hr_user")
-    ytd_previous_irre_prov_tax = fields.Float("Previous Year To Date Irregular Payment Prov Tax", default=0, store=True, compute='compute_ytd_previous_irre_prov_tax',groups="hr.group_hr_user")
-    ytd_previous_irre_prov_amount = fields.Float("Previous Year To Date Irregular Amount", default=0,groups="hr.group_hr_user")
-    last_paycycle_gross = fields.Float("Last Paycycle Wage",help="Last paycycle wage for which the previous bonus was given ", default=0,groups="hr.group_hr_user")
+    # ytd_irre_fed_tax = fields.Float("Year To Date Irregular Payment Fed Tax", default=0, groups="hr.group_hr_user")
+    # ytd_irre_fed_tax_erp = fields.Float("Year To Date Irregular Payment Fed Tax ERP", default=0,groups="hr.group_hr_user")
+    # ytd_previous_irre_fed_tax = fields.Float("Previous Year To Date Irregular Payment Fed Tax", default=0, store=True,compute='compute_ytd_previous_irre_fed_tax',groups="hr.group_hr_user")
+    # ytd_irre_prov_tax = fields.Float("Year To Date Irregular Payment Prov Tax", default=0, groups="hr.group_hr_user")
+    # ytd_irre_prov_tax_erp = fields.Float("Year To Date Irregular Payment Prov Tax ERP", default=0,groups="hr.group_hr_user")
+    # ytd_previous_irre_prov_tax = fields.Float("Previous Year To Date Irregular Payment Prov Tax", default=0, store=True, compute='compute_ytd_previous_irre_prov_tax',groups="hr.group_hr_user")
+    # ytd_previous_irre_prov_amount = fields.Float("Previous Year To Date Irregular Amount", default=0,groups="hr.group_hr_user")
+    # last_paycycle_gross = fields.Float("Last Paycycle Wage",help="Last paycycle wage for which the previous bonus was given ", default=0,groups="hr.group_hr_user")
     #============================================================================================================
 
     #==================================T4 INFORMATION======================================
@@ -297,9 +297,9 @@ class InhertitedHrEmployee(models.Model):
 
             rec.update_ytd_tax(year, line_obj)
 
-    def _update_ytd_tax(self,payslip_ytd,req_type):
-        ytd_total_amount = payslip_ytd.filtered(lambda x: x.category_id.code in ["ADD_ALLOWANCE"])
-        self.ytd_pi_erp = ytd_total_amount
+    # def _update_ytd_tax(self,payslip_ytd,req_type):
+    #     ytd_total_amount = payslip_ytd.filtered(lambda x: x.category_id.code in ["ADD_ALLOWANCE"])
+    #     self.ytd_pi_erp = ytd_total_amount
 
     def update_ytd_tax(self, year, line_obj):
         for rec in self:
@@ -313,43 +313,43 @@ class InhertitedHrEmployee(models.Model):
             line_obj.ytd_fed_tax_erp =  sum(payslip_line_ids_ftax.mapped("total"))
             line_obj.ytd_prov_tax_erp = sum(payslip_line_ids_otax.mapped("total"))
 
-    @api.depends('ytd_previous_irre_prov_amount', 'last_paycycle_gross')
-    def compute_ytd_previous_irre_fed_tax(self):
-        for rec in self:
-            is_pay_cycle = rec.version_id.salary_pay_cycle.pay_cycle
-            paycycle_gross = rec.last_paycycle_gross
-            if is_pay_cycle:
-                pay_cycle = int(is_pay_cycle)
-                claim_code = rec.version_id.federal_claim_code_from_td1
-                year = rec.version_id.deductions.slab_year
-                total_gross_with_irr = (rec.ytd_previous_irre_prov_amount / pay_cycle) + paycycle_gross
+    # @api.depends('ytd_previous_irre_prov_amount', 'last_paycycle_gross')
+    # def compute_ytd_previous_irre_fed_tax(self):
+    #     for rec in self:
+    #         is_pay_cycle = rec.version_id.salary_pay_cycle.pay_cycle
+    #         paycycle_gross = rec.last_paycycle_gross
+    #         if is_pay_cycle:
+    #             pay_cycle = int(is_pay_cycle)
+    #             claim_code = rec.version_id.federal_claim_code_from_td1
+    #             year = rec.version_id.deductions.slab_year
+    #             total_gross_with_irr = (rec.ytd_previous_irre_prov_amount / pay_cycle) + paycycle_gross
+    #
+    #             tax_amount_gross_without_irr = rec.env['fed.tax'].get_tax_amount(paycycle_gross, claim_code, year,
+    #                                                                                pay_cycle)
+    #             tax_amount_gross_with_irr = rec.env['fed.tax'].get_tax_amount(total_gross_with_irr, claim_code, year,
+    #                                                                             pay_cycle)
+    #
+    #             irr_pay_tax = tax_amount_gross_with_irr - tax_amount_gross_without_irr
+    #             rec.ytd_previous_irre_fed_tax = irr_pay_tax * pay_cycle
 
-                tax_amount_gross_without_irr = rec.env['fed.tax'].get_tax_amount(paycycle_gross, claim_code, year,
-                                                                                   pay_cycle)
-                tax_amount_gross_with_irr = rec.env['fed.tax'].get_tax_amount(total_gross_with_irr, claim_code, year,
-                                                                                pay_cycle)
-
-                irr_pay_tax = tax_amount_gross_with_irr - tax_amount_gross_without_irr
-                rec.ytd_previous_irre_fed_tax = irr_pay_tax * pay_cycle
-
-    @api.depends('ytd_previous_irre_prov_amount','last_paycycle_gross')
-    def compute_ytd_previous_irre_prov_tax(self):
-        for rec in self:
-            is_pay_cycle = rec.version_id.salary_pay_cycle.pay_cycle
-            paycycle_gross = rec.last_paycycle_gross
-            if is_pay_cycle:
-                pay_cycle = int(is_pay_cycle)
-                claim_code = rec.version_id.federal_claim_code_from_td1
-                year = rec.version_id.deductions.slab_year
-                total_gross_with_irr = (rec.ytd_previous_irre_prov_amount / pay_cycle) + paycycle_gross
-
-                tax_amount_gross_without_irr = rec.env['prov.tax'].get_tax_amount(paycycle_gross, claim_code, year,
-                                                                                     pay_cycle)
-                tax_amount_gross_with_irr = rec.env['prov.tax'].get_tax_amount(total_gross_with_irr, claim_code, year,
-                                                                                  pay_cycle)
-
-                irr_pay_tax = tax_amount_gross_with_irr - tax_amount_gross_without_irr
-                rec.ytd_previous_irre_prov_tax = irr_pay_tax * pay_cycle
+    # @api.depends('ytd_previous_irre_prov_amount','last_paycycle_gross')
+    # def compute_ytd_previous_irre_prov_tax(self):
+    #     for rec in self:
+    #         is_pay_cycle = rec.version_id.salary_pay_cycle.pay_cycle
+    #         paycycle_gross = rec.last_paycycle_gross
+    #         if is_pay_cycle:
+    #             pay_cycle = int(is_pay_cycle)
+    #             claim_code = rec.version_id.federal_claim_code_from_td1
+    #             year = rec.version_id.deductions.slab_year
+    #             total_gross_with_irr = (rec.ytd_previous_irre_prov_amount / pay_cycle) + paycycle_gross
+    #
+    #             tax_amount_gross_without_irr = rec.env['prov.tax'].get_tax_amount(paycycle_gross, claim_code, year,
+    #                                                                                  pay_cycle)
+    #             tax_amount_gross_with_irr = rec.env['prov.tax'].get_tax_amount(total_gross_with_irr, claim_code, year,
+    #                                                                               pay_cycle)
+    #
+    #             irr_pay_tax = tax_amount_gross_with_irr - tax_amount_gross_without_irr
+    #             rec.ytd_previous_irre_prov_tax = irr_pay_tax * pay_cycle
 
     @api.onchange('is_portal_user')
     def _onchage_is_portal_user(self):
@@ -400,15 +400,15 @@ class HrEmployeeYTDPayrollInformation(models.Model):
 
     head_id = fields.Many2one('hr.employee')
     version_id = fields.Many2one('hr.version',related='head_id.version_id', store=True)
-    last_paycycle_gross = fields.Float(related='head_id.last_paycycle_gross', store=True)
-    ytd_previous_irre_prov_amount = fields.Float(related='head_id.ytd_previous_irre_prov_amount', store=True)
+    # last_paycycle_gross = fields.Float(related='head_id.last_paycycle_gross', store=True)
+    # ytd_previous_irre_prov_amount = fields.Float(related='head_id.ytd_previous_irre_prov_amount', store=True)
     year = fields.Selection(
         year_selection,
         string="Year",
         default=lambda self: str(datetime.now().year)
     )
-    ytd_previous_irre_fed_tax = fields.Float("Previous Year To Date Irregular Payment Fed Tax", default=0, store=True,
-                                             compute='compute_ytd_previous_irre_fed_tax')
+    # ytd_previous_irre_fed_tax = fields.Float("Previous Year To Date Irregular Payment Fed Tax", default=0, store=True,
+    #                                          compute='compute_ytd_previous_irre_fed_tax')
 
     ytd_cpp_erp = fields.Float("Year To Date CPP Contribution in ERP")
     ytd_previous_cpp = fields.Float("Previous CPP",  default=0)
@@ -442,8 +442,7 @@ class HrEmployeeYTDPayrollInformation(models.Model):
     year_to_date_irregular_payment = fields.Float("Year To Date Irregular Payment", default=0, store=True,
                                                   compute="_compute_ytd_irre_payment")
     ytd_previous_irre_payment = fields.Float("Previous Year To Date Irregular Payment", default=0)
-    ytd_previous_irre_payment_erp = fields.Float("Year To Date Irregular Payment ERP", default=0, store=True,
-                                                 compute='compute_ytd_previous_irre_fed_tax')
+    ytd_previous_irre_payment_erp = fields.Float("Year To Date Irregular Payment ERP", default=0, store=True)
 
     # FTAX, OTAX FIELDS
     ytd_fed_tax = fields.Float("Year To Date Fed Tax", default=0, store=True,
@@ -513,24 +512,24 @@ class HrEmployeeYTDPayrollInformation(models.Model):
         for rec in self:
             rec.year_to_date_irregular_payment = rec.ytd_previous_irre_payment + rec.ytd_previous_irre_payment_erp
 
-    @api.depends('ytd_previous_irre_prov_amount', 'last_paycycle_gross')
-    def compute_ytd_previous_irre_fed_tax(self):
-        for rec in self:
-            is_pay_cycle = rec.version_id.salary_pay_cycle.pay_cycle
-            paycycle_gross = rec.last_paycycle_gross
-            if is_pay_cycle:
-                pay_cycle = int(is_pay_cycle)
-                claim_code = rec.version_id.federal_claim_code_from_td1
-                year = rec.version_id.deductions.slab_year
-                total_gross_with_irr = (rec.ytd_previous_irre_prov_amount / pay_cycle) + paycycle_gross
-
-                tax_amount_gross_without_irr = rec.env['fed.tax'].get_tax_amount(paycycle_gross, claim_code, year,
-                                                                                   pay_cycle)
-                tax_amount_gross_with_irr = rec.env['fed.tax'].get_tax_amount(total_gross_with_irr, claim_code, year,
-                                                                                pay_cycle)
-
-                irr_pay_tax = tax_amount_gross_with_irr - tax_amount_gross_without_irr
-                rec.ytd_previous_irre_fed_tax = irr_pay_tax * pay_cycle
+    # @api.depends('ytd_previous_irre_prov_amount', 'last_paycycle_gross')
+    # def compute_ytd_previous_irre_fed_tax(self):
+    #     for rec in self:
+    #         is_pay_cycle = rec.version_id.salary_pay_cycle.pay_cycle
+    #         paycycle_gross = rec.last_paycycle_gross
+    #         if is_pay_cycle:
+    #             pay_cycle = int(is_pay_cycle)
+    #             claim_code = rec.version_id.federal_claim_code_from_td1
+    #             year = rec.version_id.deductions.slab_year
+    #             total_gross_with_irr = (rec.ytd_previous_irre_prov_amount / pay_cycle) + paycycle_gross
+    #
+    #             tax_amount_gross_without_irr = rec.env['fed.tax'].get_tax_amount(paycycle_gross, claim_code, year,
+    #                                                                                pay_cycle)
+    #             tax_amount_gross_with_irr = rec.env['fed.tax'].get_tax_amount(total_gross_with_irr, claim_code, year,
+    #                                                                             pay_cycle)
+    #
+    #             irr_pay_tax = tax_amount_gross_with_irr - tax_amount_gross_without_irr
+    #             rec.ytd_previous_irre_fed_tax = irr_pay_tax * pay_cycle
 
     def update_ytd_erp(self):
         for rec in self:

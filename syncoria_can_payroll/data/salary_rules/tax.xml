@@ -15,45 +15,7 @@
             <field name="struct_id" ref="syncoria_can_payroll.structure_can_employee"/>
 <!--            <field name="exemption_id" ref="cpp_exempt"/>-->
             <field name="amount_python_compute">
-                <![CDATA[
-def calculate_irr_bonuses_annual_tax(payslip,claim_code,year,pay_cycle,paycycle_gross,irregular_gross):
-    total_gross_with_irr =  (irregular_gross / pay_cycle)+paycycle_gross
-
-    tax_amount_gross_without_irr = payslip.env['fed.tax'].get_tax_amount(paycycle_gross,claim_code,year,pay_cycle)
-    tax_amount_gross_with_irr = payslip.env['fed.tax'].get_tax_amount(total_gross_with_irr,claim_code,year,pay_cycle)
-
-    irr_pay_tax = tax_amount_gross_with_irr - tax_amount_gross_without_irr
-    annual_irr_pay_tax = irr_pay_tax * pay_cycle
-    return annual_irr_pay_tax,tax_amount_gross_without_irr
-
-is_pay_cycle = employee.salary_pay_cycle.pay_cycle
-if is_pay_cycle:
-    pay_cycle = int(is_pay_cycle)
-    claim_code = employee.federal_claim_code_from_td1
-    year =  employee.deductions.slab_year
-
-    paycycle_gross = GROSS-categories['PRE_TAX_DEDUCTION']
-
-    irregular_gross = categories['ADD_ALLOWANCE']
-
-    irr_gross_percycle = 0.0
-    previous_annual_irr_pay_tax=0.0
-    previous_tax_amount_gross_without_irr = 0.0
-    if irregular_gross>0.0:
-        previous_irregular_payment=payslip.env['hr.payslip'].get_previous_irregular_payment(payslip.id,pay_cycle)
-        if previous_irregular_payment > 0.00:
-            irregular_gross +=  previous_irregular_payment
-        annual_irr_pay_tax,tax_amount_gross_without_irr = calculate_irr_bonuses_annual_tax(payslip,claim_code,year,pay_cycle,paycycle_gross,irregular_gross)
-        if previous_irregular_payment>0.0:
-            current_irr_tax_amount = abs(employee.ytd_irre_fed_tax - annual_irr_pay_tax)
-            annual_irr_pay_tax = current_irr_tax_amount
-        payslip.write({'irre_fed_tax': annual_irr_pay_tax})
-        result = tax_amount_gross_without_irr + annual_irr_pay_tax
-    else:
-        result = payslip.env['fed.tax'].get_tax_amount(paycycle_gross,claim_code,year,pay_cycle)
-else:
-    result= 0.0
-                ]]>
+result = 0.0
             </field>
 
         </record>
@@ -70,156 +32,42 @@ else:
              <field name="struct_id" ref="syncoria_can_payroll.structure_can_employee"/>
 <!--            <field name="exemption_id" ref="cpp_exempt"/>-->
             <field name="amount_python_compute">
-                <![CDATA[
-def calculate_irr_bonuses_annual_tax(payslip,claim_code,year,pay_cycle,paycycle_gross,irregular_gross):
-    total_gross_with_irr =  (irregular_gross / pay_cycle)+paycycle_gross
-
-    tax_amount_gross_without_irr = payslip.env['prov.tax'].get_tax_amount(paycycle_gross,claim_code,year,pay_cycle)
-    tax_amount_gross_with_irr = payslip.env['prov.tax'].get_tax_amount(total_gross_with_irr,claim_code,year,pay_cycle)
-
-    irr_pay_tax = tax_amount_gross_with_irr - tax_amount_gross_without_irr
-    annual_irr_pay_tax = irr_pay_tax * pay_cycle
-    return annual_irr_pay_tax,tax_amount_gross_without_irr
-
-is_pay_cycle = employee.salary_pay_cycle.pay_cycle
-if is_pay_cycle:
-    pay_cycle = int(is_pay_cycle)
-    claim_code = employee.provincial_claim_code_from_td1
-    year =  employee.deductions.slab_year
-
-    paycycle_gross = GROSS-categories['PRE_TAX_DEDUCTION']
-
-    irregular_gross = categories['ADD_ALLOWANCE']
-
-    irr_gross_percycle = 0.0
-    previous_annual_irr_pay_tax=0.0
-    previous_tax_amount_gross_without_irr = 0.0
-    if irregular_gross>0.0:
-        previous_irregular_payment=payslip.env['hr.payslip'].get_previous_irregular_payment(payslip.id,pay_cycle)
-        if previous_irregular_payment > 0.00:
-            irregular_gross +=  previous_irregular_payment
-        annual_irr_pay_tax,tax_amount_gross_without_irr = calculate_irr_bonuses_annual_tax(payslip,claim_code,year,pay_cycle,paycycle_gross,irregular_gross)
-        if previous_irregular_payment > 0.00:
-            current_irr_tax_amount = abs(employee.ytd_irre_prov_tax - annual_irr_pay_tax)
-            annual_irr_pay_tax = current_irr_tax_amount
-        payslip.write({'irre_prov_tax': annual_irr_pay_tax})
-        result = tax_amount_gross_without_irr + annual_irr_pay_tax
-    else:
-        result = payslip.env['prov.tax'].get_tax_amount(paycycle_gross,claim_code,year,pay_cycle)
-else:
-    result= 0.0
-                ]]>
+result =0.0
             </field>
         </record>
 
-<!--        ============================== WORKER ======================================-->
-          <record id="rule_ca_ftax_worker" model="hr.salary.rule">
-            <field name="name">FED Tax</field>
-            <field name="sequence" eval="250"/>
-            <field name="code">FTAX</field>
-            <field name="category_id" ref="hr_payroll.DED"/>
-            <field name="appears_on_payslip" eval="1"/>
-            <field name="active" eval="1"/>
-<!--            <field name="condition_select">none</field>-->
-            <field name="amount_select">code</field>
-            <field name="struct_id" ref="syncoria_can_payroll.structure_can_worker"/>
-<!--            <field name="exemption_id" ref="cpp_exempt"/>-->
-            <field name="amount_python_compute">
-                <![CDATA[
-def calculate_irr_bonuses_annual_tax(payslip,claim_code,year,pay_cycle,paycycle_gross,irregular_gross):
-    total_gross_with_irr =  (irregular_gross / pay_cycle)+paycycle_gross
+<!--&lt;!&ndash;        ============================== WORKER ======================================&ndash;&gt;-->
+<!--          <record id="rule_ca_ftax_worker" model="hr.salary.rule">-->
+<!--            <field name="name">FED Tax</field>-->
+<!--            <field name="sequence" eval="250"/>-->
+<!--            <field name="code">FTAX</field>-->
+<!--            <field name="category_id" ref="hr_payroll.DED"/>-->
+<!--            <field name="appears_on_payslip" eval="1"/>-->
+<!--            <field name="active" eval="1"/>-->
+<!--&lt;!&ndash;            <field name="condition_select">none</field>&ndash;&gt;-->
+<!--            <field name="amount_select">code</field>-->
+<!--            <field name="struct_id" ref="syncoria_can_payroll.structure_can_worker"/>-->
+<!--&lt;!&ndash;            <field name="exemption_id" ref="cpp_exempt"/>&ndash;&gt;-->
+<!--            <field name="amount_python_compute">-->
+<!--result= 0.0-->
+<!--            </field>-->
 
-    tax_amount_gross_without_irr = payslip.env['fed.tax'].get_tax_amount(paycycle_gross,claim_code,year,pay_cycle)
-    tax_amount_gross_with_irr = payslip.env['fed.tax'].get_tax_amount(total_gross_with_irr,claim_code,year,pay_cycle)
+<!--        </record>-->
 
-    irr_pay_tax = tax_amount_gross_with_irr - tax_amount_gross_without_irr
-    annual_irr_pay_tax = irr_pay_tax * pay_cycle
-    return annual_irr_pay_tax,tax_amount_gross_without_irr
-
-is_pay_cycle = employee.salary_pay_cycle.pay_cycle
-if is_pay_cycle:
-    pay_cycle = int(is_pay_cycle)
-    claim_code = employee.federal_claim_code_from_td1
-    year =  employee.deductions.slab_year
-
-    paycycle_gross = GROSS-categories['PRE_TAX_DEDUCTION']
-
-    irregular_gross = categories['ADD_ALLOWANCE']
-
-    irr_gross_percycle = 0.0
-    previous_annual_irr_pay_tax=0.0
-    previous_tax_amount_gross_without_irr = 0.0
-    if irregular_gross>0.0:
-        previous_irregular_payment=payslip.env['hr.payslip'].get_previous_irregular_payment(payslip.id,pay_cycle)
-        if previous_irregular_payment > 0.00:
-            irregular_gross +=  previous_irregular_payment
-        annual_irr_pay_tax,tax_amount_gross_without_irr = calculate_irr_bonuses_annual_tax(payslip,claim_code,year,pay_cycle,paycycle_gross,irregular_gross)
-        if previous_irregular_payment>0.0:
-            current_irr_tax_amount = abs(employee.ytd_irre_fed_tax - annual_irr_pay_tax)
-            annual_irr_pay_tax = current_irr_tax_amount
-        payslip.write({'irre_fed_tax': annual_irr_pay_tax})
-        result = tax_amount_gross_without_irr + annual_irr_pay_tax
-    else:
-        result = payslip.env['fed.tax'].get_tax_amount(paycycle_gross,claim_code,year,pay_cycle)
-else:
-    result= 0.0
-                ]]>
-            </field>
-
-        </record>
-
-         <record id="rule_ca_otax_worker" model="hr.salary.rule">
-            <field name="name">Ont Tax</field>
-            <field name="sequence" eval="270"/>
-            <field name="code">OTAX</field>
-            <field name="category_id" ref="hr_payroll.DED"/>
-            <field name="appears_on_payslip" eval="1"/>
-            <field name="active" eval="1"/>
-<!--            <field name="condition_select">none</field>-->
-             <field name="amount_select">code</field>
-             <field name="struct_id" ref="syncoria_can_payroll.structure_can_worker"/>
-<!--            <field name="exemption_id" ref="cpp_exempt"/>-->
-            <field name="amount_python_compute">
-                <![CDATA[
-def calculate_irr_bonuses_annual_tax(payslip,claim_code,year,pay_cycle,paycycle_gross,irregular_gross):
-    total_gross_with_irr =  (irregular_gross / pay_cycle)+paycycle_gross
-
-    tax_amount_gross_without_irr = payslip.env['prov.tax'].get_tax_amount(paycycle_gross,claim_code,year,pay_cycle)
-    tax_amount_gross_with_irr = payslip.env['prov.tax'].get_tax_amount(total_gross_with_irr,claim_code,year,pay_cycle)
-
-    irr_pay_tax = tax_amount_gross_with_irr - tax_amount_gross_without_irr
-    annual_irr_pay_tax = irr_pay_tax * pay_cycle
-    return annual_irr_pay_tax,tax_amount_gross_without_irr
-
-is_pay_cycle = employee.salary_pay_cycle.pay_cycle
-if is_pay_cycle:
-    pay_cycle = int(is_pay_cycle)
-    claim_code = employee.provincial_claim_code_from_td1
-    year =  employee.deductions.slab_year
-
-    paycycle_gross = GROSS-categories['PRE_TAX_DEDUCTION']
-
-    irregular_gross = categories['ADD_ALLOWANCE']
-
-    irr_gross_percycle = 0.0
-    previous_annual_irr_pay_tax=0.0
-    previous_tax_amount_gross_without_irr = 0.0
-    if irregular_gross>0.0:
-        previous_irregular_payment=payslip.env['hr.payslip'].get_previous_irregular_payment(payslip.id,pay_cycle)
-        if previous_irregular_payment > 0.00:
-            irregular_gross +=  previous_irregular_payment
-        annual_irr_pay_tax,tax_amount_gross_without_irr = calculate_irr_bonuses_annual_tax(payslip,claim_code,year,pay_cycle,paycycle_gross,irregular_gross)
-        if previous_irregular_payment > 0.00:
-            current_irr_tax_amount = abs(employee.ytd_irre_prov_tax - annual_irr_pay_tax)
-            annual_irr_pay_tax = current_irr_tax_amount
-        payslip.write({'irre_prov_tax': annual_irr_pay_tax})
-        result = tax_amount_gross_without_irr + annual_irr_pay_tax
-    else:
-        result = payslip.env['prov.tax'].get_tax_amount(paycycle_gross,claim_code,year,pay_cycle)
-else:
-    result= 0.0
-                ]]>
-            </field>
-        </record>
+<!--         <record id="rule_ca_otax_worker" model="hr.salary.rule">-->
+<!--            <field name="name">Ont Tax</field>-->
+<!--            <field name="sequence" eval="270"/>-->
+<!--            <field name="code">OTAX</field>-->
+<!--            <field name="category_id" ref="hr_payroll.DED"/>-->
+<!--            <field name="appears_on_payslip" eval="1"/>-->
+<!--            <field name="active" eval="1"/>-->
+<!--&lt;!&ndash;            <field name="condition_select">none</field>&ndash;&gt;-->
+<!--             <field name="amount_select">code</field>-->
+<!--             <field name="struct_id" ref="syncoria_can_payroll.structure_can_worker"/>-->
+<!--&lt;!&ndash;            <field name="exemption_id" ref="cpp_exempt"/>&ndash;&gt;-->
+<!--            <field name="amount_python_compute">-->
+<!--result= 0.0-->
+<!--            </field>-->
+<!--        </record>-->
     </data>
 </odoo>

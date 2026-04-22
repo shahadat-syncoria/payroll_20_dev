@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from . import tax_slab_configuration
+# from . import tax_slab_configuration
 from . import paycycle_configuration
 from . import res_config_settings
 from . import models
