@@ -9,3 +9,9 @@
 #         env,
 #         ["queue_job.ir_cron_queue_job_garbage_collector"],
 #     )
+from odoo.tools import SQL
+
+
+def migrate(cr, version):
+    if not version:
+        return
