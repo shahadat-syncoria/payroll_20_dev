@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <data>
+    <data noupdate="1">
         <!--        =========================== EMPLOYEE =======================-->
 
         <record id="rule_ca_ftax" model="hr.salary.rule">

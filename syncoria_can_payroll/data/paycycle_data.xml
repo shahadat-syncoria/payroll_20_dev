@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <data noupdate="0">
+    <data noupdate="1">
         <record id="paycycle_monthly" model="paycycle.config">
             <field name="paystub_group_name">Monthly</field>
             <field name="pay_cycle">12</field>

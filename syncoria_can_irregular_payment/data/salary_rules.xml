@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <data>
+    <data noupdate="1">
 <!--        ===================== Employee ===========================-->
         <record id="input_ca_bonus_pay" model="hr.payslip.input.type">
             <field name="name">Bonus</field>

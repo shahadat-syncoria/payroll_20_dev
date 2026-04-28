@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <data>
+    <data noupdate="1">
 
 <!--        ======================== Employee ====================-->
         <record id="input_ca_vac_pay" model="hr.payslip.input.type">
