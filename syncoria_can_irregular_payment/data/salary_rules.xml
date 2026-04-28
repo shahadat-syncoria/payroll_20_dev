@@ -86,6 +86,26 @@ result_name = inputs['COMMISSION'].name
         </record>
 
 
+        <record id="rule_ca_allowance_pay" model="hr.salary.rule">
+            <field name="name">Allowance</field>
+            <field name="sequence" eval="50"/>
+            <field name="code">ALLOWANCE</field>
+            <field name="category_id" ref="syncoria_can_payroll.additional_allowance"/>
+            <field name="appears_on_payslip" eval='True'/>
+            <field name="active" eval="1"/>
+            <field name="amount_select">code</field>
+            <field name="struct_id" ref="syncoria_can_payroll.structure_can_employee"/>
+            <field name="is_irregular_payment">True</field>
+            <field name="condition_select">python</field>
+            <field name="condition_python">result = 'Allowance_Pay' in inputs</field>
+
+            <field name="amount_python_compute">
+result = inputs['Allowance_Pay'].amount
+result_name = inputs['Allowance_Pay'].name
+            </field>
+        </record>
+
+
 <!--        ===================== Worker =========================-->
 
 
