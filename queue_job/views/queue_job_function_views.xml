@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <odoo>
-
     <record id="view_queue_job_function_form" model="ir.ui.view">
         <field name="name">queue.job.function.form</field>
         <field name="model">queue.job.function</field>
@@ -11,6 +10,7 @@
                     <field name="model_id" required="1" />
                     <field name="method" required="1" />
                     <field name="channel_id" />
+                    <field name="allow_commit" />
                     <field name="edit_retry_pattern" widget="ace" />
                     <field name="edit_related_action" widget="ace" />
                 </group>
@@ -19,12 +19,13 @@
     </record>
 
     <record id="view_queue_job_function_tree" model="ir.ui.view">
-        <field name="name">queue.job.function.list</field>
+        <field name="name">queue.job.function.tree</field>
         <field name="model">queue.job.function</field>
         <field name="arch" type="xml">
             <list>
                 <field name="name" />
                 <field name="channel_id" />
+                <field name="allow_commit" />
             </list>
         </field>
     </record>
@@ -36,13 +37,12 @@
             <search string="Job Functions">
                 <field name="name" />
                 <field name="channel_id" />
-                <group expand="0" string="Group By">
-                    <filter
-                        name="group_by_channel"
-                        string="Channel"
-                        context="{'group_by': 'channel_id'}"
-                    />
-                </group>
+                <separator />
+                <filter
+                    name="group_by_channel"
+                    string="Channel"
+                    context="{'group_by': 'channel_id'}"
+                />
             </search>
         </field>
     </record>
@@ -54,5 +54,4 @@
         <field name="context">{}</field>
         <field name="view_id" ref="view_queue_job_function_tree" />
     </record>
-
 </odoo>

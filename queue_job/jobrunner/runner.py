@@ -16,130 +16,9 @@ How does it work?
 * It maintains an in-memory priority queue of jobs that
   is populated from the queue_job tables in all databases.
 * It does not run jobs itself, but asks Odoo to run them through an
-  anonymous ``/queue_job/runjob`` HTTP request. [1]_
-
-How to use it?
---------------
-
-* Optionally adjust your configuration through environment variables:
-
-  - ``ODOO_QUEUE_JOB_CHANNELS=root:4`` (or any other channels
-    configuration), default ``root:1``.
-  - ``ODOO_QUEUE_JOB_SCHEME=https``, default ``http``.
-  - ``ODOO_QUEUE_JOB_HOST=load-balancer``, default ``http_interface``
-    or ``localhost`` if unset.
-  - ``ODOO_QUEUE_JOB_PORT=443``, default ``http_port`` or 8069 if unset.
-  - ``ODOO_QUEUE_JOB_HTTP_AUTH_USER=jobrunner``, default empty.
-  - ``ODOO_QUEUE_JOB_HTTP_AUTH_PASSWORD=s3cr3t``, default empty.
-  - ``ODOO_QUEUE_JOB_JOBRUNNER_DB_HOST=master-db``, default ``db_host``
-    or ``False`` if unset.
-  - ``ODOO_QUEUE_JOB_JOBRUNNER_DB_PORT=5432``, default ``db_port``
-    or ``False`` if unset.
-  - ``ODOO_QUEUE_JOB_JOBRUNNER_DB_USER=userdb``, default ``db_user``
-    or ``False`` if unset.
-  - ``ODOO_QUEUE_JOB_JOBRUNNER_DB_PASSWORD=passdb``, default ``db_password``
-    or ``False`` if unset.
-
-* Alternatively, configure the channels through the Odoo configuration
-  file, like:
-
-.. code-block:: ini
-
-  [queue_job]
-  channels = root:4
-  scheme = https
-  host = load-balancer
-  port = 443
-  http_auth_user = jobrunner
-  http_auth_password = s3cr3t
-  jobrunner_db_host = master-db
-  jobrunner_db_port = 5432
-  jobrunner_db_user = userdb
-  jobrunner_db_password = passdb
-
-* Or, if using ``anybox.recipe.odoo``, add this to your buildout configuration:
-
-.. code-block:: ini
-
-  [odoo]
-  recipe = anybox.recipe.odoo
-  (...)
-  queue_job.channels = root:4
-  queue_job.scheme = https
-  queue_job.host = load-balancer
-  queue_job.port = 443
-  queue_job.http_auth_user = jobrunner
-  queue_job.http_auth_password = s3cr3t
-
-* Start Odoo with ``--load=web,web_kanban,queue_job``
-  and ``--workers`` greater than 1 [2]_, or set the ``server_wide_modules``
-  option in The Odoo configuration file:
-
-.. code-block:: ini
-
-  [options]
-  (...)
-  workers = 4
-  server_wide_modules = web,web_kanban,queue_job
-  (...)
-
-* Or, if using ``anybox.recipe.odoo``:
-
-.. code-block:: ini
-
-  [odoo]
-  recipe = anybox.recipe.odoo
-  (...)
-  options.workers = 4
-  options.server_wide_modules = web,web_kanban,queue_job
-
-* Confirm the runner is starting correctly by checking the odoo log file:
-
-.. code-block:: none
-
-  ...INFO...queue_job.jobrunner.runner: starting
-  ...INFO...queue_job.jobrunner.runner: initializing database connections
-  ...INFO...queue_job.jobrunner.runner: queue job runner ready for db <dbname>
-  ...INFO...queue_job.jobrunner.runner: database connections ready
-
-* Create jobs (eg using base_import_async) and observe they
-  start immediately and in parallel.
-
-* Tip: to enable debug logging for the queue job, use
-  ``--log-handler=odoo.addons.queue_job:DEBUG``
-
-Caveat
-------
-
-* After creating a new database or installing queue_job on an
-  existing database, Odoo must be restarted for the runner to detect it.
-
-* When Odoo shuts down normally, it waits for running jobs to finish.
-  However, when the Odoo server crashes or is otherwise force-stopped,
-  running jobs are interrupted while the runner has no chance to know
-  they have been aborted. In such situations, jobs may remain in
-  ``started`` or ``enqueued`` state after the Odoo server is halted.
-  Since the runner has no way to know if they are actually running or
-  not, and does not know for sure if it is safe to restart the jobs,
-  it does not attempt to restart them automatically. Such stale jobs
-  therefore fill the running queue and prevent other jobs to start.
-  You must therefore requeue them manually, either from the Jobs view,
-  or by running the following SQL statement *before starting Odoo*:
-
-.. code-block:: sql
-
-  update queue_job set state='pending' where state in ('started', 'enqueued')
-
-.. rubric:: Footnotes
-
-.. [1] From a security standpoint, it is safe to have an anonymous HTTP
-       request because this request only accepts to run jobs that are
-       enqueued.
-.. [2] It works with the threaded Odoo server too, although this way
-       of running Odoo is obviously not for production purposes.
+  anonymous ``/queue_job/runjob`` HTTP request.
 """
 
-import datetime
 import logging
 import os
 import selectors
@@ -155,14 +34,19 @@ import odoo
 from odoo.tools import config
 
 from . import queue_job_config
-from .channels import ENQUEUED, NOT_DONE, PENDING, ChannelManager
+from .channels import ENQUEUED, NOT_DONE, ChannelManager
 
 SELECT_TIMEOUT = 60
 ERROR_RECOVERY_DELAY = 5
+PG_ADVISORY_LOCK_ID = 2293787760715711918
 
 _logger = logging.getLogger(__name__)
 
 select = selectors.DefaultSelector
+
+
+class MasterElectionLost(Exception):
+    pass
 
 
 # Unfortunately, it is not possible to extend the Odoo
@@ -181,15 +65,10 @@ def _channels():
     )
 
 
-def _datetime_to_epoch(dt):
+def _odoo_now():
     # important: this must return the same as postgresql
     # EXTRACT(EPOCH FROM TIMESTAMP dt)
-    return (dt - datetime.datetime(1970, 1, 1)).total_seconds()
-
-
-def _odoo_now():
-    dt = datetime.datetime.utcnow()
-    return _datetime_to_epoch(dt)
+    return time.time()
 
 
 def _connection_info_for(db_name):
@@ -197,7 +76,7 @@ def _connection_info_for(db_name):
 
     for p in ("host", "port", "user", "password"):
         cfg = os.environ.get(
-            "ODOO_QUEUE_JOB_JOBRUNNER_DB_%s" % p.upper()
+            f"ODOO_QUEUE_JOB_JOBRUNNER_DB_{p.upper()}"
         ) or queue_job_config.get("jobrunner_db_" + p)
 
         if cfg:
@@ -207,35 +86,12 @@ def _connection_info_for(db_name):
 
 
 def _async_http_get(scheme, host, port, user, password, db_name, job_uuid):
-    # Method to set failed job (due to timeout, etc) as pending,
-    # to avoid keeping it as enqueued.
-    def set_job_pending():
-        connection_info = _connection_info_for(db_name)
-        conn = psycopg2.connect(**connection_info)
-        conn.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
-        with closing(conn.cursor()) as cr:
-            cr.execute(
-                "UPDATE queue_job SET state=%s, "
-                "date_enqueued=NULL, date_started=NULL "
-                "WHERE uuid=%s and state=%s "
-                "RETURNING uuid",
-                (PENDING, job_uuid, ENQUEUED),
-            )
-            if cr.fetchone():
-                _logger.warning(
-                    "state of job %s was reset from %s to %s",
-                    job_uuid,
-                    ENQUEUED,
-                    PENDING,
-                )
-
     # TODO: better way to HTTP GET asynchronously (grequest, ...)?
     #       if this was python3 I would be doing this with
     #       asyncio, aiohttp and aiopg
     def urlopen():
-        url = "{}://{}:{}/queue_job/runjob?db={}&job_uuid={}".format(
-            scheme, host, port, db_name, job_uuid
-        )
+        url = f"{scheme}://{host}:{port}/queue_job/runjob?db={db_name}&job_uuid={job_uuid}"
+        # pylint: disable=except-pass
         try:
             auth = None
             if user:
@@ -249,10 +105,10 @@ def _async_http_get(scheme, host, port, user, password, db_name, job_uuid):
             # for codes between 500 and 600
             response.raise_for_status()
         except requests.Timeout:
-            set_job_pending()
+            # A timeout is a normal behaviour, it shouldn't be logged as an exception
+            pass
         except Exception:
             _logger.exception("exception in GET %s", url)
-            set_job_pending()
 
     thread = threading.Thread(target=urlopen)
     thread.daemon = True
@@ -264,10 +120,15 @@ class Database:
         self.db_name = db_name
         connection_info = _connection_info_for(db_name)
         self.conn = psycopg2.connect(**connection_info)
-        self.conn.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
-        self.has_queue_job = self._has_queue_job()
-        if self.has_queue_job:
-            self._initialize()
+        try:
+            self.conn.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
+            self.has_queue_job = self._has_queue_job()
+            if self.has_queue_job:
+                self._acquire_master_lock()
+                self._initialize()
+        except BaseException:
+            self.close()
+            raise
 
     def close(self):
         # pylint: disable=except-pass
@@ -279,6 +140,14 @@ class Database:
         except Exception:
             pass
         self.conn = None
+
+    def _acquire_master_lock(self):
+        """Acquire the master runner lock or raise MasterElectionLost"""
+        with closing(self.conn.cursor()) as cr:
+            cr.execute("SELECT pg_try_advisory_lock(%s)", (PG_ADVISORY_LOCK_ID,))
+            if not cr.fetchone()[0]:
+                msg = f"could not acquire master runner lock on {self.db_name}"
+                raise MasterElectionLost(msg)
 
     def _has_queue_job(self):
         with closing(self.conn.cursor()) as cr:
@@ -343,6 +212,105 @@ class Database:
                 (ENQUEUED, uuid),
             )
 
+    def _query_requeue_dead_jobs(self):
+        return """
+            UPDATE
+                queue_job
+            SET
+                state=(
+                    CASE
+                        WHEN
+                            max_retries IS NOT NULL AND
+                            max_retries != 0 AND -- infinite retries if max_retries is 0
+                            retry IS NOT NULL AND
+                            retry>max_retries
+                        THEN 'failed'
+                        ELSE 'pending'
+                    END),
+                retry=(
+                    CASE
+                        WHEN state='started'
+                        THEN COALESCE(retry,0)+1 ELSE retry
+                    END),
+                exc_name=(
+                    CASE
+                        WHEN
+                            max_retries IS NOT NULL AND
+                            max_retries != 0 AND -- infinite retries if max_retries is 0
+                            retry IS NOT NULL AND
+                            retry>max_retries
+                        THEN 'JobFoundDead'
+                        ELSE exc_name
+                    END),
+                exc_info=(
+                    CASE
+                        WHEN
+                            max_retries IS NOT NULL AND
+                            max_retries != 0 AND -- infinite retries if max_retries is 0
+                            retry IS NOT NULL AND
+                            retry>max_retries
+                        THEN 'Job found dead after too many retries'
+                        ELSE exc_info
+                    END)
+            WHERE
+                state IN ('enqueued','started')
+                AND date_enqueued < (now() AT TIME ZONE 'utc' - INTERVAL '10 sec')
+                AND (
+                    id in (
+                        SELECT
+                            queue_job_id
+                        FROM
+                            queue_job_lock
+                        WHERE
+                            queue_job_lock.queue_job_id = queue_job.id
+                        FOR NO KEY UPDATE SKIP LOCKED
+                    )
+                    OR NOT EXISTS (
+                        SELECT
+                            1
+                        FROM
+                            queue_job_lock
+                        WHERE
+                            queue_job_lock.queue_job_id = queue_job.id
+                    )
+                )
+            RETURNING uuid
+            """
+
+    def requeue_dead_jobs(self):
+        """
+        Set started and enqueued jobs but not locked to pending
+
+        A job is locked when it's being executed
+        When a job is killed, it releases the lock
+
+        If the number of retries exceeds the number of max retries,
+        the job is set as 'failed' with the error 'JobFoundDead'.
+
+        Adding a buffer on 'date_enqueued' to check
+        that it has been enqueued for more than 10sec.
+        This prevents from requeuing jobs before they are actually started.
+
+        When Odoo shuts down normally, it waits for running jobs to finish.
+        However, when the Odoo server crashes or is otherwise force-stopped,
+        running jobs are interrupted while the runner has no chance to know
+        they have been aborted.
+
+        This also handles orphaned jobs (enqueued but never started, no lock).
+        This edge case occurs when the runner marks a job as 'enqueued'
+        but the HTTP request to start the job never reaches the Odoo server
+        (e.g., due to server shutdown/crash between setting enqueued and
+        the controller receiving the request).
+        """
+
+        with closing(self.conn.cursor()) as cr:
+            query = self._query_requeue_dead_jobs()
+
+            cr.execute(query)
+
+            for (uuid,) in cr.fetchall():
+                _logger.warning("Re-queued dead job with uuid: %s", uuid)
+
 
 class QueueJobRunner:
     def __init__(
@@ -366,6 +334,17 @@ class QueueJobRunner:
         self.db_by_name = {}
         self._stop = False
         self._stop_pipe = os.pipe()
+
+    def __del__(self):
+        # pylint: disable=except-pass
+        try:
+            os.close(self._stop_pipe[0])
+        except OSError:
+            pass
+        try:
+            os.close(self._stop_pipe[1])
+        except OSError:
+            pass
 
     @classmethod
     def from_environ_or_config(cls):
@@ -398,11 +377,10 @@ class QueueJobRunner:
         return runner
 
     def get_db_names(self):
-        if config["db_name"]:
-            db_names = config["db_name"].split(",")
-        else:
-            db_names = odoo.service.db.list_dbs(True)
-        return db_names
+        db_names = config["db_name"]
+        if db_names:
+            return db_names
+        return odoo.service.db.list_dbs(True)
 
     def close_databases(self, remove_jobs=True):
         for db_name, db in self.db_by_name.items():
@@ -415,7 +393,8 @@ class QueueJobRunner:
         self.db_by_name = {}
 
     def initialize_databases(self):
-        for db_name in self.get_db_names():
+        for db_name in sorted(self.get_db_names()):
+            # sorting is important to avoid deadlocks in acquiring the master lock
             db = Database(db_name)
             if db.has_queue_job:
                 self.db_by_name[db_name] = db
@@ -423,6 +402,13 @@ class QueueJobRunner:
                     for job_data in cr:
                         self.channel_manager.notify(db_name, *job_data)
                 _logger.info("queue job runner ready for db %s", db_name)
+            else:
+                db.close()
+
+    def requeue_dead_jobs(self):
+        for db in self.db_by_name.values():
+            if db.has_queue_job:
+                db.requeue_dead_jobs()
 
     def run_jobs(self):
         now = _odoo_now()
@@ -509,13 +495,14 @@ class QueueJobRunner:
         while not self._stop:
             # outer loop does exception recovery
             try:
-                _logger.info("initializing database connections")
+                _logger.debug("initializing database connections")
                 # TODO: how to detect new databases or databases
                 #       on which queue_job is installed after server start?
                 self.initialize_databases()
                 _logger.info("database connections ready")
                 # inner loop does the normal processing
                 while not self._stop:
+                    self.requeue_dead_jobs()
                     self.process_notifications()
                     self.run_jobs()
                     self.wait_notification()
@@ -524,6 +511,14 @@ class QueueJobRunner:
             except InterruptedError:
                 # Interrupted system call, i.e. KeyboardInterrupt during select
                 self.stop()
+            except MasterElectionLost as e:
+                _logger.debug(
+                    "master election lost: %s, sleeping %ds and retrying",
+                    e,
+                    ERROR_RECOVERY_DELAY,
+                )
+                self.close_databases()
+                time.sleep(ERROR_RECOVERY_DELAY)
             except Exception:
                 _logger.exception(
                     "exception: sleeping %ds and retrying", ERROR_RECOVERY_DELAY
