@@ -1,0 +1,60 @@
+<odoo>
+  <data>
+    <!-- explicit list view definition -->
+<!--
+    <record model="ir.ui.view" id="syncoria_payroll_ytd.list">
+      <field name="name">syncoria_payroll_ytd list</field>
+      <field name="model">syncoria_payroll_ytd.syncoria_payroll_ytd</field>
+      <field name="arch" type="xml">
+        <tree>
+          <field name="name"/>
+          <field name="value"/>
+          <field name="value2"/>
+        </tree>
+      </field>
+    </record>
+-->
+
+    <!-- actions opening views on models -->
+<!--
+    <record model="ir.actions.act_window" id="syncoria_payroll_ytd.action_window">
+      <field name="name">syncoria_payroll_ytd window</field>
+      <field name="res_model">syncoria_payroll_ytd.syncoria_payroll_ytd</field>
+      <field name="view_mode">tree,form</field>
+    </record>
+-->
+
+    <!-- server action to the one above -->
+<!--
+    <record model="ir.actions.server" id="syncoria_payroll_ytd.action_server">
+      <field name="name">syncoria_payroll_ytd server</field>
+      <field name="model_id" ref="model_syncoria_payroll_ytd_syncoria_payroll_ytd"/>
+      <field name="state">code</field>
+      <field name="code">
+        action = {
+          "type": "ir.actions.act_window",
+          "view_mode": "tree,form",
+          "res_model": model._name,
+        }
+      </field>
+    </record>
+-->
+
+    <!-- Top menu item -->
+<!--
+    <menuitem name="syncoria_payroll_ytd" id="syncoria_payroll_ytd.menu_root"/>
+-->
+    <!-- menu categories -->
+<!--
+    <menuitem name="Menu 1" id="syncoria_payroll_ytd.menu_1" parent="syncoria_payroll_ytd.menu_root"/>
+    <menuitem name="Menu 2" id="syncoria_payroll_ytd.menu_2" parent="syncoria_payroll_ytd.menu_root"/>
+-->
+    <!-- actions -->
+<!--
+    <menuitem name="List" id="syncoria_payroll_ytd.menu_1_list" parent="syncoria_payroll_ytd.menu_1"
+              action="syncoria_payroll_ytd.action_window"/>
+    <menuitem name="Server to list" id="syncoria_payroll_ytd" parent="syncoria_payroll_ytd.menu_2"
+              action="syncoria_payroll_ytd.action_server"/>
+-->
+  </data>
+</odoo>

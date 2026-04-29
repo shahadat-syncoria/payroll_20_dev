@@ -1,0 +1,2 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_syncoria_payroll_ytd_syncoria_payroll_ytd,syncoria_payroll_ytd.syncoria_payroll_ytd,model_syncoria_payroll_ytd_syncoria_payroll_ytd,base.group_user,1,1,1,1
