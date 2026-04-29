@@ -5,7 +5,6 @@ from odoo import api, models, _
 class InheritedHrPayslipYTD(models.Model):
     _inherit = 'hr.payslip'
 
-
     def _get_last_ytd_payslips(self):
         if not self:
             return self
@@ -49,8 +48,9 @@ class InheritedHrPayslipYTD(models.Model):
             # Get the YTD payslip lines for the employee and year
             line_ids = rec.employee_id._get_ytd_payslip_line_ids(rec.year)
 
-            # Get the salary rules associated with the employee's contract structure
-            rules = rec.employee_id.contract_id.structure_type_id.default_struct_id.rule_ids
+            # In Odoo 19 contract_id is removed — structure_type_id is
+            # accessed directly on hr.employee via _inherits → hr.version
+            rules = rec.employee_id.structure_type_id.default_struct_id.rule_ids
 
             # Create a dictionary to store YTD totals for each rule
             ytd_totals = {}
