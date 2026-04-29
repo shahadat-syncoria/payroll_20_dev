@@ -85,7 +85,7 @@ result_name = inputs['COMMISSION'].name
 
         </record>
 
-           <record id="input_ca_allowance" model="hr.payslip.input.type">
+           <record id="input_ca_allowance_pay" model="hr.payslip.input.type">
             <field name="name">Allowance</field>
             <field name="code">Allowance_Pay</field>
             <field name="country_id" eval="False"/>
