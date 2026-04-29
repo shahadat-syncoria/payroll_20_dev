@@ -15,7 +15,7 @@ Module for Canada Payroll Year To Date Calculation
     # Check https://github.com/odoo/odoo/blob/15.0/odoo/addons/base/data/ir_module_category_data.xml
     # for the full list
     'category': 'Human Resources/Payroll',
-    'version': '19.0',
+    'version': '19.0.1.0.0',
 
     # any module necessary for this one to work correctly
     'depends': ['base','hr_payroll','syncoria_can_payroll'],
