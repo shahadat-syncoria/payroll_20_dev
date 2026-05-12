@@ -58,24 +58,24 @@
                 sequence="10"
             />
 
-<!--        <menuitem-->
-<!--                id="menu_action_hr_tax_slab_form"-->
-<!--                action="tax_slab_act_window"-->
-<!--                name="Deductions"-->
-<!--                parent="menu_hr_salary_tax_configuration"-->
-<!--                sequence="20"/>-->
-<!--        <menuitem-->
-<!--                name="Federal Tax"-->
-<!--                id="menu_action_hr_fed_tax"-->
-<!--                parent="menu_hr_salary_tax_configuration"-->
-<!--                sequence="30"-->
-<!--                action="fed_tax_act_window"/>-->
-<!--        <menuitem-->
-<!--                name="Provincial Tax"-->
-<!--                id="menu_action_hr_prov_tax"-->
-<!--                parent="menu_hr_salary_tax_configuration"-->
-<!--                sequence="40"-->
-<!--                action="prov_tax_act_window"/>-->
+        <menuitem
+                id="menu_action_hr_tax_slab_form"
+                action="tax_slab_act_window"
+                name="Deductions"
+                parent="menu_hr_salary_tax_configuration"
+                sequence="20"/>
+        <menuitem
+                name="Federal Tax"
+                id="menu_action_hr_fed_tax"
+                parent="menu_hr_salary_tax_configuration"
+                sequence="30"
+                action="fed_tax_act_window"/>
+        <menuitem
+                name="Provincial Tax"
+                id="menu_action_hr_prov_tax"
+                parent="menu_hr_salary_tax_configuration"
+                sequence="40"
+                action="prov_tax_act_window"/>
            <menuitem id="menu_hr_payslip_ytd_opening"
               name="YTD Opening Balances"
               parent="syncoria_can_payroll.menu_hr_salary_tax_configuration"

@@ -171,7 +171,7 @@
             <field name="view_mode">list,form</field>
             <field name="help" type="html">
                 <p class="oe_view_nocontent_create">
-                    There is no examples click here to add new Deductions.
+                    There are no examples click here to add new Deductions.
                 </p>
             </field>
         </record>
