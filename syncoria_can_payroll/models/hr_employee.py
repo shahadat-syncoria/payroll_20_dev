@@ -87,7 +87,7 @@ class InhertitedHrEmployee(models.Model):
     # ytd_irre_fed_tax = fields.Float("Year To Date Irregular Payment Fed Tax", default=0, groups="hr.group_hr_user")
     # ytd_irre_fed_tax_erp = fields.Float("Year To Date Irregular Payment Fed Tax ERP", default=0,groups="hr.group_hr_user")
     # ytd_previous_irre_fed_tax = fields.Float("Previous Year To Date Irregular Payment Fed Tax", default=0, store=True,compute='compute_ytd_previous_irre_fed_tax',groups="hr.group_hr_user")
-    # ytd_irre_prov_tax = fields.Float("Year To Date Irregular Payment Prov Tax", default=0, groups="hr.group_hr_user")
+    ytd_irre_prov_tax = fields.Float("Year To Date Irregular Payment Prov Tax", default=0, groups="hr.group_hr_user")
     # ytd_irre_prov_tax_erp = fields.Float("Year To Date Irregular Payment Prov Tax ERP", default=0,groups="hr.group_hr_user")
     # ytd_previous_irre_prov_tax = fields.Float("Previous Year To Date Irregular Payment Prov Tax", default=0, store=True, compute='compute_ytd_previous_irre_prov_tax',groups="hr.group_hr_user")
     # ytd_previous_irre_prov_amount = fields.Float("Previous Year To Date Irregular Amount", default=0,groups="hr.group_hr_user")

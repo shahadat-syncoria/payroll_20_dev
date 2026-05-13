@@ -29,8 +29,8 @@ class InheritedResUser(models.Model):
     ytd_pi = fields.Float("Year To Date PI/IE", compute='_compute_ytd_info',related_sudo=False)
     # ytd_irre_fed_tax = fields.Float("Year To Date Irregular Payment Fed Tax",related="employee_id.ytd_irre_fed_tax",related_sudo=False)
     #
-    # # YTDIrregularPaymentProvTax
-    # ytd_irre_prov_tax = fields.Float("Year To Date Irregular Payment Prov Tax", related="employee_id.ytd_irre_prov_tax")
+    # # YTDIrregularPaymentProvTax temp enabled for testing, will remove related and compute after test
+    ytd_irre_prov_tax = fields.Float("Year To Date Irregular Payment Prov Tax", related="employee_id.ytd_irre_prov_tax")
 
     @api.depends('employee_id.payroll_line_ids')
     def _compute_ytd_info(self):
