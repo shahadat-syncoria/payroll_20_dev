@@ -126,9 +126,9 @@ class RecordOfEmployee(models.Model):
     comments = fields.Char(string="18-Comments")
     language = fields.Selection([("english", "English"), ("french", "French")], default="english",
                                 string="20-Communication Preferred In")
-    area_code = fields.Char(string="Area code", unaccent=False)
-    telephone_no = fields.Char(string="21-Telephone No", unaccent=False, )
-    ext_no = fields.Char(string="Extension Number", unaccent=False)
+    area_code = fields.Char(string="Area code")
+    telephone_no = fields.Char(string="21-Telephone No")
+    ext_no = fields.Char(string="Extension Number")
     name_of_issuer_id = fields.Many2one(
         "hr.employee",
         string="22-Name of Issuer",
