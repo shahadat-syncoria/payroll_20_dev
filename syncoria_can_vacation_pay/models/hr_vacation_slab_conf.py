@@ -17,11 +17,14 @@ class HrVacationSlab(models.Model):
     )
     leave_percentage = fields.Float(required=True)
 
-    _sql_constraints = [
-        ('start_year', 'unique(start_year)', "Slab already exist!"),
-        ('end_year', 'unique(end_year)', "Slab already exist!"),
-    ]
-
+    _start_year_exists = models.Constraint(
+        "unique(start_year)",
+        "Slab already exist!",
+    )
+    _end_year_exists = models.Constraint(
+        "unique(end_year)",
+        "Slab already exist!",
+    )
 
     def _compute_display_name(self):
         for record in self:

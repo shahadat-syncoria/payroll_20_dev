@@ -270,13 +270,14 @@ class HrVacationSlabEmployee(models.Model):
 
     employee_id = fields.Many2one('hr.employee', string='employee')
 
-    _sql_constraints = [
-        ('start_year', 'unique(employee_id,start_year)', "Slab already exist!"),
-        ('end_year', 'unique(employee_id,end_year)', "Slab already exist!"),
-
-    ]
-
-
+    _start_year = models.Constraint(
+        "unique(employee_id, start_year)",
+        "Slab already exist!",
+    )
+    _end_year = models.Constraint(
+        "unique(employee_id, end_year)",
+        "Slab already exist!",
+    )
 
     @api.constrains('start_year', 'end_year')
     def _check_date_range_overlap(self):
