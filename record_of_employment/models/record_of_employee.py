@@ -150,9 +150,10 @@ class RecordOfEmployee(models.Model):
 
     issuing_date = fields.Date.today()
 
-    _sql_constraints = [
-        ('employee_id', 'unique(employee_id)', "ROE already exist!"),
-    ]
+    _employee_exists = models.Constraint(
+        "unique(employee_id)",
+        "ROE already exist!",
+    )
 
     def action_mark_done(self):
         for record in self:
