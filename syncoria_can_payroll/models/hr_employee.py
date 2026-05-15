@@ -26,11 +26,6 @@ deduction_amount_type = [
 class InhertitedHrEmployee(models.Model):
     _inherit = 'hr.employee'
 
-    _sql_constraints = [
-        ('identification_id_len', 'CHECK (LENGTH(identification_id) = 9)', ('Social Insurance Number Must be of 9 digits.')),
-        # ('registration_number_verification', 'CHECK (registration_number SIMILAR TO ^[178][0-9]{8}(RP|RW)[0-9]{4}$)', ('Payroll Account Number Must Match patterns.')),
-    ]
-
     is_portal_user = fields.Boolean(groups="hr.group_hr_user")
     portal_user_id = fields.Many2one("res.users",groups="hr.group_hr_user")
     is_vacation_pay_carry_over = fields.Boolean(default=True, string='Vacation Pay Carry Over?',groups="hr.group_hr_user")
@@ -184,6 +179,11 @@ class InhertitedHrEmployee(models.Model):
     medical_insurance_type = fields.Selection(readonly=False, related="version_id.medical_insurance_type", inherited=True, groups="hr.group_hr_manager")
     medical_insurance_employer = fields.Float(readonly=False, related="version_id.medical_insurance_employer", inherited=True, groups="hr.group_hr_manager")
     medical_insurance_employer_type = fields.Selection(readonly=False, related="version_id.medical_insurance_employer_type", inherited=True, groups="hr.group_hr_manager")
+
+    _identification_id_len = models.Constraint(
+        "CHECK (LENGTH(identification_id) = 9)",
+        "Social Insurance Number Must be of 9 digits.",
+    )
 
     @api.depends("ytd_previous_irre_payment", "ytd_previous_irre_payment_erp")
     def _compute_ytd_irre_payment(self):

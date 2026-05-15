@@ -139,9 +139,10 @@ class PayrollPaycycle(models.Model):
         string='Paycycle Period Slabs',
     )
 
-    _sql_constraints = [
-        ('pay_cycle', 'unique(pay_cycle)', "A Pay cycle already exists."),
-    ]
+    _pay_cycle_exists =  models.Constraint(
+        "unique(pay_cycle)",
+        "A Pay cycle already exists.",
+    )
 
     # A pay cycle cannot be deleted if a employee is attached in that paycycle
     def unlink(self):

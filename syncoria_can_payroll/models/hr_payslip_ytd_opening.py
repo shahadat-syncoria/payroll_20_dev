@@ -35,12 +35,10 @@ class HrPayslipYTDOpening(models.Model):
         'employee_opening_ytd_id'
     )
 
-    _sql_constraints = [
-        ('employee_id_year_uni', 'unique(employee_id, year)',
-         'An opening balance for this salary rule already exists for this employee/year.')
-    ]
-
-
+    _employee_id_year_exists = models.Constraint(
+        "unique(employee_id, year)",
+        "An opening balance for this employee/year already exists.",
+    )
 
     @api.depends('version_id')
     def _compute_struct_id(self):
@@ -115,7 +113,7 @@ class HrPayslipYTDOpeningLine(models.Model):
         required=True
     )
 
-    _sql_constraints = [
-        ('unique_line', 'unique(employee_opening_ytd_id, salary_rule_id)',
-         'An opening balance for this salary rule already exists for this employee/year.')
-    ]
+    _unique_line = models.Constraint(
+        "unique(employee_opening_ytd_id, salary_rule_id)",
+        "An opening balance for this salary rule already exists for this employee/year."
+    )
