@@ -83,7 +83,8 @@ class PayslipEmailWizard(models.TransientModel):
                     attachments_vals_list.append(attachment.id)
 
             # Prepare and send the email
-            subject = template.subject.replace('$employee', f" ({recipient.number})").replace('$ref', recipient.name)
+            slip_ref = recipient.name
+            subject = template.subject.replace('$employee', f" ({slip_ref})").replace('$ref', recipient.name or slip_ref)
             body_html = template.body_html.replace('$employee', recipient.employee_id.name)
             mail_values = {
                 'email_from': self.env.user.company_id.email,
