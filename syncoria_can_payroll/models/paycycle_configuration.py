@@ -202,12 +202,17 @@ class PaycyclePeriodYearSlab(models.Model):
         string='Paycycle Periods',
     )
 
-    @api.constrains('year')
+    @api.constrains('year', 'paycycle_config_id')
     def _check_year(self):
-        self.ensure_one()
-        records_count = self.search_count([('year', '=', self.year),('paycycle_config_id', '=', self.paycycle_config_id.id)])
-        if records_count > 1:
-            raise UserError(_("Duplicate Error: Year already exists."))
+        for record in self:
+            records_count = self.search_count([
+                ('year', '=', record.year),
+                ('paycycle_config_id', '=', record.paycycle_config_id.id),
+                ('id', '!=', record.id),
+            ])
+
+            if records_count:
+                raise UserError(_("Duplicate Error: Year already exists."))
 
     @api.onchange('year')
     def _onchange_year(self):
