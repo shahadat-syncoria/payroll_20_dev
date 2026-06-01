@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     "name": "Syncoria Canada Payroll(Ontario)",
-    "version": "19.0.0.3",
+    "version": "19.0.0.4",
     "summary": """
         Module for Canada Payroll
        """,
