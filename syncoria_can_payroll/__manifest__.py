@@ -59,7 +59,7 @@
         "views/report_actions.xml",
         "views/views.xml",
         "views/hr_employee.xml",
-        "views/res_partner.xml",
+        # "views/res_partner.xml",
         # "views/hr_contract.xml",
         "views/hr_payslip.xml",
         "views/hr_payslip_run.xml",
