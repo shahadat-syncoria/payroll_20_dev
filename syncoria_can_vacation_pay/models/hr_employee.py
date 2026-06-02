@@ -29,7 +29,7 @@ class VacationPayslip(models.Model):
         string="Allocation Start", help="0 means immediate start", groups='hr.group_hr_user')
 
     allocated_vacation_leave = fields.Float("Allocated Vacation Leave", default=0.0,store=True,tracking=True,groups='hr_holidays.group_hr_holidays_manager',readonly=True,
-                                            compute='_get_employee_allocated_leave')
+                                            compute='_get_employee_allocated_leave',compute_sudo=True)
     previous_allocated_vacation_leave = fields.Float("Previous Allocated Vacation Leave", default=0.0, tracking=True,
                                             groups='hr_holidays.group_hr_holidays_manager' )
     vacation_leave_write_date = fields.Datetime(string="Last Updated at", groups='hr.group_hr_user')
@@ -40,8 +40,8 @@ class VacationPayslip(models.Model):
     previous_vac_pay_amount = fields.Float("Previous Vacation Pay Amount", default=0.0, groups='hr.group_hr_user')
     vac_pay_amount_taken = fields.Float("Vacation Pay Amount Taken", default=0.0,store=True,readonly=True, groups="hr.group_hr_user")
 
-    allocated_vac_leave = fields.Float("Allocated Vacation Leave Per year",store=True, default=0.0,compute='_get_employee_allocated_leave', groups='hr.group_hr_user')
-    allocated_vac_percentage = fields.Float("Allocated Vacation Percentage",store=True, default=0.0,compute='_get_employee_allocated_leave',groups='hr.group_hr_user')
+    allocated_vac_leave = fields.Float("Allocated Vacation Leave Per year",store=True, default=0.0,compute='_get_employee_allocated_leave',compute_sudo=True, groups='hr.group_hr_user')
+    allocated_vac_percentage = fields.Float("Allocated Vacation Percentage",store=True, default=0.0,compute='_get_employee_allocated_leave',compute_sudo=True,groups='hr.group_hr_user')
     overwrite_allocated_vac_percentage = fields.Float("Overwrite Allocated Vacation Percentage",store=True, default=0.0,groups='hr.group_hr_user') #Need to delete this field
 
     is_adjust_vacation_pay_leave = fields.Boolean("Adjust Vacation Pay With Unpaid Leaves",default=False, groups='hr.group_hr_user')
