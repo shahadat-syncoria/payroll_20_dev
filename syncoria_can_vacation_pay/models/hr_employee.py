@@ -28,7 +28,7 @@ class VacationPayslip(models.Model):
         required=True,
         string="Allocation Start", help="0 means immediate start", groups='hr.group_hr_user')
 
-    allocated_vacation_leave = fields.Float("Allocated Vacation Leave", default=0.0,tracking=True,groups='hr_holidays.group_hr_holidays_manager',readonly=True,
+    allocated_vacation_leave = fields.Float("Allocated Vacation Leave", default=0.0,store=True,tracking=True,groups='hr_holidays.group_hr_holidays_manager',readonly=True,
                                             compute='_get_employee_allocated_leave')
     previous_allocated_vacation_leave = fields.Float("Previous Allocated Vacation Leave", default=0.0, tracking=True,
                                             groups='hr_holidays.group_hr_holidays_manager' )
