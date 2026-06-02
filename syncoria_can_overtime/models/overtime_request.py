@@ -47,7 +47,7 @@ class HrOvertimePayRequest(models.Model):
 
 
     remaining_overtime = fields.Float(string="Remaining Overtime",compute='_compute_remaining_overtime',help="Remaining Overtime")
-    overtime_pay = fields.Float('Duration',help="Requested Overtime Pay")
+    overtime_pay = fields.Float('Overtime Duration',help="Requested Overtime Pay")
 
     @api.depends('employee_id')
     def _compute_remaining_overtime(self):

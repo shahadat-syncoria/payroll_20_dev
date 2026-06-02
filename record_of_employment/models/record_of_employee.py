@@ -136,7 +136,7 @@ class RecordOfEmployee(models.Model):
     )
     payslip_ids = fields.One2many("hr.payslip", "roe_id", string="15c-PaySlip")
     vacation_pay_ids = fields.One2many("hr.vacation.pay", "roe_id", string="Vacation Pay")
-    vacation_amount_ids = fields.One2many("vacation.amount", "roe_id", string="Vacation Pay")
+    vacation_amount_ids = fields.One2many("vacation.amount", "roe_id", string="Vacation Pay Amount")
     statutory_holiday_ids = fields.One2many("statutory.holiday", "roe_id", string="Statutory Holiday Pay")
     other_monies_ids = fields.One2many("other.monies", "roe_id", string="Other Monies")
 

@@ -79,10 +79,10 @@ class InheritedResPartner(models.Model):
     paycycle_wage = fields.Float(string="Pay Cycle Wage", tracking=True)
 
     # =========================== Deductions ===================================
-    rrsp_amount = fields.Float("Employee Portion")
+    rrsp_amount = fields.Float("RRSP Employee Portion")
     rrsp_type = fields.Selection(deduction_amount_type,default="percent")
 
-    employer_rrsp = fields.Float("Employer Portion")
+    employer_rrsp = fields.Float("RRSP Employer Portion")
     employer_rrsp_type = fields.Selection(deduction_amount_type, default="percent")
 
     rrsp_amount_withdraw = fields.Boolean("Can Employee Withdraw RRSP before retirement?")
@@ -108,14 +108,14 @@ class InheritedResPartner(models.Model):
     benefit_plans = fields.Boolean("Benefit Plans",default=False)
 
 
-    life_insurance = fields.Float("Employee Portion")
+    life_insurance = fields.Float("Life Insurance Employee Portion")
     life_insurance_type = fields.Selection(deduction_amount_type, default="percent")
-    life_insurance_employer = fields.Float("Employer Portion")
+    life_insurance_employer = fields.Float("Life Insurance Employer Portion")
     life_insurance_employer_type = fields.Selection(deduction_amount_type, default="percent")
 
-    medical_insurance = fields.Float("Employee Portion")
+    medical_insurance = fields.Float("Medical Insurance Employee Portion")
     medical_insurance_type = fields.Selection(deduction_amount_type, default="percent")
-    medical_insurance_employer = fields.Float("Employer Portion")
+    medical_insurance_employer = fields.Float("Medical Insurance Employer Portion")
     medical_insurance_employer_type = fields.Selection(deduction_amount_type, default="percent")
 
     # To get the paycycle of the employee from its structure_type_id if the paycycle is not selected.

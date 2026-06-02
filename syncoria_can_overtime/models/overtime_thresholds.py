@@ -13,7 +13,7 @@ class OvertimePolicyRule(models.Model):
     _name = 'overtime.thresholds.line'
     _description = 'Overtime Threshold Line'
 
-    overtime_threshold_id = fields.Many2one('overtime.thresholds', string='Overtime Threshold', ondelete='cascade', required=True)
+    overtime_threshold_id = fields.Many2one('overtime.thresholds', string='Overtime Threshold Range', ondelete='cascade', required=True)
     work_entry_id = fields.Many2one("hr.work.entry.type", string ="Work Entry Type",required=True)
     start_threshold = fields.Float(string='Start Threshold (hours)', required=True)
     end_threshold = fields.Float(string='End Threshold (hours)', required=True)

@@ -20,7 +20,7 @@ class InheritedHrPayslipOvertime(models.Model):
     _inherit = 'hr.payslip'
 
     total_stored_overtime = fields.Float("Stored Overtime Hours", related="employee_id.total_stored_overtime")
-    total_stored_overtime_amount = fields.Float("Stored Overtime Hours",
+    total_stored_overtime_amount = fields.Float("Stored Overtime Hours Amount",
                                                 related="employee_id.total_stored_overtime_amount")
 
     overtime_start_date = fields.Date(related="pay_cycle_period.overtime_start_date")
