@@ -705,35 +705,41 @@ class RecordOfEmployee(models.Model):
         }
 
     def send_roe_xml_batch(self):
-        files_list=[]
-        mail_template = self.env.ref('record_of_employment.email_template_batch_roe_xml')
-        mail_template.attachment_ids =[]
+        files_list = []
+        mail_template = self.env.ref(
+            'record_of_employment.email_template_batch_roe_xml'
+        )
+
         for rec in self:
             xml_content = rec.generate_roe_xml()
             rec.xml_content = xml_content
 
             attachment = self.env['ir.attachment'].create({
-                'name':  str(
-                        datetime.now().strftime(f"{rec.employee_id.name.replace(' ', '')}-")) + str(
-                        datetime.now().strftime("%m%d%Y%H%M%S%f")) + ".xml",
+                'name': f"{rec.employee_id.name.replace(' ', '')}-{datetime.now():%m%d%Y%H%M%S%f}.xml",
                 'raw': xml_content,
                 'res_id': rec.id,
                 'res_model': 'record.of.employee',
                 'type': 'binary',
                 'mimetype': 'application/xml',
             })
+
             files_list.append((4, attachment.id))
 
-
-        # mail_template.attachment_ids = files_list
         email_values = {
-            "attachment_ids":files_list
+            'email_to': self.env.user.email,
+            'attachment_ids': files_list,
         }
 
         try:
-            mail_template.send_mail(rec.id, force_send=True, raise_exception=True,email_values=email_values)
+            mail_template.send_mail(
+                self[-1].id,  # or rec.id after the loop
+                force_send=True,
+                raise_exception=True,
+                email_values=email_values,
+            )
             message = "Your email has been sent."
             notification_type = 'success'
+
         except Exception as e:
             message = f"Error occurred while sending email: {str(e)}"
             notification_type = 'danger'
