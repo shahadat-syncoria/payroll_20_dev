@@ -110,7 +110,7 @@ class VacationPayslip(models.Model):
         # if get_gross:
         # amount = get_gross[0].get('amount')
         amount = version_id.wage * 12
-        hourly_amount = version_id.hourly_rate if version_id.is_hourly else self.fixed_wage_hourly_rate
+        hourly_amount = version_id.hourly_wage if version_id.is_hourly else self.fixed_wage_hourly_rate
         if hourly_amount > 0.0:
             # vacation_slab_id = self.env['hr.vacation.slab'].search(
             #     [
