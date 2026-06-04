@@ -13,7 +13,6 @@ patch(VersionPayrunListController.prototype, {
     buildRawRecord(rawRecord) {
         // Original clean fields from parent
         const result = super.buildRawRecord(rawRecord);
-
         // Add your fields, but always convert to SCALAR values only
         return {
             ...result,
@@ -62,7 +61,9 @@ patch(VersionPayrunListController.prototype, {
                 raw_record: this.model.root.data,
                 date_start: this.props.context.date_start,
                 date_end: this.props.context.date_end,
-                pay_cycle_period:this.props.context.pay_cycle_period
+                pay_cycle_period:this.props.context.pay_cycle_period,
+                pay_cycle: this.props.context.pay_cycle,
+
             },
         });
     }

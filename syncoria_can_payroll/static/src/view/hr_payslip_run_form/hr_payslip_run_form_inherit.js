@@ -33,6 +33,7 @@ patch(PayslipBatchFormController.prototype ,{
                 date_end: this.model.root.data.date_end,
                 pay_cycle_period:this.model.root.data.pay_cycle_period,
                 raw_record: this.model.root.data,
+                pay_cycle: pay_cycle
             },
         });
 

@@ -13,7 +13,7 @@ _logger = logging.getLogger(__name__)
 class PayrollHrPayslipRun(models.Model):
     _inherit = 'hr.payslip.run'
 
-    pay_cycle = fields.Many2one('paycycle.config')
+    pay_cycle = fields.Many2one('paycycle.config',store=True)
     pay_cycle_period = fields.Many2one('paycycle.period' , store=True)
     pay_cycle_period_ids_domain = fields.Binary(
         compute='_compute_pay_cycle_period_domain', readonly=True,
@@ -25,6 +25,14 @@ class PayrollHrPayslipRun(models.Model):
         default=str(fields.Date.today().year), readonly=True)
 
     is_manual_input = fields.Boolean(compute='_compute_is_manual_input')
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        for vals in vals_list:
+            if vals.get('pay_cycle_period'):
+                period = self.env['paycycle.period'].browse(vals['pay_cycle_period'])
+                vals['name'] = period.name
+        return super().create(vals_list)
 
     @api.onchange('pay_cycle')
     def _onchage_schedule_pay(self):

@@ -134,6 +134,13 @@ class SyncoriaHrEmployeeManualWizard(models.TransientModel):
         self.ensure_one()
         ctx = self.env.context
         pay_cycle_period = ctx.get("pay_cycle_period")
+        # pay_cycle = ctx.get("pay_cycle")
+        pay_cycle = self.env['paycycle.config'].browse(
+            self.env.context.get('pay_cycle', {}).get('id')
+        )
+        year =  self.env['paycycle.period'].browse(
+            self.env.context.get('pay_cycle_period', {}).get('id')
+        ).year
 
         # --------------------------------------------------
         # 1️⃣ Resolve or create payslip run
@@ -160,7 +167,8 @@ class SyncoriaHrEmployeeManualWizard(models.TransientModel):
                 )
 
             payslip_run = self.env['hr.payslip.run'].create({
-                'name': name,
+                'name': f"{pay_cycle_period['display_name'] } - {year}" ,
+                'pay_cycle': pay_cycle.id,
                 'date_start': date_start,
                 'date_end': date_end,
                 'company_id': self.env.company.id,

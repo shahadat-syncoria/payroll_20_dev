@@ -54,7 +54,7 @@ class InheritedHrPayslip(models.Model):
     fixed_wage_hourly_rate = fields.Float(string="Fixed Wage Hourly Rate", help="Hourly Rate for fixed wage employee.",
                                           compute='_compute_fixed_wage_hourly_rate')
 
-    @api.depends('employee_id.paycycle_wage')
+    @api.depends('employee_id.paycycle_wage', 'pay_cycle')
     def _compute_fixed_wage_hourly_rate(self):
         for slip in self:
             weeks_in_year = iso_weeks_in_year(slip.year)
@@ -63,6 +63,8 @@ class InheritedHrPayslip(models.Model):
                 slip.fixed_wage_hourly_rate = round((employee.paycycle_wage * len(slip.pay_cycle_period_ids_domain)) / (
                         employee.resource_calendar_id.full_time_required_hours * weeks_in_year
                 ), 2)
+            else:
+                slip.fixed_wage_hourly_rate = 0.0
 
     def _compute_is_manual_input(self):
         with_user = self.env['ir.config_parameter'].sudo()
@@ -117,6 +119,8 @@ class InheritedHrPayslip(models.Model):
                 rec.update({
                     'year':rec.payslip_run_id.pay_cycle_year,
                     'pay_cycle_period': rec.payslip_run_id.pay_cycle_period,
+                    'date_from': rec.payslip_run_id.date_start,
+                    'date_to': rec.payslip_run_id.date_end
                 })
 
     def action_payslip_paid(self):

@@ -19,7 +19,7 @@ class SyncoriaWorkedDays(models.Model):
             if rec.payslip_id.struct_id not in rec.work_entry_type_id.unpaid_structure_ids:
                 if rec.work_entry_type_id.code in ["WORK100", "TIMESHEET_WORK100"]:
                     # rec.amount =  rec.payslip_id.version_id.contract_wage * rec.number_of_hours / (rec.payslip_id.sum_worked_hours or 1) if rec.payslip_id.version_id.is_fixed else hourly_wage * rec.number_of_hours
-                    rec.amount = rec.payslip_id.version_id.paycycle_wage if rec.payslip_id.version_id.is_fixed else hourly_wage * rec.number_of_hours
+                    rec.amount = rec.payslip_id.employee_id.paycycle_wage if rec.payslip_id.employee_id.is_fixed else hourly_wage * rec.number_of_hours
                 if rec.work_entry_type_id.is_leave:
                     rec.amount = hourly_wage * rec.number_of_hours
                 # if  rec.work_entry_type_id.is_leave and rec.work_entry_type_id.is_negative_amount:
