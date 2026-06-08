@@ -54,6 +54,7 @@ class InheritedHrPayslip(models.Model):
     fixed_wage_hourly_rate = fields.Float(string="Fixed Wage Hourly Rate", help="Hourly Rate for fixed wage employee.",
                                           compute='_compute_fixed_wage_hourly_rate')
 
+
     @api.depends('employee_id.paycycle_wage', 'pay_cycle')
     def _compute_fixed_wage_hourly_rate(self):
         for slip in self:
@@ -82,6 +83,70 @@ class InheritedHrPayslip(models.Model):
                     'year' :slip.payslip_run_id.pay_cycle_year,
                     'pay_cycle_period': slip.payslip_run_id.pay_cycle_period if slip.payslip_run_id.pay_cycle_period else slip.pay_cycle_period,
                 })
+
+    # over writing the function to remove the unnecessary warnings
+    def _get_warnings_by_slip(self):
+        similar_payslips = self._get_similar_payslips()
+        warnings_by_slip = {slip: [] for slip in self}
+
+        for slip in self.filtered(lambda s: (
+            s.state in ['draft', 'validated'] and s.date_from and s.date_to
+        )):
+            warnings = []
+            # if slip.struct_id.use_worked_day_lines \
+            #         and (slip.version_id.structure_type_id.default_schedule_pay) \
+            #         and slip.date_from \
+            #         and slip.date_from + slip._get_schedule_timedelta() != slip.date_to:
+            #     warnings.append({
+            #         'message': _("The duration of the payslip is not accurate according to the structure type."),
+            #         'level': 'warning',
+            #     })
+
+            if slip.employee_id and slip.struct_id and slip.date_from and slip.date_to:
+                key = (slip.employee_id.id, slip.struct_id.id, slip.date_from, slip.date_to)
+                duplicates = similar_payslips[key].filtered(lambda dup: dup.id != slip.id)
+                # Ignore duplicate warning if this slip is a refund of the original
+                if duplicates:
+                    related_payslips = self.env['hr.payslip']
+                    if slip.origin_payslip_id:
+                        related_payslips |= slip.origin_payslip_id | slip.origin_payslip_id.related_payslip_ids
+                    if slip.related_payslip_ids:
+                        related_payslips |= slip.related_payslip_ids
+                    duplicates -= related_payslips
+
+                if duplicates:
+                    warnings.append({
+                        'message': _("Similar payslips found"),
+                        'action_text': _('Duplicate(s)'),
+                        'action': duplicates._get_records_action(),
+                        'level': 'warning',
+                    })
+            warnings_by_slip[slip] = warnings
+
+        # Payment report related errors
+        for employee_banks, slips in self.filtered(
+            lambda ps: ps.state == 'validated'
+        ).grouped(
+            lambda ps: ps.employee_id.bank_account_ids
+        ).items():
+            if not employee_banks:
+                for slip in slips:
+                    warnings_by_slip[slip].append({
+                        'message': _("Missing bank account on employee"),
+                        'action_text': _('Employee'),
+                        'action': slip.employee_id._get_records_action(),
+                        'level': 'warning',
+                    })
+            elif any(not b.allow_out_payment for b in employee_banks):
+                warning = {
+                    'message': _("Untrusted bank accounts"),
+                    'action_text': _('Bank Accounts'),
+                    'action': employee_banks._get_records_action(),
+                    'level': 'warning',
+                }
+                for slip in slips:
+                    warnings_by_slip[slip].append(warning)
+        return warnings_by_slip
 
     # ======================================================
 
