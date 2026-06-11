@@ -111,8 +111,8 @@ def migrate(cr, version):
         return
 
     _logger.info("syncoria_can_payroll post-migration %s -> starting", version)
-    _sync_identification_id(cr)
-    # _sync_contract_notes(cr)
+    # _sync_identification_id(cr)
+    _sync_contract_notes(cr)
 
     _logger.info("syncoria_can_payroll post-migration %s -> finished", version)
 
