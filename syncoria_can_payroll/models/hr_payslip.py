@@ -60,7 +60,7 @@ class InheritedHrPayslip(models.Model):
         for slip in self:
             weeks_in_year = iso_weeks_in_year(slip.year)
             employee = slip.employee_id
-            if employee.is_fixed:
+            if employee.wage_type == "monthly":
                 slip.fixed_wage_hourly_rate = round((employee.paycycle_wage * len(slip.pay_cycle_period_ids_domain)) / (
                         employee.resource_calendar_id.full_time_required_hours * weeks_in_year
                 ), 2)
