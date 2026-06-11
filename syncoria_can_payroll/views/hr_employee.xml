@@ -274,7 +274,9 @@
                         <field name="rrsp_amount_withdraw"/>
                     </group>
                     <!--                    </group>-->
-
+                     <group name="notes_group" string="Notes">
+                                    <field name="notes" nolabel="1" colspan="2" placeholder="Type in notes about this contract..."/>
+                                </group>
                 </xpath>
                 <!--                <xpath expr="//div[@name='wage']" position="attributes">-->
                 <!--                    <attribute name="invisible">1</attribute>-->

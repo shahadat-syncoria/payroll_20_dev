@@ -118,6 +118,10 @@ class InheritedResPartner(models.Model):
     medical_insurance_employer = fields.Float("Medical Insurance Employer Portion")
     medical_insurance_employer_type = fields.Selection(deduction_amount_type, default="percent")
 
+    # =========================== Notes which was in v17  ===================================
+    notes = fields.Html("Notes")
+
+
     # To get the paycycle of the employee from its structure_type_id if the paycycle is not selected.
     @api.model_create_multi
     def create(self, vals_list):

@@ -180,6 +180,9 @@ class InhertitedHrEmployee(models.Model):
     medical_insurance_employer = fields.Float(readonly=False, related="version_id.medical_insurance_employer", inherited=True, groups="hr.group_hr_manager")
     medical_insurance_employer_type = fields.Selection(readonly=False, related="version_id.medical_insurance_employer_type", inherited=True, groups="hr.group_hr_manager")
 
+    # =========================== Notes which was in v17  ===================================
+    notes = fields.Html(readonly=False, related="version_id.notes", inherited=True, groups="hr.group_hr_manager")
+
     _identification_id_len = models.Constraint(
         "CHECK (LENGTH(identification_id) = 9)",
         "Social Insurance Number Must be of 9 digits.",
