@@ -24,6 +24,8 @@ PAYGROUP = {
 class InheritedHrPayslip(models.Model):
     _inherit = 'hr.payslip'
 
+    number = fields.Char(
+        string='Reference', copy=False)
     paid_date = fields.Date(string="Paid Date", readonly=True, store=True, copy=False,
                   )
     pay_date = fields.Date(related="pay_cycle_period.pay_date")

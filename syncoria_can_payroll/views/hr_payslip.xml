@@ -59,5 +59,17 @@
                 </xpath>
             </field>
         </record>
+
+        <record id="hr_payslip_form_number_added" model="ir.ui.view">
+            <field name="name">syncoria_can_payroll.hr_payslip.form.number</field>
+            <field name="model">hr.payslip</field>
+            <field name="inherit_id" ref="hr_payroll.view_hr_payslip_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//div[@name='title']/h1" position="after">
+                    <h2 invisible="state == 'draft'"><field name="number" readonly="state not in ['draft',]"/></h2>
+                </xpath>
+
+            </field>
+        </record>
     </data>
 </odoo>
