@@ -35,12 +35,12 @@ patch(VersionPayrunListController.prototype, {
         const selectedEmployeeIds = employeeIds.map(r => r.employee_id[0]);
         const payslipRunId = this.props.context.payslip_run_id;
 
-        if (!selectedEmployeeIds.length) {
-            return this.displayNotification({
-                type: "warning",
-                message: "Please select at least one employee.",
-            });
-        }
+//        if (!selectedEmployeeIds.length) {
+//            return this.displayNotification({
+//                type: "warning",
+//                message: "Please select at least one employee.",
+//            });
+//        }
 
         const employeeListAction = await this.orm.call(
             "hr.payslip.run",
