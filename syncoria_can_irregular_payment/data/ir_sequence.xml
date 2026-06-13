@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <data>
+    <data noupdate="1">
         <record id="seq_hr_irregular_pay" model="ir.sequence">
             <field name="name">Irregular Pay</field>
             <field name="code">hr.irregular.pay</field>
