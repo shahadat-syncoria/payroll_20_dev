@@ -13,7 +13,7 @@ class SyncoriaWorkedDays(models.Model):
         for rec in self:
             weeks_in_year = iso_weeks_in_year(rec.payslip_id.year)
             if rec.payslip_id.employee_id.is_hourly:
-                hourly_wage = rec.employee_id.version_id.hourly_wage
+                hourly_wage = rec.employee_id.hourly_wage
             else:
                 hourly_wage = rec.payslip_id.fixed_wage_hourly_rate
             if rec.payslip_id.struct_id not in rec.work_entry_type_id.unpaid_structure_ids:
