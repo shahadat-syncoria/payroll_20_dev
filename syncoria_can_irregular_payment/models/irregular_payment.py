@@ -44,6 +44,8 @@ class HrIrregularPayment(models.Model):
         ('bonus', 'Bonus'),
         ('retro', 'Retro Pay'),
         ('commission', 'Commission'),
+        ('allowance', 'Allowance')
+
     ], default='bonus', required=True, store=True)
     amount_type = fields.Selection([
         # ('percent','%'),

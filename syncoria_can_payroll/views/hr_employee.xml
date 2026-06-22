@@ -163,7 +163,12 @@
                         </field>
                     </page>
                 </xpath>
+                <xpath expr="//label[@for='wage']" position="replace">
 
+                </xpath>
+                <xpath expr="//div[@name='wage']" position="replace">
+
+                </xpath>
                 <xpath expr="//group[@name='managers']" position="after">
                     <group name="payroll_settings" string="Payroll">
                         <field name="territory_of_employment"/>
@@ -203,7 +208,7 @@
                         <field name="federal_claim_code_from_td1"/>
                         <field name="proviancial_amount_from_td1"/>
                         <field name="provincial_claim_code_from_td1"/>
-<!--                        <field name="deductions" required="1"/>-->
+                        <!--                        <field name="deductions" required="1"/>-->
                     </group>
                     <group name="deductions" string="Deductions">
 
@@ -274,9 +279,9 @@
                         <field name="rrsp_amount_withdraw"/>
                     </group>
                     <!--                    </group>-->
-                     <group name="notes_group" string="Notes">
-                                    <field name="notes" nolabel="1" colspan="2" placeholder="Type in notes about this contract..."/>
-                                </group>
+                    <group name="notes_group" string="Notes">
+                        <field name="notes" nolabel="1" colspan="2" placeholder="Type in notes about this contract..."/>
+                    </group>
                 </xpath>
                 <!--                <xpath expr="//div[@name='wage']" position="attributes">-->
                 <!--                    <attribute name="invisible">1</attribute>-->
@@ -298,6 +303,12 @@
                     <field name="payroll_account_number" string="Payroll Account Number" readonly="1"/>
                     <field name="employee_prpp_dpsp_rgst_nbr"/>
                 </field>
+
+                <xpath expr="//span[@class='mx-2']" position="replace">
+                </xpath>
+                <xpath expr="//field[@name='schedule_pay']" position="replace">
+                </xpath>
+
             </field>
         </record>
 
