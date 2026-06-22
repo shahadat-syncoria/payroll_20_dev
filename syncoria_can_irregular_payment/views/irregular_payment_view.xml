@@ -77,7 +77,7 @@
                     <field name="date"/>
                     <field name="department_id" optional="show"/>
                     <field name="paycycle_ids" optional="show"/>
-                    <field decoration-info="state == 'draft'" decoration-success="state == state in ('validate','paid')" decoration-warning="state in ('refuse','cancel')" name="state" widget="badge"/>
+                    <field decoration-info="state == 'draft'" decoration-success="state in ('validate','paid')" decoration-warning="state in ('refuse','cancel')" name="state" widget="badge"/>
                 </list></field>
         </record>
         <record id="hr_irregular_pay_search_view" model="ir.ui.view">

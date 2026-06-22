@@ -55,6 +55,7 @@ class HrIrregularPayment(models.Model):
         ('to_approve', 'To Approve'),
         ('validate', 'Approved'),
         ('paid', 'Paid'),
+        ('refuse','Refuse'),
         ('cancel', 'Cancel')
     ], string='Status', store=True, tracking=True, copy=False, readonly=False, default='draft'
     )
