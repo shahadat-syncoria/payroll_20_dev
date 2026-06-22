@@ -10,18 +10,14 @@ class VacationHrPayslipInput(models.Model):
 class IrregularPayslip(models.Model):
     _inherit = 'hr.payslip'
 
-    # def _calculate_irregular_pay(self, employee,irre_pay_ids):
-    #
-    #     amount = self.amount
-    #
-    #     return amount
 
     def compute_sheet(self):
         for rec in self:
             bonus_input_type = rec.env.ref('syncoria_can_irregular_payment.input_ca_bonus_pay').id
             retro_input_type = rec.env.ref('syncoria_can_irregular_payment.input_ca_retro_pay').id
             commission_input_type = rec.env.ref('syncoria_can_irregular_payment.input_ca_commission').id
-            payslips = rec.filtered(lambda slip: slip.state in ['draft', 'validated'])
+            allowance_input_type = rec.env.ref('syncoria_can_irregular_payment.input_ca_allowance_pay').id
+            payslips = rec.filtered(lambda slip: slip.state in ['draft', 'verify'])
             for payslip in payslips:
                 try:
                     des_name = ","
@@ -31,7 +27,7 @@ class IrregularPayslip(models.Model):
                         lambda x: x.irr_pay_id.state == 'validate' and payslip.date_to >= x.irr_pay_id.date )
                     if irregular_employee_wise_pay_ids:
                         payslip.input_line_ids.filtered(
-                            lambda x: x.input_type_id.id in [bonus_input_type, retro_input_type,commission_input_type]).unlink()
+                            lambda x: x.input_type_id.id in [bonus_input_type, retro_input_type,commission_input_type,allowance_input_type]).unlink()
                 # HASH use
                     irregular_type_wise = {
                         "bonus": {'input_type_id': bonus_input_type, 'name': '', 'irregular_pay_req_ref': '',
@@ -40,6 +36,8 @@ class IrregularPayslip(models.Model):
                                   'amount': 0.0},
                         "commission": {'input_type_id': commission_input_type, 'name': '', 'irregular_pay_req_ref': '',
                                   'amount': 0.0},
+                        "allowance": {'input_type_id': allowance_input_type, 'name': '', 'irregular_pay_req_ref': '',
+                                       'amount': 0.0},
                     }
                     for ir_pay in irregular_employee_wise_pay_ids:
                         irre_pay_id = ir_pay.irr_pay_id
@@ -61,6 +59,12 @@ class IrregularPayslip(models.Model):
                             irregular_type_wise['commission']['irregular_pay_req_ref'] = irregular_type_wise['commission']['irregular_pay_req_ref']+des_name.join(
                                 ir_pay.mapped('irr_pay_id.name') )
                             irregular_type_wise['commission']['amount'] += abs(ir_pay.amount)
+                        elif irre_pay_id.payment_type == 'allowance':
+                            irregular_type_wise['allowance']['name'] += des_name.join(
+                                ir_pay.mapped('irr_pay_id.description')) + ","
+                            irregular_type_wise['allowance']['irregular_pay_req_ref'] = irregular_type_wise['allowance']['irregular_pay_req_ref']+des_name.join(
+                                ir_pay.mapped('irr_pay_id.name') )
+                            irregular_type_wise['allowance']['amount'] += abs(ir_pay.amount)
 
 
                     # if not irregular_employee_wise_pay_ids:
@@ -90,6 +94,13 @@ class IrregularPayslip(models.Model):
                         'irregular_pay_req_ref': irregular_type_wise['commission']['irregular_pay_req_ref'] or "",
                         'amount': irregular_type_wise['commission']['amount'] or "",
                     }))
+                    if irregular_type_wise['allowance']['amount'] > 0.0:
+                        inputs_line.append((0, 0, {
+                            'input_type_id': allowance_input_type,
+                            'name': irregular_type_wise['allowance']['name'].rstrip(',') or "",
+                            'irregular_pay_req_ref': irregular_type_wise['allowance']['irregular_pay_req_ref'] or "",
+                            'amount': irregular_type_wise['allowance']['amount'] or "",
+                        }))
 
 
                     payslip.write({'input_line_ids': inputs_line})
@@ -113,6 +124,7 @@ class IrregularPayslip(models.Model):
         bonus_input_type = self.env.ref('syncoria_can_irregular_payment.input_ca_bonus_pay').id
         retro_input_type = self.env.ref('syncoria_can_irregular_payment.input_ca_retro_pay').id
         commission_input_type = self.env.ref('syncoria_can_irregular_payment.input_ca_commission').id
+        allowance_input_type = self.env.ref('syncoria_can_irregular_payment.input_ca_allowance_pay').id
         employee_wise_irregular_pay_req = self.env['employee.wise.irregular.pay']
         for rec in self:
             if rec.state == 'paid':
@@ -144,6 +156,17 @@ class IrregularPayslip(models.Model):
                 for commission in commission_req_ids:
                     ir_id = employee_wise_irregular_pay_req.search(
                         [('irr_pay_id', '=', commission), ('employee_id', '=', rec.employee_id.id)], limit=1)
+                    if ir_id:
+                        ir_id.write({
+                            'pay_status': True
+                        })
+                allowance_input_line_ids = rec.input_line_ids.filtered(
+                    lambda x: x.input_type_id.id == allowance_input_type)
+                allowance_req_ids = allowance_input_line_ids.irregular_pay_req_ref.split(
+                    ',') if allowance_input_line_ids.irregular_pay_req_ref else []
+                for allowance in allowance_req_ids:
+                    ir_id = employee_wise_irregular_pay_req.search(
+                        [('irr_pay_id', '=', allowance), ('employee_id', '=', rec.employee_id.id)], limit=1)
                     if ir_id:
                         ir_id.write({
                             'pay_status': True
