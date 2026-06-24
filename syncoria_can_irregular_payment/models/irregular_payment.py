@@ -144,7 +144,10 @@ class EmployeeWiseIrregularPay(models.Model):
         return self.irr_pay_id.amount or 0.0
 
     def _get_available_contracts_domain(self):
-        return [('version_ids.state', 'in', ('open', 'close')), ('company_id', '=', self.env.company.id)]
+        return [
+            ('version_ids.active', '=', True),
+            ('company_id', '=', self.env.company.id),
+        ]
 
     irr_pay_id = fields.Many2one('hr.irregular.pay')
     employee_id = fields.Many2one('hr.employee',domain=lambda self:self._get_available_contracts_domain())
