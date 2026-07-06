@@ -1,0 +1,201 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <template id="report_payslip_line_row">
+        <t t-set="line_styling" t-value="line.get_payslip_styling_dict()"/>
+        <t t-set="line_style" t-value="line_styling.get('line_style')"/>
+        <t t-set="line_class" t-value="line_styling.get('line_class')"/>
+        <t t-set="line_display_name" t-value="'Salary' if (line.name or '').strip() == 'Taxable Salary' else line.name"/>
+
+        <tr id="line_display">
+            <td id="payslip_line_name" t-att-class="line_class" t-att-style="line_style">
+                <span t-out="line_display_name"/>
+            </td>
+            <td id="payslip_line_amount" t-attf-class="#{line_class} text-end" t-att-style="line_style">
+                <span t-out="line.amount"
+                      t-if="line.quantity > 1 or line.rate &lt; 100"
+                      t-options='{"widget": "monetary", "display_currency": o.company_id.currency_id}'
+                      t-att-style="'color:#875A7B;' if line.amount &lt; 0 else ''"/>
+            </td>
+            <td id="payslip_line_quantity" t-attf-class="#{line_class} text-end" t-att-style="line_style">
+                <span t-if="line.quantity > 1"
+                      t-out="round(line.quantity, 2)"
+                      t-att-style="'color:#875A7B;' if line.quantity &lt; 0 else ''"/>
+            </td>
+            <td id="payslip_line_rate" t-attf-class="#{line_class} text-end" t-att-style="line_style">
+                <span t-if="line.rate &lt; 100"
+                      t-out="str(round(line.rate, 2)) + ' %'"
+                      t-att-style="'color:#875A7B;' if line.rate &lt; 0 else ''"/>
+            </td>
+            <td id="payslip_line_total" t-attf-class="#{line_class} text-end" t-att-style="line_style">
+                <span t-out="line.total"
+                      t-options='{"widget": "monetary", "display_currency": o.company_id.currency_id}'
+                      t-att-style="'color:#875A7B;' if line.total &lt; 0 else ''"/>
+            </td>
+            <td id="payslip_line_ytd" t-if="o.ytd_computation" class="text-end">
+                <span t-esc="line.ytd"
+                      t-options="{'widget': 'monetary', 'display_currency': o.company_id.currency_id}"
+                      t-att-style="'color:#875A7B;' if line.ytd &lt; 0 else ''"/>
+            </td>
+        </tr>
+    </template>
+
+    <template id="report_payslip_inherit" inherit_id="hr_payroll.report_payslip">
+        <xpath expr="//th[@id='work_days_header_name']" position="replace">
+            <th id="work_days_header_name">Summary</th>
+        </xpath>
+
+        <xpath expr="//tbody[@id='worked_days_lines']/t[@t-set='worked_days_lines']" position="after">
+            <t t-set="worked_days_hours_ytd_map" t-value="o._get_worked_days_hours_ytd_map()"/>
+        </xpath>
+
+        <xpath expr="//td[@id='worked_days_ytd']" position="replace">
+            <td id="worked_days_ytd" t-if="o.ytd_computation" class="text-end">
+                <span t-out="round(worked_days_hours_ytd_map.get(worked_days.code, 0.0), 2)"/>
+            </td>
+        </xpath>
+
+        <xpath expr="//td[@id='worked_days_total_ytd']" position="replace">
+            <td id="worked_days_total_ytd" t-if="o.ytd_computation" t-attf-class="#{line_class} text-end" t-att-style="line_style">
+                <span t-out="round(sum(worked_days_hours_ytd_map.values()), 2)"/>
+            </td>
+        </xpath>
+
+        <xpath expr="//div[@id='worked_days_table']" position="before">
+            <div id="insurable_hours" t-if="o.use_worked_day_lines">
+                <strong class="me-2">Insurable Hours:</strong>
+                <span t-out="round(o._get_insurable_hours(), 2)"/>
+                <span class="ms-1">Hours</span>
+                <t t-if="o.ytd_computation">
+                    <strong class="ms-4 me-2">YTD:</strong>
+                    <span t-out="round(o._get_insurable_hours_ytd(), 2)"/>
+                    <span class="ms-1">Hours</span>
+                </t>
+            </div>
+        </xpath>
+
+        <xpath expr="//div[@id='worked_days_table']//tr[td[normalize-space()='Total']]" position="replace"/>
+
+        <xpath expr="//tbody[@id='payslip_lines']" position="replace">
+            <tbody id="payslip_lines">
+                <t t-set="earnings_lines"
+                   t-value="o.line_ids.filtered(
+                        lambda l: l.appears_on_payslip and (
+                            l.category_id.code in ['GROSS', 'ADD_ALLOWANCE'] or
+                            (l.category_id.name or '').strip().lower() in ['taxable salary', 'additional allowance']
+                        )
+                    ).sorted(key=lambda l: l.sequence)"/>
+
+                <t t-set="deduction_lines"
+                   t-value="o.line_ids.filtered(
+                        lambda l: l.appears_on_payslip and (
+                            l.category_id.code in ['DED'] or
+                            (l.category_id.name or '').strip().lower() == 'deduction'
+                        )
+                    ).sorted(key=lambda l: l.sequence)"/>
+
+                <t t-set="withholding_lines"
+                   t-value="o.line_ids.filtered(
+                        lambda l: l.appears_on_payslip and (
+                            l.category_id.code in ['EMPLOYER_CONTRIBUTION'] or
+                            (l.category_id.name or '').strip().lower() == 'company contribution'
+                        )
+                    ).sorted(key=lambda l: l.sequence)"/>
+
+                <t t-set="net_pay_lines"
+                   t-value="o.line_ids.filtered(
+                        lambda l: l.appears_on_payslip and (
+                            l.category_id.code in ['NET'] or
+                            (l.category_id.name or '').strip().lower() == 'net'
+                        )
+                    ).sorted(key=lambda l: l.sequence)"/>
+
+                <t t-set="other_lines"
+                   t-value="o.line_ids.filtered(
+                        lambda l: l.appears_on_payslip and l.category_id.code not in [
+                            'GROSS', 'ADD_ALLOWANCE', 'DED', 'EMPLOYER_CONTRIBUTION', 'NET'
+                        ] and (l.category_id.name or '').strip().lower() not in [
+                            'taxable salary', 'additional allowance', 'deduction', 'company contribution', 'net'
+                        ]
+                    ).sorted(key=lambda l: l.sequence)"/>
+
+                <t t-if="earnings_lines">
+                    <tr class="table-active fw-bold">
+                        <td t-att-colspan="6 if o.ytd_computation else 5">Gross Income</td>
+                    </tr>
+                    <t t-foreach="earnings_lines" t-as="line">
+                        <t t-call="syncoria_can_payroll.report_payslip_line_row"/>
+                    </t>
+                    <tr class="fw-bold border-top">
+                        <td colspan="4" class="text-start">Total Gross Income</td>
+                        <td class="text-end">
+                            <span t-out="sum(earnings_lines.mapped('total'))"
+                                  t-options='{"widget": "monetary", "display_currency": o.company_id.currency_id}'/>
+                        </td>
+                        <td t-if="o.ytd_computation" class="text-end">
+                            <span t-out="sum(earnings_lines.mapped('ytd'))"
+                                  t-options='{"widget": "monetary", "display_currency": o.company_id.currency_id}'/>
+                        </td>
+                    </tr>
+                </t>
+
+                <t t-if="deduction_lines">
+                    <tr class="table-active fw-bold">
+                        <td t-att-colspan="6 if o.ytd_computation else 5">Deductions</td>
+                    </tr>
+                    <t t-foreach="deduction_lines" t-as="line">
+                        <t t-call="syncoria_can_payroll.report_payslip_line_row"/>
+                    </t>
+                    <tr class="fw-bold border-top">
+                        <td colspan="4" class="text-start">Total Deductions</td>
+                        <td class="text-end">
+                            <span t-out="sum(deduction_lines.mapped('total'))"
+                                  t-options='{"widget": "monetary", "display_currency": o.company_id.currency_id}'/>
+                        </td>
+                        <td t-if="o.ytd_computation" class="text-end">
+                            <span t-out="sum(deduction_lines.mapped('ytd'))"
+                                  t-options='{"widget": "monetary", "display_currency": o.company_id.currency_id}'/>
+                        </td>
+                    </tr>
+                </t>
+
+                <t t-if="net_pay_lines">
+                    <tr class="table-active fw-bold">
+                        <td t-att-colspan="6 if o.ytd_computation else 5">Net Pay</td>
+                    </tr>
+                    <t t-foreach="net_pay_lines" t-as="line">
+                        <t t-call="syncoria_can_payroll.report_payslip_line_row"/>
+                    </t>
+                </t>
+
+                <t t-if="withholding_lines">
+                    <tr class="table-active fw-bold">
+                        <td t-att-colspan="6 if o.ytd_computation else 5">Withholdings</td>
+                    </tr>
+                    <t t-foreach="withholding_lines" t-as="line">
+                        <t t-call="syncoria_can_payroll.report_payslip_line_row"/>
+                    </t>
+                    <tr class="fw-bold border-top">
+                        <td colspan="4" class="text-start">Total Withholdings</td>
+                        <td class="text-end">
+                            <span t-out="sum(withholding_lines.mapped('total'))"
+                                  t-options='{"widget": "monetary", "display_currency": o.company_id.currency_id}'/>
+                        </td>
+                        <td t-if="o.ytd_computation" class="text-end">
+                            <span t-out="sum(withholding_lines.mapped('ytd'))"
+                                  t-options='{"widget": "monetary", "display_currency": o.company_id.currency_id}'/>
+                        </td>
+                    </tr>
+                </t>
+
+                <t t-if="other_lines">
+                    <tr class="table-active fw-bold">
+                        <td t-att-colspan="6 if o.ytd_computation else 5">Others</td>
+                    </tr>
+                    <t t-foreach="other_lines" t-as="line">
+                        <t t-call="syncoria_can_payroll.report_payslip_line_row"/>
+                    </t>
+                </t>
+            </tbody>
+        </xpath>
+    </template>
+</odoo>

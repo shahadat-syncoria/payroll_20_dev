@@ -40,11 +40,11 @@ class HrPayslipYTDOpening(models.Model):
         "An opening balance for this employee/year already exists.",
     )
 
-    @api.depends('version_id')
+    @api.depends('version_id', 'employee_id')
     def _compute_struct_id(self):
-        for slip in self.filtered(lambda p: not p.struct_id):
-            slip.struct_id = slip.version_id.structure_type_id.default_struct_id \
-                             or slip.employee_id.version_id.structure_type_id.default_struct_id
+        for slip in self:
+            version = slip.version_id or slip.employee_id.version_id
+            slip.struct_id = version.structure_type_id.default_struct_id if version else False
 
     @api.depends('employee_id', 'contract_domain_ids')
     def _compute_version_id(self):
@@ -54,11 +54,7 @@ class HrPayslipYTDOpening(models.Model):
             slip.version_id = False
             if not slip.employee_id or not slip.contract_domain_ids:
                 continue
-            # Add a default contract if not already defined or invalid
-            contracts = slip.contract_domain_ids.filtered(lambda c: c.state == 'open')
-            if not contracts:
-                continue
-            slip.version_id = contracts[0]._origin
+            slip.version_id = slip.contract_domain_ids[0]._origin
 
     @api.depends('company_id', 'employee_id')
     def _compute_contract_domain_ids(self):
@@ -66,7 +62,7 @@ class HrPayslipYTDOpening(models.Model):
             payslip.contract_domain_ids = self.env['hr.version'].search([
                 ('company_id', '=', payslip.company_id.id),
                 ('employee_id', '=', payslip.employee_id.id),
-                ('state', 'in', ['open', 'close']),
+                ('active', '!=', False),
             ])
 
     @api.onchange('employee_id','struct_id')
@@ -105,7 +101,8 @@ class HrPayslipYTDOpeningLine(models.Model):
     salary_rule_id = fields.Many2one(
         'hr.salary.rule',
         string="Salary Rule",
-        required=True
+        required=True,
+        ondelete='cascade'
     )
     opening_amount = fields.Float(
         string="Opening Amount",

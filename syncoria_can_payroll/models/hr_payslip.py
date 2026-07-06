@@ -252,6 +252,53 @@ class InheritedHrPayslip(models.Model):
     def _get_paygroup(self, value):
         return PAYGROUP.get(value)
 
+    def _get_insurable_hours(self):
+        self.ensure_one()
+        return sum(self.worked_days_line_ids.filtered(
+            lambda line: line.work_entry_type_id.is_insurable_hour
+        ).mapped('number_of_hours'))
+
+    def _get_insurable_hours_ytd(self):
+        self.ensure_one()
+        current_hours = self._get_insurable_hours()
+        if not self.date_to:
+            return current_hours
+
+        last_ytd_reset_date = self.company_id.get_last_ytd_reset_date(self.date_to)
+        previous_paid_payslips = self.env['hr.payslip'].search([
+            ('id', '!=', self.id),
+            ('employee_id', '=', self.employee_id.id),
+            ('company_id', '=', self.company_id.id),
+            ('state', '=', 'paid'),
+            ('date_to', '>=', last_ytd_reset_date),
+            ('date_to', '<=', self.date_to),
+        ])
+        previous_hours = sum(slip._get_insurable_hours() for slip in previous_paid_payslips)
+        return previous_hours + current_hours
+
+    def _get_worked_days_hours_ytd_map(self):
+        self.ensure_one()
+        hours_by_code = defaultdict(float)
+
+        if self.date_to:
+            last_ytd_reset_date = self.company_id.get_last_ytd_reset_date(self.date_to)
+            previous_paid_payslips = self.env['hr.payslip'].search([
+                ('id', '!=', self.id),
+                ('employee_id', '=', self.employee_id.id),
+                ('company_id', '=', self.company_id.id),
+                ('state', '=', 'paid'),
+                ('date_to', '>=', last_ytd_reset_date),
+                ('date_to', '<=', self.date_to),
+            ])
+            for slip in previous_paid_payslips:
+                for worked_days in slip.worked_days_line_ids.filtered(lambda line: line.code != 'OUT'):
+                    hours_by_code[worked_days.code] += worked_days.number_of_hours
+
+        for worked_days in self.worked_days_line_ids.filtered(lambda line: line.code != 'OUT'):
+            hours_by_code[worked_days.code] += worked_days.number_of_hours
+
+        return dict(hours_by_code)
+
     def action_print_rgr_report(self):
         return self.env.ref('syncoria_can_payroll.action_report_rgr').report_action(self)
 
@@ -786,4 +833,3 @@ class InheritedHrPayslip(models.Model):
                     x['total'] =  self.get_eht_amount(eht_amount)
             self.env['hr.payslip.line'].create(pay_lines)
         return True
-

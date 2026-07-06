@@ -35,6 +35,9 @@
 <menuitem id="payroll_earning_menu"
                   sequence="41"
                   name="Payroll Earning Report" action="action_payroll_earning_wizard" parent="hr_payroll.menu_hr_payroll_report"/>
+<menuitem id="wsib_menu"
+                  sequence="43"
+                  name="WSIB Report" action="action_wsib_wizard" parent="hr_payroll.menu_hr_payroll_report"/>
 
 <menuitem id="ytd_payroll_earning_menu"
                   sequence="42"

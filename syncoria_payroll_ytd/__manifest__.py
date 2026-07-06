@@ -25,7 +25,6 @@ Module for Canada Payroll Year To Date Calculation
         # 'security/ir.model.access.csv',
         'views/views.xml',
         'views/templates.xml',
-
         'reports/report_payslip_ytd.xml'
     ],
     # only loaded in demonstration mode
@@ -36,4 +35,3 @@ Module for Canada Payroll Year To Date Calculation
     'installable': True,
     'application': True,
 }
-

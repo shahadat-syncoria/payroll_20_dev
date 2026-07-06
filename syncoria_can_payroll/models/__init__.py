@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+from . import hr_payroll_t4_field_catalog
 from . import tax_slab_configuration
 from . import paycycle_configuration
 from . import res_config_settings
@@ -18,6 +19,5 @@ from . import hr_work_entry_type
 from . import res_users
 from . import hr_salary_rule
 from . import hr_payslip_ytd_opening
-
 
 

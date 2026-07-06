@@ -17,6 +17,18 @@
                     <field name="is_irregular_payment"/>
 
                 </xpath>
+
+                <xpath expr="//notebook" position="inside">
+                    <page name="t4_fields" string="Remuneration Paid (T4)">
+                        <group name="empl_t4_statement_field_selection" string="T4 Statement Field Configuration">
+                            <field name="selected_t4_statement_fields"
+                                   string="T4 Statement Fields"
+                                   widget="many2many_tags"
+                                   nolabel="0"
+                                   options="{'no_create': True, 'no_create_edit': True}"/>
+                        </group>
+                    </page>
+                </xpath>
             </field>
 
         </record>

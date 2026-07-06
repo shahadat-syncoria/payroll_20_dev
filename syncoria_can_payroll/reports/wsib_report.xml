@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<odoo>
+    <data>
+
+        <template id="report_wsib">
+            <t t-call="web.html_container">
+                <!--                <t t-foreach="docs" t-as="o">-->
+                <t t-call="web.external_layout">
+
+                    <!-- <t t-call="report.external_layout"> -->
+                    <div class="page">
+                        <style>
+                            .table {
+                            margin-left: 10px;
+                            }
+                        </style>
+                        <div>
+                            <table class="table mt-5" name="header">
+                                <tr style="text-align: left;">
+                                    <th>
+                                        Date Range :
+
+                                    </th>
+                                    <td>
+                                        <span t-esc="date_range"/>
+                                    </td>
+                                </tr>
+
+
+                            </table>
+                            <table class="table mt-5" name="body">
+
+                                <thead>
+                                    <tr style="text-align: center;font-weight:bold;">
+                                        <th name="last_name">Last Name</th>
+                                        <th name="first_name">First Name</th>
+                                        <th name="first_name">WCB Code</th>
+                                        <th name="first_name">WCB Base</th>
+                                        <th name="first_name">WCB Amount Assessed</th>
+                                    </tr>
+                                </thead>
+
+                                <tbody>
+
+                                    <!-- LOOP -->
+                                    <t t-foreach="payslips" t-as="line">
+                                        <tr>
+                                            <td name="employee_last_name" t-esc="line['employee_last_name']"/>
+                                            <td name="employee_first_name" t-esc="line['employee_first_name']"/>
+                                            <td name="wc_code">
+                                                <span>WSIB</span>
+                                            </td>
+                                            <td name="wsib_base">
+                                                <span t-esc="round(line['wsib_base'], 2)"/>
+                                                <span t-esc="currency"/>
+                                            </td>
+                                            <td name="wsib_amount_assessed">
+                                                <span t-esc="round(line['wsib_amount_assessed'], 2)"/>
+                                                <span t-esc="currency"/>
+                                            </td>
+                                        </tr>
+                                    </t>
+
+                                    <!-- TOTAL ROW -->
+                                    <tr style="font-weight:bold;">
+                                        <td name="total_lines" colspan="3">
+                                            Total:
+                                        </td>
+                                        <td name="total_wsib_base">
+                                            <span t-esc="round(totals['total_wsib_base'],2)"/>
+                                            <span t-esc="currency"/>
+                                        </td>
+                                        <td name="total_wsib_amount_assessed">
+                                            <span t-esc="round(totals['total_wsib_amount_assessed'],2)"/>
+                                            <span t-esc="currency"/>
+                                        </td>
+                                    </tr>
+
+                                </tbody>
+
+                            </table>
+
+                        </div>
+
+
+                    </div>
+                </t>
+
+            </t>
+        </template>
+    </data>
+
+</odoo>

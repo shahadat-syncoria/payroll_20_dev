@@ -31,6 +31,7 @@
         "security/ir.model.access.csv",
         # DATA
         # "data/paycycle_data.xml",
+        "data/t4_box_selection_data.xml",
         "data/salary_category.xml",
         "data/salary_rules/salary_rules.xml",
         "data/salary_rules/cpp.xml",
@@ -39,6 +40,8 @@
         "data/salary_rules/tax.xml",
         "data/salary_rules/rrsp.xml",
         "data/salary_rules/wsib_eht.xml",
+        "data/salary_rules/severence_income.xml",
+        "data/salary_rules/t4_rule_default_boxes.xml",
         "data/emails/reminder_email.xml",
         "data/emails/batch_xml_send_email.xml",
         "data/emails/payslip_mail_template_data.xml",
@@ -82,6 +85,7 @@
         "wizards/paycycle_config_update_wizard.xml",
         "wizards/ytd_payroll_earning_wizard_views.xml",
         "wizards/report_wizards/eht_report_wizard.xml",
+        "wizards/wsib_wizard.xml",
         # ======== Reports =============
         "reports/roe_earning_per_employee_report_view.xml",
         "reports/remittance_summary_report_view.xml",
@@ -90,6 +94,8 @@
         "reports/payroll_earning_report.xml",
         "reports/eht_pdf_report.xml",
         "reports/ytd_payroll_earning_report.xml",
+        "reports/wsib_report.xml",
+        "reports/payslip.xml",
         # ======== Menus ===============
         "views/menus.xml",
     ],

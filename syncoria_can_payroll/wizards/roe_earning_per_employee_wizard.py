@@ -57,11 +57,16 @@ class RoeEarningPerEmployee(models.TransientModel):
         #     "employee":self.employee_id
         # }
         payslip_datas,total_hour = self._get_employee_payslip()
+        employee = self.employee_id
+        version = employee.version_id
+        hire_date = employee.sync_first_contract_date or (version.date_start if version else False)
+        term_date = version.date_end if version else False
+        schedule_pay = version.structure_type_id.default_schedule_pay if version and version.structure_type_id else False
         datas = {
-            'employee_name': self.employee_id.name,
-            'hire_date': self.employee_id.first_contract_date.strftime('%Y-%m-%d') if self.employee_id.version_id.date_end else None,
-            'term_date': self.employee_id.version_id.date_end.strftime('%Y-%m-%d') if self.employee_id.version_id.date_end else None,
-            'paygroup': PAYGROUP.get(f'{self.employee_id.version_id.structure_type_id.default_schedule_pay}'),
+            'employee_name': employee.name,
+            'hire_date': hire_date.strftime('%Y-%m-%d') if hire_date else None,
+            'term_date': term_date.strftime('%Y-%m-%d') if term_date else None,
+            'paygroup': PAYGROUP.get(schedule_pay),
             'payslips': payslip_datas,
             'total_hours': total_hour
 

@@ -1,0 +1,473 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="0">
+        <!-- Main Income Amounts -->
+        <record id="t4_box_14" model="syncoria_can_payroll.t4_box_selection">
+            <field name="box_number">14</field>
+            <field name="field_name">employee_empt_incamt</field>
+            <field name="field_description">[Box-14] Employment Income</field>
+        </record>
+        <record id="t4_box_16" model="syncoria_can_payroll.t4_box_selection">
+            <field name="box_number">16</field>
+            <field name="field_name">employee_cpp_cntrb_amt</field>
+            <field name="field_description">[Box-16] Employee's Canada Pension Plan (CPP) Contributions</field>
+        </record>
+        <record id="t4_box_16a" model="syncoria_can_payroll.t4_box_selection">
+            <field name="box_number">161</field>
+            <field name="field_name">employee_cppe_cntrb_amt</field>
+            <field name="field_description">[Box-16A] Employee's Second Canada Pension Plan (CPP2) Contributions</field>
+        </record>
+        <record id="t4_box_17" model="syncoria_can_payroll.t4_box_selection">
+            <field name="box_number">17</field>
+            <field name="field_name">employee_qpp_cntrb_amt</field>
+            <field name="field_description">[Box-17] Employee's Quebec Pension Plan (QPP) Contributions</field>
+        </record>
+        <record id="t4_box_17a" model="syncoria_can_payroll.t4_box_selection">
+            <field name="box_number">171</field>
+            <field name="field_name">employee_qppe_cntrb_amt</field>
+            <field name="field_description">[Box-17A] Employee's Second Québec Pension Plan (QPP2) Contributions</field>
+        </record>
+        <record id="t4_box_18" model="syncoria_can_payroll.t4_box_selection">
+            <field name="box_number">18</field>
+            <field name="field_name">employee_empe_eip_amt</field>
+            <field name="field_description">[Box-18] Employee's Employment Insurance (EI) Premium</field>
+        </record>
+        <record id="t4_box_20" model="syncoria_can_payroll.t4_box_selection">
+            <field name="box_number">20</field>
+            <field name="field_name">registered_rpp_cntrb_amt</field>
+            <field name="field_description">[Box-20] Registered Pension Plan (RPP) Contributions</field>
+        </record>
+        <record id="t4_box_22" model="syncoria_can_payroll.t4_box_selection">
+            <field name="box_number">22</field>
+            <field name="field_name">income_itx_ddct_amt</field>
+            <field name="field_description">[Box-22] Income Tax Deducted</field>
+        </record>
+        <record id="t4_box_24" model="syncoria_can_payroll.t4_box_selection">
+            <field name="box_number">24</field>
+            <field name="field_name">employee_ei_insu_ern_amt</field>
+            <field name="field_description">[Box-24] Employment Insurance Insurable Earnings</field>
+        </record>
+        <record id="t4_box_26" model="syncoria_can_payroll.t4_box_selection">
+            <field name="box_number">26</field>
+            <field name="field_name">canada_cpp_qpp_ern_amt</field>
+            <field name="field_description">[Box-26] Canada Pension Plan Or Quebec Pension Plan Pensionable Earnings</field>
+        </record>
+        <record id="t4_box_44" model="syncoria_can_payroll.t4_box_selection">
+            <field name="box_number">44</field>
+            <field name="field_name">union_unn_dues_amt</field>
+            <field name="field_description">[Box-44] Union Dues</field>
+        </record>
+        <record id="t4_box_46" model="syncoria_can_payroll.t4_box_selection">
+            <field name="box_number">46</field>
+            <field name="field_name">charitable_chrty_dons_amt</field>
+            <field name="field_description">[Box-46] Charitable Donations</field>
+        </record>
+        <record id="t4_box_52" model="syncoria_can_payroll.t4_box_selection">
+            <field name="box_number">52</field>
+            <field name="field_name">pension_padj_amt</field>
+            <field name="field_description">[Box-52] Pension Adjustment</field>
+        </record>
+        <record id="t4_box_55" model="syncoria_can_payroll.t4_box_selection">
+            <field name="box_number">55</field>
+            <field name="field_name">PPIP_prov_pip_amt</field>
+            <field name="field_description">[Box-55] PPIP Premiums</field>
+        </record>
+        <record id="t4_box_56" model="syncoria_can_payroll.t4_box_selection">
+            <field name="box_number">56</field>
+            <field name="field_name">PPIP_prov_insu_ern_amt</field>
+            <field name="field_description">[Box-56] PPIP Insurable Earnings</field>
+        </record>
+
+        <!-- Benefits and Codes -->
+        <record id="t4_box_45" model="syncoria_can_payroll.t4_box_selection">
+            <field name="box_number">45</field>
+            <field name="field_name">empr_dntl_ben_rpt_cd</field>
+            <field name="field_description">[Box-45] Employer-offered Dental Benefits</field>
+        </record>
+
+        <!-- Other Income Amounts (Boxes 30-99) -->
+        <record id="t4_box_30" model="syncoria_can_payroll.t4_box_selection">
+            <field name="box_number">30</field>
+            <field name="field_name">hm_brd_lodg_amt</field>
+            <field name="field_description">[Box-30] Housing, Board And Lodging Amount</field>
+        </record>
+        <record id="t4_box_31" model="syncoria_can_payroll.t4_box_selection">
+            <field name="box_number">31</field>
+            <field name="field_name">spcl_wrk_site_amt</field>
+            <field name="field_description">[Box-31] Special Work Site Amount</field>
+        </record>
+        <record id="t4_box_32" model="syncoria_can_payroll.t4_box_selection">
+            <field name="box_number">32</field>
+            <field name="field_name">prscb_zn_trvl_amt</field>
+            <field name="field_description">[Box-32] Travel In A Prescribed Zone Amount</field>
+        </record>
+        <record id="t4_box_33" model="syncoria_can_payroll.t4_box_selection">
+            <field name="box_number">33</field>
+            <field name="field_name">med_trvl_amt</field>
+            <field name="field_description">[Box-33] Medical Travel Amount</field>
+        </record>
+        <record id="t4_box_34" model="syncoria_can_payroll.t4_box_selection">
+            <field name="box_number">34</field>
+            <field name="field_name">prsnl_vhcl_amt</field>
+            <field name="field_description">[Box-34] Personal Use Of Employer Automobile Amount</field>
+        </record>
+        <record id="t4_box_35" model="syncoria_can_payroll.t4_box_selection">
+            <field name="box_number">35</field>
+            <field name="field_name">rsn_per_km_amt</field>
+            <field name="field_description">[Box-35] Total Reasonable Per-Kilometre Allowance Amount</field>
+        </record>
+        <record id="t4_box_36" model="syncoria_can_payroll.t4_box_selection">
+            <field name="box_number">36</field>
+            <field name="field_name">low_int_loan_amt</field>
+            <field name="field_description">[Box-36] Interest-free And Low-interest Loan Amount</field>
+        </record>
+        <record id="t4_box_37" model="syncoria_can_payroll.t4_box_selection">
+            <field name="box_number">37</field>
+            <field name="field_name">empe_hm_loan_amt</field>
+            <field name="field_description">[Box-37] Employee Home-Relocation Loan Deduction Amount</field>
+        </record>
+        <record id="t4_box_38" model="syncoria_can_payroll.t4_box_selection">
+            <field name="box_number">38</field>
+            <field name="field_name">sob_a00_feb_amt</field>
+            <field name="field_description">[Box-38] Security Options Benefits</field>
+        </record>
+        <record id="t4_box_39" model="syncoria_can_payroll.t4_box_selection">
+            <field name="box_number">39</field>
+            <field name="field_name">sod_d_a00_feb_amt</field>
+            <field name="field_description">[Box-39] Security Options Deductions 110(1)(d)</field>
+        </record>
+        <record id="t4_box_40" model="syncoria_can_payroll.t4_box_selection">
+            <field name="box_number">40</field>
+            <field name="field_name">oth_tx_ben_amt</field>
+            <field name="field_description">[Box-40] Other Taxable Allowance And Benefit Amount</field>
+        </record>
+        <record id="t4_box_41" model="syncoria_can_payroll.t4_box_selection">
+            <field name="box_number">41</field>
+            <field name="field_name">sod_d1_a00_feb_amt</field>
+            <field name="field_description">[Box-41] Security Options Deduction 110(1)(d.1)</field>
+        </record>
+        <record id="t4_box_42" model="syncoria_can_payroll.t4_box_selection">
+            <field name="box_number">42</field>
+            <field name="field_name">empt_cmsn_amt</field>
+            <field name="field_description">[Box-42] Employment Commission Amount</field>
+        </record>
+        <record id="t4_box_43" model="syncoria_can_payroll.t4_box_selection">
+            <field name="box_number">43</field>
+            <field name="field_name">cfppa_amt</field>
+            <field name="field_description">[Box-43] Canadian Armed Forces Personnel And Police Allowance</field>
+        </record>
+        <record id="t4_box_53" model="syncoria_can_payroll.t4_box_selection">
+            <field name="box_number">53</field>
+            <field name="field_name">dfr_sob_amt</field>
+            <field name="field_description">[Box-53] Deferred Security Option Benefits</field>
+        </record>
+        <record id="t4_box_57" model="syncoria_can_payroll.t4_box_selection">
+            <field name="box_number">57</field>
+            <field name="field_name">empt_inc_amt_covid_prd1</field>
+            <field name="field_description">[Box-57] Employment Income – March 15 To May 9 – 2020</field>
+        </record>
+        <record id="t4_box_58" model="syncoria_can_payroll.t4_box_selection">
+            <field name="box_number">58</field>
+            <field name="field_name">empt_inc_amt_covid_prd2</field>
+            <field name="field_description">[Box-58] Employment Income – May 10 To July 4 – 2020</field>
+        </record>
+        <record id="t4_box_59" model="syncoria_can_payroll.t4_box_selection">
+            <field name="box_number">59</field>
+            <field name="field_name">empt_inc_amt_covid_prd3</field>
+            <field name="field_description">[Box-59] Employment Income – July 5 To August 29 – 2020</field>
+        </record>
+        <record id="t4_box_60" model="syncoria_can_payroll.t4_box_selection">
+            <field name="box_number">60</field>
+            <field name="field_name">empt_inc_amt_covid_prd4</field>
+            <field name="field_description">[Box-60] Employment Income – August 30 To September 26 – 2020</field>
+        </record>
+        <record id="t4_box_66" model="syncoria_can_payroll.t4_box_selection">
+            <field name="box_number">66</field>
+            <field name="field_name">elg_rtir_amt</field>
+            <field name="field_description">[Box-66] Eligible Retiring Allowances</field>
+        </record>
+        <record id="t4_box_67" model="syncoria_can_payroll.t4_box_selection">
+            <field name="box_number">67</field>
+            <field name="field_name">nelg_rtir_amt</field>
+            <field name="field_description">[Box-67] Non-eligible Retiring Allowances</field>
+        </record>
+        <record id="t4_box_69" model="syncoria_can_payroll.t4_box_selection">
+            <field name="box_number">69</field>
+            <field name="field_name">indn_nelg_rtir_amt</field>
+            <field name="field_description">[Box-69] Status Indian Non-eligible Retiring Allowances</field>
+        </record>
+        <record id="t4_box_71" model="syncoria_can_payroll.t4_box_selection">
+            <field name="box_number">71</field>
+            <field name="field_name">indn_empe_amt</field>
+            <field name="field_description">[Box-71] Status Indian Employee Amount</field>
+        </record>
+        <record id="t4_box_72" model="syncoria_can_payroll.t4_box_selection">
+            <field name="box_number">72</field>
+            <field name="field_name">oc_incamt</field>
+            <field name="field_description">[Box-72] Outside Of Canada Employment Income Amount</field>
+        </record>
+        <record id="t4_box_73" model="syncoria_can_payroll.t4_box_selection">
+            <field name="box_number">73</field>
+            <field name="field_name">oc_dy_cnt</field>
+            <field name="field_description">[Box-73] Employment Outside Of Canada Day Count</field>
+        </record>
+        <record id="t4_box_74" model="syncoria_can_payroll.t4_box_selection">
+            <field name="box_number">74</field>
+            <field name="field_name">pr_90_cntrbr_amt</field>
+            <field name="field_description">[Box-74] Pre-1990 Past Service Contributions While A Contributor</field>
+        </record>
+        <record id="t4_box_75" model="syncoria_can_payroll.t4_box_selection">
+            <field name="box_number">75</field>
+            <field name="field_name">pr_90_ncntrbr_amt</field>
+            <field name="field_description">[Box-75] Pre-1990 Past Service Contributions While Not A Contributor</field>
+        </record>
+        <record id="t4_box_77" model="syncoria_can_payroll.t4_box_selection">
+            <field name="box_number">77</field>
+            <field name="field_name">cmpn_rpay_empr_amt</field>
+            <field name="field_description">[Box-77] Workers' Compensation Benefit Repaid To The Employer</field>
+        </record>
+        <record id="t4_box_78" model="syncoria_can_payroll.t4_box_selection">
+            <field name="box_number">78</field>
+            <field name="field_name">fish_gro_ern_amt</field>
+            <field name="field_description">[Box-78] Fishers - Gross Earnings</field>
+        </record>
+        <record id="t4_box_79" model="syncoria_can_payroll.t4_box_selection">
+            <field name="box_number">79</field>
+            <field name="field_name">fish_net_ptnr_amt</field>
+            <field name="field_description">[Box-79] Fishers - Net Partnership Amount</field>
+        </record>
+        <record id="t4_box_80" model="syncoria_can_payroll.t4_box_selection">
+            <field name="box_number">80</field>
+            <field name="field_name">fish_shr_prsn_amt</field>
+            <field name="field_description">[Box-80] Fishers - Shareperson Amount</field>
+        </record>
+        <record id="t4_box_81" model="syncoria_can_payroll.t4_box_selection">
+            <field name="box_number">81</field>
+            <field name="field_name">plcmt_emp_agcy_amt</field>
+            <field name="field_description">[Box-81] Placement Or Employment Agency</field>
+        </record>
+        <record id="t4_box_82" model="syncoria_can_payroll.t4_box_selection">
+            <field name="box_number">82</field>
+            <field name="field_name">drvr_taxis_oth_amt</field>
+            <field name="field_description">[Box-82] Driver Of Taxi Or Other Passenger-carrying Vehicle</field>
+        </record>
+        <record id="t4_box_83" model="syncoria_can_payroll.t4_box_selection">
+            <field name="box_number">83</field>
+            <field name="field_name">brbr_hrdrssr_amt</field>
+            <field name="field_description">[Box-83] Barber Or Hairdresser</field>
+        </record>
+        <record id="t4_box_84" model="syncoria_can_payroll.t4_box_selection">
+            <field name="box_number">84</field>
+            <field name="field_name">pub_trnst_pass_amt</field>
+            <field name="field_description">[Box-84] Public Transit Pass</field>
+        </record>
+        <record id="t4_box_85" model="syncoria_can_payroll.t4_box_selection">
+            <field name="box_number">85</field>
+            <field name="field_name">epaid_hlth_pln_amt</field>
+            <field name="field_description">[Box-85] Employee-paid Premiums For Private Health Services Plans</field>
+        </record>
+        <record id="t4_box_86" model="syncoria_can_payroll.t4_box_selection">
+            <field name="box_number">86</field>
+            <field name="field_name">stok_opt_csh_out_eamt</field>
+            <field name="field_description">[Box-86] Stock Option Cash-out Expense</field>
+        </record>
+        <record id="t4_box_87" model="syncoria_can_payroll.t4_box_selection">
+            <field name="box_number">87</field>
+            <field name="field_name">vlntr_emergencyworker_xmpt_amt</field>
+            <field name="field_description">[Box-87] Emergency services volunteer exempt amount</field>
+        </record>
+        <record id="t4_box_88" model="syncoria_can_payroll.t4_box_selection">
+            <field name="box_number">88</field>
+            <field name="field_name">indn_txmpt_sei_amt</field>
+            <field name="field_description">[Box-88] Indian (Exempt Income) – Self-employment</field>
+        </record>
+        <record id="t4_box_97" model="syncoria_can_payroll.t4_box_selection">
+            <field name="box_number">97</field>
+            <field name="field_name">stok_opt_ben_amt</field>
+            <field name="field_description">[Box-97] Stock Option Benefit Amount Before February 28, 2000</field>
+        </record>
+        <record id="t4_box_98" model="syncoria_can_payroll.t4_box_selection">
+            <field name="box_number">98</field>
+            <field name="field_name">shr_opt_d_ben_amt</field>
+            <field name="field_description">[Box-98] Stock Option And Share Deduction 110(1)(d)</field>
+        </record>
+        <record id="t4_box_99" model="syncoria_can_payroll.t4_box_selection">
+            <field name="box_number">99</field>
+            <field name="field_name">shr_opt_d1_ben_amt</field>
+            <field name="field_description">[Box-99] Stock Option And Share Deduction 110(1)(d.1)</field>
+        </record>
+    </data>
+</odoo>
+
+<!--<?xml version="1.0" encoding="utf-8"?>-->
+<!--<odoo>-->
+<!--    <data noupdate="1">-->
+<!--        <record id="t4_box_30" model="syncoria_can_payroll.t4_box_selection">-->
+<!--            <field name="box_number">30</field>-->
+<!--            <field name="field_name">hm_brd_lodg_amt</field>-->
+<!--            <field name="field_description">[Box-30] Housing, Board And Lodging Amount</field>-->
+<!--        </record>-->
+<!--        <record id="t4_box_31" model="syncoria_can_payroll.t4_box_selection">-->
+<!--            <field name="box_number">31</field>-->
+<!--            <field name="field_name">spcl_wrk_site_amt</field>-->
+<!--            <field name="field_description">[Box-31] Special Work Site Amount</field>-->
+<!--        </record>-->
+<!--        <record id="t4_box_32" model="syncoria_can_payroll.t4_box_selection">-->
+<!--            <field name="box_number">32</field>-->
+<!--            <field name="field_name">prscb_zn_trvl_amt</field>-->
+<!--            <field name="field_description">[Box-32] Travel In A Prescribed Zone Amount</field>-->
+<!--        </record>-->
+<!--        <record id="t4_box_33" model="syncoria_can_payroll.t4_box_selection">-->
+<!--            <field name="box_number">33</field>-->
+<!--            <field name="field_name">med_trvl_amt</field>-->
+<!--            <field name="field_description">[Box-33] Medical Travel Amount</field>-->
+<!--        </record>-->
+<!--        <record id="t4_box_34" model="syncoria_can_payroll.t4_box_selection">-->
+<!--            <field name="box_number">34</field>-->
+<!--            <field name="field_name">prsnl_vhcl_amt</field>-->
+<!--            <field name="field_description">[Box-34] Personal Use Of Employer Automobile Amount</field>-->
+<!--        </record>-->
+<!--        <record id="t4_box_36" model="syncoria_can_payroll.t4_box_selection">-->
+<!--            <field name="box_number">36</field>-->
+<!--            <field name="field_name">low_int_loan_amt</field>-->
+<!--            <field name="field_description">[Box-36] Interest-free And Low-interest Loan Amount</field>-->
+<!--        </record>-->
+<!--        <record id="t4_box_38" model="syncoria_can_payroll.t4_box_selection">-->
+<!--            <field name="box_number">38</field>-->
+<!--            <field name="field_name">sob_a00_feb_amt</field>-->
+<!--            <field name="field_description">[Box-38] Security Options Benefits</field>-->
+<!--        </record>-->
+<!--        <record id="t4_box_39" model="syncoria_can_payroll.t4_box_selection">-->
+<!--            <field name="box_number">39</field>-->
+<!--            <field name="field_name">sod_d_a00_feb_amt</field>-->
+<!--            <field name="field_description">[Box-39] Security Options Deductions 110(1)(d)</field>-->
+<!--        </record>-->
+<!--        <record id="t4_box_40" model="syncoria_can_payroll.t4_box_selection">-->
+<!--            <field name="box_number">40</field>-->
+<!--            <field name="field_name">oth_tx_ben_amt</field>-->
+<!--            <field name="field_description">[Box-40] Other Taxable Allowance And Benefit Amount</field>-->
+<!--        </record>-->
+<!--        <record id="t4_box_41" model="syncoria_can_payroll.t4_box_selection">-->
+<!--            <field name="box_number">41</field>-->
+<!--            <field name="field_name">sod_d1_a00_feb_amt</field>-->
+<!--            <field name="field_description">[Box-41] Security Options Deduction 110(1)(d.1)</field>-->
+<!--        </record>-->
+<!--        <record id="t4_box_42" model="syncoria_can_payroll.t4_box_selection">-->
+<!--            <field name="box_number">42</field>-->
+<!--            <field name="field_name">empt_cmsn_amt</field>-->
+<!--            <field name="field_description">[Box-42] Employment Commission Amount</field>-->
+<!--        </record>-->
+<!--        <record id="t4_box_43" model="syncoria_can_payroll.t4_box_selection">-->
+<!--            <field name="box_number">43</field>-->
+<!--            <field name="field_name">cfppa_amt</field>-->
+<!--            <field name="field_description">[Box-43] Canadian Armed Forces Personnel And Police Allowance</field>-->
+<!--        </record>-->
+<!--        <record id="t4_box_57" model="syncoria_can_payroll.t4_box_selection">-->
+<!--            <field name="box_number">57</field>-->
+<!--            <field name="field_name">empt_inc_amt_covid_prd1</field>-->
+<!--            <field name="field_description">[Box-57] Employment Income – March 15 To May 9 – 2020</field>-->
+<!--        </record>-->
+<!--        <record id="t4_box_58" model="syncoria_can_payroll.t4_box_selection">-->
+<!--            <field name="box_number">58</field>-->
+<!--            <field name="field_name">empt_inc_amt_covid_prd2</field>-->
+<!--            <field name="field_description">[Box-58] Employment Income – May 10 To July 4 – 2020</field>-->
+<!--        </record>-->
+<!--        <record id="t4_box_59" model="syncoria_can_payroll.t4_box_selection">-->
+<!--            <field name="box_number">59</field>-->
+<!--            <field name="field_name">empt_inc_amt_covid_prd3</field>-->
+<!--            <field name="field_description">[Box-59] Employment Income – July 5 To August 29 – 2020</field>-->
+<!--        </record>-->
+<!--        <record id="t4_box_60" model="syncoria_can_payroll.t4_box_selection">-->
+<!--            <field name="box_number">60</field>-->
+<!--            <field name="field_name">empt_inc_amt_covid_prd4</field>-->
+<!--            <field name="field_description">[Box-60] Employment Income – August 30 To September 26 – 2020</field>-->
+<!--        </record>-->
+<!--        <record id="t4_box_66" model="syncoria_can_payroll.t4_box_selection">-->
+<!--            <field name="box_number">66</field>-->
+<!--            <field name="field_name">elg_rtir_amt</field>-->
+<!--            <field name="field_description">[Box-66] Eligible Retiring Allowances</field>-->
+<!--        </record>-->
+<!--        <record id="t4_box_67" model="syncoria_can_payroll.t4_box_selection">-->
+<!--            <field name="box_number">67</field>-->
+<!--            <field name="field_name">nelg_rtir_amt</field>-->
+<!--            <field name="field_description">[Box-67] Non-eligible Retiring Allowances</field>-->
+<!--        </record>-->
+<!--        <record id="t4_box_69" model="syncoria_can_payroll.t4_box_selection">-->
+<!--            <field name="box_number">69</field>-->
+<!--            <field name="field_name">indn_nelg_rtir_amt</field>-->
+<!--            <field name="field_description">[Box-69] Status Indian Non-eligible Retiring Allowances</field>-->
+<!--        </record>-->
+<!--        <record id="t4_box_71" model="syncoria_can_payroll.t4_box_selection">-->
+<!--            <field name="box_number">71</field>-->
+<!--            <field name="field_name">indn_empe_amt</field>-->
+<!--            <field name="field_description">[Box-71] Status Indian Employee Amount</field>-->
+<!--        </record>-->
+<!--        <record id="t4_box_74" model="syncoria_can_payroll.t4_box_selection">-->
+<!--            <field name="box_number">74</field>-->
+<!--            <field name="field_name">pr_90_cntrbr_amt</field>-->
+<!--            <field name="field_description">[Box-74] Pre-1990 Past Service Contributions While A Contributor</field>-->
+<!--        </record>-->
+<!--        <record id="t4_box_75" model="syncoria_can_payroll.t4_box_selection">-->
+<!--            <field name="box_number">75</field>-->
+<!--            <field name="field_name">pr_90_ncntrbr_amt</field>-->
+<!--            <field name="field_description">[Box-75] Pre-1990 Past Service Contributions While Not A Contributor</field>-->
+<!--        </record>-->
+<!--        <record id="t4_box_77" model="syncoria_can_payroll.t4_box_selection">-->
+<!--            <field name="box_number">77</field>-->
+<!--            <field name="field_name">cmpn_rpay_empr_amt</field>-->
+<!--            <field name="field_description">[Box-77] Workers' Compensation Benefit Repaid To The Employer</field>-->
+<!--        </record>-->
+<!--        <record id="t4_box_78" model="syncoria_can_payroll.t4_box_selection">-->
+<!--            <field name="box_number">78</field>-->
+<!--            <field name="field_name">fish_gro_ern_amt</field>-->
+<!--            <field name="field_description">[Box-78] Fishers - Gross Earnings</field>-->
+<!--        </record>-->
+<!--        <record id="t4_box_79" model="syncoria_can_payroll.t4_box_selection">-->
+<!--            <field name="box_number">79</field>-->
+<!--            <field name="field_name">fish_net_ptnr_amt</field>-->
+<!--            <field name="field_description">[Box-79] Fishers - Net Partnership Amount</field>-->
+<!--        </record>-->
+<!--        <record id="t4_box_80" model="syncoria_can_payroll.t4_box_selection">-->
+<!--            <field name="box_number">80</field>-->
+<!--            <field name="field_name">fish_shr_prsn_amt</field>-->
+<!--            <field name="field_description">[Box-80] Fishers - Shareperson Amount</field>-->
+<!--        </record>-->
+<!--        <record id="t4_box_81" model="syncoria_can_payroll.t4_box_selection">-->
+<!--            <field name="box_number">81</field>-->
+<!--            <field name="field_name">plcmt_emp_agcy_amt</field>-->
+<!--            <field name="field_description">[Box-81] Placement Or Employment Agency</field>-->
+<!--        </record>-->
+<!--        <record id="t4_box_82" model="syncoria_can_payroll.t4_box_selection">-->
+<!--            <field name="box_number">82</field>-->
+<!--            <field name="field_name">drvr_taxis_oth_amt</field>-->
+<!--            <field name="field_description">[Box-82] Driver Of Taxi Or Other Passenger-carrying Vehicle</field>-->
+<!--        </record>-->
+<!--        <record id="t4_box_83" model="syncoria_can_payroll.t4_box_selection">-->
+<!--            <field name="box_number">83</field>-->
+<!--            <field name="field_name">brbr_hrdrssr_amt</field>-->
+<!--            <field name="field_description">[Box-83] Barber Or Hairdresser</field>-->
+<!--        </record>-->
+<!--        <record id="t4_box_85" model="syncoria_can_payroll.t4_box_selection">-->
+<!--            <field name="box_number">85</field>-->
+<!--            <field name="field_name">epaid_hlth_pln_amt</field>-->
+<!--            <field name="field_description">[Box-85] Employee-paid Premiums For Private Health Services Plans</field>-->
+<!--        </record>-->
+<!--        <record id="t4_box_86" model="syncoria_can_payroll.t4_box_selection">-->
+<!--            <field name="box_number">86</field>-->
+<!--            <field name="field_name">stok_opt_csh_out_eamt</field>-->
+<!--            <field name="field_description">[Box-86] Stock Option Cash-out Expense</field>-->
+<!--        </record>-->
+<!--        <record id="t4_box_87" model="syncoria_can_payroll.t4_box_selection">-->
+<!--            <field name="box_number">87</field>-->
+<!--            <field name="field_name">vlntr_emergencyworker_xmpt_amt</field>-->
+<!--            <field name="field_description">[Box-87] Emergency services volunteer exempt amount</field>-->
+<!--        </record>-->
+<!--        <record id="t4_box_88" model="syncoria_can_payroll.t4_box_selection">-->
+<!--            <field name="box_number">88</field>-->
+<!--            <field name="field_name">indn_txmpt_sei_amt</field>-->
+<!--            <field name="field_description">[Box-88] Indian (Exempt Income) – Self-employment</field>-->
+<!--        </record>-->
+<!--    </data>-->
+<!--</odoo>-->
+
+

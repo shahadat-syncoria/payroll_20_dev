@@ -40,13 +40,15 @@ class EmployeeNetPay(models.TransientModel):
             [('pay_cycle_period', '=', self.payperiod.id), ("state", "in", ['paid', 'done'])])
         payslip_data = []
         for rec in payslip_ids:
+            net_lines = rec.line_ids.filtered(lambda line: line.code == "NET")
+            bank_account = rec.employee_id.primary_bank_account_id or rec.employee_id.bank_account_ids[:1]
             payslip_data.append({
-                "reference": rec.number,
+                "reference": getattr(rec, "number", False) or rec.name or rec.display_name,
                 "payslip_name": rec.name,
                 "employee_name": rec.employee_id.name,
                 "job_position": rec.employee_id.job_id.name or " ",
-                "bank_account": rec.employee_id.bank_account_id.acc_number or " ",
-                "amount": rec.line_ids.search([("slip_id", "=", rec.id), ("code", "=", "NET")]).amount
+                "bank_account": bank_account.acc_number or " ",
+                "amount": sum(net_lines.mapped("amount"))
 
             })
         datas = {

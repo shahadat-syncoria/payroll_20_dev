@@ -5,7 +5,7 @@ from lxml import etree
 
 from odoo import models, fields, api, _
 import xml.etree.ElementTree as ET
-from odoo.exceptions import UserError
+from odoo.exceptions import UserError, ValidationError
 
 from odoo.modules import get_resource_from_path
 from odoo.tools.misc import file_path
@@ -14,6 +14,7 @@ import datetime
 
 from pypdf import PdfReader, PdfWriter
 from ..helper.helper_functions import year_selection
+from odoo.tools.float_utils import float_is_zero
 
 CODE = [
     ('0', '0'),
@@ -81,6 +82,215 @@ class StatementOfRemuneration(models.Model):
     ], string='Status', group_expand='_expand_states', copy=False,
         tracking=True, help='Status of the T4 form', default='draft')
 
+    selected_t4_boxes = fields.Many2many(
+        'syncoria_can_payroll.t4_box_selection',
+        'statement_remuneration_t4_box_rel',
+        'remuneration_id',
+        'box_selection_id',
+        string='Select (Max-6) T4 Boxes',
+        domain=[('active', '=', True)],
+        help='Select maximum 6 box numbers to appear in the T4 slip PDF.'
+    )
+
+    BOX_TO_FIELD_MAP = {
+        30: 'hm_brd_lodg_amt',
+        31: 'spcl_wrk_site_amt',
+        32: 'prscb_zn_trvl_amt',
+        33: 'med_trvl_amt',
+        34: 'prsnl_vhcl_amt',
+        35: 'rsn_per_km_amt',
+        36: 'low_int_loan_amt',
+        37: 'empe_hm_loan_amt',
+        38: 'sob_a00_feb_amt',
+        39: 'sod_d_a00_feb_amt',
+        40: 'oth_tx_ben_amt',
+        41: 'sod_d1_a00_feb_amt',
+        42: 'empt_cmsn_amt',
+        43: 'cfppa_amt',
+        53: 'dfr_sob_amt',
+        57: 'empt_inc_amt_covid_prd1',
+        58: 'empt_inc_amt_covid_prd2',
+        59: 'empt_inc_amt_covid_prd3',
+        60: 'empt_inc_amt_covid_prd4',
+        66: 'elg_rtir_amt',
+        67: 'nelg_rtir_amt',
+        69: 'indn_nelg_rtir_amt',
+        71: 'indn_empe_amt',
+        72: 'oc_incamt',
+        73: 'oc_dy_cnt',
+        74: 'pr_90_cntrbr_amt',
+        75: 'pr_90_ncntrbr_amt',
+        77: 'cmpn_rpay_empr_amt',
+        78: 'fish_gro_ern_amt',
+        79: 'fish_net_ptnr_amt',
+        80: 'fish_shr_prsn_amt',
+        81: 'plcmt_emp_agcy_amt',
+        82: 'drvr_taxis_oth_amt',
+        83: 'brbr_hrdrssr_amt',
+        84: 'pub_trnst_pass_amt',
+        85: 'epaid_hlth_pln_amt',
+        86: 'stok_opt_csh_out_eamt',
+        87: 'vlntr_emergencyworker_xmpt_amt',
+        88: 'indn_txmpt_sei_amt',
+        97: 'stok_opt_ben_amt',
+        98: 'shr_opt_d_ben_amt',
+        99: 'shr_opt_d1_ben_amt',
+    }
+
+    AUTO_SELECTABLE_T4_BOX_NUMBERS = (
+        30, 31, 32, 33, 34, 36, 38, 39, 40, 41, 42, 43,
+        57, 58, 59, 60, 66, 67, 69, 71, 74, 75, 77, 78,
+        79, 80, 81, 82, 83, 85, 86, 87, 88,
+    )
+    AUTO_SELECTABLE_T4_FIELD_NAMES = (
+        'hm_brd_lodg_amt',
+        'spcl_wrk_site_amt',
+        'prscb_zn_trvl_amt',
+        'med_trvl_amt',
+        'prsnl_vhcl_amt',
+        'low_int_loan_amt',
+        'sob_a00_feb_amt',
+        'sod_d_a00_feb_amt',
+        'oth_tx_ben_amt',
+        'sod_d1_a00_feb_amt',
+        'empt_cmsn_amt',
+        'cfppa_amt',
+        'empt_inc_amt_covid_prd1',
+        'empt_inc_amt_covid_prd2',
+        'empt_inc_amt_covid_prd3',
+        'empt_inc_amt_covid_prd4',
+        'elg_rtir_amt',
+        'nelg_rtir_amt',
+        'indn_nelg_rtir_amt',
+        'indn_empe_amt',
+        'pr_90_cntrbr_amt',
+        'pr_90_ncntrbr_amt',
+        'cmpn_rpay_empr_amt',
+        'fish_gro_ern_amt',
+        'fish_net_ptnr_amt',
+        'fish_shr_prsn_amt',
+        'plcmt_emp_agcy_amt',
+        'drvr_taxis_oth_amt',
+        'brbr_hrdrssr_amt',
+        'epaid_hlth_pln_amt',
+        'stok_opt_csh_out_eamt',
+        'vlntr_emergencyworker_xmpt_amt',
+        'indn_txmpt_sei_amt',
+    )
+    MAX_T4_PDF_BOXES = 6
+
+    def _get_t4_box_limit_warning_message(self):
+        return _(
+            "From Other Info, a maximum of 6 boxes can be included in the PDF; "
+            "therefore, please select your preferred six boxes in Other Info Configuration."
+        )
+
+    def _get_auto_selected_t4_boxes(self):
+        self.ensure_one()
+
+        selected_box_numbers = []
+        for box_number in self.AUTO_SELECTABLE_T4_BOX_NUMBERS:
+            field_name = self.BOX_TO_FIELD_MAP.get(box_number)
+            field = self._fields.get(field_name)
+            if not field:
+                continue
+
+            value = self[field_name]
+            if field.type in ('float', 'monetary'):
+                amount = float(value or 0.0)
+                if float_is_zero(amount, precision_digits=2):
+                    continue
+            elif not value:
+                continue
+
+            selected_box_numbers.append(box_number)
+
+        # WARNING FLAG ONLY (do not truncate selection)
+        is_over_limit = len(selected_box_numbers) > self.MAX_T4_PDF_BOXES
+
+        selected_boxes = self.env['syncoria_can_payroll.t4_box_selection'].search([
+            ('box_number', 'in', selected_box_numbers),
+            ('active', '=', True),
+        ])
+
+        # keep the same order as selected_box_numbers
+        selected_boxes = selected_boxes.sorted(
+            key=lambda box: selected_box_numbers.index(box.box_number)
+        )
+
+        return selected_boxes, is_over_limit
+
+    # def _get_auto_selected_t4_boxes(self):
+    #     self.ensure_one()
+    #
+    #     selected_box_numbers = []
+    #     for box_number in self.AUTO_SELECTABLE_T4_BOX_NUMBERS:
+    #         field_name = self.BOX_TO_FIELD_MAP.get(box_number)
+    #         field = self._fields.get(field_name)
+    #         if not field:
+    #             continue
+    #
+    #         value = self[field_name]
+    #         if field.type in ('float', 'monetary'):
+    #             amount = float(value or 0.0)
+    #             if float_is_zero(amount, precision_digits=2):
+    #                 continue
+    #         elif not value:
+    #             continue
+    #
+    #         selected_box_numbers.append(box_number)
+    #
+    #     is_over_limit = len(selected_box_numbers) > self.MAX_T4_PDF_BOXES
+    #     selected_box_numbers = selected_box_numbers[:self.MAX_T4_PDF_BOXES]
+    #     selected_boxes = self.env['syncoria_can_payroll.t4_box_selection'].search([
+    #         ('box_number', 'in', selected_box_numbers),
+    #         ('active', '=', True),
+    #     ])
+    #     selected_boxes = selected_boxes.sorted(key=lambda box: selected_box_numbers.index(box.box_number))
+    #     return selected_boxes, is_over_limit
+
+    def _validate_selected_t4_boxes_limit(self):
+        if self.env.context.get('skip_t4_box_limit_validation'):
+            return
+
+        for record in self:
+            if len(record.selected_t4_boxes) > record.MAX_T4_PDF_BOXES:
+                raise ValidationError(record._get_t4_box_limit_warning_message())
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        records = super().create(vals_list)
+        records._validate_selected_t4_boxes_limit()
+        return records
+
+    def write(self, vals):
+        res = super().write(vals)
+        self._validate_selected_t4_boxes_limit()
+        return res
+
+    def _sync_selected_t4_boxes_from_other_info(self, skip_validation=False):
+        is_over_limit = False
+        for record in self:
+            selected_boxes, record_is_over_limit = record._get_auto_selected_t4_boxes()
+            if set(record.selected_t4_boxes.ids) != set(selected_boxes.ids):
+                box_commands = [(6, 0, selected_boxes.ids)]
+                if skip_validation:
+                    record.with_context(skip_t4_box_limit_validation=True).write({
+                        'selected_t4_boxes': box_commands,
+                    })
+                else:
+                    record.selected_t4_boxes = box_commands
+            is_over_limit = is_over_limit or record_is_over_limit
+        return is_over_limit
+
+    @api.onchange(*AUTO_SELECTABLE_T4_FIELD_NAMES)
+    def _onchange_selected_t4_boxes_from_other_info(self):
+        self._sync_selected_t4_boxes_from_other_info()
+
+    @api.constrains('selected_t4_boxes')
+    def _check_max_6_boxes(self):
+        self._validate_selected_t4_boxes_limit()
+
     # employee_contract = fields.Many2one(
     #     comodel_name='hr.version',
     #     string='Employee Contract',
@@ -146,14 +356,14 @@ class StatementOfRemuneration(models.Model):
     employee_pstl_cd = fields.Char("Employee Postal Code", size=10, help="- employee's Canadian postal code, format: alpha, numeric, alpha, numeric, alpha, numeric, example: A9A9A9\
     - or the employee's USA zip code\
     - or where the employee's country code is neither CAN nor USA, enter the foreign postal code")
-    employee_sin = fields.Char("Employee Social Insurance Number (SIN)", help="- T4 slip, box 12\
+    employee_sin = fields.Char("[Box 12] Employee Social Insurance Number (SIN)", help="- T4 slip, box 12\
     - When the employee has failed to provide a SIN, enter zeroes in the entire field.\
     Note: Omission of a valid SIN results in non-registration of contributions to the Canada Pension Plan.")
     employee_empe_nbr = fields.Char("Employee Number", size=20,
                                     help="- for example: region and/or branch payroll and/or department and/or employee number")
-    employee_bn = fields.Char(" Employee Payroll Account Number", size=15, help="- T4 slip, box 54\
+    employee_bn = fields.Char("[Box 54]  Employee Payroll Account Number", size=15, help="- T4 slip, box 54\
     - must correspond to the 'Business Number (BN)' on the related T4 Summary record Note: To process a return, the complete BN is required")
-    employee_rpp_dpsp_rgst_nbr = fields.Integer("RPP or DPSP Registration Number Registration Number", help="- T4 slip, box 50\
+    employee_rpp_dpsp_rgst_nbr = fields.Integer("[Box 50] RPP or DPSP Registration Number Registration Number", help="- T4 slip, box 50\
     - enter the registration number for the plan where the employee received the largest pension adjustment amount")
     employee_cpp_qpp_xmpt_cd = fields.Selection(related="employee_id.employee_cpp_qpp_xmpt_cd",
                                                 string="Canada Pension Plan or Quebec Pension Plan Exempt Code", help="- T4 slip, box 28\
@@ -200,58 +410,58 @@ class StatementOfRemuneration(models.Model):
     ZZ - Other")
 
     # ============================== Employee T4 Amount ========================================
-    employee_empt_incamt = fields.Float("Employment Income", help="""-10 numeric
+    employee_empt_incamt = fields.Float("[Box 14] Employment Income", help="""-10 numeric
     - T4 slip, box 14
     Note: Do not complete box 14 if you are using employment codes 11, 12, 13, or 17. Refer to box 29 for these codes.""")
 
-    employee_cpp_cntrb_amt = fields.Float("Employee's Canada Pension Plan (CPP) Contributions", help=""""- 6 numeric
+    employee_cpp_cntrb_amt = fields.Float("[Box 16] Employee's Canada Pension Plan (CPP) Contributions", help=""""- 6 numeric
     - T4 slip, box 16
     Note: Under no circumstances should amounts for both CPP and QPP appear on the same slip. A separate T4 slip is needed for each province of employment.""")
 
-    employee_cppe_cntrb_amt = fields.Float("Employee's Second Canada Pension Plan (CPP2) Contributions", help=""""- 6 numeric
+    employee_cppe_cntrb_amt = fields.Float("[Box 16A] Employee's Second Canada Pension Plan (CPP2) Contributions", help=""""- 6 numeric
             - T4 slip, box 16A , (For taxation year 2024 and subsequent)
             Note: Under no circumstances should amounts for both second CPP and second QPP appear on the same slip. A separate T4 slip is needed for each province of employment.""")
 
-    employee_qpp_cntrb_amt = fields.Float("Employee's Quebec Pension Plan (QPP) Contributions", help=""""- 6 numeric
+    employee_qpp_cntrb_amt = fields.Float("[Box 17] Employee's Quebec Pension Plan (QPP) Contributions", help=""""- 6 numeric
     - T4 slip, box 17
     Note: Under no circumstances should amounts for both CPP and QPP appear on the same slip. A separate T4 slip is needed for each province of employment.""")
 
-    employee_qppe_cntrb_amt = fields.Float("Employee's Second Québec Pension Plan (QPP2) Contributions", help=""""- 6 numeric
+    employee_qppe_cntrb_amt = fields.Float("[Box 17A] Employee's Second Québec Pension Plan (QPP2) Contributions", help=""""- 6 numeric
             - T4 slip, box 17A, (For taxation year 2024 and subsequent)
             Note: Under no circumstances should amounts for both second CPP and second QPP appear on the same slip. A separate T4 slip is needed for each province of employment.""")
 
-    employee_empe_eip_amt = fields.Float("Employee's Employment Insurance (EI) Premium", help="""" 6 numeric
+    employee_empe_eip_amt = fields.Float("[Box 18] Employee's Employment Insurance (EI) Premium", help="""" 6 numeric
     - T4 slip, box 18""")
 
-    registered_rpp_cntrb_amt = fields.Float("Registered Pension Plan (RPP) Contributions", help="""" - 7 numeric
+    registered_rpp_cntrb_amt = fields.Float("[Box 20] Registered Pension Plan (RPP) Contributions", help="""" - 7 numeric
     - T4 slip, box 20""")
 
-    income_itx_ddct_amt = fields.Float("Income Tax Deducted", help="""" - 10 numeric
+    income_itx_ddct_amt = fields.Float("[Box 22] Income Tax Deducted", help="""" - 10 numeric
     - T4 slip, box 22""")
 
-    employee_ei_insu_ern_amt = fields.Float("Employment Insurance Insurable Earnings", help="""" - Required 7 numeric
+    employee_ei_insu_ern_amt = fields.Float("[Box 24] Employment Insurance Insurable Earnings", help="""" - Required 7 numeric
     - T4 slip, box 24
     - enter "0.00" if there are no insurable earnings
     - for exempt employment, enter "0.00" """)
 
-    canada_cpp_qpp_ern_amt = fields.Float("Canada Pension Plan Or Quebec Pension Plan Pensionable Earnings", help="""- Required 9 numeric
+    canada_cpp_qpp_ern_amt = fields.Float("[Box 26] Canada Pension Plan Or Quebec Pension Plan Pensionable Earnings", help="""- Required 9 numeric
     - T4 slip, box 26
     - if there are no pensionable earnings, enter "0.00"
     - for exempt employment, enter "0.00" """)
 
-    union_unn_dues_amt = fields.Float("Union Dues", help="""- 9 numeric
+    union_unn_dues_amt = fields.Float("[Box 44] Union Dues", help="""- 9 numeric
     - T4 slip, box 44 """)
 
-    charitable_chrty_dons_amt = fields.Float("Charitable Donations", help="""- 9 numeric
+    charitable_chrty_dons_amt = fields.Float("[Box 46] Charitable Donations", help="""- 9 numeric
     - T4 slip, box 46 """)
 
-    pension_padj_amt = fields.Float("Pension Adjustment", help="""- 7 numeric
+    pension_padj_amt = fields.Float("[Box 52] Pension Adjustment", help="""- 7 numeric
     - T4 slip, box 52""")
 
-    PPIP_prov_pip_amt = fields.Float("PPIP Premiums", help="""- 6 Numeric
+    PPIP_prov_pip_amt = fields.Float("[Box 55] PPIP Premiums", help="""- 6 Numeric
     - T4 Slip, box 55""")
 
-    PPIP_prov_insu_ern_amt = fields.Float("PPIP Insurable Earnings", help="""- 7 Numeric
+    PPIP_prov_insu_ern_amt = fields.Float("[Box 56] PPIP Insurable Earnings", help="""- 7 Numeric
     - T4 Slip, box 56""")
 
     # =================================== Other Info ===============================
@@ -266,159 +476,159 @@ class StatementOfRemuneration(models.Model):
         4 - Payee and their spouse
         5 - Payee and their dependent children""")
     # hm_brd_lodg_amt
-    hm_brd_lodg_amt = fields.Float("Housing, Board And Lodging Amount", help="- Other Income Amount - Code 30")
+    hm_brd_lodg_amt = fields.Float("[Box 30] Housing, Board And Lodging Amount", help="- Other Income Amount - Code 30")
 
     # spcl_wrk_site_amt
-    spcl_wrk_site_amt = fields.Float("Special Work Site Amount", help="- Other Income Amount - Code 31")
+    spcl_wrk_site_amt = fields.Float("[Box 31] Special Work Site Amount", help="- Other Income Amount - Code 31")
 
     # prscb_zn_trvl_amt
-    prscb_zn_trvl_amt = fields.Float("Travel In A Prescribed Zone Amount", help="- Other Income Amount - Code 32")
+    prscb_zn_trvl_amt = fields.Float("[Box 32] Travel In A Prescribed Zone Amount", help="- Other Income Amount - Code 32")
 
     # med_trvl_amt
-    med_trvl_amt = fields.Float("Medical Travel Amount", help="- Other Income Amount - Code 33")
+    med_trvl_amt = fields.Float("[Box 33] Medical Travel Amount", help="- Other Income Amount - Code 33")
 
     # prsnl_vhcl_amt
-    prsnl_vhcl_amt = fields.Float("Personal Use Of Employer Automobile Amount", help="- Other Income Amount - Code 34")
+    prsnl_vhcl_amt = fields.Float("[Box 34] Personal Use Of Employer Automobile Amount", help="- Other Income Amount - Code 34")
 
     # rsn_per_km_amt
-    rsn_per_km_amt = fields.Float("Total Reasonable Per-Kilometre Allowance Amount",
+    rsn_per_km_amt = fields.Float("[Box 35] Total Reasonable Per-Kilometre Allowance Amount",
                                   help="- Other Income amount - Code 35, applies to year 2000 and prior")
 
     # low_int_loan_amt
-    low_int_loan_amt = fields.Float("Interest-free And Low-interest Loan Amount",
+    low_int_loan_amt = fields.Float("[Box 36] Interest-free And Low-interest Loan Amount",
                                     help="- Other Income Amount - Code 36")
 
     # empe_hm_loan_amt
-    empe_hm_loan_amt = fields.Float("Employee Home-Relocation Loan Deduction Amount",
+    empe_hm_loan_amt = fields.Float("[Box 37] Employee Home-Relocation Loan Deduction Amount",
                                     help="- Other Income Amount - Code 37")
 
     # stok_opt_ben_amt
-    stok_opt_ben_amt = fields.Float("Stock Option Benefit Amount Before February 28, 2000",
+    stok_opt_ben_amt = fields.Float("[Box 97] Stock Option Benefit Amount Before February 28, 2000",
                                     help="- Other Income Amount - Code 97, applies to year 2000 and prior")
 
     # sob_a00_feb_amt
-    sob_a00_feb_amt = fields.Float("Security Options Benefits", help="- Other Income Amount - Code 38")
+    sob_a00_feb_amt = fields.Float("[Box 38] Security Options Benefits", help="- Other Income Amount - Code 38")
 
     # shr_opt_d_ben_amt
-    shr_opt_d_ben_amt = fields.Float("Stock Option And Share Deduction 110(1) (d) Amount Before February 28, 2000",
+    shr_opt_d_ben_amt = fields.Float("[Box 98] Stock Option And Share Deduction 110(1) (d) Amount Before February 28, 2000",
                                      help="- Other Income Amount - Code 98, applies to year 2000 and prior")
 
     # sod_d_a00_feb_amt
-    sod_d_a00_feb_amt = fields.Float("Security Options Deductions 110(1)(d)", help="- Other Income Amount - Code 39")
+    sod_d_a00_feb_amt = fields.Float("[Box 39] Security Options Deductions 110(1)(d)", help="- Other Income Amount - Code 39")
 
     # oth_tx_ben_amt
-    oth_tx_ben_amt = fields.Float("Other Taxable Allowance And Benefit Amount", help="- Other Income Amount - Code 40")
+    oth_tx_ben_amt = fields.Float("[Box 40] Other Taxable Allowance And Benefit Amount", help="- Other Income Amount - Code 40")
 
     # shr_opt_d1_ben_amt
-    shr_opt_d1_ben_amt = fields.Float("Stock Option And Share Deduction 110(1) (d.1) Amount Before February 28, 2000",
+    shr_opt_d1_ben_amt = fields.Float("[Box 99] Stock Option And Share Deduction 110(1) (d.1) Amount Before February 28, 2000",
                                       help="- Other Income Amount - Code 99, applies to year 2000 and prior")
 
     # sod_d1_a00_feb_amt
-    sod_d1_a00_feb_amt = fields.Float("Security Options Deduction 110(1)(d.1)",
+    sod_d1_a00_feb_amt = fields.Float("[Box 41] Security Options Deduction 110(1)(d.1)",
                                       help="- Other Income Amount - Code 41\nNote: Do not include this amount in box 14.")
 
     # empt_cmsn_amt
-    empt_cmsn_amt = fields.Float("Employment Commission Amount", help="- Other Income Amount - Code 42")
+    empt_cmsn_amt = fields.Float("[Box 42] Employment Commission Amount", help="- Other Income Amount - Code 42")
 
     # cfppa_amt
-    cfppa_amt = fields.Float("Canadian Armed Forces Personnel And Police Allowance",
+    cfppa_amt = fields.Float("[Box 43] Canadian Armed Forces Personnel And Police Allowance",
                              help="- Other Income Amount - Code 43")
 
     # dfr_sob_amt
-    dfr_sob_amt = fields.Float("Deferred Security Option Benefits", help="- Other Income Amount - Code 53")
+    dfr_sob_amt = fields.Float("[Box 53] Deferred Security Option Benefits", help="- Other Income Amount - Code 53")
 
     # empt_inc_amt_covid_prd1
-    empt_inc_amt_covid_prd1 = fields.Float("Employment Income – March 15 To May 9 – 2020 Tax Year Only",
+    empt_inc_amt_covid_prd1 = fields.Float("[Box 57] Employment Income – March 15 To May 9 – 2020 Tax Year Only",
                                            help="- Other Income Amount - Code 57")
 
     # empt_inc_amt_covid_prd2
-    empt_inc_amt_covid_prd2 = fields.Float("Employment income – May 10 To July 4 – 2020 Tax Year Only",
+    empt_inc_amt_covid_prd2 = fields.Float("[Box 58] Employment income – May 10 To July 4 – 2020 Tax Year Only",
                                            help="- Other Income Amount - Code 58")
 
     # empt_inc_amt_covid_prd3
-    empt_inc_amt_covid_prd3 = fields.Float("Employment Income – July 5 To August 29 – 2020 Tax Year Only",
+    empt_inc_amt_covid_prd3 = fields.Float("[Box 59] Employment Income – July 5 To August 29 – 2020 Tax Year Only",
                                            help="- Other Income Amount - Code 59")
 
     # empt_inc_amt_covid_prd4
-    empt_inc_amt_covid_prd4 = fields.Float("Employment Income – August 30 To September 26 – 2020 Tax Year Only",
+    empt_inc_amt_covid_prd4 = fields.Float("[Box 60] Employment Income – August 30 To September 26 – 2020 Tax Year Only",
                                            help="- Other Income Amount - Code 60")
 
     # elg_rtir_amt
-    elg_rtir_amt = fields.Float("Eligible Retiring Allowances",
+    elg_rtir_amt = fields.Float("[Box 66] Eligible Retiring Allowances",
                                 help="- Other Income Amount – Code 66\n# Note: Do not include this amount in box 14.")
 
     # nelg_rtir_amt
-    nelg_rtir_amt = fields.Float("Non-eligible Retiring Allowances",
+    nelg_rtir_amt = fields.Float("[Box 67] Non-eligible Retiring Allowances",
                                  help="- Other Income Amount – Code 67\n# Note: Do not include this amount in box 14.")
 
     # indn_nelg_rtir_amt
-    indn_nelg_rtir_amt = fields.Float("Status Indian Non-eligible Retiring Allowances",
+    indn_nelg_rtir_amt = fields.Float("[Box 69] Status Indian Non-eligible Retiring Allowances",
                                       help="- Other Income Amount – Code 69\n# Note: Do not include this amount in box 14.")
 
     # indn_empe_amt
-    indn_empe_amt = fields.Float("Status Indian Employee Amount",
+    indn_empe_amt = fields.Float("[Box 71] Status Indian Employee Amount",
                                  help="- Other Income Amount - Code 71\n# Note: If you are reporting this type of income, enter 0.00 in box 14.")
 
     # oc_incamt
-    oc_incamt = fields.Float("Outside Of Canada Employment Income Amount- Section 122.3",
+    oc_incamt = fields.Float("[Box 72] Outside Of Canada Employment Income Amount- Section 122.3",
                              help="- Other Income Amount - Code 72")
 
     # oc_dy_cnt
-    oc_dy_cnt = fields.Integer("Employment Outside Of Canada Day Count",
+    oc_dy_cnt = fields.Integer("[Box 73] Employment Outside Of Canada Day Count",
                                help="- 3 numeric\n- Other Income Field - Code 73")
 
     # pr_90_cntrbr_amt
-    pr_90_cntrbr_amt = fields.Float("Pre-1990 Past Service Contributions While A Contributor",
+    pr_90_cntrbr_amt = fields.Float("[Box 74] Pre-1990 Past Service Contributions While A Contributor",
                                     help="- Other Income Amount - Code 74")
 
     # pr_90_ncntrbr_amt
-    pr_90_ncntrbr_amt = fields.Float("Pre-1990 Past Service Contributions While Not A Contributor",
+    pr_90_ncntrbr_amt = fields.Float("[Box 75] Pre-1990 Past Service Contributions While Not A Contributor",
                                      help="- Other Income Amount - Code 75")
 
     # cmpn_rpay_empr_amt
-    cmpn_rpay_empr_amt = fields.Float("Workers’ Compensation Benefit Repaid To The Employer Amount",
+    cmpn_rpay_empr_amt = fields.Float("[Box 77] Workers’ Compensation Benefit Repaid To The Employer Amount",
                                       help="- Other Income Amount - Code 77\n# Note: Do not include this amount in box 14.")
 
     # fish_gro_ern_amt
-    fish_gro_ern_amt = fields.Float("Fishers - Gross Earnings",
+    fish_gro_ern_amt = fields.Float("[Box 78] Fishers - Gross Earnings",
                                     help="- Other Income Amount - Code 78\n# Note: Do not include this amount in box 14.")
 
     # fish_net_ptnr_amt
-    fish_net_ptnr_amt = fields.Float("Fishers - Net Partnership Amount",
+    fish_net_ptnr_amt = fields.Float("[Box 79] Fishers - Net Partnership Amount",
                                      help="- Other Income Amount - Code 79\n# Note: Do not include this amount in box 14.")
 
     # fish_shr_prsn_amt
-    fish_shr_prsn_amt = fields.Float("Fishers - Shareperson Amount",
+    fish_shr_prsn_amt = fields.Float("[Box 80] Fishers - Shareperson Amount",
                                      help="- Other Income Amount - Code 80\n# Note: Do not include this amount in box 14.")
 
     # plcmt_emp_agcy_amt
-    plcmt_emp_agcy_amt = fields.Float("Placement Or Employment Agency",
+    plcmt_emp_agcy_amt = fields.Float("[Box 81] Placement Or Employment Agency",
                                       help="- Other Income Amount - Code 81\n# Note: Do not include this amount in box 14.")
 
     # drvr_taxis_oth_amt
-    drvr_taxis_oth_amt = fields.Float("Driver Of Taxi Or Other Passenger-carrying Vehicle",
+    drvr_taxis_oth_amt = fields.Float("[Box 82] Driver Of Taxi Or Other Passenger-carrying Vehicle",
                                       help="- Other Income Amount - Code 82\nNote: Do not include this amount in box 14.")
 
     # brbr_hrdrssr_amt
-    brbr_hrdrssr_amt = fields.Float("Barber Or Hairdresser",
+    brbr_hrdrssr_amt = fields.Float("[Box 83] Barber Or Hairdresser",
                                     help="- Other Income Amount - Code 83\nNote: Do not include this amount in box 14.")
 
     # pub_trnst_pass_amt
-    pub_trnst_pass_amt = fields.Float("Public Transit Pass", help="- Other Income Amount - Code 84")
+    pub_trnst_pass_amt = fields.Float("[Box 84] Public Transit Pass", help="- Other Income Amount - Code 84")
 
     # epaid_hlth_pln_amt
-    epaid_hlth_pln_amt = fields.Float("Employee-paid Premiums For Private Health Services Plans",
+    epaid_hlth_pln_amt = fields.Float("[Box 85] Employee-paid Premiums For Private Health Services Plans",
                                       help="- Other Income Amount - Code 85\nNote: Do not include this amount in box 14.")
 
     # stok_opt_csh_out_eamt
-    stok_opt_csh_out_eamt = fields.Float("Stock Option Cash-out Expense", help="- Other Income Amount – Code 86")
+    stok_opt_csh_out_eamt = fields.Float("[Box 86] Stock Option Cash-out Expense", help="- Other Income Amount – Code 86")
 
     # vlntr_emergencyworker_xmpt_amt
-    vlntr_emergencyworker_xmpt_amt = fields.Float("Emergency services volunteer exempt amount",
+    vlntr_emergencyworker_xmpt_amt = fields.Float("[Box 87] Emergency services volunteer exempt amount",
                                                   help="- Other Income Amount - Code 87\n- Valid for 2011 and subsequent tax years only\nNote: Do not include this amount in box 14.")
 
     # indn_txmpt_sei_amt
-    indn_txmpt_sei_amt = fields.Float("Indian (Exempt Income) – Self-employment",
+    indn_txmpt_sei_amt = fields.Float("[Box 88] Indian (Exempt Income) – Self-employment",
                                       help="- Other Income Amount - Code 88\nNote: Do not include this amount in box 14.")
 
     # ==================================== T4 Summary ===================================================
@@ -669,118 +879,163 @@ class StatementOfRemuneration(models.Model):
 
 
     # ========================== Compute T4 ======================================
-    def _get_all_t4_amount(self):
-        # Employee Payslip
-        employee_payslip_ids = self.env['hr.payslip'].search(
-            [('employee_id', '=', self.employee_id.id), ('state', '=', 'paid')])
-        year_specific_employee_payslip_ids = employee_payslip_ids.filtered(
-            lambda s: s.date_from.year == int(self.year) or s.date_to.year == int(self.year))
-        emp_line_obj = self.employee_id.payroll_line_ids.filtered(lambda x: x.year == self.year)
+    def _get_t4_reset_payload(self):
+        self.ensure_one()
 
-        employee_contract = self.employee_contract
-        t4_amount = {}
-        cpp_cnt_amount = 0.0
-        cpp_cnt_amount = 0.0
-        cppe_cntrb_amt = 0.0 # CPP2 amount
-        qppe_cntrb_amt = 0.0 # Quebec CPP2 amount
-        qpp_cnt_amount = 0.0
-        canada_cpp_qpp_ern_amt = 0.0
-        employee_empt_incamt = 0.0
-        employee_empe_eip_amt = 0.0
-        employer_empe_eip_amt = 0.0
-        employee_ei_insu_ern_amt = 0.0
-        income_itx_ddct_amt = 0.0
-        union_unn_dues_amt = 0.0
-        charitable_chrty_dons_amt = 0.0
-        pension_padj_amt = 0.0
-        PPIP_prov_pip_amt = 0.0
-        PPIP_prov_insu_ern_amt = 0.0
-        empt_cmsn_amt = 0.0
+        reset_payload = {}
+        managed_field_names = self.env['syncoria_can_payroll.t4_box_selection'].with_context(
+            active_test=False
+        ).search([]).mapped('field_name')
 
-        for pay in year_specific_employee_payslip_ids:
-            for line in pay.line_ids:
-                # if line.code == 'CPP_QPP_EA':
-                #     canada_cpp_qpp_ern_amt += line.amount
-                if line.code == 'CPP':
-                    cpp_cnt_amount += line.amount
-                elif line.code == 'CPP2':
-                    cppe_cntrb_amt += line.amount
-                elif line.code == 'I_Earning': #This will be total gross amount (GROSS + ALW + ADD_ALW)
-                    employee_empt_incamt += line.amount
-                # elif line.code == 'EI_EA':
-                #
-                #     employee_ei_insu_ern_amt += line.amount
-                elif line.code == 'EI':
-                    employee_empe_eip_amt += line.amount
-                elif line.code == 'EI_EMPLOYER':
-                    employer_empe_eip_amt += line.amount
-                elif line.code in ['FTAX', 'OTAX']:
-                    income_itx_ddct_amt += line.amount
-                elif line.code == 'UNION_DUES':
-                    union_unn_dues_amt += line.amount
-                elif line.code == 'CHAR_DON':
-                    charitable_chrty_dons_amt += line.amount
-                elif line.code == 'PEN_ADJ':
-                    pension_padj_amt += line.amount
-                elif line.code == 'PPI_EARN':
-                    PPIP_prov_insu_ern_amt += line.amount
-                elif line.code == 'PPI_PRE':
-                    PPIP_prov_pip_amt += line.amount
-                elif line.code == 'COMMISSION':
-                    empt_cmsn_amt += line.amount
+        for field_name in managed_field_names:
+            field_name = (field_name or '').strip()
+            field = self._fields.get(field_name)
+            if not field or field.related:
+                continue
 
-            # if
-            # cpp_cnt_amount +=
-        # Total Insurable earning with previous amount
-        employee_empt_incamt +=  emp_line_obj.ytd_previous_pi if emp_line_obj else 0
+            if field.type in ('float', 'monetary'):
+                reset_payload[field_name] = 0.0
+            elif field.type == 'integer':
+                reset_payload[field_name] = 0
+            elif field.type in ('boolean', 'char', 'selection', 'text'):
+                reset_payload[field_name] = False
 
-        t4_amount.update({
-            'employee_empt_incamt': round(employee_empt_incamt,2),
-            'tot_empt_incamt': round(employee_empt_incamt,2),
-            'income_itx_ddct_amt': round(income_itx_ddct_amt,2),
-            'tot_itx_ddct_amt': round(income_itx_ddct_amt,2),
-            'union_unn_dues_amt': round(union_unn_dues_amt,2),
-            'charitable_chrty_dons_amt': round(charitable_chrty_dons_amt,2),
-            'pension_padj_amt': round(pension_padj_amt,2),
-            'empt_cmsn_amt' :round(empt_cmsn_amt,2)
+        # These summary fields are computed from the mapped T4 box fields and must
+        # be reset as well, otherwise values from removed boxes remain on the form.
+        reset_payload.update({
+            'tot_empt_incamt': 0.0,
+            'tot_empe_cpp_amt': 0.0,
+            'tot_empe_cppe_amt': 0.0,
+            'tot_empe_eip_amt': 0.0,
+            'tot_rpp_cntrb_amt': 0.0,
+            'tot_itx_ddct_amt': 0.0,
+            'tot_padj_amt': 0.0,
+            'tot_empr_cpp_amt': 0.0,
+            'tot_empr_cppe_amt': 0.0,
+            'tot_empr_eip_amt': 0.0,
         })
+        return reset_payload
+
+    def _get_all_t4_amount(self):
+        self.ensure_one()
+
+        # payslips for employee/year
+        payslips = self.env['hr.payslip'].search([
+            ('employee_id', '=', self.employee_id.id),
+            ('year', '=', self.year),
+            ('state', '=', 'paid'),
+        ])
+
+        emp_line_obj = self.employee_id.payroll_line_ids.filtered(lambda x: x.year == self.year)
+        employee_contract = self.employee_contract
+
+        totals = {}  # {statement_field_name: sum(amount)}
+
+        for slip in payslips:
+            for line in slip.line_ids:
+                amount = line.amount or 0.0
+                if not amount:
+                    continue
+
+                rule = getattr(line, "salary_rule_id", False)
+                if not rule:
+                    continue
+
+                mapped_fields = rule.selected_t4_statement_fields
+                if not mapped_fields:
+                    continue
+
+                for mapped in mapped_fields:
+                    field_name = (mapped.field_name or "").strip()
+                    if not field_name:
+                        continue
+
+                    if field_name not in self._fields:
+                        raise UserError(_(
+                            "T4 mapping error: '%s' is mapped on salary rule '%s' but does not exist on statement.remuneration."
+                        ) % (field_name, rule.name))
+
+                    totals[field_name] = totals.get(field_name, 0.0) + amount
+
+        # Employment income previous
+        if 'employee_empt_incamt' in totals:
+            totals['employee_empt_incamt'] += (emp_line_obj.ytd_previous_pi if emp_line_obj else 0.0)
+
+        # CPP previous
+        if 'employee_cpp_cntrb_amt' in totals:
+            totals['employee_cpp_cntrb_amt'] += (emp_line_obj.ytd_previous_cpp if emp_line_obj else 0.0)
+
+        # CPP2 previous
+        if 'employee_cppe_cntrb_amt' in totals:
+            totals['employee_cppe_cntrb_amt'] += (emp_line_obj.ytd_previous_cpp2 if emp_line_obj else 0.0)
+
+        # EI previous (employee)
+        if 'employee_empe_eip_amt' in totals:
+            totals['employee_empe_eip_amt'] += (emp_line_obj.ytd_previous_ei if emp_line_obj else 0.0)
+
+        if 'tot_empr_eip_amt' in totals:
+            totals['tot_empr_eip_amt'] += (emp_line_obj.ytd_previous_ei_employer if emp_line_obj else 0.0)
+
+        # Round once at end
+        totals = {k: round(v or 0.0, 2) for k, v in totals.items()}
+
+        t4_amount = {}
+
+        for field_name, value in totals.items():
+            if field_name in self._fields:
+                t4_amount[field_name] = value
+
+        if 'employee_empt_incamt' in totals:
+            t4_amount['tot_empt_incamt'] = totals['employee_empt_incamt']
+
+        if 'income_itx_ddct_amt' in totals:
+            t4_amount['tot_itx_ddct_amt'] = totals['income_itx_ddct_amt']
+
+        if 'union_unn_dues_amt' in totals:
+            t4_amount['union_unn_dues_amt'] = totals['union_unn_dues_amt']
+
+        if 'charitable_chrty_dons_amt' in totals:
+            t4_amount['charitable_chrty_dons_amt'] = totals['charitable_chrty_dons_amt']
+
+        if 'pension_padj_amt' in totals:
+            t4_amount['pension_padj_amt'] = totals['pension_padj_amt']
+
         if not employee_contract.is_cpp_qpp_xmpt_cd:
-            canada_cpp_qpp_ern_amt = round(employee_empt_incamt, 2)
-            # Total CPP with previous amount
+            emp_income = totals.get('employee_empt_incamt', 0.0)
+            t4_amount['canada_cpp_qpp_ern_amt'] = round(emp_income, 2)
 
-            cpp_cnt_amount += emp_line_obj.ytd_previous_cpp if emp_line_obj else 0
+            cpp_amt = totals.get('employee_cpp_cntrb_amt', 0.0)
+            cppe_amt = totals.get('employee_cppe_cntrb_amt', 0.0)
 
-            # Total CPP2 with previous amount
-            cppe_cntrb_amt += emp_line_obj.ytd_previous_cpp2 if emp_line_obj else 0
-            t4_amount.update(
-                {
-                  'employee_cpp_cntrb_amt': round(cpp_cnt_amount,2),
-                  'employee_cppe_cntrb_amt': round(cppe_cntrb_amt,2),
-                 'tot_empe_cpp_amt': round(cpp_cnt_amount,2),
-                 'tot_empr_cpp_amt': round(cpp_cnt_amount,2),
-                #CPP2
-                'tot_empe_cppe_amt': round(cppe_cntrb_amt, 2),
-                'tot_empr_cppe_amt': round(cppe_cntrb_amt, 2),
-                 'canada_cpp_qpp_ern_amt': round(canada_cpp_qpp_ern_amt,2)}
-            )
+            # Only set totals if those fields are present/mapped (prevents accidental double filling)
+            if 'employee_cpp_cntrb_amt' in totals:
+                t4_amount['employee_cpp_cntrb_amt'] = round(cpp_amt, 2)
+                t4_amount['tot_empe_cpp_amt'] = round(cpp_amt, 2)
+                t4_amount['tot_empr_cpp_amt'] = round(cpp_amt, 2)
+
+            if 'employee_cppe_cntrb_amt' in totals:
+                t4_amount['employee_cppe_cntrb_amt'] = round(cppe_amt, 2)
+                t4_amount['tot_empe_cppe_amt'] = round(cppe_amt, 2)
+                t4_amount['tot_empr_cppe_amt'] = round(cppe_amt, 2)
+
+        # EI earnings + totals
         if not employee_contract.is_ei_xmpt_cd:
-            employee_ei_insu_ern_amt = round(employee_empt_incamt, 2)
-            # Total Employee EI with previous amount
-            line_obj = self.employee_id.payroll_line_ids.filtered(lambda x: x.year == self.year)
-            employee_empe_eip_amt += line_obj.ytd_previous_ei if line_obj else 0
-            # Total Employer EI with previous amount
-            employer_empe_eip_amt += line_obj.ytd_previous_ei_employer if line_obj else 0
-            t4_amount.update(
-                {'employee_empe_eip_amt': round(employee_empe_eip_amt,2),
-                 'tot_empe_eip_amt': round(employee_empe_eip_amt,2),
-                 'tot_empr_eip_amt': round(employer_empe_eip_amt,2),
-                 'employee_ei_insu_ern_amt': round(employee_ei_insu_ern_amt,2)}
-            )
+            emp_income = totals.get('employee_empt_incamt', 0.0)
+            t4_amount['employee_ei_insu_ern_amt'] = round(emp_income, 2)
+
+            if 'employee_empe_eip_amt' in totals:
+                ei_emp = totals.get('employee_empe_eip_amt', 0.0)
+                t4_amount['employee_empe_eip_amt'] = round(ei_emp, 2)
+                t4_amount['tot_empe_eip_amt'] = round(ei_emp, 2)
+
+            if 'tot_empr_eip_amt' in totals:
+                t4_amount['tot_empr_eip_amt'] = round(totals.get('tot_empr_eip_amt', 0.0), 2)
+
         if not employee_contract.is_prov_pip_xmpt_cd:
-            t4_amount.update(
-                {'PPIP_prov_pip_amt': round(PPIP_prov_pip_amt,2),
-                 'PPIP_prov_insu_ern_amt': round(PPIP_prov_insu_ern_amt,2)}
-            )
+            if 'PPIP_prov_pip_amt' in totals:
+                t4_amount['PPIP_prov_pip_amt'] = totals['PPIP_prov_pip_amt']
+            if 'PPIP_prov_insu_ern_amt' in totals:
+                t4_amount['PPIP_prov_insu_ern_amt'] = totals['PPIP_prov_insu_ern_amt']
 
         return t4_amount
 
@@ -792,7 +1047,11 @@ class StatementOfRemuneration(models.Model):
             employeer = self.company_id.partner_id
             employeer_contact_id = employeer.employeer_contact_id
 
-            payload = self._get_all_t4_amount()
+            payload = self._get_t4_reset_payload()
+            payload.update(self._get_all_t4_amount())
+
+            # payload = self._get_all_t4_amount()
+
             payload.update({
                 'employee_snm': employee.name.split(" ")[-1],  # FIX: Add field on employee
                 'employee_gvn_nm': employee.name.split(" ")[0],  # FIX: Add field on employee
@@ -842,7 +1101,8 @@ class StatementOfRemuneration(models.Model):
 
             })
 
-            self.write(payload)
+            self.with_context(skip_t4_box_limit_validation=True).write(payload)
+            self._sync_selected_t4_boxes_from_other_info(skip_validation=True)
 
         # return None
 
@@ -1068,18 +1328,42 @@ class StatementOfRemuneration(models.Model):
     # ======================== Generate and download T4 PDF ===========================
     def download_t4_pdf(self):
 
-       for rec in self:
+        for rec in self:
             kwrgs = rec.generate_data_for_pdf(rec)
             pdf_name = str(
                 datetime.datetime.now().strftime(f"{rec.employee_id.name.replace(' ', '')}-{rec.year}-")) + str(
                 datetime.datetime.now().strftime("%m%d%Y%H%M%S%f")) + ".pdf"
 
-       return {
+        return {
             'type': 'ir.actions.act_url',
             'url': '/download/pdf?file_path=%s&file_name=%s&file_paths=%s' % ('', pdf_name, kwrgs),
             'target': 'new',
         }
-    def generate_data_for_pdf(self,employees):
+
+    def _get_selected_boxes_with_amounts(self, rec, max_boxes=6):
+
+        selected_boxes_with_amounts = []
+
+        selected_boxes = rec.selected_t4_boxes.sorted(key=lambda x: x.box_number)[:max_boxes]
+
+        for box_selection in selected_boxes:
+            box_num = box_selection.box_number
+            field_name = self.BOX_TO_FIELD_MAP.get(box_num)
+
+            if field_name and hasattr(rec, field_name):
+                amount = getattr(rec, field_name, None)
+
+                if amount is not None:
+                    try:
+                        amount_float = float(amount)
+                        if not float_is_zero(amount_float, precision_digits=2):
+                            selected_boxes_with_amounts.append((box_num, amount_float))
+                    except (ValueError, TypeError):
+                        continue
+
+        return selected_boxes_with_amounts
+
+    def generate_data_for_pdf(self, employees):
         kwrgs = []
         for rec in employees:
             if rec.state == 'done':
@@ -1087,7 +1371,6 @@ class StatementOfRemuneration(models.Model):
                     pdf_template_path = file_path(
                         'syncoria_can_payroll/utils/t4-fill-23e.pdf'
                     )
-
                     output_folder_path = os.path.expanduser(os.getenv("HOME")) + "/outPdf/"
                     if not os.path.isdir(output_folder_path):
                         os.mkdir(output_folder_path)
@@ -1098,65 +1381,75 @@ class StatementOfRemuneration(models.Model):
                     filename = output_folder_path + pdf_name
 
                     reader = PdfReader(pdf_template_path)
-                    # fields = reader.get_fields()
-                    # print(fields)
                     writer = PdfWriter()
-
                     writer.append(reader)
 
-                    # Constructing the data dictionary
-                    data = {'Slip1Year[0]': rec.year,
-                            'Slip1EmployersName[0]': f'{rec.employer_l1_nm}\n{rec.employer_addr_l1_txt}\n{rec.employer_cty_nm},{rec.employer_prov_cd} {rec.employer_pstl_cd}',
-                            'Slip1Box54[0]': rec.employee_bn,
-                            'Slip1Box12[0]': rec.employee_sin, 'Slip1Box14[0]': round(rec.employee_empt_incamt, 2),
-                            'Slip1Box22[0]': round(rec.income_itx_ddct_amt, 2), 'Slip1Box10[0]': 'ON',
-                            'DropDownList[0]': rec.empr_dntl_ben_rpt_cd or "1",
-                            'Slip1Box16[0]': round(rec.employee_cpp_cntrb_amt, 2),
-                            'Slip1Box29[0]': rec.employee_empt_cd or "11",
-                            'Slip1CPP[0]': int(rec.employee_cpp_qpp_xmpt_cd),
-                            'Slip1EI[0]': int(rec.employee_ei_xmpt_cd),
-                            'Slip1PPIP[0]': int(rec.employee_prov_pip_xmpt_cd),
-                            'Slip1Box16A[0]': round(rec.employee_cppe_cntrb_amt, 2),
-                            'Slip1Box24[0]': round(rec.employee_ei_insu_ern_amt, 2), 'Slip1Box17[0]': 0.0,
-                            'Slip1Box26[0]': round(rec.canada_cpp_qpp_ern_amt, 2),
-                            'Slip1Box18[0]': rec.employee_empe_eip_amt,
-                            'Slip1Box44[0]': rec.union_unn_dues_amt, 'Slip1Box20[0]': 0.0,
-                            'Slip1Box46[0]': rec.charitable_chrty_dons_amt, 'Slip1Box52[0]': rec.pension_padj_amt,
-                            'Slip1Box50[0]': rec.employee_rpp_dpsp_rgst_nbr, 'Slip1Box55[0]': rec.PPIP_prov_pip_amt,
-                            'Slip1Box56[0]': rec.PPIP_prov_insu_ern_amt, 'Slip1LastName[0]': rec.employee_snm,
-                            'Slip1FirstName[0]': rec.employee_gvn_nm, 'Slip1Initial[0]': rec.employee_init,
-                            'Slip1Address[0]': f'{rec.employee_addr_l1_txt}\n{rec.employee_addr_l2_txt}\n{rec.employee_cty_nm}\n{rec.employee_prov_cd} {rec.employee_pstl_cd}',
-                            'Slip1Amount1[0]': rec.empt_cmsn_amt,
-                            'Slip1Box1[0]': '42',
-                            'Slip1Amount2[0]': None, 'Slip1Amount3[0]': None, 'Slip1Amount4[0]': None,
-                            'Slip1Amount5[0]': None,
-                            'Slip1Amount6[0]': None, 'Slip1EmployersName[0].2': None,
-                            'Slip1Year[0].2': None, 'Slip1Box54[0].2': None, 'Slip1Box12[0].2': None,
-                            'Slip1Box14[0].2': None,
-                            'Slip1Box22[0].2': None, 'Slip1Box16[0].2': None, 'Slip1Box24[0].2': None,
-                            'Slip1Box17[0].2': None, 'Slip1Box17A[0].2': None,
-                            'Slip1Box26[0].2': None, 'Slip1Box18[0].2': None, 'Slip1Box44[0].2': None,
-                            'Slip1Box20[0].2': None,
-                            'Slip1Box46[0].2': None, 'Slip1Box52[0].2': None, 'Slip1Box50[0].2': None,
-                            'Slip1Box55[0].2': None,
-                            'Slip1Box56[0].2': None, 'Slip1LastName[0].2': None, 'Slip1FirstName[0].2': None,
-                            'Slip1Initial[0].2': None, 'Slip1Address[0].2': None, 'Slip1Amount1[0].2': None,
-                            'Slip1Amount2[0].2': None, 'Slip1Amount3[0].2': None, 'Slip1Amount4[0].2': None,
-                            'Slip1Amount5[0].2': None, 'Slip1Amount6[0].2': None}
+                    data = {
+                        'Slip1Year[0]': rec.year,
+                        'Slip1EmployersName[0]': f'{rec.employer_l1_nm}\n{rec.employer_addr_l1_txt}\n{rec.employer_cty_nm},{rec.employer_prov_cd} {rec.employer_pstl_cd}',
+                        'Slip1Box54[0]': rec.employee_bn,
+                        'Slip1Box12[0]': rec.employee_sin,
+                        'Slip1Box14[0]': round(rec.employee_empt_incamt, 2),
+                        'Slip1Box22[0]': round(rec.income_itx_ddct_amt, 2),
+                        'Slip1Box10[0]': 'ON',
+                        'DropDownList[0]': rec.empr_dntl_ben_rpt_cd or "1",
+                        'Slip1Box16[0]': round(rec.employee_cpp_cntrb_amt, 2),
+                        'Slip1Box29[0]': rec.employee_empt_cd or "11",
+                        'Slip1CPP[0]': int(rec.employee_cpp_qpp_xmpt_cd),
+                        'Slip1EI[0]': int(rec.employee_ei_xmpt_cd),
+                        'Slip1PPIP[0]': int(rec.employee_prov_pip_xmpt_cd),
+                        'Slip1Box16A[0]': round(rec.employee_cppe_cntrb_amt, 2),
+                        'Slip1Box24[0]': round(rec.employee_ei_insu_ern_amt, 2),
+                        'Slip1Box17[0]': round(rec.employee_qpp_cntrb_amt, 2),
+                        'Slip1Box17A[0]': round(rec.employee_qppe_cntrb_amt, 2),
+                        'Slip1Box26[0]': round(rec.canada_cpp_qpp_ern_amt, 2),
+                        'Slip1Box18[0]': rec.employee_empe_eip_amt,
+                        'Slip1Box44[0]': rec.union_unn_dues_amt,
+                        'Slip1Box20[0]': round(rec.registered_rpp_cntrb_amt, 2),
+                        'Slip1Box46[0]': rec.charitable_chrty_dons_amt,
+                        'Slip1Box52[0]': rec.pension_padj_amt,
+                        'Slip1Box50[0]': rec.employee_rpp_dpsp_rgst_nbr,
+                        'Slip1Box55[0]': rec.PPIP_prov_pip_amt,
+                        'Slip1Box56[0]': rec.PPIP_prov_insu_ern_amt,
+                        'Slip1LastName[0]': rec.employee_snm,
+                        'Slip1FirstName[0]': rec.employee_gvn_nm,
+                        'Slip1Initial[0]': rec.employee_init,
+                        'Slip1Address[0]': f'{rec.employee_addr_l1_txt}\n{rec.employee_addr_l2_txt}\n{rec.employee_cty_nm}\n{rec.employee_prov_cd} {rec.employee_pstl_cd}',
+                    }
 
-                    # Handle None values
+                    selected_boxes_with_amounts = self._get_selected_boxes_with_amounts(rec, max_boxes=6)
+                    for idx, (box_num, amount) in enumerate(selected_boxes_with_amounts, start=1):
+                        data[f'Slip1Box{idx}[0]'] = str(box_num)
+                        data[f'Slip1Amount{idx}[0]'] = round(float(amount), 2)
+
+                    for idx in range(len(selected_boxes_with_amounts) + 1, 7):
+                        data[f'Slip1Box{idx}[0]'] = None
+                        data[f'Slip1Amount{idx}[0]'] = None
+
+                    secondary_fields = [
+                        'Slip1EmployersName[0].2', 'Slip1Year[0].2', 'Slip1Box54[0].2', 'Slip1Box12[0].2',
+                        'Slip1Box14[0].2', 'Slip1Box22[0].2', 'Slip1Box16[0].2', 'Slip1Box24[0].2',
+                        'Slip1Box17[0].2', 'Slip1Box17A[0].2', 'Slip1Box26[0].2', 'Slip1Box18[0].2',
+                        'Slip1Box44[0].2', 'Slip1Box20[0].2', 'Slip1Box46[0].2', 'Slip1Box52[0].2',
+                        'Slip1Box50[0].2', 'Slip1Box55[0].2', 'Slip1Box56[0].2', 'Slip1LastName[0].2',
+                        'Slip1FirstName[0].2', 'Slip1Initial[0].2', 'Slip1Address[0].2', 'Slip1Amount1[0].2',
+                        'Slip1Amount2[0].2', 'Slip1Amount3[0].2', 'Slip1Amount4[0].2', 'Slip1Amount5[0].2',
+                        'Slip1Amount6[0].2'
+                    ]
+
+                    for field in secondary_fields:
+                        data[field] = None
+
                     data = {key: str(value) if value is not None else "" for key, value in data.items()}
 
                     writer.update_page_form_field_values(writer.pages[0], data)
 
-                    # Write the updated PDF to a file
                     with open(filename, "wb") as output_stream:
                         writer.write(output_stream)
                 except PermissionError as pe:
                     raise UserError(_(f"Permission Error: {pe}"))
                 except IOError as ie:
                     raise UserError(_(f"IO Error: {ie}"))
-                # Uncomment for general error handling if needed
                 except Exception as e:
                     raise UserError(_(f"Internal Error: {e}"))
 
@@ -1215,5 +1508,3 @@ class StatementOfRemuneration(models.Model):
             'view_id': self.env.ref('syncoria_can_payroll.view_t4_messeage_wizard_form').id,
             'target': 'new',  # This opens the wizard in a popup
         }
-
-
