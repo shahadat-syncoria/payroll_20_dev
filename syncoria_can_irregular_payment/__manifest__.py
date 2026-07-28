@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     "name": "Syncoria Irregular Payment",
-    "version": "19.0.0.2",
+    "version": "19.0.0.3",
     "summary": """
         This is part of Syncoria Canada Payroll app which will attach Irregular pay feature""",
     "description": """

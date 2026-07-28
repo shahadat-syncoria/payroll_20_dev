@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     "name": "Payroll based on timesheet",
-    "version": "19.0.0.1",
+    "version": "19.0.0.2",
     "summary": """
             This module is for generate payslip based on timesheet.
         """,

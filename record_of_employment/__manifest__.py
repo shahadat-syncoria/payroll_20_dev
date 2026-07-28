@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     "name": "Record Of Employment (ROE)",
-    "version": "19.0.0.6",
+    "version": "19.0.0.7",
     "summary": """
     This module will help to record ROE data.
     """,
