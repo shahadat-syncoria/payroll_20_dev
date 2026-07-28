@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     "name": "Syncoria Canada Payroll Overtime Banked Hour",
-    "version": "19.1.3",
+    "version": "19.1.4",
     "summary": """
         This Module is for calculating Canada overtime Banked Hour.
     """,

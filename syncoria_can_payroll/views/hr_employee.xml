@@ -212,7 +212,7 @@
                     </group>
                     <group name="deductions" string="Deductions">
 
-                        <group>
+                        <group groups="hr.group_hr_manager">
                             <field name="garnishment" widget="boolean_toggle"/>
                             <label for="wage_garnishment" invisible="garnishment != True"/>
                             <div class="o_row" invisible="garnishment != True">
