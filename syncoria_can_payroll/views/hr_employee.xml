@@ -7,8 +7,35 @@
             <field name="inherit_id" ref="hr.view_employee_form"/>
             <field name="arch" type="xml">
                 <field name="identification_id" position="attributes">
-                    <attribute name="string">Employee Social Insurance Number (SIN)</attribute>
-                    <attribute name="required">1</attribute>
+                    <attribute name="invisible">1</attribute>
+                </field>
+                <field name="identification_id" position="after">
+                    <label for="identification_id" string="Employee Social Insurance Number (SIN)"
+                           groups="hr.group_hr_user"/>
+                    <div class="o_wrap_label d-flex flex-row gap-3 align-items-baseline" groups="hr.group_hr_user">
+                        <field name="identification_id"
+                               required="1"
+                               invisible="id and not sin_revealed"
+                               readonly="id and not sin_revealed"
+                               nolabel="1"/>
+                        <field name="identification_id_masked"
+                               invisible="not id or sin_revealed"
+                               readonly="1"
+                               nolabel="1"/>
+                        <button name="action_toggle_sin"
+                                type="object"
+                                string="Show SIN"
+                                icon="fa-eye"
+                                invisible="not id or sin_revealed"
+                                class="btn-link p-0 flex-shrink-0"/>
+                        <button name="action_toggle_sin"
+                                type="object"
+                                string="Hide SIN"
+                                icon="fa-eye-slash"
+                                invisible="not id or not sin_revealed"
+                                class="btn-link p-0 flex-shrink-0"/>
+                        <field name="sin_revealed" invisible="1"/>
+                    </div>
                 </field>
                 <field name="birthday" position="replace">
                     <field name="birthday" required="1"/>
