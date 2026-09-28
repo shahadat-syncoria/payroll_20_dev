@@ -1,0 +1,5 @@
+id,name,model_id,group_id/id,operation,domain
+access_hr_attendance_overtime_store,access_hr_attendance_overtime_store,hr.attendance.overtime.store,base.group_user,crud,
+access_hr_overtime_pay,access_hr_overtime_pay,hr.overtime.pay.request,base.group_user,crud,
+access_overtime_thresholds,access_overtime_thresholds,overtime.thresholds,hr_holidays.group_hr_holidays_user,crud,
+access_overtime_thresholds_line,access_overtime_thresholds_line,overtime.thresholds.line,hr_holidays.group_hr_holidays_user,crud,

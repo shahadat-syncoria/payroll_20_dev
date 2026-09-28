@@ -1,25 +1,24 @@
 import logging
 
-from odoo import http
+from odoo.http import router
 
 _logger = logging.getLogger(__name__)
 
 
 def post_load():
     _logger.info(
-        "Apply Request._get_session_and_dbname monkey patch to capture db"
+        "Apply _set_session_and_dbname monkey patch to capture db"
         " from request with multiple databases"
     )
-    _get_session_and_dbname_orig = http.Request._get_session_and_dbname
+    _set_session_and_dbname_orig = router._set_session_and_dbname
 
-    def _get_session_and_dbname(self):
-        session, dbname = _get_session_and_dbname_orig(self)
+    def _set_session_and_dbname(request):
+        _set_session_and_dbname_orig(request)
         if (
-            not dbname
-            and self.httprequest.path == "/queue_job/runjob"
-            and self.httprequest.args.get("db")
+            not request.db
+            and request.httprequest.path == "/queue_job/runjob"
+            and request.httprequest.args.get("db")
         ):
-            dbname = self.httprequest.args["db"]
-        return session, dbname
+            request.db = request.httprequest.args["db"]
 
-    http.Request._get_session_and_dbname = _get_session_and_dbname
+    router._set_session_and_dbname = _set_session_and_dbname

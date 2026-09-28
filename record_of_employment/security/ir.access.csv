@@ -1,0 +1,7 @@
+id,name,model_id,group_id/id,operation,domain
+access_record_of_employee,access_record_of_employee,record.of.employee,base.group_user,crud,
+access_vacation_amount,access_vacation_amount,vacation.amount,base.group_user,crud,
+access_roe_paycycle,access_roe_paycycle,roe.paycycle,base.group_user,crud,
+access_roe_paycycle_excel_wizard,access_roe_paycycle_excel_wizard,roe.paycycle.excel.wizard,base.group_user,crud,
+access_statutory_holiday,access_statutory_holiday,statutory.holiday,base.group_user,crud,
+access_other_monies,access_other_monies,other.monies,base.group_user,crud,

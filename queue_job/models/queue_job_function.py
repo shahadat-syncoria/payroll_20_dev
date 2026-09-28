@@ -6,7 +6,7 @@ import logging
 import re
 from collections import namedtuple
 
-from odoo import api, exceptions, fields, models, tools
+from odoo import api, exceptions, fields, models
 
 from ..fields import JobSerialized
 
@@ -181,7 +181,7 @@ class QueueJobFunction(models.Model):
             retry_pattern = {}
         return retry_pattern
 
-    @tools.ormcache("name")
+    @api.ormcache("name")
     def job_config(self, name):
         config = self.search([("name", "=", name)], limit=1)
         if not config:
@@ -272,15 +272,15 @@ class QueueJobFunction(models.Model):
                 new_vals_list.append(vals)
             vals_list = new_vals_list
         records |= super().create(vals_list)
-        self.env.registry.clear_cache()
+        self.env.transaction.invalidate_ormcache()
         return records
 
     def write(self, values):
         res = super().write(values)
-        self.env.registry.clear_cache()
+        self.env.transaction.invalidate_ormcache()
         return res
 
     def unlink(self):
         res = super().unlink()
-        self.env.registry.clear_cache()
+        self.env.transaction.invalidate_ormcache()
         return res

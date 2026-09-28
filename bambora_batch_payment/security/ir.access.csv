@@ -1,0 +1,3 @@
+id,name,model_id,group_id/id,operation,domain
+access_batch_payment_tracking,access_batch_payment_tracking,batch.payment.tracking,base.group_everyone,crud,
+access_bambora_cron_settings,access_bambora_cron_settings,bambora.cron.settings,base.group_erp_manager,crud,

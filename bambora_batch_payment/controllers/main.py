@@ -11,7 +11,7 @@ _logger = logging.getLogger(__name__)
 class BamboraEftController(http.Controller):
 
 
-    @http.route('/payment/bamboraeft/get_provider_info', type='json', auth='public')
+    @http.route('/payment/bamboraeft/get_provider_info', type='jsonrpc', auth='public')
     def bamboraeft_get_provider_info(self, provider_id):
         """ Return public information on the provider.
 
@@ -32,7 +32,7 @@ class BamboraEftController(http.Controller):
 
 
 
-    @http.route('/payment/bamboraeft/payment', type='json', auth='public')
+    @http.route('/payment/bamboraeft/payment', type='jsonrpc', auth='public')
     def bambora_payment(self, reference, data, providerid):
         """ Simulate the response of a payment request.
 

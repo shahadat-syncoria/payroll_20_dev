@@ -6,11 +6,11 @@
       <field name="name">syncoria_payroll_timesheet list</field>
       <field name="model">syncoria_payroll_timesheet.syncoria_payroll_timesheet</field>
       <field name="arch" type="xml">
-        <tree>
+        <list>
           <field name="name"/>
           <field name="value"/>
           <field name="value2"/>
-        </tree>
+        </list>
       </field>
     </record>
 -->
@@ -20,7 +20,7 @@
     <record model="ir.actions.act_window" id="syncoria_payroll_timesheet.action_window">
       <field name="name">syncoria_payroll_timesheet window</field>
       <field name="res_model">syncoria_payroll_timesheet.syncoria_payroll_timesheet</field>
-      <field name="view_mode">tree,form</field>
+      <field name="view_mode">list,form</field>
     </record>
 -->
 
@@ -33,7 +33,7 @@
       <field name="code">
         action = {
           "type": "ir.actions.act_window",
-          "view_mode": "tree,form",
+          "view_mode": "list,form",
           "res_model": model._name,
         }
       </field>

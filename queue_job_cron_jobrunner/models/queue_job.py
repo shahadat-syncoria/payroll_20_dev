@@ -8,8 +8,8 @@ from io import StringIO
 
 from psycopg2 import OperationalError
 
-from odoo import api, models, tools
-from odoo.service.model import PG_CONCURRENCY_ERRORS_TO_RETRY
+from odoo import api, models
+from odoo.sql_db import PG_CONCURRENCY_EXCEPTIONS_TO_RETRY
 
 from odoo.addons.queue_job.controllers.main import PG_RETRY
 from odoo.addons.queue_job.exception import FailedJobError, RetryableJobError
@@ -67,9 +67,9 @@ class QueueJob(models.Model):
                     job.store()
             except OperationalError as err:
                 # Automatically retry the typical transaction serialization errors
-                if err.pgcode not in PG_CONCURRENCY_ERRORS_TO_RETRY:
+                if not isinstance(err, PG_CONCURRENCY_EXCEPTIONS_TO_RETRY):
                     raise
-                message = tools.ustr(err.pgerror, errors="replace")
+                message = str(err.pgerror)
                 job.postpone(result=message, seconds=PG_RETRY)
                 job.set_pending(reset_retry=False)
                 job.store()

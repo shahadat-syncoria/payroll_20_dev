@@ -21,31 +21,27 @@
         </xpath>
         <div id="portal_service_category" position="inside">
             <div>
-                 <t t-if ='payslip_count > 0'>
+                 <t t-if="payslip_count &gt; 0" >
                      <t t-set="show_payslip" t-value="True"/>
                  </t>
-                 <t t-else =''>
+                 <t t-else="" >
                      <t t-set="show_payslip" t-value="False"/>
                  </t>
-                <t t-call="portal.portal_docs_entry">
-                    <t t-set="icon" t-value="'/syncoria_can_payroll/static/src/img/portal-addresses.svg'"/>
-                    <t t-set="title">Payslip</t>
-                    <t t-set="url" t-value="'/my/payslip'"/>
-                    <t t-set="text">Efficient payroll isn't just about numbers; it's about ensuring your team's well-being while your project evolves.</t>
-                    <t t-set="config_card" t-value="show_payslip"/>
-                    <t t-set="placeholder_count" t-value="payslip_count"/>
-                </t>
+                <t t-call="portal.portal_docs_entry"
+                    icon.f="/syncoria_can_payroll/static/src/img/portal-addresses.svg"
+                    title.translate="Payslip"
+                    url.f="/my/payslip"
+                    text.translate="Efficient payroll isn't just about numbers; it's about ensuring your team's well-being while your project evolves."
+                    config_card="show_payslip"
+                    placeholder_count="payslip_count"/>
             </div>
         </div>
     </template>
 
     <template id="portal_my_payslips" name="All Payslip">
-        <t t-call="portal.portal_layout">
-            <t t-set="breadcrumbs_searchbar" t-value="True"/>
+        <t t-call="portal.portal_layout" breadcrumbs_searchbar="True">
 
-            <t t-call="portal.portal_searchbar">
-                <t t-set="title">Payslips</t>
-            </t>
+            <t t-call="portal.portal_searchbar" title.translate="Payslips"/>
             <t t-if="not payslips">
                 <div class="alert alert-warning" role="alert">
                     There are no Payslips.
@@ -88,12 +84,9 @@
     </template>
 
     <template id="portal_my_payslip" name="My Payslip">
-        <t t-call="portal.portal_layout">
-            <t t-set="title" t-value="pay_cycle_period_name"/>
+        <t t-call="portal.portal_layout" title="pay_cycle_period_name">
 
-            <t t-call="portal.portal_searchbar">
-                <t t-set="title">Payslip</t>
-            </t>
+            <t t-call="portal.portal_searchbar" title.translate="Payslip"/>
 
             <p><b>Slip Number:</b> <span t-field="payslip.number"/>
                 <t t-if="payslip.state == 'paid'"> (<span style="color:green" t-field="payslip.state"/>) </t>

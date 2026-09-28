@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     "name": "Record Of Employment (ROE)",
-    "version": "19.0.0.7",
+    "version": "20.0.0.7",
     "summary": """
     This module will help to record ROE data.
     """,
@@ -23,7 +23,6 @@
 
     # always loaded
     'data': [
-        'security/ir.model.access.csv',
         'data/batch_xml_send_roe.xml',
         'data/hr_work_entry_data.xml',
         'views/record_of_employee.xml',
@@ -31,7 +30,8 @@
         'views/hr_payslip.xml',
         'views/hr_contract_history.xml',
         'views/menu.xml',
-        'wizard/roe_paycycle_excel_wizard_view.xml'
+        'wizard/roe_paycycle_excel_wizard_view.xml',
+        'security/ir.access.csv',
     ],
     'license': 'LGPL-3',
 

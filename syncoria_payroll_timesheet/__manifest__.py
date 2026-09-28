@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     "name": "Payroll based on timesheet",
-    "version": "19.0.0.2",
+    "version": "20.0.0.2",
     "summary": """
             This module is for generate payslip based on timesheet.
         """,
@@ -26,7 +26,6 @@
     ],
     # always loaded
     "data": [
-        "security/ir.model.access.csv",
         "data/data.xml",
         "views/hr_payslip.xml",
         # 'views/views.xml',

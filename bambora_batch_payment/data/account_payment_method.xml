@@ -18,7 +18,7 @@
          <record id="payment_method_bambora_eft" model="payment.method">
             <field name="name">Bambora EFT</field>
             <field name="code">bamboraeft</field>
-            <field name="image" type="base64" file="bambora_batch_payment/static/description/icon.png"/>
+            <field name="image" type="bytes" file="bambora_batch_payment/static/description/icon.png"/>
 
         </record>
     </data>

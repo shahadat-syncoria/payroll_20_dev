@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     "name": "Syncoria Canada Payroll(Ontario)",
-    "version": "19.0.0.11",
+    "version": "20.0.0.11",
     "summary": """
         Module for Canada Payroll
        """,
@@ -28,7 +28,6 @@
     # "external_dependencies": {"python": ["requests"]},
     # always loaded
     "data": [
-        "security/ir.model.access.csv",
         # DATA
         # "data/paycycle_data.xml",
         "data/t4_box_selection_data.xml",
@@ -98,6 +97,7 @@
         "reports/payslip.xml",
         # ======== Menus ===============
         "views/menus.xml",
+        'security/ir.access.csv',
     ],
     # only loaded in demonstration mode
     "demo": [

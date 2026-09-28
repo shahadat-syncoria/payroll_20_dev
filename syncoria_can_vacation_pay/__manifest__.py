@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     "name": "Syncoria Canada Vacation Pay",
-    "version": "19.0.0.3",
+    "version": "20.0.0.3",
     "summary": """
         This is part of Syncoria Canada Payroll app which will attach vacation pay feature""",
     "description": """
@@ -22,8 +22,6 @@
     "depends": ["base", "syncoria_can_payroll", "hr_holidays", "hr_payroll_account"],
     # always loaded
     "data": [
-        "security/ir.model.access.csv",
-        "security/hr_vacation_pay_security.xml",
         "data/cron_data.xml",
         # Data
         "data/ir_sequence.xml",
@@ -43,5 +41,6 @@
         "report/vacation_slab_for_existing_employees.xml",
         "wizards/vacation_slab_update.xml",
         "wizards/inherit_payroll_update_wizard_views.xml",
+        'security/ir.access.csv',
     ],
 }

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     "name": "Syncoria Irregular Payment",
-    "version": "19.0.0.3",
+    "version": "20.0.0.3",
     "summary": """
         This is part of Syncoria Canada Payroll app which will attach Irregular pay feature""",
     "description": """
@@ -22,10 +22,10 @@
     "depends": ["base", "syncoria_can_payroll", "hr_payroll"],
     # always loaded
     "data": [
-        "security/ir.model.access.csv",
         "data/ir_sequence.xml",
         "data/salary_rules.xml",
         "views/irregular_payment_view.xml",
+        'security/ir.access.csv',
     ],
     # only loaded in demonstration mode
     "demo": [],

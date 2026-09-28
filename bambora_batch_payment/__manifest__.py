@@ -1,6 +1,6 @@
 {
     "name": "Bambora Batch Payment",
-    "version": "19.1.1",
+    "version": "20.0.1",
     "summary": "Bambora Bank-to-Bank EFT/ACH/Batch Payment",
     "description": "Bambora Bank-to-Bank EFT/ACH/Batch Payment",
     "author": "Syncoria Inc.",
@@ -17,7 +17,6 @@
         "static/description/banner.png",
     ],
     "data": [
-        "security/ir.model.access.csv",
         "views/payment_bamboraeft.xml",
         "views/payment_bamboraeft_templates.xml",
         "views/batch_payment_tracking_views.xml",
@@ -34,6 +33,7 @@
         "data/cron_data.xml",
         "data/custom_email.xml",
         "data/emails/payment_refuse_email.xml",
+        'security/ir.access.csv',
     ],
     # "assets": {
     #         "web.assets_frontend": [

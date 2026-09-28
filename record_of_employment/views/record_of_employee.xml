@@ -104,14 +104,14 @@
                         </page>
                         <page name="vac_pay" string="Vacation Pay">
                             <sheet>
-<!--                                <field name="vacation_pay_ids"><tree create="false" default_order="paid_date asc" delete="false">-->
+<!--                                <field name="vacation_pay_ids"><list create="false" default_order="paid_date asc" delete="false">-->
 <!--                                        <field name="employee_id"/>-->
 <!--                                        <field name="duration"/>-->
 <!--                                        <field name="paid_date"/>-->
 <!--                                        <field decoration-info="state == 'draft'" decoration-success="state == state in ('validate','paid')" decoration-warning="state in ('refuse','cancel')" name="state" widget="badge"/>-->
 <!--                                        <field name="vacation_pay_amount"/>-->
 <!--                                        <field name="is_last_pay"/>-->
-<!--                                    </tree></field>-->
+<!--                                    </list></field>-->
                                  <field name="vacation_amount_ids"><list create="false" default_order="reference asc" delete="false">
                                         <field name="reference"/>
                                         <field name="payslip_id"/>

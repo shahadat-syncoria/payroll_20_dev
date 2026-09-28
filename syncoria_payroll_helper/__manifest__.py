@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     "name": "syncoria_payroll_helper",
-    "version": "19.1.1",
+    "version": "20.0.1",
     "summary": """
         Short (1 phrase/line) summary of the module's purpose, used as
         subtitle on modules listing or apps.openerp.com""",

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     "name": "RBC Direct Deposit",
-    "version": "19.1.2",
+    "version": "20.0.2",
     "summary": "This Module is for RBC Direct Download.",
     "description": """
 This Module is for RBC Direct Download

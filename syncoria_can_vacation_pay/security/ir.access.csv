@@ -1,0 +1,8 @@
+id,name,model_id,group_id/id,operation,domain
+hr_vacation_rule_payslip,Vacation Pay base.group_hr_manager,hr.vacation.pay,hr_holidays.group_hr_holidays_manager,crud,
+hr_vacation_rule_user_read,Vacation Pay All Approver read,hr.vacation.pay,hr_holidays.group_hr_holidays_user,crud,"[('employee_id.user_id', '=', user.id)]"
+access_hr_vacation_pay,access_hr_vacation_pay,hr.vacation.pay,base.group_user,cud,
+hr_vacation_rule_employee,Vacation Pay base.group_user read,hr.vacation.pay,base.group_user,r,"[('employee_id.user_id', '=', user.id)]"
+access_hr_vacation_slab,access_hr_vacation_slab,hr.vacation.slab,base.group_user,crud,
+access_hr_vacation_slab_employee,access_hr_vacation_slab_employee,hr.vacation.slab.employee,base.group_user,crud,
+access_message_wizard,access_message_wizard,message.wizard,base.group_user,crud,

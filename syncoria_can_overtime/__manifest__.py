@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     "name": "Syncoria Canada Payroll Overtime Banked Hour",
-    "version": "19.1.4",
+    "version": "20.0.4",
     "summary": """
         This Module is for calculating Canada overtime Banked Hour.
     """,
@@ -24,7 +24,6 @@
     "depends": ["hr_attendance", "hr_holidays", "syncoria_can_payroll", "syncoria_payroll_timesheet"],
     # always loaded
     "data": [
-        "security/ir.model.access.csv",
         "data/ir_sequence.xml",
         "data/hr_payroll_overtime_data.xml",
         "data/salary_rules.xml",
@@ -37,5 +36,6 @@
         "views/hr_payslip.xml",
         "views/paycycle_configuration.xml",
         "wizards/manual_input_wiz.xml",
+        'security/ir.access.csv',
     ],
 }

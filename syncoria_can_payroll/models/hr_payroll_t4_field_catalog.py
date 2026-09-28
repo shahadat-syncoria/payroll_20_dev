@@ -26,6 +26,7 @@ class T4BoxSelection(models.Model):
         index=True,
     )
 
-    _sql_constraints = [
-        ("t4_box_selection_box_number_uniq", "unique(box_number)", "Box number must be unique."),
-    ]
+    _t4_box_selection_box_number_uniq = models.Constraint(
+        'unique(box_number)',
+        "Box number must be unique.",
+    )
