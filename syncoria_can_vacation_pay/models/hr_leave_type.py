@@ -1,14 +1,14 @@
 from odoo import models,api,fields,_
 class SyncoriaInheritedHrLeaveAllocation(models.Model):
-    _inherit = 'hr.leave.type'
+    _inherit = 'hr.work.entry.type'
     _description = 'InheritedHrLeaveAllocation'
 
     allow_vacation_pay = fields.Boolean("Allow vacation pay",default=False)
 
-    def get_allocation_data(self, employees, target_date=None):
-        res = super(SyncoriaInheritedHrLeaveAllocation,self).get_allocation_data(employees, target_date)
-        if self.env["ir.config_parameter"].sudo().get_param('syncoria_can_vacation_pay.vac_pay_type') == 'time_wise':
-            deductible_vacation_pay_time_off_type_ids = self.env['hr.leave.type'].search([
+    def get_allocation_data(self, employees, target_date=None, same_year_only=False):
+        res = super(SyncoriaInheritedHrLeaveAllocation,self).get_allocation_data(employees, target_date, same_year_only)
+        if self.env["ir.config_parameter"].sudo().get_str('syncoria_can_vacation_pay.vac_pay_type') == 'time_wise':
+            deductible_vacation_pay_time_off_type_ids = self.env['hr.work.entry.type'].search([
                 ('allow_vacation_pay', '=', True),]).ids
             #[FIX: chceck employee]
             for employee_id, allocations in res.items():

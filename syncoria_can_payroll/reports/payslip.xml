@@ -31,7 +31,7 @@
                       t-options='{"widget": "monetary", "display_currency": o.company_id.currency_id}'
                       t-att-style="'color:#875A7B;' if line.total &lt; 0 else ''"/>
             </td>
-            <td id="payslip_line_ytd" t-if="o.ytd_computation" class="text-end">
+            <td id="payslip_line_ytd" t-if="(o.ytd_computation and not is_correction)" class="text-end">
                 <span t-esc="line.ytd"
                       t-options="{'widget': 'monetary', 'display_currency': o.company_id.currency_id}"
                       t-att-style="'color:#875A7B;' if line.ytd &lt; 0 else ''"/>
@@ -44,28 +44,28 @@
             <th id="work_days_header_name">Summary</th>
         </xpath>
 
-        <xpath expr="//tbody[@id='worked_days_lines']/t[@t-set='worked_days_lines']" position="after">
+        <xpath expr="//div[@id='worked_days_table']//t[@t-set='worked_days_lines']" position="after">
             <t t-set="worked_days_hours_ytd_map" t-value="o._get_worked_days_hours_ytd_map()"/>
         </xpath>
 
         <xpath expr="//td[@id='worked_days_ytd']" position="replace">
-            <td id="worked_days_ytd" t-if="o.ytd_computation" class="text-end">
+            <td id="worked_days_ytd" t-if="(o.ytd_computation and not is_correction)" class="text-end">
                 <span t-out="round(worked_days_hours_ytd_map.get(worked_days.code, 0.0), 2)"/>
             </td>
         </xpath>
 
         <xpath expr="//td[@id='worked_days_total_ytd']" position="replace">
-            <td id="worked_days_total_ytd" t-if="o.ytd_computation" t-attf-class="#{line_class} text-end" t-att-style="line_style">
+            <td id="worked_days_total_ytd" t-if="(o.ytd_computation and not is_correction)" t-attf-class="#{line_class} text-end" t-att-style="line_style">
                 <span t-out="round(sum(worked_days_hours_ytd_map.values()), 2)"/>
             </td>
         </xpath>
 
         <xpath expr="//div[@id='worked_days_table']" position="before">
-            <div id="insurable_hours" t-if="o.use_worked_day_lines">
+            <div id="insurable_hours" t-if="o.struct_use_worked_day_lines">
                 <strong class="me-2">Insurable Hours:</strong>
                 <span t-out="round(o._get_insurable_hours(), 2)"/>
                 <span class="ms-1">Hours</span>
-                <t t-if="o.ytd_computation">
+                <t t-if="(o.ytd_computation and not is_correction)">
                     <strong class="ms-4 me-2">YTD:</strong>
                     <span t-out="round(o._get_insurable_hours_ytd(), 2)"/>
                     <span class="ms-1">Hours</span>
@@ -79,48 +79,48 @@
             <tbody id="payslip_lines">
                 <t t-set="earnings_lines"
                    t-value="o.line_ids.filtered(
-                        lambda l: l.appears_on_payslip and (
-                            l.category_id.code in ['GROSS', 'ADD_ALLOWANCE'] or
-                            (l.category_id.name or '').strip().lower() in ['taxable salary', 'additional allowance']
+                        lambda l: l.appears_on_payslip == 'always' and (
+                            any(c in ['GROSS', 'ADD_ALLOWANCE'] for c in l.category_ids.mapped('code')) or
+                            any((n or '').strip().lower() in ['taxable salary', 'additional allowance'] for n in l.category_ids.mapped('name'))
                         )
                     ).sorted(key=lambda l: l.sequence)"/>
 
                 <t t-set="deduction_lines"
                    t-value="o.line_ids.filtered(
-                        lambda l: l.appears_on_payslip and (
-                            l.category_id.code in ['DED'] or
-                            (l.category_id.name or '').strip().lower() == 'deduction'
+                        lambda l: l.appears_on_payslip == 'always' and (
+                            'DED' in l.category_ids.mapped('code') or
+                            any((n or '').strip().lower() == 'deduction' for n in l.category_ids.mapped('name'))
                         )
                     ).sorted(key=lambda l: l.sequence)"/>
 
                 <t t-set="withholding_lines"
                    t-value="o.line_ids.filtered(
-                        lambda l: l.appears_on_payslip and (
-                            l.category_id.code in ['EMPLOYER_CONTRIBUTION'] or
-                            (l.category_id.name or '').strip().lower() == 'company contribution'
+                        lambda l: l.appears_on_payslip == 'always' and (
+                            'EMPLOYER_CONTRIBUTION' in l.category_ids.mapped('code') or
+                            any((n or '').strip().lower() == 'company contribution' for n in l.category_ids.mapped('name'))
                         )
                     ).sorted(key=lambda l: l.sequence)"/>
 
                 <t t-set="net_pay_lines"
                    t-value="o.line_ids.filtered(
-                        lambda l: l.appears_on_payslip and (
-                            l.category_id.code in ['NET'] or
-                            (l.category_id.name or '').strip().lower() == 'net'
+                        lambda l: l.appears_on_payslip == 'always' and (
+                            'NET' in l.category_ids.mapped('code') or
+                            any((n or '').strip().lower() == 'net' for n in l.category_ids.mapped('name'))
                         )
                     ).sorted(key=lambda l: l.sequence)"/>
 
                 <t t-set="other_lines"
                    t-value="o.line_ids.filtered(
-                        lambda l: l.appears_on_payslip and l.category_id.code not in [
+                        lambda l: l.appears_on_payslip == 'always' and not any(c in [
                             'GROSS', 'ADD_ALLOWANCE', 'DED', 'EMPLOYER_CONTRIBUTION', 'NET'
-                        ] and (l.category_id.name or '').strip().lower() not in [
+                        ] for c in l.category_ids.mapped('code')) and not any((n or '').strip().lower() in [
                             'taxable salary', 'additional allowance', 'deduction', 'company contribution', 'net'
-                        ]
+                        ] for n in l.category_ids.mapped('name'))
                     ).sorted(key=lambda l: l.sequence)"/>
 
                 <t t-if="earnings_lines">
                     <tr class="table-active fw-bold">
-                        <td t-att-colspan="6 if o.ytd_computation else 5">Gross Income</td>
+                        <td t-att-colspan="6 if (o.ytd_computation and not is_correction) else 5">Gross Income</td>
                     </tr>
                     <t t-foreach="earnings_lines" t-as="line">
                         <t t-call="syncoria_can_payroll.report_payslip_line_row"/>
@@ -131,7 +131,7 @@
                             <span t-out="sum(earnings_lines.mapped('total'))"
                                   t-options='{"widget": "monetary", "display_currency": o.company_id.currency_id}'/>
                         </td>
-                        <td t-if="o.ytd_computation" class="text-end">
+                        <td t-if="(o.ytd_computation and not is_correction)" class="text-end">
                             <span t-out="sum(earnings_lines.mapped('ytd'))"
                                   t-options='{"widget": "monetary", "display_currency": o.company_id.currency_id}'/>
                         </td>
@@ -140,7 +140,7 @@
 
                 <t t-if="deduction_lines">
                     <tr class="table-active fw-bold">
-                        <td t-att-colspan="6 if o.ytd_computation else 5">Deductions</td>
+                        <td t-att-colspan="6 if (o.ytd_computation and not is_correction) else 5">Deductions</td>
                     </tr>
                     <t t-foreach="deduction_lines" t-as="line">
                         <t t-call="syncoria_can_payroll.report_payslip_line_row"/>
@@ -151,7 +151,7 @@
                             <span t-out="sum(deduction_lines.mapped('total'))"
                                   t-options='{"widget": "monetary", "display_currency": o.company_id.currency_id}'/>
                         </td>
-                        <td t-if="o.ytd_computation" class="text-end">
+                        <td t-if="(o.ytd_computation and not is_correction)" class="text-end">
                             <span t-out="sum(deduction_lines.mapped('ytd'))"
                                   t-options='{"widget": "monetary", "display_currency": o.company_id.currency_id}'/>
                         </td>
@@ -160,7 +160,7 @@
 
                 <t t-if="net_pay_lines">
                     <tr class="table-active fw-bold">
-                        <td t-att-colspan="6 if o.ytd_computation else 5">Net Pay</td>
+                        <td t-att-colspan="6 if (o.ytd_computation and not is_correction) else 5">Net Pay</td>
                     </tr>
                     <t t-foreach="net_pay_lines" t-as="line">
                         <t t-call="syncoria_can_payroll.report_payslip_line_row"/>
@@ -169,7 +169,7 @@
 
                 <t t-if="withholding_lines">
                     <tr class="table-active fw-bold">
-                        <td t-att-colspan="6 if o.ytd_computation else 5">Withholdings</td>
+                        <td t-att-colspan="6 if (o.ytd_computation and not is_correction) else 5">Withholdings</td>
                     </tr>
                     <t t-foreach="withholding_lines" t-as="line">
                         <t t-call="syncoria_can_payroll.report_payslip_line_row"/>
@@ -180,7 +180,7 @@
                             <span t-out="sum(withholding_lines.mapped('total'))"
                                   t-options='{"widget": "monetary", "display_currency": o.company_id.currency_id}'/>
                         </td>
-                        <td t-if="o.ytd_computation" class="text-end">
+                        <td t-if="(o.ytd_computation and not is_correction)" class="text-end">
                             <span t-out="sum(withholding_lines.mapped('ytd'))"
                                   t-options='{"widget": "monetary", "display_currency": o.company_id.currency_id}'/>
                         </td>
@@ -189,7 +189,7 @@
 
                 <t t-if="other_lines">
                     <tr class="table-active fw-bold">
-                        <td t-att-colspan="6 if o.ytd_computation else 5">Others</td>
+                        <td t-att-colspan="6 if (o.ytd_computation and not is_correction) else 5">Others</td>
                     </tr>
                     <t t-foreach="other_lines" t-as="line">
                         <t t-call="syncoria_can_payroll.report_payslip_line_row"/>

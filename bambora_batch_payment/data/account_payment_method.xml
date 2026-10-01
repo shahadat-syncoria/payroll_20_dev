@@ -14,12 +14,5 @@
             <field name="code">bamboraeft</field>
             <field name="payment_type">inbound</field>
         </record>
-<!--        ===================== Version 17 Payment method ==================================-->
-         <record id="payment_method_bambora_eft" model="payment.method">
-            <field name="name">Bambora EFT</field>
-            <field name="code">bamboraeft</field>
-            <field name="image" type="bytes" file="bambora_batch_payment/static/description/icon.png"/>
-
-        </record>
     </data>
 </odoo>

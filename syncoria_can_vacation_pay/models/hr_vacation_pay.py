@@ -59,7 +59,7 @@ class HrVacationPay(models.Model):
     def _compute_vacation_type(self):
         for rec in self:
             if rec.state == 'draft':
-                rec.vacation_type = self.env["ir.config_parameter"].sudo().get_param('syncoria_can_vacation_pay.vac_pay_type')
+                rec.vacation_type = self.env["ir.config_parameter"].sudo().get_str('syncoria_can_vacation_pay.vac_pay_type')
 
 
 
@@ -71,9 +71,9 @@ class HrVacationPay(models.Model):
 
 
     def _get_remaining_vacation_employee(self,employee_id):
-        if self.env["ir.config_parameter"].sudo().get_param('syncoria_can_vacation_pay.vac_pay_type') == 'time_wise':
+        if self.env["ir.config_parameter"].sudo().get_str('syncoria_can_vacation_pay.vac_pay_type') == 'time_wise':
             vac_pay_by_employee = self.search([('employee_id', '=', employee_id.id)])
-            vacation_leave_type = self.env['hr.leave.type'].sudo().search([('allow_vacation_pay', '=', True)])
+            vacation_leave_type = self.env['hr.work.entry.type'].sudo().search([('allow_vacation_pay', '=', True)])
             vac_remain = 0.0
             taken_vacation_leave = sum(vac_pay_by_employee.filtered(
                 lambda x: x.state == 'validate').mapped('duration'))
@@ -107,18 +107,18 @@ class HrVacationPay(models.Model):
         for rec in self:
             if rec.state != 'draft':
                 raise UserError(_("Record can not be deleted without draft state."))
-        super(HrVacationPay,self).unlink()
+        return super(HrVacationPay,self).unlink()
 
     @api.depends('employee_id')
     def _compute_remaining_vacation_employee(self):
         for vac in self:
-            if self.env["ir.config_parameter"].sudo().get_param(
+            if self.env["ir.config_parameter"].sudo().get_str(
                     'syncoria_can_vacation_pay.vac_pay_type') == 'time_wise':
                 vac.vacation_remain = vac._get_remaining_vacation_employee(vac.employee_id)
 
 
     def action_confirm(self):
-        if self.env["ir.config_parameter"].sudo().get_param('syncoria_can_vacation_pay.vac_pay_type') == 'time_wise':
+        if self.env["ir.config_parameter"].sudo().get_str('syncoria_can_vacation_pay.vac_pay_type') == 'time_wise':
             if self.duration <= 0.0:
                 raise UserError(_("Duration must be grater than zero!"))
             elif round(self.vacation_remain,2) < self.duration:

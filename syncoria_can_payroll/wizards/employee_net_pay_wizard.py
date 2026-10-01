@@ -17,7 +17,7 @@ class EmployeeNetPay(models.TransientModel):
     payperiod = fields.Many2one("paycycle.period", string="Pay Period")
     department_id = fields.Many2one("hr.department", string="Department")
 
-    pay_cycle_period_ids_domain = fields.Binary(
+    pay_cycle_period_ids_domain = fields.Json(
         compute='_compute_pay_cycle_period_domain', readonly=True,
         store=False)
 
@@ -37,7 +37,7 @@ class EmployeeNetPay(models.TransientModel):
 
     def get_payslip_ids(self):
         payslip_ids = self.env['hr.payslip'].search(
-            [('pay_cycle_period', '=', self.payperiod.id), ("state", "in", ['paid', 'done'])])
+            [('pay_cycle_period', '=', self.payperiod.id), ("state", "in", ['paid', 'validated'])])
         payslip_data = []
         for rec in payslip_ids:
             net_lines = rec.line_ids.filtered(lambda line: line.code == "NET")
@@ -47,7 +47,7 @@ class EmployeeNetPay(models.TransientModel):
                 "payslip_name": rec.name,
                 "employee_name": rec.employee_id.name,
                 "job_position": rec.employee_id.job_id.name or " ",
-                "bank_account": bank_account.acc_number or " ",
+                "bank_account": bank_account.account_number or " ",
                 "amount": sum(net_lines.mapped("amount"))
 
             })
@@ -110,7 +110,7 @@ class EmployeeNetPay(models.TransientModel):
 
         attachment_id = self.env['ir.attachment'].create({
             'name': f"{self.display_name} - {_('XLSX report')}",
-            'datas': base64.encodebytes(output.getvalue())
+            'raw': output.getvalue()
         })
 
         return {

@@ -7,7 +7,6 @@
             <field name="model">eht.report.wizard</field>
             <field name="report_type">qweb-pdf</field>
             <field name="report_name">syncoria_can_payroll.eht_report_tmpl</field>
-            <field name="report_file">syncoria_can_payroll.eht_report_tmpl</field>
         </record>
 
         <template id="eht_report_tmpl">

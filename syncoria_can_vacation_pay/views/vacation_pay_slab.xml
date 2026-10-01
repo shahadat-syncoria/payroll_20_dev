@@ -37,7 +37,7 @@
     <menuitem
                 id="menu_hr_vacation_slab"
                 name="Vacation Pay Configuration"
-                parent="hr_work_entry_enterprise.menu_hr_payroll_configuration"
+                parent="hr_payroll.menu_hr_payroll_configuration"
                 sequence="95"
                 groups="hr_payroll.group_hr_payroll_manager"
         />

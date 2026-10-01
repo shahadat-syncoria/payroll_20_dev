@@ -37,32 +37,30 @@ class SyncoriaHrEmployeeManualWizard(models.TransientModel):
         if isinstance(date_end, str):
             date_end = fields.Date.from_string(date_end)
 
-        start_dt = datetime.combine(date_start, time.min)
-        end_dt = datetime.combine(date_end, time.min)
-
-        WorkEntry = self.env['hr.work.entry']
+        # Odoo 20: hr.work.entry records no longer exist, work entries are generated on the fly
+        # by hr.version.generate_work_entries() as a list of vals dicts.
         WorkEntryType = self.env['hr.work.entry.type']
 
         # Try to detect "attendance" types robustly across versions:
         attendance_types = WorkEntryType.search([
-            ('code', 'in', ['WORK100','TIMESHEET_WORK100'])
+            ('code', 'in', ['002.00','TIMESHEET_WORK100'])
         ])
 
-        domain = [
-            ('employee_id', '=', employee.id),
-            # overlap with [start_dt, end_dt)
-            ('date', '<=', end_dt),
-            ('date', '>=', start_dt),
-        ]
-        if attendance_types:
-            domain.append(('work_entry_type_id', 'in', attendance_types.ids))
-
-        entries = WorkEntry.search(domain)
+        versions = self.env['hr.version']
+        for version_set in employee._get_contracts(date_start, date_end).values():
+            versions |= version_set
+        if not versions:
+            return 0.0
 
         total_hours = 0.0
-        for we in entries:
-
-            total_hours += we.duration
+        for vals in versions.generate_work_entries(date_start, date_end):
+            if vals['employee_id'] != employee:
+                continue
+            if attendance_types and vals['work_entry_type_id'] not in attendance_types:
+                continue
+            if not date_start <= vals['date'] <= date_end:
+                continue
+            total_hours += vals['duration']
 
         return total_hours
 
@@ -70,7 +68,7 @@ class SyncoriaHrEmployeeManualWizard(models.TransientModel):
     def _get_default_attendance_hours(self, hr_payslip_run, employee):
 
         if not employee.version_id.is_hourly:
-            return self._get_attendance_hours(hr_payslip_run, employee)
+            return self._get_attendance_hours(employee, hr_payslip_run.date_start, hr_payslip_run.date_end)
         else:
             return 0.0
 
@@ -103,29 +101,6 @@ class SyncoriaHrEmployeeManualWizard(models.TransientModel):
 
     manual_input_ids = fields.One2many("hr.employee.manual.input.line", 'manual_input_wizard_id', default=lambda self: self._default_manual_input_ids())
 
-    def _check_undefined_slots(self, work_entries, payslip_run):
-        """
-        Check if a time slot in the contract's calendar is not covered by a work entry
-        """
-        work_entries_by_contract = defaultdict(lambda: self.env['hr.work.entry'])
-        for work_entry in work_entries:
-            work_entries_by_contract[work_entry.version_id] |= work_entry
-
-        for contract, work_entries in work_entries_by_contract.items():
-            if contract.work_entry_source not in ['calendar','timesheet_hours']:
-                continue
-            calendar_start = pytz.utc.localize(
-                datetime.combine(max(contract.date_start, payslip_run.date_start), time.min))
-            calendar_end = pytz.utc.localize(
-                datetime.combine(min(contract.date_end or date.max, payslip_run.date_end), time.max))
-            outside = contract.resource_calendar_id._attendance_intervals_batch(calendar_start, calendar_end)[
-                          False] - work_entries._to_intervals()
-            if outside:
-                time_intervals_str = "\n - ".join(['', *["%s -> %s" % (s[0], s[1]) for s in outside._items]])
-                raise UserError(
-                    _("Some part of %s's calendar is not covered by any work entry. Please complete the schedule. Time intervals to look for:%s") % (
-                    contract.employee_id.name, time_intervals_str))
-
     def _filter_contracts(self, contracts):
         # Could be overriden to avoid having 2 'end of the year bonus' payslips, etc.
         return contracts
@@ -145,9 +120,11 @@ class SyncoriaHrEmployeeManualWizard(models.TransientModel):
         # --------------------------------------------------
         # 1️⃣ Resolve or create payslip run
         # --------------------------------------------------
+        run_created = False
         if ctx.get('active_id'):
             payslip_run = self.env['hr.payslip.run'].browse(ctx['active_id'])
         else:
+            run_created = True
             date_start = fields.Date.to_date(ctx.get('date_start'))
             date_end = fields.Date.to_date(ctx.get('date_end'))
 
@@ -166,8 +143,12 @@ class SyncoriaHrEmployeeManualWizard(models.TransientModel):
                     fields.Date.to_string(date_end),
                 )
 
+            # Odoo 20: structure_id is required on the pay run
+            structure = (ctx.get('raw_record') or {}).get('structure_id') or {}
+            structure_id = structure.get('id') if isinstance(structure, dict) else structure
             payslip_run = self.env['hr.payslip.run'].create({
                 'name': f"{pay_cycle_period['display_name'] } - {year}" ,
+                'structure_id': structure_id or False,
                 'pay_cycle': pay_cycle.id,
                 'date_start': date_start,
                 'date_end': date_end,
@@ -208,56 +189,14 @@ class SyncoriaHrEmployeeManualWizard(models.TransientModel):
             raise UserError(_("No valid payroll versions found."))
 
         # --------------------------------------------------
-        # 4️⃣ Generate work entries (CORE PAYROLL LOGIC)
+        # 4️⃣ Work entries
         # --------------------------------------------------
-        versions.generate_work_entries(
-            payslip_run.date_start,
-            payslip_run.date_end
-        )
-
-        all_work_entries = dict(self.env['hr.work.entry']._read_group(
-            domain=[
-                ('employee_id', 'in', versions.employee_id.ids),
-                ('date', '<=', payslip_run.date_end),
-                ('date', '>=', payslip_run.date_start),
-            ],
-            groupby=['version_id'],
-            aggregates=['id:recordset'],
-        ))
-
-        # --------------------------------------------------
-        # 5️⃣ Undefined slot checks (timezone-safe)
-        # --------------------------------------------------
-        utc = pytz.utc
-        for tz, slips_per_tz in payslip_run.slip_ids.grouped(lambda s: s.version_id.tz).items():
-            slip_tz = pytz.timezone(tz or utc)
-            for slip in slips_per_tz:
-                date_from = slip_tz.localize(
-                    datetime.combine(slip.date_from, time.min)
-                ).astimezone(utc).replace(tzinfo=None)
-
-                date_to = slip_tz.localize(
-                    datetime.combine(slip.date_to, time.max)
-                ).astimezone(utc).replace(tzinfo=None)
-
-                if version_work_entries := all_work_entries.get(slip.version_id):
-                    version_work_entries.filtered_domain([
-                        ('date', '<=', date_to),
-                        ('date', '>=', date_from),
-                    ])
-                    version_work_entries._check_undefined_slots(slip.date_from, slip.date_to)
-
-        for work_entries in all_work_entries.values():
-            work_entries = work_entries.filtered(lambda we: we.state != 'validated')
-            if work_entries._check_if_error():
-                conflicts = work_entries.filtered(lambda we: we.state == 'conflict')._to_intervals()
-                time_intervals_str = "".join(
-                    f"\n - {s} → {e} ({we.employee_id.name})"
-                    for s, e, we in conflicts._items
-                )
-                raise UserError(
-                    _("Some work entries could not be validated. Time intervals to look for:%s", time_intervals_str)
-                )
+        # Odoo 20: work entries are no longer persisted (hr.work.entry is gone), they are generated
+        # when the payslip worked days lines are computed, so there is nothing to generate/validate here.
+        if run_created:
+            payslip_run.version_ids = versions
+        else:
+            payslip_run.version_ids |= versions
 
         # --------------------------------------------------
         # 6️⃣ Create payslips (same structure as run)
@@ -275,6 +214,7 @@ class SyncoriaHrEmployeeManualWizard(models.TransientModel):
                 'date_to': payslip_run.date_end,
                 'version_id': version.id,
                 'company_id': payslip_run.company_id.id,
+                'struct_id': payslip_run.structure_id.id or version.structure_type_id.default_struct_id.id,
                 'pay_cycle_period':pay_cycle_period.get('id'),
                 "payout_vacation_pay_paycycle": version.employee_id.payout_vacation_pay_paycycle,
 

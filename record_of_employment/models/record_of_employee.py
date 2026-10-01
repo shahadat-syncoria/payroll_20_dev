@@ -1,5 +1,4 @@
 
-from PyPDF2 import PdfFileMerger
 from odoo import fields, models, api, _
 import os
 import xml.etree.ElementTree as ET
@@ -157,6 +156,10 @@ class RecordOfEmployee(models.Model):
         "ROE already exist!",
     )
 
+    @api.model
+    def _expand_states(self, states, domain=None):
+        return [key for key, _label in self._fields['state'].selection]
+
     def action_mark_done(self):
         for record in self:
             required_fields = {
@@ -268,15 +271,15 @@ class RecordOfEmployee(models.Model):
         self.write({'vacation_amount_ids': [(5, 0, 0)]})
 
         payslips = self.get_payslip_ids(limit_type="default")
-        adjusted_input_type = self.env.ref('syncoria_can_vacation_pay.input_ca_adjusted_vac_pay').id
-        input_type = self.env.ref('syncoria_can_vacation_pay.input_ca_vac_pay').id
+        adjusted_input_type = self.env.ref('syncoria_can_vacation_pay.rule_ca_adjusted_vacation_pay').id
+        input_type = self.env.ref('syncoria_can_vacation_pay.rule_ca_vacation_pay').id
         vacation_data = []
 
         for payslip in payslips:
             # Retrieve vacation input lines
             vac_info = payslip.input_line_ids.search([
                 ("payslip_id", "=", payslip.id),
-                ("input_type_id", "in", [adjusted_input_type, input_type])
+                ("salary_rule_id", "in", [adjusted_input_type, input_type])
             ])
 
             # Sum up the vacation amounts if needed
@@ -318,8 +321,9 @@ class RecordOfEmployee(models.Model):
     def compute_roe(self):
         if self.employee_id:
             employee = self.employee_id
-            contracts = employee.version_ids
-            contract = sorted(contracts, key=lambda c: c.date_start or '9999-12-31')[0] if contracts else False
+            # v20: the contract period lives on hr.version (contract_date_start/end)
+            contracts = employee.version_ids.filtered('contract_date_start')
+            contract = contracts.sorted('contract_date_start')[:1]
             payslip_ids = self.get_payslip_ids(limit_type="default")
             has_last_payment = self.vacation_amount_ids.sorted(key=lambda r: r.reference, reverse=True)[:1]
             issuer_phone = self.company_id.phone if self.company_id else ''
@@ -337,8 +341,8 @@ class RecordOfEmployee(models.Model):
                 "pay_period_id": employee.version_id.salary_pay_cycle,
                 "social_insurance_number": employee.identification_id,
                 "first_day_worked_selection": contract,
-                "first_day_worked": contract.date_start,
-                "last_day_worked": employee.version_id.date_end or last_day_worked,
+                "first_day_worked": contract.contract_date_start,
+                "last_day_worked": employee.version_id.contract_date_end or last_day_worked,
                 "final_pay_period_ending_date": payslip_ids[0].date_to if payslip_ids else '',
                 "occupation": employee.job_id.name,
                 "cra_payroll_acc_num": employee.company_id.payroll_account_number,

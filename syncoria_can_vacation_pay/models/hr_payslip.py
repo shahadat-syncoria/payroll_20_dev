@@ -129,10 +129,10 @@ class VacationPayslip(models.Model):
         return final_vac_amount
 
     def compute_sheet(self):
-        # if self.env["ir.config_parameter"].sudo().get_param('syncoria_can_vacation_pay.vac_pay_type') == 'time_wise':
-        input_type = self.env.ref('syncoria_can_vacation_pay.input_ca_vac_pay').id
+        # if self.env["ir.config_parameter"].sudo().get_str('syncoria_can_vacation_pay.vac_pay_type') == 'time_wise':
+        input_type = self.env.ref('syncoria_can_vacation_pay.rule_ca_vacation_pay').id
         payslips = self.filtered(lambda slip: slip.state in ['draft', 'validated'])
-        adjusted_input_type = self.env.ref('syncoria_can_vacation_pay.input_ca_adjusted_vac_pay').id
+        adjusted_input_type = self.env.ref('syncoria_can_vacation_pay.rule_ca_adjusted_vacation_pay').id
         for payslip in payslips:
             weeks_in_year = iso_weeks_in_year(payslip.year)
 
@@ -146,35 +146,36 @@ class VacationPayslip(models.Model):
                 vacation_pay_ids = payslip.env['hr.vacation.pay'].search(
                     [('employee_id', '=', employee_id.id)]).filtered(
                     lambda x: x.state == 'validate' and payslip.date_to >= x.date)
-                if self.env["ir.config_parameter"].sudo().get_param(
+                if self.env["ir.config_parameter"].sudo().get_str(
                         'syncoria_can_vacation_pay.vac_pay_type') == 'time_wise':
                     calculate_vacation_pay = payslip._calculate_vacation_pay(sum(vacation_pay_ids.mapped('duration')),
                                                                              payslip.version_id)
-                if self.env["ir.config_parameter"].sudo().get_param(
+                if self.env["ir.config_parameter"].sudo().get_str(
                         'syncoria_can_vacation_pay.vac_pay_type') == 'cash_wise':
                     calculate_vacation_pay = sum(vacation_pay_ids.mapped('vacation_pay_amount'))
                 if vacation_pay_ids and calculate_vacation_pay > 0.0:
                     vacation_pay_ref = des_name.join(vacation_pay_ids.mapped('name'))
                     payslip.input_line_ids.filtered(
-                        lambda x: x.input_type_id.id == input_type and x.vacation_pay_req_ref == vacation_pay_ref
+                        lambda x: x.salary_rule_id.id == input_type and x.vacation_pay_req_ref == vacation_pay_ref
                     ).unlink()
 
-                    payslip.write({
-                        'input_line_ids': [(0, 0, {
-                            'input_type_id': input_type,
-                            'name': vacation_pay_ref,
-                            'vacation_pay_req_ref': vacation_pay_ref,
-                            'amount': abs(calculate_vacation_pay),
-                        })]
+                    # v20: hr.payslip.write() recomputes the sheet when input_line_ids is written
+                    # (=> infinite recursion with this override), so create the input directly.
+                    self.env['hr.payslip.input'].create({
+                        'payslip_id': payslip.id,
+                        'salary_rule_id': input_type,
+                        'name': vacation_pay_ref,
+                        'vacation_pay_req_ref': vacation_pay_ref,
+                        'amount': abs(calculate_vacation_pay),
                     })
 
                 # ==================== Adjusted Vacation Pay ==============================
                 payslip.input_line_ids.filtered(
-                    lambda x: x.input_type_id.id in [adjusted_input_type]).unlink()
+                    lambda x: x.salary_rule_id.id in [adjusted_input_type]).unlink()
                 if payslip.employee_id.is_adjust_vacation_pay_leave :
                     unpaid_hours = sum(payslip.worked_days_line_ids.filtered(
                         lambda
-                            x: x.work_entry_type_id.deduct_from_gross and x.work_entry_type_id.is_leave and x.work_entry_type_id.is_adjusted_with_vacation_pay).mapped(
+                            x: x.work_entry_type_id.deduct_from_gross and x.work_entry_type_id.count_as == "absence" and x.work_entry_type_id.is_adjusted_with_vacation_pay).mapped(
                         'number_of_hours'))
                     vacation_pay_one_day_hour = payslip.version_id.resource_calendar_id.hours_per_day
                     if payslip.version_id.wage_type == "hourly":
@@ -197,11 +198,12 @@ class VacationPayslip(models.Model):
                     # ==========================================================================================
 
                     if adjust_vac_pay_amount > 0.0:
-                        payslip.write({'input_line_ids': [(0, 0, {
-                            'input_type_id': adjusted_input_type,
+                        self.env['hr.payslip.input'].create({
+                            'payslip_id': payslip.id,
+                            'salary_rule_id': adjusted_input_type,
                             'name': "Adjusted Vacation Pay With Leave",
                             'amount': adjust_vac_pay_amount,
-                        })]})
+                        })
             except Exception as e:
                 payslip.message_post(body=f"Vacation Pay Error:{e}")
 
@@ -218,7 +220,7 @@ class VacationPayslip(models.Model):
         return super(VacationPayslip, self).compute_sheet()
 
     def create_adjusted_vac_pay(self):
-        adjusted_input_type = self.env.ref('syncoria_can_vacation_pay.input_ca_adjusted_vac_pay').id
+        adjusted_input_type = self.env.ref('syncoria_can_vacation_pay.rule_ca_adjusted_vacation_pay').id
         # Don't want this because if we are in waiting state amount stored but we will only store if state
         # paid.But in this case we will not store anything just disbursed the amount
 
@@ -228,7 +230,7 @@ class VacationPayslip(models.Model):
         vac_percentage = self.employee_id.allocated_vac_percentage
         stored_vac_pay_amount = (insurable_amount * (vac_percentage / 100))
         # other_adjusted_amount_input = payslip.input_line_ids.filtered(
-        #     lambda x: x.input_type_id.id in [adjusted_input_type])
+        #     lambda x: x.salary_rule_id.id in [adjusted_input_type])
         # other_adjusted_amount = 0.0
         # if other_adjusted_amount_input:
         #     other_adjusted_amount = sum(other_adjusted_amount_input.mapped("amount"))
@@ -239,18 +241,19 @@ class VacationPayslip(models.Model):
         if vac_pay_amount_need_to_disbursed > 0.0:
             # if other_adjusted_amount_input:
             # else:
-            self.write({'input_line_ids': [(0, 0, {
-                'input_type_id': adjusted_input_type,
+            self.env['hr.payslip.input'].create({
+                'payslip_id': self.id,
+                'salary_rule_id': adjusted_input_type,
                 'name': "Current Vacation Pay",
                 'amount': vac_pay_amount_need_to_disbursed,
-            })]})
+            })
 
     def vacation_pay_paid(self):
-        input_type = self.env.ref('syncoria_can_vacation_pay.input_ca_vac_pay').id
-        adjusted_input_type = self.env.ref('syncoria_can_vacation_pay.input_ca_adjusted_vac_pay').id
+        input_type = self.env.ref('syncoria_can_vacation_pay.rule_ca_vacation_pay').id
+        adjusted_input_type = self.env.ref('syncoria_can_vacation_pay.rule_ca_adjusted_vacation_pay').id
         vacation_pay_req = self.env['hr.vacation.pay']
         for rec in self:
-            vacation_pay_input_line_ids = rec.input_line_ids.filtered(lambda x: x.input_type_id.id == input_type)
+            vacation_pay_input_line_ids = rec.input_line_ids.filtered(lambda x: x.salary_rule_id.id == input_type)
             if rec.state == 'paid' and vacation_pay_input_line_ids:
                 vacation_pay_req_ids = vacation_pay_input_line_ids.vacation_pay_req_ref.split(
                     ',') if vacation_pay_input_line_ids.vacation_pay_req_ref else []
@@ -269,7 +272,7 @@ class VacationPayslip(models.Model):
                 rec.vac_pay_earned_taken = total_amount
 
             adjusted_vacation_pay_input_line_ids = rec.input_line_ids.filtered(
-                lambda x: x.input_type_id.id == adjusted_input_type)
+                lambda x: x.salary_rule_id.id == adjusted_input_type)
             if rec.state == 'paid' and adjusted_vacation_pay_input_line_ids:
                 vac_pay_amount = sum(adjusted_vacation_pay_input_line_ids.mapped("amount"))
                 rec.vac_pay_earned_taken += vac_pay_amount
@@ -282,7 +285,7 @@ class VacationPayslip(models.Model):
         res = super(VacationPayslip, self).action_payslip_paid()
         for rec in self:
             rec.vacation_pay_paid()
-            if self.env["ir.config_parameter"].sudo().get_param(
+            if self.env["ir.config_parameter"].sudo().get_str(
                     'syncoria_can_vacation_pay.vac_pay_type') == 'cash_wise':
                 if not rec.payout_vacation_pay_paycycle:
                     rec.store_vacation_pay_amount()
@@ -293,9 +296,9 @@ class VacationPayslip(models.Model):
 
     def _cancel_vacation_pay_request(self):
         for rec in self:
-            input_type = self.env.ref('syncoria_can_vacation_pay.input_ca_vac_pay').id
+            input_type = self.env.ref('syncoria_can_vacation_pay.rule_ca_vacation_pay').id
             vacation_pay_req = self.env['hr.vacation.pay']
-            vacation_pay_input_line_ids = rec.input_line_ids.filtered(lambda x: x.input_type_id.id == input_type)
+            vacation_pay_input_line_ids = rec.input_line_ids.filtered(lambda x: x.salary_rule_id.id == input_type)
             if vacation_pay_input_line_ids:
                 vacation_pay_req_ids = vacation_pay_input_line_ids.vacation_pay_req_ref.split(
                     ',') if vacation_pay_input_line_ids.vacation_pay_req_ref else []
@@ -408,7 +411,7 @@ class AccountPaymentRegister(models.TransientModel):
             for vals in to_process:
                 payslip = vals['to_reconcile'].move_id.payslip_ids
                 payslip.vacation_pay_paid()
-                if self.env["ir.config_parameter"].sudo().get_param('syncoria_can_vacation_pay.vac_pay_type') == 'cash_wise':
+                if self.env["ir.config_parameter"].sudo().get_str('syncoria_can_vacation_pay.vac_pay_type') == 'cash_wise':
                     if not payslip.payout_vacation_pay_paycycle:
                         payslip.store_vacation_pay_amount()
                 # emp_line_obj = payslip.employee_id.payroll_line_ids.filtered(lambda x: x.year == str(payslip.date_to.year))

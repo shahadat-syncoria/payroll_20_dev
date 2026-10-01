@@ -1,18 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <data>
+        <!-- v20: pay run actions live in the kanban card view; the native
+             "generate payslips by employee" action is the card's "Add Employees" button. -->
         <record id="hr_payslip_run_form_payroll_helper" model="ir.ui.view">
-            <field name="name">syncoria_payroll_helper.hr_payslip_run.form</field>
+            <field name="name">syncoria_payroll_helper.hr_payslip_run.kanban.card</field>
             <field name="model">hr.payslip.run</field>
-            <field name="inherit_id" ref="hr_payroll.hr_payslip_run_form"/>
+            <field name="inherit_id" ref="hr_payroll.hr_payrun_payslip_kanban_card_view"/>
             <field name="arch" type="xml">
-                <xpath expr="//button[@name='%(hr_payroll.action_hr_payslip_by_employees)d']" position="before">
+                <xpath expr="//button[@name='action_add_employees']" position="before">
                     <field invisible="1" name="is_manual_input"/>
-                    <button class="oe_highlight" invisible="state in ['verify', 'close','paid']" name="%(syncoria_can_payroll.action_hr_employee_manual_input_wiz)d" string="Manually Generate Payslips" type="action"/>
+                    <button class="btn btn-secondary" invisible="state in ['02_close', '03_paid', '04_cancel']" name="%(syncoria_can_payroll.action_hr_employee_manual_input_wiz)d" string="Manually Generate Payslips" type="action"/>
                 </xpath>
-                <xpath expr="//button[@name='%(hr_payroll.action_hr_payslip_by_employees)d']" position="attributes">
-                    <attribute name="invisible">1 or state not in ['False']</attribute>
-                </xpath></field>
+                <xpath expr="//button[@name='action_add_employees']" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+            </field>
         </record>
     </data>
 </odoo>

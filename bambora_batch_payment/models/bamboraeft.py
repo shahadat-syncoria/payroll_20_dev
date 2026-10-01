@@ -82,25 +82,25 @@ class providerBamboraEft(models.Model):
         selection_add=[("bamboraeft", _("Bambora EFT"))],
         ondelete={"bamboraeft": "set default"},
     )
-    bamboraeft_merchant_id = fields.Char(string="Merchant ID", required_if_code="bamboraeft")
-    bamboraeft_batch_api = fields.Char(string="Batch API", required_if_code="bamboraeft")
-    bamboraeft_report_api = fields.Char(string="Report API", required_if_code="bamboraeft")
+    bamboraeft_merchant_id = fields.Char(string="Merchant ID", required_if_provider="bamboraeft")
+    bamboraeft_batch_api = fields.Char(string="Batch API", required_if_provider="bamboraeft")
+    bamboraeft_report_api = fields.Char(string="Report API", required_if_provider="bamboraeft")
     bamboraeft_transaction_type = fields.Selection(
         string="Transaction Type",
         selection=[("E", "EFT"), ("A", "ACH")],
         default="E",
-        required_if_code="bamboraeft",
+        required_if_provider="bamboraeft",
     )
     bamboraeft_create_profile = fields.Boolean(
         string="Create Profile",
     )
-    bamboraeft_payment_api = fields.Char(string="Payment API", required_if_code="bamboraeft")
-    bamboraeft_profile_api = fields.Char(string="Profile API", required_if_code="bamboraeft")
+    bamboraeft_payment_api = fields.Char(string="Payment API", required_if_provider="bamboraeft")
+    bamboraeft_profile_api = fields.Char(string="Profile API", required_if_provider="bamboraeft")
     bamboraeft_report_api_version = fields.Selection(
         string="Report Api Version",
         selection=[("2.0", "2.0")],
         default="2.0",
-        required_if_code="bamboraeft",
+        required_if_provider="bamboraeft",
     )
     bamboraeft_vendor_journal_id = fields.Many2one(
         "account.journal",
@@ -195,14 +195,13 @@ class providerBamboraEft(models.Model):
         self.check_so_transactions(data)
         res_partner_bank = self.env["res.partner.bank"].sudo()
         res_partner = self.env["res.partner"].sudo()
-        res_bank = self.env["res.bank"].sudo()
         partner = res_partner.search([("id", "=", int(data.get("partner_id")))])
         partner_name = ""
         if partner:
             partner_name = partner.name
             partner_name = partner_name.split(" ")[0] if partner_name else ""
 
-        bank_id = self.check_bank_acc(res_partner_bank, res_partner, res_bank, partner, data)
+        bank_name = self.check_bank_acc(res_partner_bank, res_partner, partner, data)
 
         # Create a New Profile for Bank Account or Credit Card
         tran_type = "CARD" if data.get("bamboraTran") == "on" else "A/N"
@@ -211,7 +210,6 @@ class providerBamboraEft(models.Model):
             _logger.info("Payment by Card")
         else:
             _logger.info("Payment by Bank Number")
-            values["partner_bank_id"] = bank_id.id
 
         comments = "Create Token for Customer-%s, %s" % (
             data.get("partner_id"),
@@ -257,9 +255,9 @@ class providerBamboraEft(models.Model):
                     + "\npro_res.status_code===>>> %s" % (pro_res.text)
                 )
 
-            self.process_response(pro_res, values, partner, bank_id, data, res_partner_bank)
+            self.process_response(pro_res, values, partner, bank_name, data, res_partner_bank)
         else:
-            self.create_bank_account(partner, bank_id, data, res_partner_bank)
+            self.create_bank_account(partner, bank_name, data, res_partner_bank)
 
         payment_method = self.env["payment.token"].sudo().create(values)
         _logger.info(values)
@@ -308,37 +306,31 @@ class providerBamboraEft(models.Model):
         fees = (percentage / 100.0 * amount + fixed) / (1 - percentage / 100.0)
         return fees
 
-    def check_bank_acc(self, res_partner_bank, res_partner, res_bank, partner, data):
-        bank_id = False
+    def check_bank_acc(self, res_partner_bank, res_partner, partner, data):
+        # res.bank no longer exists in Odoo 20: the bank name and BIC live on res.partner.bank.
+        bank_name = False
         if not data.get("bamboraTran") and data["acc_number"]:
-            bank_account_id = res_partner_bank.search([("acc_number", "=", data["acc_number"])])
+            bank_account_id = res_partner_bank.search([("account_number", "=", data["acc_number"])])
             if bank_account_id:
                 msg = 'You cannot use this Account Number as it is already used. Please use a different account number!'
                 raise UserError(_(msg))
 
         if partner and data.get("bank_name"):
-            bank_id = res_bank.search([("name", "=", data.get("bank_name"))], limit=1)
-            if not bank_id:
-                bank_vals = {
-                    "name": data.get("bank_name"),
-                    "bic": data.get("institution_number"),
-                }
-                bank_id = res_bank.create(bank_vals)
+            bank_name = data.get("bank_name")
 
-        return bank_id
+        return bank_name
 
     @api.model
     def bamboraeft_s2s_form_process(self, data):
         res_partner_bank = self.env["res.partner.bank"].sudo()
         res_partner = self.env["res.partner"].sudo()
-        res_bank = self.env["res.bank"].sudo()
         partner = res_partner.search([("id", "=", int(data.get("partner_id")))])
         partner_name = ""
         if partner:
             partner_name = partner.name
             partner_name = partner_name.split(" ")[0] if partner_name else ""
 
-        bank_id = self.check_bank_acc(res_partner_bank, res_partner, res_bank, partner, data)
+        bank_name = self.check_bank_acc(res_partner_bank, res_partner, partner, data)
 
         # Create a New Profile for Bank Account or Credit Card
         tran_type = "CARD" if data.get("bamboraTran") == "on" else "A/N"
@@ -347,7 +339,6 @@ class providerBamboraEft(models.Model):
             _logger.info("Payment by Card")
         else:
             _logger.info("Payment by Bank Number")
-            values["partner_bank_id"] = bank_id.id
 
         comments = "Create Token for Customer-%s, %s" % (
             data.get("partner_id"),
@@ -393,27 +384,26 @@ class providerBamboraEft(models.Model):
                     + "\npro_res.status_code===>>> %s" % (pro_res.text)
                 )
 
-            self.process_response(pro_res, values, partner, bank_id, data, res_partner_bank)
+            self.process_response(pro_res, values, partner, bank_name, data, res_partner_bank)
         else:
-            self.create_bank_account(partner, bank_id, data, res_partner_bank)
+            self.create_bank_account(partner, bank_name, data, res_partner_bank)
 
         payment_method = self.env["payment.token"].sudo().create(values)
         _logger.info(values)
         _logger.info(payment_method)
         return payment_method
 
-    def create_bank_account(self, partner, bank_id, data, res_partner_bank):
+    def create_bank_account(self, partner, bank_name, data, res_partner_bank):
         try:
-            if partner and bank_id:
-                partner_bank_id = partner.bank_ids.filtered(lambda c: c.acc_number == data["acc_number"])
+            if partner and bank_name:
+                partner_bank_id = partner.bank_ids.filtered(lambda c: c.account_number == data["acc_number"])
                 bank_account_vals = {}
-                bank_account_vals["acc_holder_name"] = data["acc_holder_name"]
-                bank_account_vals["acc_number"] = data["acc_number"]
-                bank_account_vals["acc_type"] = "normal"
+                bank_account_vals["holder_name"] = data["acc_holder_name"]
+                bank_account_vals["account_number"] = data["acc_number"]
                 bank_account_vals["bank_bic"] = data["institution_number"]
                 bank_account_vals["bank_transit_no"] = data["branch_number"]
                 bank_account_vals["partner_id"] = partner.id
-                bank_account_vals["bank_id"] = bank_id.id
+                bank_account_vals["bank_name"] = bank_name
                 partner_bank_id = (
                     res_partner_bank.create(bank_account_vals)
                     if not partner_bank_id
@@ -425,7 +415,7 @@ class providerBamboraEft(models.Model):
             msg ='Exceptions {}'.format(e.args)
             _logger.info(msg)
 
-    def process_response(self, pro_res, values, partner, bank_id, data, res_partner_bank):
+    def process_response(self, pro_res, values, partner, bank_name, data, res_partner_bank):
         if pro_res.status_code == 200:
             if pro_res.json().get("code") == 1:
                 _logger.info("Bambora Profile successfully created")
@@ -433,14 +423,15 @@ class providerBamboraEft(models.Model):
                 values["bambora_token_type"] = "permanent"
                 try:
                     # Create a Bank Account for the Customer
-                    if partner and bank_id:
-                        partner_bank_id = partner.bank_ids.filtered(lambda c: c.acc_number == data["acc_number"])
+                    if partner and bank_name:
+                        partner_bank_id = partner.bank_ids.filtered(lambda c: c.account_number == data["acc_number"])
                         bank_account_vals = {}
-                        bank_account_vals["acc_holder_name"] = data["acc_holder_name"]
-                        bank_account_vals["acc_number"] = data["acc_number"]
-                        bank_account_vals["acc_type"] = "normal"
+                        bank_account_vals["holder_name"] = data["acc_holder_name"]
+                        bank_account_vals["account_number"] = data["acc_number"]
                         bank_account_vals["partner_id"] = partner.id
-                        bank_account_vals["bank_id"] = bank_id.id
+                        bank_account_vals["bank_name"] = bank_name
+                        bank_account_vals["bank_bic"] = data.get("institution_number")
+                        bank_account_vals["bank_transit_no"] = data.get("branch_number")
                         bank_account_vals["bamboraeft_customer_code"] = pro_res.json().get("customer_code")
                         if not partner_bank_id:
                             partner_bank_id = res_partner_bank.create(bank_account_vals)

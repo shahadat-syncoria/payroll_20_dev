@@ -51,15 +51,5 @@ class InheritedResUser(models.Model):
                 record.ytd_ei_employer = 0
                 record.ytd_pi = 0
 
-
-    @property
-    def SELF_READABLE_FIELDS(self):
-        return super().SELF_READABLE_FIELDS + ['ytd_cpp','ytd_cpp2','ytd_ei','ytd_ei_employer','ytd_pi','ytd_irre_fed_tax','ytd_irre_prov_tax']
-
-    @property
-    def SELF_WRITEABLE_FIELDS(self):
-        return super().SELF_WRITEABLE_FIELDS + ['ytd_cpp','ytd_cpp2','ytd_ei','ytd_ei_employer','ytd_pi','ytd_irre_fed_tax','ytd_irre_prov_tax']
-
-
-
-
+    # Odoo 20: SELF_READABLE_FIELDS / SELF_WRITEABLE_FIELDS no longer exist on res.users
+    # (read access is not restricted per field anymore, `user_writeable` is a field parameter).

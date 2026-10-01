@@ -7,12 +7,14 @@
             <field name="name">Federal Tax</field>
             <field name="sequence" eval="250"/>
             <field name="code">FTAX</field>
-            <field name="category_id" ref="hr_payroll.DED"/>
-            <field name="appears_on_payslip" eval="1"/>
+            <field name="country_id" ref="base.ca"/>
+            <field name="condition_select">none</field>
+            <field name="category_ids" eval="[(6, 0, [ref('hr_payroll.DED')])]"/>
+            <field name="appears_on_payslip" eval="'always'"/>
             <field name="active" eval="1"/>
 <!--            <field name="condition_select">none</field>-->
             <field name="amount_select">code</field>
-            <field name="struct_id" ref="syncoria_can_payroll.structure_can_employee"/>
+            <field name="struct_ids" eval="[(6, 0, [ref('syncoria_can_payroll.structure_can_employee')])]"/>
 <!--            <field name="exemption_id" ref="cpp_exempt"/>-->
             <field name="amount_python_compute">
 result = 0.0
@@ -24,12 +26,14 @@ result = 0.0
             <field name="name">Ontario Tax</field>
             <field name="sequence" eval="270"/>
             <field name="code">OTAX</field>
-            <field name="category_id" ref="hr_payroll.DED"/>
-            <field name="appears_on_payslip" eval="1"/>
+            <field name="country_id" ref="base.ca"/>
+            <field name="condition_select">none</field>
+            <field name="category_ids" eval="[(6, 0, [ref('hr_payroll.DED')])]"/>
+            <field name="appears_on_payslip" eval="'always'"/>
             <field name="active" eval="1"/>
 <!--            <field name="condition_select">none</field>-->
              <field name="amount_select">code</field>
-             <field name="struct_id" ref="syncoria_can_payroll.structure_can_employee"/>
+             <field name="struct_ids" eval="[(6, 0, [ref('syncoria_can_payroll.structure_can_employee')])]"/>
 <!--            <field name="exemption_id" ref="cpp_exempt"/>-->
             <field name="amount_python_compute">
 result =0.0
@@ -41,12 +45,12 @@ result =0.0
 <!--            <field name="name">FED Tax</field>-->
 <!--            <field name="sequence" eval="250"/>-->
 <!--            <field name="code">FTAX</field>-->
-<!--            <field name="category_id" ref="hr_payroll.DED"/>-->
-<!--            <field name="appears_on_payslip" eval="1"/>-->
+<!--            <field name="category_ids" eval="[(6, 0, [ref('hr_payroll.DED')])]"/>-->
+<!--            <field name="appears_on_payslip" eval="'always'"/>-->
 <!--            <field name="active" eval="1"/>-->
 <!--&lt;!&ndash;            <field name="condition_select">none</field>&ndash;&gt;-->
 <!--            <field name="amount_select">code</field>-->
-<!--            <field name="struct_id" ref="syncoria_can_payroll.structure_can_worker"/>-->
+<!--            <field name="struct_ids" eval="[(6, 0, [ref('syncoria_can_payroll.structure_can_worker')])]"/>-->
 <!--&lt;!&ndash;            <field name="exemption_id" ref="cpp_exempt"/>&ndash;&gt;-->
 <!--            <field name="amount_python_compute">-->
 <!--result= 0.0-->
@@ -58,12 +62,12 @@ result =0.0
 <!--            <field name="name">Ont Tax</field>-->
 <!--            <field name="sequence" eval="270"/>-->
 <!--            <field name="code">OTAX</field>-->
-<!--            <field name="category_id" ref="hr_payroll.DED"/>-->
-<!--            <field name="appears_on_payslip" eval="1"/>-->
+<!--            <field name="category_ids" eval="[(6, 0, [ref('hr_payroll.DED')])]"/>-->
+<!--            <field name="appears_on_payslip" eval="'always'"/>-->
 <!--            <field name="active" eval="1"/>-->
 <!--&lt;!&ndash;            <field name="condition_select">none</field>&ndash;&gt;-->
 <!--             <field name="amount_select">code</field>-->
-<!--             <field name="struct_id" ref="syncoria_can_payroll.structure_can_worker"/>-->
+<!--             <field name="struct_ids" eval="[(6, 0, [ref('syncoria_can_payroll.structure_can_worker')])]"/>-->
 <!--&lt;!&ndash;            <field name="exemption_id" ref="cpp_exempt"/>&ndash;&gt;-->
 <!--            <field name="amount_python_compute">-->
 <!--result= 0.0-->

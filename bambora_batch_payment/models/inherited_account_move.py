@@ -57,7 +57,7 @@ class AccountInvoiceBatchPayment(models.Model):
         if tx:
             raise UserError(_("%s Record already in transaction process") % record.name)
         if (
-                not record.partner_bank_id.acc_number
+                not record.partner_bank_id.account_number
                 or not record.bambora_bank_identifier_number
                 or not record.bambora_bank_transit_number
                 or not record.bambora_bank_identifier_number.isdigit()
@@ -77,7 +77,7 @@ class AccountInvoiceBatchPayment(models.Model):
                     transaction_type,
                     record.bambora_bank_identifier_number,
                     record.bambora_bank_transit_number,
-                    record.partner_bank_id.acc_number,
+                    record.partner_bank_id.account_number,
                     round(record.amount_total * 100),
                     record.name,
                     record.partner_id.name,
@@ -91,7 +91,6 @@ class AccountInvoiceBatchPayment(models.Model):
     def action_register_bambora_batch_payment(self):
         # icp_sudo = self.env['ir.config_parameter'].sudo()
         domain = [("code", "=", "bamboraeft")]
-        domain += [("state", "!=", "disabled")]
         providers = self.env["payment.provider"].sudo().search(domain)
         if not providers:
             raise UserError(_("Module not install or disable!"))

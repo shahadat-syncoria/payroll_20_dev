@@ -73,7 +73,7 @@
                                             </td>
                                             <td style="text-align:center">
                                                 <t t-if="line.bambora_payroll_account_id">
-                                                    <span t-esc="line.bambora_payroll_account_id.bank_id.name"/>
+                                                    <span t-esc="line.bambora_payroll_account_id.bank_name"/>
                                                 </t>
                                                 <t t-else="">
                                                     <span></span>
@@ -91,7 +91,7 @@
                                             </td>
                                             <td style="text-align:center">
                                                 <t t-if="line.bambora_payroll_account_id">
-                                                    <span t-esc="line.bambora_payroll_account_id.acc_number"/>
+                                                    <span t-esc="line.bambora_payroll_account_id.account_number"/>
                                                 </t>
                                                 <t t-else="">
                                                     <span></span>

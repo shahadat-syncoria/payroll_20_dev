@@ -3,15 +3,13 @@
     <t t-name="syncoria_can_payroll.VersionPayrunListController.Buttons"
        t-inherit="hr_payroll.VersionPayrunListController.Buttons"
        t-inherit-mode="extension">
-
-        <!-- Add your button -->
-        <xpath expr="//button[@t-on-click='generatePayslips']" position="replace">
-            <button class="btn btn-primary"
-                    t-on-click="selectEmployees" t-att-disabled="model.root.selection.length &lt; 1 || state.disabled">
-                Manually Generate Payslips
+        <!-- Odoo 20: the "Select" button creates the pay run; for a new pay run it opens the manual input wizard -->
+        <xpath expr="//button[@t-on-click='this.onSelect']" position="replace">
+            <button class="btn btn-primary" t-on-click="this.onSelect"
+                    t-att-disabled="this.model.root.selection.length &lt; 1 || this.state.disabled">
+                <t t-if="this.props.context.payrun_id">Select</t>
+                <t t-else="">Manually Generate Payslips</t>
             </button>
         </xpath>
-
     </t>
 </templates>
-

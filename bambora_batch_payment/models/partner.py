@@ -55,12 +55,12 @@ class ResPartner(models.Model):
 
     @api.depends("payment_token_ids")
     def _compute_payment_token_count(self):
-        payment_data = self.env["payment.token"].read_group(
+        payment_data = self.env["payment.token"]._read_group(
             [("partner_id", "in", self.ids), ("bamboraeft_tran_type", "!=", "bank")],
             ["partner_id"],
-            ["partner_id"],
+            ["__count"],
         )
-        mapped_data = {payment["partner_id"][0]: payment["partner_id_count"] for payment in payment_data}
+        mapped_data = {partner.id: count for partner, count in payment_data}
         for partner in self:
             partner.payment_token_count = mapped_data.get(partner.id, 0)
 
@@ -68,12 +68,12 @@ class ResPartner(models.Model):
 
     @api.depends("payment_token_ids")
     def _compute_payment_eft_count(self):
-        payment_data = self.env["payment.token"].read_group(
+        payment_data = self.env["payment.token"]._read_group(
             [("partner_id", "in", self.ids), ("bamboraeft_tran_type", "=", "bank")],
             ["partner_id"],
-            ["partner_id"],
+            ["__count"],
         )
-        mapped_data = {payment["partner_id"][0]: payment["partner_id_count"] for payment in payment_data}
+        mapped_data = {partner.id: count for partner, count in payment_data}
         for partner in self:
             partner.payment_eft_count = mapped_data.get(partner.id, 0)
 
@@ -118,16 +118,18 @@ class ResPartnerBank(models.Model):
                 try:
                     if pro_res.json().get("customer_code"):
                         pay_tkn = self.env["payment.token"].sudo()
-                        token_name = rec.acc_number
-                        token_name = "***" + rec.acc_number[-4:] + " (EFT)"
+                        token_name = rec.account_number
+                        token_name = "***" + rec.account_number[-4:] + " (EFT)"
                         values = {
                             "bambora_token_type": "permanent",
                             "bambora_token": pro_res.json().get("customer_code"),
                             "code": "bamboraeft",
                             "provider_id": acq.id,
+                            "payment_method_id": self.env.ref(
+                                "bambora_batch_payment.payment_method_bambora_eft").id,
                             "provider_ref": "bamboraeft",
                             "partner_id": rec.partner_id.id,
-                            "name": token_name,
+                            "payment_details": token_name,  # Odoo 20: payment.token has no `name` field
                         }
 
                         values["bamboraeft_tran_type"] = "bank"
@@ -157,14 +159,14 @@ class ResPartnerBank(models.Model):
     def action_create_bamboraeft_token(self):
         for rec in self:
             if (
-                not rec.acc_number
+                not rec.account_number
                 or not rec.bank_transit_no
-                or not rec.bank_id
-                or not rec.bank_id.bic
+                or not rec.bank_name
+                or not rec.bank_bic
                 or not rec.bank_account_type
             ):
                 raise ValidationError(
-                    _("Please provide Account Number, Bank Transir Number, Bank Id , Bank BIC and Bank Account Type")
+                    _("Please provide Account Number, Bank Transit Number, Bank Name, Bank BIC and Bank Account Type")
                 )
 
             domain = [("company_id", "in", rec.company_id.ids)]
@@ -176,10 +178,10 @@ class ResPartnerBank(models.Model):
                     "language": "en",
                     "comments": comments,
                     "bank_account": {
-                        "bank_account_holder": rec.acc_holder_name,
-                        "account_number": rec.acc_number,
+                        "bank_account_holder": rec.holder_name,
+                        "account_number": rec.account_number,
                         "bank_account_type": rec.bank_account_type,
-                        "institution_number": rec.bank_id.bic,
+                        "institution_number": rec.bank_bic,
                         "branch_number": rec.bank_transit_no,
                     },
                 }

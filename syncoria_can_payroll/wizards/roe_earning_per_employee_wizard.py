@@ -33,7 +33,7 @@ class RoeEarningPerEmployee(models.TransientModel):
         for index, line in enumerate(date_wise_employee_payslip_ids):
             details_gross_info = []
             for pay_line in line.line_ids:
-                if pay_line.category_id.code == 'GROSS':
+                if 'GROSS' in pay_line.category_ids.mapped('code'):
                     sum_gross += pay_line.total
                     details_gross_info.append({
                         "name": pay_line.name,

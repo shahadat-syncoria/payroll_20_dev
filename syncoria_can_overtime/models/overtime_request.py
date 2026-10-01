@@ -66,7 +66,7 @@ class HrOvertimePayRequest(models.Model):
         for rec in self:
             if rec.state != 'draft':
                 raise UserError(_("Record can not be deleted without draft state."))
-        super(HrOvertimePayRequest,self).unlink()
+        return super(HrOvertimePayRequest,self).unlink()
 
 
 

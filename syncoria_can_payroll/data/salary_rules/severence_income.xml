@@ -1,22 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <data noupdate="0">
-        <record id="input_ca_severance_pay" model="hr.payslip.input.type">
-            <field name="name">Severance Pay</field>
-            <field name="code">Severance_pay</field>
-            <field name="country_id" eval="False"/>
-        </record>
-
-
         <record id="rule_ca_severance_pay" model="hr.salary.rule">
             <field name="name">Severance Pay</field>
             <field name="sequence" eval="50"/>
             <field name="code">Severance_pay</field>
-            <field name="category_id" ref="syncoria_can_payroll.additional_allowance"/>
-            <field name="appears_on_payslip" eval='True'/>
+            <field name="country_id" ref="base.ca"/>
+            <field name="category_ids" eval="[(6, 0, [ref('syncoria_can_payroll.additional_allowance')])]"/>
+            <field name="appears_on_payslip" eval="'always'"/>
             <field name="active" eval="1"/>
             <field name="amount_select">code</field>
-            <field name="struct_id" ref="syncoria_can_payroll.structure_can_employee"/>
+            <field name="struct_ids" eval="[(6, 0, [ref('syncoria_can_payroll.structure_can_employee')])]"/>
+            <field name="input_usage_payslip" eval="1"/>
             <field name="condition_select">python</field>
             <field name="condition_python">result = 'Severance_pay' in inputs</field>
             <field name="amount_python_compute"><![CDATA[
@@ -29,11 +24,12 @@ result_name = inputs['Severance_pay'].name
             <field name="name">Income Tax</field>
             <field name="sequence" eval="250"/>
             <field name="code">Income_Tax</field>
-            <field name="category_id" ref="hr_payroll.DED"/>
-            <field name="appears_on_payslip" eval='True'/>
+            <field name="country_id" ref="base.ca"/>
+            <field name="category_ids" eval="[(6, 0, [ref('hr_payroll.DED')])]"/>
+            <field name="appears_on_payslip" eval="'always'"/>
             <field name="active" eval="1"/>
             <field name="amount_select">code</field>
-            <field name="struct_id" ref="syncoria_can_payroll.structure_can_employee"/>
+            <field name="struct_ids" eval="[(6, 0, [ref('syncoria_can_payroll.structure_can_employee')])]"/>
             <field name="condition_select">python</field>
             <field name="condition_python">result = 'Severance_pay' in inputs</field>
             <field name="amount_python_compute"><![CDATA[

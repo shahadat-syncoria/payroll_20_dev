@@ -4,6 +4,7 @@
 
         <record id="vac_accrued" model="hr.salary.rule.category">
             <field name="code">ACCRUED</field>
+            <field name="country_id" ref="base.ca"/>
             <field name="name">Accrued</field>
         </record>
 

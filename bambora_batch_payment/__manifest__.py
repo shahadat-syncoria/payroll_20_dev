@@ -12,7 +12,8 @@
     "price": 5000,
     "currency": "USD",
     "category": "Accounts",
-    "depends": ["account", "payment", "sale", "syncoria_can_payroll"],
+    "depends": ["account", "account_payment", "payment", "sale", "syncoria_can_payroll"],
+    "external_dependencies": {"python": ["requests"]},
     "images": [
         "static/description/banner.png",
     ],

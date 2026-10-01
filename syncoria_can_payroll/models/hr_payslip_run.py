@@ -15,7 +15,7 @@ class PayrollHrPayslipRun(models.Model):
 
     pay_cycle = fields.Many2one('paycycle.config',store=True)
     pay_cycle_period = fields.Many2one('paycycle.period' , store=True)
-    pay_cycle_period_ids_domain = fields.Binary(
+    pay_cycle_period_ids_domain = fields.Json(
         compute='_compute_pay_cycle_period_domain', readonly=True,
         store=False)
 
@@ -34,26 +34,11 @@ class PayrollHrPayslipRun(models.Model):
                 vals['name'] = period.name
         return super().create(vals_list)
 
-    @api.onchange('pay_cycle')
-    def _onchage_schedule_pay(self):
-        self.ensure_one()
-        if self.pay_cycle.pay_cycle == '12':
-            self.schedule_pay = 'monthly'
-
-        elif self.pay_cycle.pay_cycle == '24':
-            self.schedule_pay = 'semi-monthly'
-
-        elif self.pay_cycle.pay_cycle == '26':
-            self.schedule_pay = 'bi-weekly'
-        elif self.pay_cycle.pay_cycle == '52':
-            self.schedule_pay = 'weekly'
-
-
     def _compute_is_manual_input(self):
         with_user = self.env['ir.config_parameter'].sudo()
-        attendance_manual = with_user.get_param('syncoria_can_payroll.attendance_manual_input')
+        attendance_manual = with_user.get_bool('syncoria_can_payroll.attendance_manual_input')
         for payslip in self:
-            payslip.is_manual_input = True if attendance_manual == 'True' else False
+            payslip.is_manual_input = attendance_manual
 
     @api.depends('pay_cycle','pay_cycle_year')
     def _compute_pay_cycle_period_domain(self):
@@ -140,24 +125,26 @@ class PayrollHrPayslipRun(models.Model):
                     'state': '03_paid'
                 })
 
-    def action_close(self):
-        super(PayrollHrPayslipRun, self).action_close()
+    def action_validate(self):
+        # Odoo 20: hr.payslip.run.action_close was replaced by action_validate
+        res = super(PayrollHrPayslipRun, self).action_validate()
         for rec in self:
             rec.next_batch_create()
+        return res
 
     # ================ Schedular mail notification ===============
 
     def send_reminder_mail(self):
         try:
             with_user = self.env['ir.config_parameter'].sudo()
-            reminder_days = with_user.get_param('syncoria_can_payroll.reminder_days_before_payroll')
+            reminder_days = with_user.get_str('syncoria_can_payroll.reminder_days_before_payroll')
             if reminder_days:
-                email_partner_ids = ast.literal_eval(with_user.get_param('syncoria_can_payroll.reminder_recipient_ids'))
+                email_partner_ids = ast.literal_eval(with_user.get_str('syncoria_can_payroll.reminder_recipient_ids'))
                 email_partner_obj_ids = self.env['res.partner'].browse(email_partner_ids)
                 email_ids = ','.join([i.email for i in email_partner_obj_ids])
                 payslip_date_acc_reminder = datetime.now() + timedelta(days=int(reminder_days))
                 draft_payslip_ids = self.search(
-                    [('date_end', '=', payslip_date_acc_reminder.date()), ('state', 'in', ['draft', 'validated'])])
+                    [('date_end', '=', payslip_date_acc_reminder.date()), ('state', 'in', ['00_draft', '01_ready'])])
                 mail_template = self.env.ref('syncoria_can_payroll.email_template_payroll_reminder')
                 for payslip in draft_payslip_ids:
                     mail_template.send_mail(
@@ -179,103 +166,52 @@ class PayrollHrPayslipRun(models.Model):
             x.compute_sheet()
 
 
-    #  For Odoo 19 Selecting domain from js
+    # Odoo 20: the pay run employee selection works on hr.employee (hr_payroll.action_view_employee_tree)
+    # and versions are resolved by hr.payslip.run._get_valid_versions(). The pay cycle filter is injected
+    # through _get_valid_versions_domain_payrun (context key or the pay run's own pay cycle).
     def action_payroll_hr_version_list_view_payrun_cus(self, date_start=None, date_end=None, structure_id=None,
-                                                   company_id=None, pay_cycle=None):
-        action = self.env['ir.actions.act_window']._for_xml_id('hr_payroll.action_payroll_hr_version_list_view_payrun')
+                                                       company_id=None, pay_cycle=None, employee_type_ids=None):
+        action = self.env['ir.actions.act_window']._for_xml_id('hr_payroll.action_view_employee_tree')
 
-        valid_version_ids = self._get_valid_version_ids(
-            fields.Date.from_string(date_start),
-            fields.Date.from_string(date_end),
-            structure_id,
-            company_id,
-            None,
-            pay_cycle
+        pay_cycle_id = pay_cycle.get("id") if isinstance(pay_cycle, dict) else pay_cycle
+        payrun = self.with_context(payrun_pay_cycle_id=pay_cycle_id or False)
+        date_start = fields.Date.from_string(date_start) if date_start else self.date_start
+        date_end = fields.Date.from_string(date_end) if date_end else self.date_end
+        valid_versions = payrun._get_valid_versions(date_start, date_end, structure_id, company_id, employee_type_ids)
 
-        )
-
+        structure = structure_id if structure_id else (self.structure_id.id if self.structure_id else False)
         payslip_domain = Domain.AND([
-            Domain('version_id', 'in', valid_version_ids),
-            Domain('date_from', '=', fields.Date.from_string(date_start) if date_start else self.date_start),
-            Domain('date_to', '=', fields.Date.from_string(date_end) if date_end else self.date_end),
-            Domain('struct_id', '=',
-                   structure_id if structure_id else (self.structure_id.id if self.structure_id else False)),
+            Domain('version_id', 'in', valid_versions.ids),
+            Domain('date_from', '=', date_start),
+            Domain('date_to', '=', date_end),
+            Domain('struct_id', '=', structure),
             Domain('state', '!=', 'cancel'),
-            Domain('pay_cycle', '=', pay_cycle.get("id") if pay_cycle else False)
+            Domain('pay_cycle', '=', pay_cycle_id or False)
         ])
-        existing_version_ids = self.env['hr.payslip'].search(payslip_domain).version_id.ids
-        filtered_version_ids = set(valid_version_ids) - set(existing_version_ids)
-        action['domain'] = [("id", "in", list(filtered_version_ids))]
+        existing_versions = self.env['hr.payslip'].search(payslip_domain).version_id
+        filtered_versions = valid_versions - existing_versions - self.version_ids
+        action['domain'] = [("id", "in", filtered_versions.employee_id.ids)]
         return action
 
+    def _get_valid_versions_domain_payrun(self, date_start=None, date_end=None, structure_id=None, company_id=None,
+                                          employee_type_ids=None):
+        version_domain = super()._get_valid_versions_domain_payrun(
+            date_start, date_end, structure_id, company_id, employee_type_ids)
+        pay_cycle_id = self.env.context.get('payrun_pay_cycle_id')
+        if not pay_cycle_id and len(self) == 1:
+            pay_cycle_id = self.pay_cycle.id
+        if pay_cycle_id:
+            version_domain &= Domain([('salary_pay_cycle', '=', pay_cycle_id)])
+        return version_domain
 
-    def _get_valid_version_ids(self, date_start=None, date_end=None, structure_id=None, company_id=None, employee_ids=None,pay_cycle=None):
-        super()._get_valid_version_ids(date_start=None, date_end=None, structure_id=None, company_id=None, employee_ids=None)
-
-        date_start = date_start or self.date_start
-        date_end = date_end or self.date_end
-        structure = self.env["hr.payroll.structure"].browse(structure_id) if structure_id else self.structure_id
-
-        pay_cycle = pay_cycle or self.pay_cycle
-        company = company_id or self.company_id.id
-        version_domain = Domain([
-            ('company_id', '=', company),
-            ('employee_id', '!=', False),
-            ('contract_date_start', '<=', date_end),
-            '|',
-                ('contract_date_end', '=', False),
-                ('contract_date_end', '>=', date_start),
-            ('date_version', '<=', date_end),
-        ])
-        if structure:
-            version_domain &= Domain([('structure_type_id', '=', structure.type_id.id)])
-        if employee_ids:
-            version_domain &= Domain([('employee_id', 'in', employee_ids)])
-        if pay_cycle:
-            version_domain &= Domain([('salary_pay_cycle', '=', pay_cycle.get("id"))])
-        all_versions = self.env['hr.version']._read_group(
-            domain=version_domain,
-            groupby=['employee_id', 'date_version:day'],
-            order="date_version:day DESC",
-            aggregates=['id:recordset'],
-        )
-        all_employee_versions = defaultdict(list)
-        for employee, _, version in all_versions:
-            all_employee_versions[employee] += [*version]
-        valid_versions = self.env["hr.version"]
-        for employee_versions in all_employee_versions.values():
-            employee_valid_versions = self.env["hr.version"]
-            for i in range(len(employee_versions)):
-                version = employee_versions[i]
-                if version.date_version <= date_start or employee_versions[-1] == version:
-                    # End case: The first version in contract before the pay run start or the last version of the list
-                    employee_valid_versions |= version
-                    break
-                if employee_valid_versions:
-                    # Version already added => new contract?
-                    if (employee_valid_versions[-1].contract_date_start > version.contract_date_start
-                        and (version.contract_date_start >= version.date_version
-                            or version.contract_date_start > employee_versions[i + 1].contract_date_start)):
-                        # Take only the first version of the new contract founded
-                        employee_valid_versions |= version
-                elif version.contract_date_start >= version.date_version or version.contract_date_start > employee_versions[i + 1].contract_date_start:
-                    # Take only the first version of the first contract founded
-                    employee_valid_versions |= version
-            valid_versions |= employee_valid_versions
-        return valid_versions.ids
-
-
-
-    def generate_payslips(self, version_ids=None, employee_ids=None):
+    def _generate_payslips(self):
+        # Odoo 20: generate_payslips(version_ids, employee_ids) was replaced by _generate_payslips()
+        self.ensure_one()
         if self.slip_ids:
             self.slip_ids.write({
-                "pay_cycle_period": self.pay_cycle_period,
+                "pay_cycle_period": self.pay_cycle_period.id,
             })
-        res = super(PayrollHrPayslipRun, self).generate_payslips(version_ids=version_ids, employee_ids=employee_ids)
-
-
-
-        return 1
+        return super(PayrollHrPayslipRun, self)._generate_payslips()
 
     def action_open_manual_wizard_from_list(self, employee_ids):
         action = self.env['ir.actions.act_window']._for_xml_id(

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Odoo 20: hr_payroll archives the standard "Employee" structure type, which this module needs.
+         A plain record would be ignored: the xmlid belongs to hr and is flagged noupdate. -->
+    <data noupdate="0">
+        <function model="hr.payroll.structure.type" name="write">
+            <value eval="[ref('hr.structure_type_employee')]"/>
+            <value eval="{'active': True}"/>
+        </function>
+    </data>
+</odoo>

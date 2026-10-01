@@ -2,7 +2,7 @@
 <odoo>
 
     <data noupdate="0">
-        <record id="hr_work_entry.work_entry_type_attendance" model="hr.work.entry.type">
+        <record id="hr_work_entry.generic_work_entry_type_attendance" model="hr.work.entry.type">
             <field name="is_insurable_hour">True</field>
         </record>
     </data>

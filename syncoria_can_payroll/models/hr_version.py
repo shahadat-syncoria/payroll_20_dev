@@ -20,6 +20,18 @@ deduction_amount_type = [
 class InheritedResPartner(models.Model):
     _inherit = 'hr.version'
 
+    # Odoo 20 removed hr.version.work_entry_source (replaced by the `attendance_based` boolean).
+    # The selection is kept as a computed field so the payroll code keeps working unchanged;
+    # syncoria_payroll_timesheet extends it with 'timesheet_hours'.
+    work_entry_source = fields.Selection(
+        [('calendar', 'Working Schedule'), ('attendance', 'Attendances')],
+        string="Work Entry Source", compute='_compute_work_entry_source')
+
+    @api.depends('attendance_based')
+    def _compute_work_entry_source(self):
+        for version in self:
+            version.work_entry_source = 'attendance' if version.attendance_based else 'calendar'
+
     is_cpp_qpp_xmpt_cd = fields.Boolean(string="Canada Pension Plan or Quebec Pension Plan Exempt", default=False)
     is_ei_xmpt_cd = fields.Boolean(string="Employment Insurance Exempt", default=False)
     is_prov_pip_xmpt_cd = fields.Boolean(string="PPIP Exempt", default=False)

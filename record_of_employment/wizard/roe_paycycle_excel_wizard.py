@@ -21,7 +21,8 @@ class ProductProcessingExcelWizard(models.TransientModel):
         if not self.excel_file:
             raise ValidationError(_("Please select an Excel File"))
         try:
-            data = base64.b64decode(self.excel_file)
+            # Odoo 20: Binary fields hold a BinaryValue (raw bytes), not base64
+            data = self.excel_file.content
             excel_data = pd.read_excel(BytesIO(data))
         except Exception as e:
             raise ValidationError(_("Error reading the Excel file: %s" % str(e)))
@@ -88,13 +89,13 @@ class ProductProcessingExcelWizard(models.TransientModel):
         workbook.close()
         output.seek(0)
 
-        file_data = base64.b64encode(output.read())
+        file_data = output.read()
 
         # Create attachment
         attachment = self.env['ir.attachment'].create({
             'name': 'Insurable_Report.xlsx',
             'type': 'binary',
-            'datas': file_data,
+            'raw': file_data,  # Odoo 20: `datas` was removed from ir.attachment
             'res_model': self._name,
             'res_id': self.id,
             'mimetype': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'

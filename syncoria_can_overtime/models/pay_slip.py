@@ -98,12 +98,10 @@ class InheritedHrPayslipOvertime(models.Model):
 
 
         # Retrieve work entries for the payslip period
-        work_entries = self.env['hr.work.entry'].search([
-            ('employee_id', '=', self.employee_id.id),
-            ('date', '>=', first_monday),
-            ('date', '<=', last_sunday),
-            ('state','in',['draft','validated'])
-        ])
+        # v20: hr.work.entry no longer exists, work entries are generated on the fly as a list of
+        # vals dicts (keys 'date' and 'duration' (hours), ...)
+        work_entries = [] if work_entry_source == "timesheet_hours" else \
+            employee.version_ids.generate_work_entries(first_monday, last_sunday)
 
         # Initialize week tracking
         # current_week_start = datetime.combine(first_monday, time.min)
@@ -118,14 +116,15 @@ class InheritedHrPayslipOvertime(models.Model):
             while current_week_start <= last_sunday:
                 # Get work entries for the current week
                 _logger.info(f"Week Start:{current_week_start} and current_week_end: {current_week_end} and IS first week:{first_week}")
-                weekly_work_entries = work_entries.filtered(
-                    lambda we: current_week_start <= we.date <= current_week_end
-                )
-                _logger.info(f"Weekly Work entries:{weekly_work_entries[-1].date if weekly_work_entries else None} and {weekly_work_entries[-1].date if weekly_work_entries else None}\n")
+                weekly_work_entries = [
+                    we for we in work_entries
+                    if current_week_start <= we['date'] <= current_week_end
+                ]
+                _logger.info(f"Weekly Work entries:{weekly_work_entries[-1]['date'] if weekly_work_entries else None} and {weekly_work_entries[-1]['date'] if weekly_work_entries else None}\n")
 
                 # Calculate weekly hours
                 weekly_hours = sum(
-                    [we.duration for we in weekly_work_entries]
+                    [we['duration'] for we in weekly_work_entries]
                 )
                 _logger.info(f"Weekly Hour:{weekly_hours}\n")
 
@@ -137,9 +136,8 @@ class InheritedHrPayslipOvertime(models.Model):
                     if payslip_start_date.weekday() != 0 and first_week:
                         _logger.info(f"First Partial Week===>")
                         first_partial_week_hours = sum(
-                            [we.duration for we in work_entries.filtered(
-                                lambda we: first_monday <= we.date < payslip_start_date
-                            )]
+                            [we['duration'] for we in work_entries
+                             if first_monday <= we['date'] < payslip_start_date]
                         )
                         _logger.info(f"First Partial Week Hour:{first_partial_week_hours} and Date Start: {first_monday} and End date:{payslip_start_date}")
                         if first_partial_week_hours > full_week_hours:
@@ -259,9 +257,9 @@ class InheritedHrPayslipOvertime(models.Model):
 
         return summary
 
-    def _get_new_worked_days_lines(self):
+    def _get_new_worked_days_lines(self, versions, work_entries_vals):
 
-        res = super()._get_new_worked_days_lines()
+        res = super()._get_new_worked_days_lines(versions, work_entries_vals)
 
         if self.employee_id.overtime_method in ['banked_overtime', 'paycycle_out'] and self.pay_cycle_period:
             overtime_data = self.calculate_overtime()  # e.g. {'threshold 40': 1.25, 'threshold 41.25': 6.75}
@@ -299,7 +297,7 @@ class InheritedHrPayslipOvertime(models.Model):
             for entry in res:
                 entry_data = entry[2]
                 if entry_data['work_entry_type_id'] in [
-                    self.env.ref('hr_work_entry.work_entry_type_attendance').id,
+                    self.env.ref('hr_work_entry.generic_work_entry_type_attendance').id,
                     self.env.ref('syncoria_payroll_timesheet.sync_work_type_timesheet').id
                 ]:
                     real_attendance_hour = entry_data['number_of_hours'] - total_overtime
@@ -340,7 +338,7 @@ class InheritedHrPayslipOvertime(models.Model):
                     })
 
     def compute_sheet(self):
-        input_type = self.env.ref('syncoria_can_overtime.input_ca_bank_overtime').id
+        input_type = self.env.ref('syncoria_can_overtime.rule_ca_banked_overtime_pay').id
         payslips = self.filtered(lambda slip: slip.state in ['draft', 'validated'])
         for payslip in payslips:
             try:
@@ -352,13 +350,16 @@ class InheritedHrPayslipOvertime(models.Model):
                 calculate_overtime_pay = sum(overtime_pay_ids.mapped('overtime_pay'))
 
                 if overtime_pay_ids and calculate_overtime_pay > 0.0:
-                    payslip.input_line_ids.filtered(lambda x: x.input_type_id.id == input_type).unlink()
-                    payslip.write({'input_line_ids': [(0, 0, {
-                        'input_type_id': input_type,
+                    payslip.input_line_ids.filtered(lambda x: x.salary_rule_id.id == input_type).unlink()
+                    # v20: hr.payslip.write() recomputes the sheet when input_line_ids is written
+                    # (=> infinite recursion with this override), so create the input directly.
+                    self.env['hr.payslip.input'].create({
+                        'payslip_id': payslip.id,
+                        'salary_rule_id': input_type,
                         'name': des_name.join(overtime_pay_ids.mapped('name')) or "",
                         'overtime_pay_req_ref': des_name.join(overtime_pay_ids.mapped('name')),
                         'amount': payslip._get_hourly_rate() * calculate_overtime_pay,
-                    })]})
+                    })
 
             except Exception as e:
                 payslip.message_post(body=f"Overtime Pay Error:{e}")
@@ -420,8 +421,8 @@ class InheritedHrPayslipOvertime(models.Model):
 
 
     def _deduct_banked_overtime_amount(self):
-        input_type = self.env.ref('syncoria_can_overtime.input_ca_bank_overtime').id
-        other_input_line_overtime = self.input_line_ids.filtered(lambda x: x.input_type_id.id == input_type)
+        input_type = self.env.ref('syncoria_can_overtime.rule_ca_banked_overtime_pay').id
+        other_input_line_overtime = self.input_line_ids.filtered(lambda x: x.salary_rule_id.id == input_type)
         if other_input_line_overtime:
             existing_overtime_pay_period_ids = self.env["hr.attendance.overtime.store"].search(
                 [('employee_id', '=', self.employee_id.id),

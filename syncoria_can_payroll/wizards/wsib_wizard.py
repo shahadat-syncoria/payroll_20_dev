@@ -19,7 +19,7 @@ class EmployeeWSIBReport(models.TransientModel):
         ),
     )
     payslip_state = fields.Selection(
-        [("paid", "Paid"), ("done", "Done"), ("validated", "Waiting"), ("all", "All")],
+        [("paid", "Paid"), ("validated", "Waiting"), ("all", "All")],
         string="Payslip State",
         default="paid",
     )

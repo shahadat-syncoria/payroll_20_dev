@@ -33,7 +33,7 @@ class InheritedHrPayslip(models.Model):
 
     pay_cycle = fields.Many2one('paycycle.config', related='version_id.salary_pay_cycle', readonly=True)
     pay_cycle_period = fields.Many2one('paycycle.period')
-    pay_cycle_period_ids_domain = fields.Binary(
+    pay_cycle_period_ids_domain = fields.Json(
         compute='_compute_pay_cycle_period_domain', readonly=True,
         store=False)
     is_manual_input = fields.Boolean(compute='_compute_is_manual_input')
@@ -63,7 +63,7 @@ class InheritedHrPayslip(models.Model):
             weeks_in_year = iso_weeks_in_year(slip.year)
             employee = slip.employee_id
             if employee.wage_type == "monthly":
-                slip.fixed_wage_hourly_rate = round((employee.paycycle_wage * len(slip.pay_cycle_period_ids_domain)) / (
+                slip.fixed_wage_hourly_rate = round((employee.paycycle_wage * len(slip.pay_cycle_period_ids_domain or [])) / (
                         employee.resource_calendar_id.full_time_required_hours * weeks_in_year
                 ), 2)
             else:
@@ -71,12 +71,14 @@ class InheritedHrPayslip(models.Model):
 
     def _compute_is_manual_input(self):
         with_user = self.env['ir.config_parameter'].sudo()
-        attendance_manual = with_user.get_param('syncoria_can_payroll.attendance_manual_input')
+        attendance_manual = with_user.get_bool('syncoria_can_payroll.attendance_manual_input')
         for payslip in self:
-            payslip.is_manual_input = True if attendance_manual == 'True' else False
+            payslip.is_manual_input = attendance_manual
 
     # ============ Base overided method ===================
-    @api.depends('employee_id', 'struct_id', 'date_from')
+    @api.depends('employee_id.legal_name', 'struct_id.payslip_name', 'date_from', 'date_to', 'title',
+                 'is_refund_payslip', 'is_correction_payslip', 'origin_payslip_id.name', 'payslip_run_id')
+    @api.depends_context('lang')
     def _compute_name(self):
         super(InheritedHrPayslip, self)._compute_name()
         for slip in self.filtered(lambda p: p.employee_id and p.date_from):
@@ -224,7 +226,7 @@ class InheritedHrPayslip(models.Model):
         payslip_with_irregular_payment_amount = 0.0
         if payslip_with_irregular_payment_line_ids:
             payslip_with_irregular_payment_amount = sum(
-                payslip_with_irregular_payment_line_ids.filtered(lambda x: x.category_id.code in ["ADD_ALLOWANCE"]).mapped("total"))
+                payslip_with_irregular_payment_line_ids.filtered(lambda x: "ADD_ALLOWANCE" in x.category_ids.mapped('code')).mapped("total"))
 
         return payslip_with_irregular_payment_amount + payslip_employee.ytd_previous_irre_prov_amount
 
@@ -247,7 +249,9 @@ class InheritedHrPayslip(models.Model):
 
     @api.depends('employee_id.current_version_id', 'version_id.last_modified_date', 'date_from')
     def _compute_is_wrong_version(self):
-       pass
+        # The "wrong version" check is intentionally disabled for this payroll.
+        # Odoo 20 requires a compute method to assign its field, so set it explicitly.
+        self.is_wrong_version = False
     # ================== Report ======================
     def _get_paygroup(self, value):
         return PAYGROUP.get(value)
@@ -302,6 +306,21 @@ class InheritedHrPayslip(models.Model):
     def action_print_rgr_report(self):
         return self.env.ref('syncoria_can_payroll.action_report_rgr').report_action(self)
 
+    def _get_worked_days_line_values_orm(self, code, field_name=None):
+        """Removed from hr_payroll in Odoo 20; kept here as it is used by the salary rules.
+
+        Use this method only if self is not yet created.
+        Otherwise, use '_get_worked_days_line_values' that leads to better performances.
+        """
+        if field_name is None:
+            field_name = 'amount'
+        valid_values = {'number_of_hours', 'number_of_days', 'amount', 'ytd'}
+        if field_name not in valid_values:
+            raise UserError(_('The field is not valid:%s', field_name))
+
+        wds = self.worked_days_line_ids.filtered(lambda wd: wd.code == code)
+        return sum(wd[field_name] for wd in wds)
+
     # ================= Salry Rules ==========================
     def get_gross_amount(self,pay_slip):
         rec = self.browse(pay_slip)
@@ -314,12 +333,12 @@ class InheritedHrPayslip(models.Model):
             result -= sum([abs(round(rec._get_worked_days_line_values_orm(deduct_gross_entry_type.code),2)) if deduct_gross_entry_type.code else 0.0 for deduct_gross_entry_type in deduct_from_gross_work_entry_type])
             if is_pay_cycle and not rec.version_id.is_hourly:
                 if rec.version_id.work_entry_source in ['attendance','calendar']:
-                    result += round(rec._get_worked_days_line_values_orm('WORK100'),2)
+                    result += round(rec._get_worked_days_line_values_orm('002.00'),2)
                 elif rec.version_id.work_entry_source == 'timesheet_hours':
                     result += round(rec._get_worked_days_line_values_orm('TIMESHEET_WORK100'),2)
             elif is_pay_cycle and rec.version_id.is_hourly:
                 if rec.version_id.work_entry_source in ['attendance','calendar']:
-                    result += round(rec._get_worked_days_line_values_orm('WORK100'),2)
+                    result += round(rec._get_worked_days_line_values_orm('002.00'),2)
                 elif rec.version_id.work_entry_source == 'timesheet_hours':
                     result += round(rec._get_worked_days_line_values_orm('TIMESHEET_WORK100'),2)
                 else:
@@ -356,10 +375,10 @@ class InheritedHrPayslip(models.Model):
 
         return eht_amount
 
-    def _get_new_worked_days_lines(self):
+    def _get_new_worked_days_lines(self, versions, work_entries_vals):
 
-        res = super()._get_new_worked_days_lines()
-        unpaid_work_entry = self.env["hr.work.entry.type"].search([("is_leave","=",True),("is_negative_amount","=", True)]).ids
+        res = super()._get_new_worked_days_lines(versions, work_entries_vals)
+        unpaid_work_entry = self.env["hr.work.entry.type"].search([("count_as","=","absence"),("is_negative_amount","=", True)]).ids
         avg_working_hour_per_day = self.version_id.resource_calendar_id.hours_per_day
         new_worked_days_lines = []
         for entry in res:
@@ -387,7 +406,7 @@ class InheritedHrPayslip(models.Model):
             payout_vacation = manual_input_line_id.payout_vacation_pay_paycycle
 
 
-            attendance_type_id = self.env.ref('hr_work_entry.work_entry_type_attendance').id
+            attendance_type_id = self.env.ref('hr_work_entry.generic_work_entry_type_attendance').id
 
             existing_line = rec.worked_days_line_ids.filtered(
                 lambda l: l.work_entry_type_id.id == attendance_type_id
@@ -441,26 +460,26 @@ class InheritedHrPayslip(models.Model):
             input_line = []
             if vac_pay > 0.0:
                 input_line.append((0, 0, {
-                    'input_type_id': self.env.ref('syncoria_can_vacation_pay.input_ca_vac_pay').id,
+                    'salary_rule_id': self.env.ref('syncoria_can_vacation_pay.rule_ca_vacation_pay').id,
                     'name': "Vacation Pay",
                     'amount': vac_pay,
                 }))
             if bonus > 0.0:
                 input_line.append((0, 0, {
-                    'input_type_id': self.env.ref('syncoria_can_irregular_payment.input_ca_bonus_pay').id,
+                    'salary_rule_id': self.env.ref('syncoria_can_irregular_payment.rule_ca_bonus_pay').id,
                     'name': "Bonus",
                     'amount': bonus,
                 }))
 
             if commission > 0.0:
                 input_line.append((0, 0, {
-                    'input_type_id': self.env.ref('syncoria_can_irregular_payment.input_ca_commission').id,
+                    'salary_rule_id': self.env.ref('syncoria_can_irregular_payment.rule_ca_commission').id,
                     'name': "Commission",
                     'amount': commission,
                 }))
             if retro > 0.0:
                 input_line.append((0, 0, {
-                    'input_type_id': self.env.ref('syncoria_can_irregular_payment.input_ca_retro_pay').id,
+                    'salary_rule_id': self.env.ref('syncoria_can_irregular_payment.rule_ca_retro_pay').id,
                     'name': "Retro",
                     'amount': retro,
                 }))
@@ -546,45 +565,6 @@ class InheritedHrPayslip(models.Model):
             'context': ctx,
         }
 #==================================FOR v18 ytd computation========================
-    def _get_last_ytd_payslips(self):
-        res = super(InheritedHrPayslip, self)._get_last_ytd_payslips()
-        if not self:
-            return self
-
-        earliest_date_to = min(self.mapped('date_to'))
-        earliest_ytd_date_to = min(
-            company.get_last_ytd_reset_date(earliest_date_to) for company in self.company_id
-        )
-        ytd_payslips_grouped = self.env['hr.payslip']._read_group(
-            domain=[
-                ('employee_id', 'in', self.employee_id.ids),
-                ('struct_id', 'in', self.struct_id.ids),
-                ('ytd_computation', '=', True),
-                ('date_to', '>=', earliest_ytd_date_to),
-                ('date_to', '<=', max(self.mapped('date_to'))),
-                ('state', 'in', ['paid']),
-            ],
-            groupby=['employee_id', 'struct_id'],
-            aggregates=['id:recordset']
-        )
-
-        ytd_payslips_sorted = defaultdict(lambda: self.env['hr.payslip'])
-        for employee_id, struct_id, payslips in ytd_payslips_grouped:
-            ytd_payslips_sorted[(employee_id, struct_id)] = payslips.sorted(
-                key=lambda p: p.date_to, reverse=True
-            )
-
-        last_ytd_payslips = defaultdict(lambda: self.env['hr.payslip'])
-        for payslip in self:
-            last_payslips = ytd_payslips_sorted[(payslip.employee_id, payslip.struct_id)].filtered(
-                lambda p: p.date_to <= payslip.date_to
-            )
-            if last_payslips and last_payslips[0].date_to >= \
-                    payslip.company_id.get_last_ytd_reset_date(payslip.date_to):
-                last_ytd_payslips[payslip] = last_payslips[0]
-
-        return res
-
     def _payslip_line_ytd_total(self):
         self.ensure_one()
 
@@ -614,16 +594,17 @@ class InheritedHrPayslip(models.Model):
 
         return ytd_totals
 
-    def _get_payslip_lines(self):
+    def _get_payslip_lines(self, force_categories_by_code=None):
         # Call original method to get line values
-        line_vals = super()._get_payslip_lines()
+        line_vals = super()._get_payslip_lines(force_categories_by_code=force_categories_by_code)
 
-        # Get YTD totals for this payslip
-        ytd_dict = self._payslip_line_ytd_total()
+        # Get YTD totals for each payslip (the core method can compute several payslips at once)
+        ytd_dict_by_slip = {slip.id: slip._payslip_line_ytd_total() for slip in self}
 
         # Add YTD amount to each line if rule code exists
         for line in line_vals:
             code = line.get('code')
+            ytd_dict = ytd_dict_by_slip.get(line.get('slip_id'), {})
             line['ytd'] = ytd_dict.get(code, 0.0)
 
         return line_vals
@@ -668,7 +649,7 @@ class InheritedHrPayslip(models.Model):
                     PI += x['amount']
                 if self.env['hr.salary.rule'].sudo().browse(x['salary_rule_id']).is_insurable_earning:
                     IE += x['amount']
-                if self.env['hr.salary.rule'].sudo().browse(x['salary_rule_id']).category_id.code == "GROSS":
+                if "GROSS" in self.env['hr.salary.rule'].sudo().browse(x['salary_rule_id']).category_ids.mapped('code'):
                     I += x['amount']
                 if x['code'] in V_list:
                     V += x['amount']
@@ -730,7 +711,7 @@ class InheritedHrPayslip(models.Model):
             # Make the API call ******************************************************************
             try:
                 with_user = self.env['ir.config_parameter'].sudo()
-                url = with_user.get_param('syncoria_can_payroll.base_url')
+                url = with_user.get_str('syncoria_can_payroll.base_url')
                 if not url:
                     raise ValidationError(f"Failed to call the API, Need to configure a base url from the settings.")
 
@@ -744,7 +725,7 @@ class InheritedHrPayslip(models.Model):
                 final_url = urlunsplit((split_url.scheme, new_netloc, '', '', ''))
 
                 end_point = '/api/v1/payroll_info/calculate-tax/'
-                token = with_user.get_param('syncoria_can_payroll.token')
+                token = with_user.get_str('syncoria_can_payroll.token')
                 header={
                     'Authorization': f'Token {token}'
                 }
@@ -775,7 +756,7 @@ class InheritedHrPayslip(models.Model):
                     wsib_amount += x['amount']
                 if self.env['hr.salary.rule'].sudo().browse(x['salary_rule_id']).is_eht:
                     eht_amount += x['amount']
-                category_code = self.env['hr.salary.rule'].sudo().browse(x['salary_rule_id']).category_id.code
+                category_codes = self.env['hr.salary.rule'].sudo().browse(x['salary_rule_id']).category_ids.mapped('code')
                 # update data from api to payslip lines
                 if x['code'] == 'FTAX':
                     ftax = response_data['FTAX'] if response_data else 0
@@ -809,9 +790,9 @@ class InheritedHrPayslip(models.Model):
                     x['amount'], x['total'] = 0,0
 
                 # add category wise amounts for net calculation ******************
-                if category_code in positive_amount_cat_list:
+                if any(code in positive_amount_cat_list for code in category_codes):
                     positive_amount += round(x['amount'], 2)
-                elif category_code in neg_amount_cat_list:
+                elif any(code in neg_amount_cat_list for code in category_codes):
                     neg_amount += round(x['amount'], 2)
 
                 # place the net amount

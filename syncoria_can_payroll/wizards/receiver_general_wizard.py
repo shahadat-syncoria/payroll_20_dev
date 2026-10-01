@@ -40,7 +40,7 @@ class RemittanceSummary(models.TransientModel):
                     total_cpp_employee += line.amount
                 elif line.code == 'CPP_EMPLOYER':
                     total_cpp_employer += line.amount
-                elif line.category_id.code == 'GROSS':
+                elif 'GROSS' in line.category_ids.mapped('code'):
                     total_gross += line.amount
                 elif line.code == 'EI':
                     total_ei_employee += line.amount

@@ -1,19 +1,16 @@
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 from odoo import  http, _
 from odoo.addons.portal.controllers.portal import CustomerPortal, pager as portal_pager
-from odoo.http import  request, route, content_disposition
+from odoo.http import  request, route
+from odoo.http.stream import content_disposition
 
 class PayrollCustomerPortal(CustomerPortal):
 
-    @route(['/my', '/my/home'], type='http', auth="user", website=True)
-    def home(self, **kw):
-        values = self._prepare_portal_layout_values()
-        payslip = request.env['hr.payslip'].sudo()
-        emp_id = request.env["hr.employee"].sudo().search([("portal_user_id", "=", request.env.user.id)], limit=1)
-        domain = [('employee_id', '=', emp_id.id), ('state', 'in', ('done', 'paid'))]
-        payslip_count = payslip.search_count(domain)
-        values['payslip_count'] = payslip_count
-        return request.render("portal.portal_my_home", values)
+    def _prepare_portal_counter_values(self, counter):
+        if counter == "payslip_count":
+            emp_id = request.env["hr.employee"].sudo().search([("portal_user_id", "=", request.env.user.id)], limit=1)
+            return "hr.payslip", [('employee_id', '=', emp_id.id), ('state', 'in', ('validated', 'paid'))], "sudo"
+        return super()._prepare_portal_counter_values(counter)
 
     # ------------------------------------------------------------
     # My Payroll
@@ -24,7 +21,7 @@ class PayrollCustomerPortal(CustomerPortal):
         values = self._prepare_portal_layout_values()
         payslip = request.env['hr.payslip'].sudo()
         emp_id = request.env["hr.employee"].sudo().search([("portal_user_id", "=", request.env.user.id)], limit=1)
-        domain = [('employee_id', '=', emp_id.id),('state', 'in', ('done', 'paid'))]
+        domain = [('employee_id', '=', emp_id.id),('state', 'in', ('validated', 'paid'))]
 
         # payslip count
         payslip_count = payslip.search_count(domain)

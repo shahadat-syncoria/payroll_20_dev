@@ -19,21 +19,25 @@
 
         <record id="CALC" model="hr.salary.rule.category">
             <field name="code">CALC</field>
+            <field name="country_id" ref="base.ca"/>
             <field name="name">Standard Calculation</field>
         </record>
 
         <record id="additional_allowance" model="hr.salary.rule.category">
             <field name="code">ADD_ALLOWANCE</field>
+            <field name="country_id" ref="base.ca"/>
             <field name="name">Additional Allowance</field>
         </record>
 
         <record id="pre_tax_deduction" model="hr.salary.rule.category">
             <field name="code">PRE_TAX_DEDUCTION</field>
+            <field name="country_id" ref="base.ca"/>
             <field name="name">Pre Tax Deduction</field>
         </record>
 
         <record id="post_tax_deduction" model="hr.salary.rule.category">
             <field name="code">POST_TAX_DEDUCTION</field>
+            <field name="country_id" ref="base.ca"/>
             <field name="name">Post Tax Deduction</field>
         </record>
 

@@ -2,51 +2,51 @@
 <odoo>
     <data noupdate="0">
         <function model="hr.salary.rule" name="write">
-            <function model="hr.salary.rule" name="search"><value eval="[('code', '=', 'CPP'), ('struct_id', '=', ref('syncoria_can_payroll.structure_can_employee'))]"/></function>
+            <function model="hr.salary.rule" name="search"><value eval="[('code', '=', 'CPP'), ('struct_ids', 'in', ref('syncoria_can_payroll.structure_can_employee'))]"/></function>
             <value eval="{'selected_t4_statement_fields': [(4, ref('syncoria_can_payroll.t4_box_16'))]}"/>
         </function>
         <function model="hr.salary.rule" name="write">
-            <function model="hr.salary.rule" name="search"><value eval="[('code', '=', 'CPP2'), ('struct_id', '=', ref('syncoria_can_payroll.structure_can_employee'))]"/></function>
+            <function model="hr.salary.rule" name="search"><value eval="[('code', '=', 'CPP2'), ('struct_ids', 'in', ref('syncoria_can_payroll.structure_can_employee'))]"/></function>
             <value eval="{'selected_t4_statement_fields': [(4, ref('syncoria_can_payroll.t4_box_16a'))]}"/>
         </function>
         <function model="hr.salary.rule" name="write">
-            <function model="hr.salary.rule" name="search"><value eval="[('code', '=', 'EI'), ('struct_id', '=', ref('syncoria_can_payroll.structure_can_employee'))]"/></function>
+            <function model="hr.salary.rule" name="search"><value eval="[('code', '=', 'EI'), ('struct_ids', 'in', ref('syncoria_can_payroll.structure_can_employee'))]"/></function>
             <value eval="{'selected_t4_statement_fields': [(4, ref('syncoria_can_payroll.t4_box_18'))]}"/>
         </function>
         <function model="hr.salary.rule" name="write">
-            <function model="hr.salary.rule" name="search"><value eval="[('code', '=', 'GROSS'), ('struct_id', '=', ref('syncoria_can_payroll.structure_can_employee'))]"/></function>
+            <function model="hr.salary.rule" name="search"><value eval="[('code', '=', 'GROSS'), ('struct_ids', 'in', ref('syncoria_can_payroll.structure_can_employee'))]"/></function>
             <value eval="{'selected_t4_statement_fields': [(4, ref('syncoria_can_payroll.t4_box_14'))]}"/>
         </function>
         <function model="hr.salary.rule" name="write">
-            <function model="hr.salary.rule" name="search"><value eval="[('code', '=', 'BONUS'), ('struct_id', '=', ref('syncoria_can_payroll.structure_can_employee'))]"/></function>
+            <function model="hr.salary.rule" name="search"><value eval="[('code', '=', 'BONUS'), ('struct_ids', 'in', ref('syncoria_can_payroll.structure_can_employee'))]"/></function>
             <value eval="{'selected_t4_statement_fields': [(4, ref('syncoria_can_payroll.t4_box_14'))]}"/>
         </function>
         <function model="hr.salary.rule" name="write">
-            <function model="hr.salary.rule" name="search"><value eval="[('code', '=', 'OVERTIME'), ('struct_id', '=', ref('syncoria_can_payroll.structure_can_employee'))]"/></function>
+            <function model="hr.salary.rule" name="search"><value eval="[('code', '=', 'OVERTIME'), ('struct_ids', 'in', ref('syncoria_can_payroll.structure_can_employee'))]"/></function>
             <value eval="{'selected_t4_statement_fields': [(4, ref('syncoria_can_payroll.t4_box_14'))]}"/>
         </function>
         <function model="hr.salary.rule" name="write">
-            <function model="hr.salary.rule" name="search"><value eval="[('code', '=', 'FTAX'), ('struct_id', '=', ref('syncoria_can_payroll.structure_can_employee'))]"/></function>
+            <function model="hr.salary.rule" name="search"><value eval="[('code', '=', 'FTAX'), ('struct_ids', 'in', ref('syncoria_can_payroll.structure_can_employee'))]"/></function>
             <value eval="{'selected_t4_statement_fields': [(4, ref('syncoria_can_payroll.t4_box_22'))]}"/>
         </function>
         <function model="hr.salary.rule" name="write">
-            <function model="hr.salary.rule" name="search"><value eval="[('code', '=', 'OTAX'), ('struct_id', '=', ref('syncoria_can_payroll.structure_can_employee'))]"/></function>
+            <function model="hr.salary.rule" name="search"><value eval="[('code', '=', 'OTAX'), ('struct_ids', 'in', ref('syncoria_can_payroll.structure_can_employee'))]"/></function>
             <value eval="{'selected_t4_statement_fields': [(4, ref('syncoria_can_payroll.t4_box_22'))]}"/>
         </function>
         <function model="hr.salary.rule" name="write">
-            <function model="hr.salary.rule" name="search"><value eval="[('code', '=', 'MEDICAL_INSURANCE'), ('struct_id', '=', ref('syncoria_can_payroll.structure_can_employee'))]"/></function>
+            <function model="hr.salary.rule" name="search"><value eval="[('code', '=', 'MEDICAL_INSURANCE'), ('struct_ids', 'in', ref('syncoria_can_payroll.structure_can_employee'))]"/></function>
             <value eval="{'selected_t4_statement_fields': [(4, ref('syncoria_can_payroll.t4_box_45'))]}"/>
         </function>
         <function model="hr.salary.rule" name="write">
-            <function model="hr.salary.rule" name="search"><value eval="[('code', '=', 'VP'), ('struct_id', '=', ref('syncoria_can_payroll.structure_can_employee'))]"/></function>
+            <function model="hr.salary.rule" name="search"><value eval="[('code', '=', 'VP'), ('struct_ids', 'in', ref('syncoria_can_payroll.structure_can_employee'))]"/></function>
             <value eval="{'selected_t4_statement_fields': [(4, ref('syncoria_can_payroll.t4_box_14'))]}"/>
         </function>
         <function model="hr.salary.rule" name="write">
-            <function model="hr.salary.rule" name="search"><value eval="[('code', '=', 'ADJUST_VP'), ('struct_id', '=', ref('syncoria_can_payroll.structure_can_employee'))]"/></function>
+            <function model="hr.salary.rule" name="search"><value eval="[('code', '=', 'ADJUST_VP'), ('struct_ids', 'in', ref('syncoria_can_payroll.structure_can_employee'))]"/></function>
             <value eval="{'selected_t4_statement_fields': [(4, ref('syncoria_can_payroll.t4_box_14'))]}"/>
         </function>
         <function model="hr.salary.rule" name="write">
-            <function model="hr.salary.rule" name="search"><value eval="[('code', '=', 'COMMISSION'), ('struct_id', '=', ref('syncoria_can_payroll.structure_can_employee'))]"/></function>
+            <function model="hr.salary.rule" name="search"><value eval="[('code', '=', 'COMMISSION'), ('struct_ids', 'in', ref('syncoria_can_payroll.structure_can_employee'))]"/></function>
             <value eval="{'selected_t4_statement_fields': [(4, ref('syncoria_can_payroll.t4_box_42'))]}"/>
         </function>
     </data>

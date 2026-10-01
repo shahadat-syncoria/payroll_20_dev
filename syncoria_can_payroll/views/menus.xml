@@ -5,7 +5,7 @@
         <menuitem
         id="menu_hr_payroll_remuneration"
         name="Statement of Remuneration"
-        parent="hr_work_entry_enterprise.menu_hr_payroll_root"
+        parent="hr_payroll.menu_hr_payroll_root"
         sequence="75"
         groups="hr_payroll.group_hr_payroll_manager"/>
         <!--        # Main Form Menu-->
@@ -48,7 +48,7 @@
         <menuitem
                 id="menu_hr_salary_tax_configuration"
                 name="Payroll Configuration"
-                parent="hr_work_entry_enterprise.menu_hr_payroll_configuration"
+                parent="hr_payroll.menu_hr_payroll_configuration"
                 sequence="90"
                 groups="hr_payroll.group_hr_payroll_manager"
         />

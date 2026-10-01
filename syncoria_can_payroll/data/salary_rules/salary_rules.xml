@@ -8,11 +8,13 @@
             <field name="name">GROSS</field>
             <field name="sequence" eval="10"/>
             <field name="code">GROSS</field>
-            <field name="category_id" ref="hr_payroll.GROSS"/>
-            <field name="appears_on_payslip" eval="1"/>
+            <field name="country_id" ref="base.ca"/>
+            <field name="condition_select">none</field>
+            <field name="category_ids" eval="[(6, 0, [ref('hr_payroll.GROSS')])]"/>
+            <field name="appears_on_payslip" eval="'always'"/>
             <field name="active" eval="1"/>
             <field name="amount_select">code</field>
-            <field name="struct_id" ref="syncoria_can_payroll.structure_can_employee"/>
+            <field name="struct_ids" eval="[(6, 0, [ref('syncoria_can_payroll.structure_can_employee')])]"/>
 <!--            <field name="condition_select">none</field>-->
 <!--            <field name="exemption_id" ref="cpp_exempt"/>-->
             <field name="amount_python_compute">
@@ -29,11 +31,13 @@ result=payslip.env['hr.payslip'].get_gross_amount(payslip.id)
             <field name="name">NET</field>
             <field name="sequence" eval="350"/>
             <field name="code">NET</field>
-            <field name="category_id" ref="hr_payroll.NET"/>
-            <field name="appears_on_payslip" eval="1"/>
+            <field name="country_id" ref="base.ca"/>
+            <field name="condition_select">none</field>
+            <field name="category_ids" eval="[(6, 0, [ref('hr_payroll.NET')])]"/>
+            <field name="appears_on_payslip" eval="'always'"/>
             <field name="active" eval="1"/>
             <field name="amount_select">code</field>
-            <field name="struct_id" ref="syncoria_can_payroll.structure_can_employee"/>
+            <field name="struct_ids" eval="[(6, 0, [ref('syncoria_can_payroll.structure_can_employee')])]"/>
 <!--            <field name="condition_select">none</field>-->
 <!--            <field name="exemption_id" ref="cpp_exempt"/>-->
             <field name="amount_python_compute">
@@ -51,11 +55,12 @@ result = (categories['GROSS'] + categories['ALW']+categories['ADD_ALLOWANCE']) -
             <field name="name">Unpaid</field>
             <field name="sequence" eval="300"/>
             <field name="code">UNPAID_PAY</field>
-            <field name="category_id" ref="syncoria_can_payroll.CALC"/>
-            <field name="appears_on_payslip" eval='True'/>
+            <field name="country_id" ref="base.ca"/>
+            <field name="category_ids" eval="[(6, 0, [ref('syncoria_can_payroll.CALC')])]"/>
+            <field name="appears_on_payslip" eval="'always'"/>
             <field name="active" eval="1"/>
             <field name="amount_select">code</field>
-            <field name="struct_id" ref="syncoria_can_payroll.structure_can_employee"/>
+            <field name="struct_ids" eval="[(6, 0, [ref('syncoria_can_payroll.structure_can_employee')])]"/>
             <field name="condition_select">python</field>
             <field name="condition_python">
 if 'LEAVE90' in worked_days:
@@ -74,16 +79,18 @@ result_name = worked_days['LEAVE90'].name
             <field name="name">EXPENSES</field>
             <field name="sequence" eval="85"/>
             <field name="code">EXPENSE</field>
-            <field name="category_id" ref="hr_payroll.ALW"/>
-            <field name="appears_on_payslip" eval="1"/>
+            <field name="country_id" ref="base.ca"/>
+            <field name="category_ids" eval="[(6, 0, [ref('hr_payroll.ALW')])]"/>
+            <field name="appears_on_payslip" eval="'always'"/>
             <field name="active" eval="1"/>
             <field name="amount_select">code</field>
-            <field name="struct_id" ref="syncoria_can_payroll.structure_can_employee"/>
+            <field name="struct_ids" eval="[(6, 0, [ref('syncoria_can_payroll.structure_can_employee')])]"/>
+            <field name="input_usage_payslip" eval="1"/>
             <field name="condition_select">python</field>
-            <field name="condition_python">result = 'EXPENSES' in inputs</field>
+            <field name="condition_python">result = 'EXPENSE' in inputs</field>
             <field name="amount_python_compute">
-result = inputs['EXPENSES'].amount
-result_name = inputs['EXPENSES'].name
+result = inputs['EXPENSE'].amount
+result_name = inputs['EXPENSE'].name
             </field>
 
 
@@ -94,11 +101,12 @@ result_name = inputs['EXPENSES'].name
             <field name="name">Insurable Earning</field>
             <field name="sequence" eval="89"/>
             <field name="code">I_Earning</field>
-            <field name="category_id" ref="syncoria_can_payroll.CALC"/>
-            <field name="appears_on_payslip" eval="1"/>
+            <field name="country_id" ref="base.ca"/>
+            <field name="category_ids" eval="[(6, 0, [ref('syncoria_can_payroll.CALC')])]"/>
+            <field name="appears_on_payslip" eval="'always'"/>
             <field name="active" eval="1"/>
             <field name="amount_select">code</field>
-            <field name="struct_id" ref="syncoria_can_payroll.structure_can_employee"/>
+            <field name="struct_ids" eval="[(6, 0, [ref('syncoria_can_payroll.structure_can_employee')])]"/>
             <field name="condition_select">none</field>
             <field name="amount_python_compute">
 final_result = 0.0
@@ -123,11 +131,12 @@ result_qty = 1
             <field name="name">RRSP</field>
             <field name="sequence" eval="89"/>
             <field name="code">RRSP</field>
-            <field name="category_id" ref="syncoria_can_payroll.pre_tax_deduction"/>
-            <field name="appears_on_payslip" eval="1"/>
+            <field name="country_id" ref="base.ca"/>
+            <field name="category_ids" eval="[(6, 0, [ref('syncoria_can_payroll.pre_tax_deduction')])]"/>
+            <field name="appears_on_payslip" eval="'always'"/>
             <field name="active" eval="1"/>
             <field name="amount_select">code</field>
-            <field name="struct_id" ref="syncoria_can_payroll.structure_can_employee"/>
+            <field name="struct_ids" eval="[(6, 0, [ref('syncoria_can_payroll.structure_can_employee')])]"/>
             <field name="condition_select">python</field>
             <field name="condition_python">result = employee.rrsp_amount > 0.0</field>
             <field name="amount_python_compute">
@@ -142,11 +151,12 @@ else:
             <field name="name">Wage Garnishment</field>
             <field name="sequence" eval="230"/>
             <field name="code">WAGE_GARNISHMENT</field>
-            <field name="category_id" ref="syncoria_can_payroll.post_tax_deduction"/>
-            <field name="appears_on_payslip" eval="1"/>
+            <field name="country_id" ref="base.ca"/>
+            <field name="category_ids" eval="[(6, 0, [ref('syncoria_can_payroll.post_tax_deduction')])]"/>
+            <field name="appears_on_payslip" eval="'always'"/>
             <field name="active" eval="1"/>
             <field name="amount_select">code</field>
-            <field name="struct_id" ref="syncoria_can_payroll.structure_can_employee"/>
+            <field name="struct_ids" eval="[(6, 0, [ref('syncoria_can_payroll.structure_can_employee')])]"/>
             <field name="condition_select">python</field>
             <field name="condition_python">result = employee.garnishment and employee.wage_garnishment >0.0</field>
             <field name="amount_python_compute">
@@ -161,11 +171,12 @@ else:
             <field name="name">Bank Account Garnishment</field>
             <field name="sequence" eval="230"/>
             <field name="code">BANK_GARNISHMENT</field>
-            <field name="category_id" ref="syncoria_can_payroll.post_tax_deduction"/>
-            <field name="appears_on_payslip" eval="1"/>
+            <field name="country_id" ref="base.ca"/>
+            <field name="category_ids" eval="[(6, 0, [ref('syncoria_can_payroll.post_tax_deduction')])]"/>
+            <field name="appears_on_payslip" eval="'always'"/>
             <field name="active" eval="1"/>
             <field name="amount_select">code</field>
-            <field name="struct_id" ref="syncoria_can_payroll.structure_can_employee"/>
+            <field name="struct_ids" eval="[(6, 0, [ref('syncoria_can_payroll.structure_can_employee')])]"/>
             <field name="condition_select">python</field>
             <field name="condition_python">result = employee.garnishment and employee.bank_garnishment >0.0</field>
             <field name="amount_python_compute">
@@ -180,11 +191,12 @@ else:
             <field name="name">Spousal Support or Alimony Garnishment</field>
             <field name="sequence" eval="230"/>
             <field name="code">ALIMONY_GARNISHMENT</field>
-            <field name="category_id" ref="syncoria_can_payroll.post_tax_deduction"/>
-            <field name="appears_on_payslip" eval="1"/>
+            <field name="country_id" ref="base.ca"/>
+            <field name="category_ids" eval="[(6, 0, [ref('syncoria_can_payroll.post_tax_deduction')])]"/>
+            <field name="appears_on_payslip" eval="'always'"/>
             <field name="active" eval="1"/>
             <field name="amount_select">code</field>
-            <field name="struct_id" ref="syncoria_can_payroll.structure_can_employee"/>
+            <field name="struct_ids" eval="[(6, 0, [ref('syncoria_can_payroll.structure_can_employee')])]"/>
             <field name="condition_select">python</field>
             <field name="condition_python">result = employee.garnishment and employee.alimony_garnishment >0.0</field>
             <field name="amount_python_compute">
@@ -199,11 +211,12 @@ else:
             <field name="name">Child Support Garnishment</field>
             <field name="sequence" eval="230"/>
             <field name="code">CHILD_SUPPORT_GARNISHMENT</field>
-            <field name="category_id" ref="syncoria_can_payroll.post_tax_deduction"/>
-            <field name="appears_on_payslip" eval="1"/>
+            <field name="country_id" ref="base.ca"/>
+            <field name="category_ids" eval="[(6, 0, [ref('syncoria_can_payroll.post_tax_deduction')])]"/>
+            <field name="appears_on_payslip" eval="'always'"/>
             <field name="active" eval="1"/>
             <field name="amount_select">code</field>
-            <field name="struct_id" ref="syncoria_can_payroll.structure_can_employee"/>
+            <field name="struct_ids" eval="[(6, 0, [ref('syncoria_can_payroll.structure_can_employee')])]"/>
             <field name="condition_select">python</field>
             <field name="condition_python">result = employee.garnishment and employee.child_support_garnishment >0.0</field>
             <field name="amount_python_compute">
@@ -219,11 +232,12 @@ else:
             <field name="name">Life Insurance</field>
             <field name="sequence" eval="230"/>
             <field name="code">LIFE_INSURANCE</field>
-            <field name="category_id" ref="syncoria_can_payroll.post_tax_deduction"/>
-            <field name="appears_on_payslip" eval="1"/>
+            <field name="country_id" ref="base.ca"/>
+            <field name="category_ids" eval="[(6, 0, [ref('syncoria_can_payroll.post_tax_deduction')])]"/>
+            <field name="appears_on_payslip" eval="'always'"/>
             <field name="active" eval="1"/>
             <field name="amount_select">code</field>
-            <field name="struct_id" ref="syncoria_can_payroll.structure_can_employee"/>
+            <field name="struct_ids" eval="[(6, 0, [ref('syncoria_can_payroll.structure_can_employee')])]"/>
             <field name="condition_select">python</field>
             <field name="condition_python">result =  employee.life_insurance >0.0</field>
             <field name="amount_python_compute">
@@ -238,11 +252,12 @@ else:
             <field name="name">Medical Insurance</field>
             <field name="sequence" eval="230"/>
             <field name="code">MEDICAL_INSURANCE</field>
-            <field name="category_id" ref="syncoria_can_payroll.post_tax_deduction"/>
-            <field name="appears_on_payslip" eval="1"/>
+            <field name="country_id" ref="base.ca"/>
+            <field name="category_ids" eval="[(6, 0, [ref('syncoria_can_payroll.post_tax_deduction')])]"/>
+            <field name="appears_on_payslip" eval="'always'"/>
             <field name="active" eval="1"/>
             <field name="amount_select">code</field>
-            <field name="struct_id" ref="syncoria_can_payroll.structure_can_employee"/>
+            <field name="struct_ids" eval="[(6, 0, [ref('syncoria_can_payroll.structure_can_employee')])]"/>
             <field name="condition_select">python</field>
             <field name="condition_python">result =  employee.medical_insurance >0.0</field>
             <field name="amount_python_compute">
@@ -257,11 +272,12 @@ else:
             <field name="name">Life Insurance Employer</field>
             <field name="sequence" eval="230"/>
             <field name="code">LIFE_INSURANCE_EMP</field>
-            <field name="category_id" ref="hr_payroll.COMP"/>
-            <field name="appears_on_payslip" eval="1"/>
+            <field name="country_id" ref="base.ca"/>
+            <field name="category_ids" eval="[(6, 0, [ref('hr_payroll.COMP')])]"/>
+            <field name="appears_on_payslip" eval="'always'"/>
             <field name="active" eval="1"/>
             <field name="amount_select">code</field>
-            <field name="struct_id" ref="syncoria_can_payroll.structure_can_employee"/>
+            <field name="struct_ids" eval="[(6, 0, [ref('syncoria_can_payroll.structure_can_employee')])]"/>
             <field name="condition_select">python</field>
             <field name="condition_python">result =  employee.life_insurance_employer >0.0</field>
             <field name="amount_python_compute">
@@ -276,11 +292,12 @@ else:
             <field name="name">Medical Insurance Employer</field>
             <field name="sequence" eval="230"/>
             <field name="code">MEDICAL_INSURANCE_EMP</field>
-            <field name="category_id" ref="hr_payroll.COMP"/>
-            <field name="appears_on_payslip" eval="1"/>
+            <field name="country_id" ref="base.ca"/>
+            <field name="category_ids" eval="[(6, 0, [ref('hr_payroll.COMP')])]"/>
+            <field name="appears_on_payslip" eval="'always'"/>
             <field name="active" eval="1"/>
             <field name="amount_select">code</field>
-            <field name="struct_id" ref="syncoria_can_payroll.structure_can_employee"/>
+            <field name="struct_ids" eval="[(6, 0, [ref('syncoria_can_payroll.structure_can_employee')])]"/>
             <field name="condition_select">python</field>
             <field name="condition_python">result = employee.medical_insurance_employer >0.0</field>
             <field name="amount_python_compute">
@@ -298,11 +315,11 @@ else:
 <!--            <field name="name">GROSS</field>-->
 <!--            <field name="sequence" eval="10"/>-->
 <!--            <field name="code">GROSS</field>-->
-<!--            <field name="category_id" ref="hr_payroll.GROSS"/>-->
-<!--            <field name="appears_on_payslip" eval="1"/>-->
+<!--            <field name="category_ids" eval="[(6, 0, [ref('hr_payroll.GROSS')])]"/>-->
+<!--            <field name="appears_on_payslip" eval="'always'"/>-->
 <!--            <field name="active" eval="1"/>-->
 <!--            <field name="amount_select">code</field>-->
-<!--            <field name="struct_id" ref="syncoria_can_payroll.structure_can_worker"/>-->
+<!--            <field name="struct_ids" eval="[(6, 0, [ref('syncoria_can_payroll.structure_can_worker')])]"/>-->
 <!--&lt;!&ndash;            <field name="condition_select">none</field>&ndash;&gt;-->
 <!--&lt;!&ndash;            <field name="exemption_id" ref="cpp_exempt"/>&ndash;&gt;-->
 <!--            <field name="amount_python_compute">-->
@@ -318,11 +335,11 @@ else:
 <!--            <field name="name">NET</field>-->
 <!--            <field name="sequence" eval="350"/>-->
 <!--            <field name="code">NET</field>-->
-<!--            <field name="category_id" ref="hr_payroll.NET"/>-->
-<!--            <field name="appears_on_payslip" eval="1"/>-->
+<!--            <field name="category_ids" eval="[(6, 0, [ref('hr_payroll.NET')])]"/>-->
+<!--            <field name="appears_on_payslip" eval="'always'"/>-->
 <!--            <field name="active" eval="1"/>-->
 <!--            <field name="amount_select">code</field>-->
-<!--            <field name="struct_id" ref="syncoria_can_payroll.structure_can_worker"/>-->
+<!--            <field name="struct_ids" eval="[(6, 0, [ref('syncoria_can_payroll.structure_can_worker')])]"/>-->
 <!--&lt;!&ndash;            <field name="condition_select">none</field>&ndash;&gt;-->
 <!--&lt;!&ndash;            <field name="exemption_id" ref="cpp_exempt"/>&ndash;&gt;-->
 <!--            <field name="amount_python_compute">-->
@@ -340,11 +357,11 @@ else:
 <!--            <field name="name">EXPENSES</field>-->
 <!--            <field name="sequence" eval="85"/>-->
 <!--            <field name="code">EXPENSE</field>-->
-<!--            <field name="category_id" ref="hr_payroll.ALW"/>-->
-<!--            <field name="appears_on_payslip" eval="1"/>-->
+<!--            <field name="category_ids" eval="[(6, 0, [ref('hr_payroll.ALW')])]"/>-->
+<!--            <field name="appears_on_payslip" eval="'always'"/>-->
 <!--            <field name="active" eval="1"/>-->
 <!--            <field name="amount_select">code</field>-->
-<!--            <field name="struct_id" ref="syncoria_can_payroll.structure_can_worker"/>-->
+<!--            <field name="struct_ids" eval="[(6, 0, [ref('syncoria_can_payroll.structure_can_worker')])]"/>-->
 <!--            <field name="condition_select">python</field>-->
 <!--            <field name="condition_python">result = 'EXPENSES' in inputs</field>-->
 <!--            <field name="amount_python_compute">-->
@@ -358,11 +375,11 @@ else:
 <!--            <field name="name">Insurable Earning</field>-->
 <!--            <field name="sequence" eval="89"/>-->
 <!--            <field name="code">I_Earning</field>-->
-<!--            <field name="category_id" ref="syncoria_can_payroll.CALC"/>-->
-<!--            <field name="appears_on_payslip" eval="1"/>-->
+<!--            <field name="category_ids" eval="[(6, 0, [ref('syncoria_can_payroll.CALC')])]"/>-->
+<!--            <field name="appears_on_payslip" eval="'always'"/>-->
 <!--            <field name="active" eval="1"/>-->
 <!--            <field name="amount_select">code</field>-->
-<!--            <field name="struct_id" ref="syncoria_can_payroll.structure_can_worker"/>-->
+<!--            <field name="struct_ids" eval="[(6, 0, [ref('syncoria_can_payroll.structure_can_worker')])]"/>-->
 <!--            <field name="condition_select">none</field>-->
 <!--            <field name="amount_python_compute">-->
 <!--gross = 0.0-->
@@ -418,11 +435,11 @@ else:
 <!--            <field name="name">RRSP</field>-->
 <!--            <field name="sequence" eval="89"/>-->
 <!--            <field name="code">RRSP_WORKER</field>-->
-<!--            <field name="category_id" ref="syncoria_can_payroll.pre_tax_deduction"/>-->
-<!--            <field name="appears_on_payslip" eval="1"/>-->
+<!--            <field name="category_ids" eval="[(6, 0, [ref('syncoria_can_payroll.pre_tax_deduction')])]"/>-->
+<!--            <field name="appears_on_payslip" eval="'always'"/>-->
 <!--            <field name="active" eval="1"/>-->
 <!--            <field name="amount_select">code</field>-->
-<!--            <field name="struct_id" ref="syncoria_can_payroll.structure_can_worker"/>-->
+<!--            <field name="struct_ids" eval="[(6, 0, [ref('syncoria_can_payroll.structure_can_worker')])]"/>-->
 <!--            <field name="condition_select">python</field>-->
 <!--            <field name="condition_python">result = employee.rrsp_amount > 0.0</field>-->
 <!--            <field name="amount_python_compute">-->
@@ -439,11 +456,11 @@ else:
 <!--            <field name="name">Wage Garnishment</field>-->
 <!--            <field name="sequence" eval="230"/>-->
 <!--            <field name="code">WAGE_GARNISHMENT</field>-->
-<!--            <field name="category_id" ref="syncoria_can_payroll.post_tax_deduction"/>-->
-<!--            <field name="appears_on_payslip" eval="1"/>-->
+<!--            <field name="category_ids" eval="[(6, 0, [ref('syncoria_can_payroll.post_tax_deduction')])]"/>-->
+<!--            <field name="appears_on_payslip" eval="'always'"/>-->
 <!--            <field name="active" eval="1"/>-->
 <!--            <field name="amount_select">code</field>-->
-<!--            <field name="struct_id" ref="syncoria_can_payroll.structure_can_worker"/>-->
+<!--            <field name="struct_ids" eval="[(6, 0, [ref('syncoria_can_payroll.structure_can_worker')])]"/>-->
 <!--            <field name="condition_select">python</field>-->
 <!--            <field name="condition_python">result = employee.garnishment and employee.wage_garnishment >0.0</field>-->
 <!--            <field name="amount_python_compute">-->
@@ -458,11 +475,11 @@ else:
 <!--            <field name="name">Bank Account Garnishment</field>-->
 <!--            <field name="sequence" eval="230"/>-->
 <!--            <field name="code">BANK_GARNISHMENT</field>-->
-<!--            <field name="category_id" ref="syncoria_can_payroll.post_tax_deduction"/>-->
-<!--            <field name="appears_on_payslip" eval="1"/>-->
+<!--            <field name="category_ids" eval="[(6, 0, [ref('syncoria_can_payroll.post_tax_deduction')])]"/>-->
+<!--            <field name="appears_on_payslip" eval="'always'"/>-->
 <!--            <field name="active" eval="1"/>-->
 <!--            <field name="amount_select">code</field>-->
-<!--            <field name="struct_id" ref="syncoria_can_payroll.structure_can_worker"/>-->
+<!--            <field name="struct_ids" eval="[(6, 0, [ref('syncoria_can_payroll.structure_can_worker')])]"/>-->
 <!--            <field name="condition_select">python</field>-->
 <!--            <field name="condition_python">result = employee.garnishment and employee.bank_garnishment >0.0</field>-->
 <!--            <field name="amount_python_compute">-->
@@ -477,11 +494,11 @@ else:
 <!--            <field name="name">Spousal Support or Alimony Garnishment</field>-->
 <!--            <field name="sequence" eval="230"/>-->
 <!--            <field name="code">ALIMONY_GARNISHMENT</field>-->
-<!--            <field name="category_id" ref="syncoria_can_payroll.post_tax_deduction"/>-->
-<!--            <field name="appears_on_payslip" eval="1"/>-->
+<!--            <field name="category_ids" eval="[(6, 0, [ref('syncoria_can_payroll.post_tax_deduction')])]"/>-->
+<!--            <field name="appears_on_payslip" eval="'always'"/>-->
 <!--            <field name="active" eval="1"/>-->
 <!--            <field name="amount_select">code</field>-->
-<!--            <field name="struct_id" ref="syncoria_can_payroll.structure_can_worker"/>-->
+<!--            <field name="struct_ids" eval="[(6, 0, [ref('syncoria_can_payroll.structure_can_worker')])]"/>-->
 <!--            <field name="condition_select">python</field>-->
 <!--            <field name="condition_python">result = employee.garnishment and employee.alimony_garnishment >0.0</field>-->
 <!--            <field name="amount_python_compute">-->
@@ -496,11 +513,11 @@ else:
 <!--            <field name="name">Child Support Garnishment</field>-->
 <!--            <field name="sequence" eval="230"/>-->
 <!--            <field name="code">CHILD_SUPPORT_GARNISHMENT</field>-->
-<!--            <field name="category_id" ref="syncoria_can_payroll.post_tax_deduction"/>-->
-<!--            <field name="appears_on_payslip" eval="1"/>-->
+<!--            <field name="category_ids" eval="[(6, 0, [ref('syncoria_can_payroll.post_tax_deduction')])]"/>-->
+<!--            <field name="appears_on_payslip" eval="'always'"/>-->
 <!--            <field name="active" eval="1"/>-->
 <!--            <field name="amount_select">code</field>-->
-<!--            <field name="struct_id" ref="syncoria_can_payroll.structure_can_worker"/>-->
+<!--            <field name="struct_ids" eval="[(6, 0, [ref('syncoria_can_payroll.structure_can_worker')])]"/>-->
 <!--            <field name="condition_select">python</field>-->
 <!--            <field name="condition_python">result = employee.garnishment and employee.child_support_garnishment >0.0</field>-->
 <!--            <field name="amount_python_compute">-->
@@ -517,11 +534,11 @@ else:
 <!--            <field name="name">Life Insurance</field>-->
 <!--            <field name="sequence" eval="230"/>-->
 <!--            <field name="code">LIFE_INSURANCE</field>-->
-<!--            <field name="category_id" ref="syncoria_can_payroll.post_tax_deduction"/>-->
-<!--            <field name="appears_on_payslip" eval="1"/>-->
+<!--            <field name="category_ids" eval="[(6, 0, [ref('syncoria_can_payroll.post_tax_deduction')])]"/>-->
+<!--            <field name="appears_on_payslip" eval="'always'"/>-->
 <!--            <field name="active" eval="1"/>-->
 <!--            <field name="amount_select">code</field>-->
-<!--            <field name="struct_id" ref="syncoria_can_payroll.structure_can_worker"/>-->
+<!--            <field name="struct_ids" eval="[(6, 0, [ref('syncoria_can_payroll.structure_can_worker')])]"/>-->
 <!--            <field name="condition_select">python</field>-->
 <!--            <field name="condition_python">result =  employee.life_insurance >0.0</field>-->
 <!--            <field name="amount_python_compute">-->
@@ -536,11 +553,11 @@ else:
 <!--            <field name="name">Medical Insurance</field>-->
 <!--            <field name="sequence" eval="230"/>-->
 <!--            <field name="code">MEDICAL_INSURANCE</field>-->
-<!--            <field name="category_id" ref="syncoria_can_payroll.post_tax_deduction"/>-->
-<!--            <field name="appears_on_payslip" eval="1"/>-->
+<!--            <field name="category_ids" eval="[(6, 0, [ref('syncoria_can_payroll.post_tax_deduction')])]"/>-->
+<!--            <field name="appears_on_payslip" eval="'always'"/>-->
 <!--            <field name="active" eval="1"/>-->
 <!--            <field name="amount_select">code</field>-->
-<!--            <field name="struct_id" ref="syncoria_can_payroll.structure_can_worker"/>-->
+<!--            <field name="struct_ids" eval="[(6, 0, [ref('syncoria_can_payroll.structure_can_worker')])]"/>-->
 <!--            <field name="condition_select">python</field>-->
 <!--            <field name="condition_python">result =  employee.medical_insurance >0.0</field>-->
 <!--            <field name="amount_python_compute">-->

@@ -88,7 +88,7 @@ class BamboraPaymentTransaction(models.Model):
         :raise: UserError if the transaction is not linked to a token
         """
         super()._send_payment_request()
-        if self.code != 'bamboraeft':
+        if self.provider_code != 'bamboraeft':
             return
         # Make the payment request to Bambora with the saved token
         if not self.token_id:
@@ -105,7 +105,7 @@ class BamboraPaymentTransaction(models.Model):
 
         # Handle the payment request response
         _logger.info("payment request response:\n%s", pprint.pformat(response_content))
-        self._handle_feedback_data('bamboraeft', response_content)
+        self._record(dict(response_content, reference=self.reference))
 
     def get_payment_token(self, order_number, data=None, reference=None):
         so_sudo = self.env['sale.order'].sudo()
@@ -200,7 +200,10 @@ class BamboraPaymentTransaction(models.Model):
             try:
                 response_dict = json.loads(response.text)
                 sale_order_sudo = self.env['sale.order'].sudo()
-                batch_payment_tracking_sudo = self.env["batch.payment.tracking"].sudo()
+                # `transaction_ids` sets `batch_track_id` on the transactions, which requires `payment_safe_write`
+                batch_payment_tracking_sudo = self.env["batch.payment.tracking"].sudo().with_context(
+                    payment_safe_write=True
+                )
                 for tx in self:
                     order = sale_order_sudo.search([('name', '=', tx.reference.split('-')[0])], limit=1)
                     vals = {
@@ -216,7 +219,7 @@ class BamboraPaymentTransaction(models.Model):
                         "provider_id": tx.provider_id.id,
                     }
                     bambora_batch_payment_id = batch_payment_tracking_sudo.create(vals) if len(vals) > 0 else False
-                    tx.write(
+                    tx.with_context(payment_safe_write=True).write(
                         {
                             "bamboraeft_batch_id": bambora_batch_payment_id.id,
                             "bamboraeft_batch_mode": response_dict.get("batch_mode"),
@@ -240,7 +243,7 @@ class BamboraPaymentTransaction(models.Model):
             except Exception as e:
                 _logger.error("Errors: %s" % str(e.args))
 
-        if self.providerid.debug_logging:
+        if self.provider_id.debug_logging:
             _logger.info("Process batch payment response-%s" % pprint.pformat(response_dict))
             _logger.info("Batch Track Created-%s" % pprint.pformat(response_dict))
 
@@ -252,8 +255,8 @@ class BamboraPaymentTransaction(models.Model):
         req = self.get_payment_token(order_number, data=data, reference=self.reference)
 
         headers = get_headers(
-            self.providerid.bamboraeft_merchant_id,
-            self.providerid.bamboraeft_payment_api,
+            self.provider_id.bamboraeft_merchant_id,
+            self.provider_id.bamboraeft_payment_api,
         )
         response = requests.post(url, data=json.dumps(req), headers=headers)
         _logger.info(response.status_code)
@@ -305,7 +308,7 @@ class BamboraPaymentTransaction(models.Model):
                     _logger.info("Pay with Bambora Profile")
                     data_list = [
                         [
-                            tx.providerid.bamboraeft_transaction_type,
+                            tx.provider_id.bamboraeft_transaction_type,
                             eft_type,
                             "",
                             "",
@@ -319,7 +322,7 @@ class BamboraPaymentTransaction(models.Model):
                     ]
                 else:
                     _logger.info("Pay with Account Number Only")
-                    if tx.providerid.bamboraeft_transaction_type == "E":
+                    if tx.provider_id.bamboraeft_transaction_type == "E":
                         data_list = [
                             [
                                 "E",
@@ -347,43 +350,29 @@ class BamboraPaymentTransaction(models.Model):
                         ]
         return data_list
 
-    @api.model
-    def _get_tx_from_feedback_data(self, provider, data):
-        """ Override of payment to find the transaction based on dummy data.
-        :param str provider: The provider of the acquirer that handled the transaction
-        :param dict data: The dummy feedback data
-        :return: The transaction if found
-        :rtype: recordset of `payment.transaction`
-        :raise: ValidationError if the data match no transaction
-        """
-        tx = super()._get_tx_from_feedback_data(provider, data)
-        if provider != 'bamboraeft':
-            return tx
-        reference = data.get('reference')
+    def _extract_amount_data(self, payment_data):
+        """ Override of payment to skip the amount validation (the batch response has no amount). """
+        if self.provider_code != 'bamboraeft':
+            return super()._extract_amount_data(payment_data)
+        return None
 
-        tx = self.search([('reference', '=', reference), ('code', '=', 'bamboraeft')])
-        if not tx:
-            raise ValidationError(
-                "BamboraEFT: " + _("No transaction found matching reference %s.", reference)
-            )
-        return tx
+    def _apply_updates(self, payment_data):
+        """ Override of payment to update the transaction based on BamboraEFT data.
 
-    def _process_feedback_data(self, data):
-        """ Override of payment to process the transaction based on BamboraEFT data.
+        Note: self.ensure_one() from `_process`
 
-        Note: self.ensure_one()
-
-        :param dict data: The feedback data sent by the provider
+        :param dict payment_data: The payment data sent by the provider
         :return: None
         :raise: ValidationError if inconsistent data were received
         """
-        super()._process_feedback_data(data)
-        if self.provider != 'bamboraeft':
+        super()._apply_updates(payment_data)
+        if self.provider_code != 'bamboraeft':
             return
+        data = payment_data
 
-        # Handle the acquirer reference
+        # Handle the provider reference
         if 'batch_id' in data:
-            self.providerreference = data.get('batch_id')
+            self.provider_reference = data.get('batch_id')
 
         # Handle the payment state
         payment_state = data.get('code')
@@ -425,7 +414,7 @@ class BamboraPaymentTransaction(models.Model):
     def _bamboraeft_tokenize_from_feedback_data(self, data):
         # Payment check the bank details
         if self.partner_id:
-            bank_id = self.check_bank_acc(data, partner=self.partner_id)
+            bank_name = self.check_bank_acc(data, partner=self.partner_id)
             tran_type = str(self.bamboraeft_tran_type)
 
             values = {}
@@ -433,7 +422,6 @@ class BamboraPaymentTransaction(models.Model):
                 _logger.info("Payment by Card")
             if tran_type == 'bank':
                 _logger.info("Payment by Bank Number")
-                values["partner_bank_id"] = bank_id.id
             partner = self.partner_id and str(self.partner_id.name) + "[ " + str(self.partner_id.id) +" ]"
             comments = "Create Token for Customer-%s, %s" % (
                 partner,
@@ -441,10 +429,11 @@ class BamboraPaymentTransaction(models.Model):
             )
             values = {
                 "bambora_token_type": "temporary",
-                "provider": "bamboraeft",
-                "providerid": self.providerid.id or False,
+                "provider_id": self.provider_id.id or False,
+                "payment_method_id": self.payment_method_id.id or self.env.ref(
+                    "bambora_batch_payment.payment_method_bambora_eft").id,
                 "partner_id": self.partner_id.id or False,
-                "providerref": "BamboraEFT - Batch id: " + str(data.get("batch_id")) + "Processed on " + str(data.get("process_date")),
+                "provider_ref": "BamboraEFT - Batch id: " + str(data.get("batch_id")) + "Processed on " + str(data.get("process_date")),
             }
             token_name = ''
             if data['data']['bankData']:
@@ -453,13 +442,13 @@ class BamboraPaymentTransaction(models.Model):
                     "***" + token_name[-4:] + " (EFT)"
                 )
             values["bamboraeft_tran_type"] = self.bamboraeft_tran_type
-            values["name"] = token_name
+            values["payment_details"] = token_name  # Odoo 20: payment.token has no `name` field
 
-            if self.providerid.bamboraeft_create_profile:
+            if self.provider_id.bamboraeft_create_profile:
 
                 # Create a New Profile for Bank Account or Credit Card to bambora
                 profile_response = self._bamboraeft_create_profile(data=data, comments=comments)
-                self._process_bank_account_response(values, data, bank_id, response=profile_response)
+                self._process_bank_account_response(values, data, bank_name, response=profile_response)
 
             # Create Token in odoo backend
             token = self.env["payment.token"].sudo().create(values)
@@ -483,7 +472,7 @@ class BamboraPaymentTransaction(models.Model):
                 },
             }
             _logger.info(pprint.pformat(data))
-            headers = get_headers(self.providerid.bamboraeft_merchant_id, self.providerid.bamboraeft_profile_api)
+            headers = get_headers(self.provider_id.bamboraeft_merchant_id, self.provider_id.bamboraeft_profile_api)
 
             try:
                 response = requests.post(PROFILE_URL, data=json.dumps(pro_data), headers=headers)
@@ -501,42 +490,34 @@ class BamboraPaymentTransaction(models.Model):
         return response_dict
 
     def check_bank_acc(self, data, partner=None):
-        bank_id = False
+        bank_name = False
         res_partner_bank_sudo = self.env["res.partner.bank"].sudo()
         res_partner_sudo = self.env["res.partner"].sudo()
-        res_bank_sudo = self.env["res.bank"].sudo()
         if self.partner_id:
-            bank_account_id = res_partner_bank_sudo.search([("acc_number", "=", data['data']['bankData'].get("accountNumber"))])
+            bank_account_id = res_partner_bank_sudo.search([("account_number", "=", data['data']['bankData'].get("accountNumber"))])
             if bank_account_id:
                 msg = 'You cannot use this Account Number as it is already used. Please use a different account number!'
                 raise UserError(_(msg))
 
         if partner and data['data']['bankData'].get("bankName"):
-            bank_id = res_bank_sudo.search([("name", "=", data['data']['bankData'].get("bankName"))], limit=1)
-            if not bank_id:
-                bank_vals = {
-                    "name": data['data']['bankData'].get("bankName"),
-                    "bic": data['data']['bankData'].get("institutionNumber"),
-                }
-                bank_id = res_bank_sudo.create(bank_vals)
+            # res.bank no longer exists in Odoo 20: the bank name and BIC live on res.partner.bank.
+            bank_name = data['data']['bankData'].get("bankName")
 
-        return bank_id
+        return bank_name
 
-    def _create_bank_account(self, bank_id, data):
+    def _create_bank_account(self, bank_name, data):
         try:
 
             res_partner_bank_sudo = self.env["res.partner.bank"].sudo()
-            if self.partner_id and bank_id:
-                partner_bank_id = self.partner_id.bank_ids.filtered(lambda c: c.acc_number == data['data']['bankData'].get("accountNumber"))
-                asdsd
+            if self.partner_id and bank_name:
+                partner_bank_id = self.partner_id.bank_ids.filtered(lambda c: c.account_number == data['data']['bankData'].get("accountNumber"))
                 bank_account_vals = {}
-                bank_account_vals["acc_holder_name"] = data['data']['bankData'].get("nameOnAccount")
-                bank_account_vals["acc_number"] = data['data']['bankData'].get("accountNumber")
-                bank_account_vals["acc_type"] = "normal"
+                bank_account_vals["holder_name"] = data['data']['bankData'].get("nameOnAccount")
+                bank_account_vals["account_number"] = data['data']['bankData'].get("accountNumber")
                 bank_account_vals["bank_bic"] = data['data']['bankData'].get("institutionNumber")
                 bank_account_vals["bank_transit_no"] = data['data']['bankData'].get("branchNumber")
                 bank_account_vals["partner_id"] = self.partner_id and self.partner_id.id or False
-                bank_account_vals["bank_id"] = bank_id.id
+                bank_account_vals["bank_name"] = bank_name
                 partner_bank_id = (
                     res_partner_bank_sudo.create(bank_account_vals)
                     if not partner_bank_id
@@ -547,7 +528,7 @@ class BamboraPaymentTransaction(models.Model):
         except Exception as e:
             _logger.warning("Exceptions" + str(e.args))
 
-    def _process_bank_account_response(self, values, data, bank_id, response=None):
+    def _process_bank_account_response(self, values, data, bank_name, response=None):
         res_partner_bank_sudo = self.env["res.partner.bank"].sudo()
         if response and response.status_code == 200:
             response_dict = response.json()
@@ -557,14 +538,15 @@ class BamboraPaymentTransaction(models.Model):
                 values["bambora_token_type"] = "permanent"
                 try:
                     # Create a Bank Account for the Customer in bambora
-                    if self.partner_id and bank_id:
-                        partner_bank_id = self.partner_id.bank_ids.filtered(lambda c: c.acc_number == data['data']['bankData'].get("accountNumber"))
+                    if self.partner_id and bank_name:
+                        partner_bank_id = self.partner_id.bank_ids.filtered(lambda c: c.account_number == data['data']['bankData'].get("accountNumber"))
                         bank_account_vals = {}
-                        bank_account_vals["acc_holder_name"] = data['data']['bankData'].get("nameOnAccount")
-                        bank_account_vals["acc_number"] = data['data']['bankData'].get("accountNumber")
-                        bank_account_vals["acc_type"] = "normal"
+                        bank_account_vals["holder_name"] = data['data']['bankData'].get("nameOnAccount")
+                        bank_account_vals["account_number"] = data['data']['bankData'].get("accountNumber")
                         bank_account_vals["partner_id"] = self.partner_id and self.partner_id.id or False
-                        bank_account_vals["bank_id"] = bank_id.id
+                        bank_account_vals["bank_name"] = bank_name
+                        bank_account_vals["bank_bic"] = data['data']['bankData'].get("institutionNumber")
+                        bank_account_vals["bank_transit_no"] = data['data']['bankData'].get("branchNumber")
                         bank_account_vals["bamboraeft_customer_code"] = response_dict.get("customer_code")
                         if not partner_bank_id:
                             res_partner_bank_sudo.create(bank_account_vals)

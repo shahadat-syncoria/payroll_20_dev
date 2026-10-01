@@ -5,10 +5,11 @@
             <field name="name">WSIB</field>
             <field name="sequence" eval="520"/>
             <field name="code">WSIB</field>
-            <field name="category_id" ref="syncoria_can_payroll.CALC"/>
+            <field name="country_id" ref="base.ca"/>
+            <field name="category_ids" eval="[(6, 0, [ref('syncoria_can_payroll.CALC')])]"/>
             <field name="active" eval="1"/>
             <field name="amount_select">code</field>
-            <field name="struct_id" ref="syncoria_can_payroll.structure_can_employee"/>
+            <field name="struct_ids" eval="[(6, 0, [ref('syncoria_can_payroll.structure_can_employee')])]"/>
             <field name="condition_select">none</field>
             <field name="amount_python_compute">
               <![CDATA[
@@ -23,10 +24,11 @@ result=payslip.env['hr.payslip'].get_wsib_amount(payslip.id)
             <field name="name">EHT</field>
             <field name="sequence" eval="530"/>
             <field name="code">EHT</field>
-            <field name="category_id" ref="syncoria_can_payroll.CALC"/>
+            <field name="country_id" ref="base.ca"/>
+            <field name="category_ids" eval="[(6, 0, [ref('syncoria_can_payroll.CALC')])]"/>
             <field name="active" eval="1"/>
             <field name="amount_select">code</field>
-            <field name="struct_id" ref="syncoria_can_payroll.structure_can_employee"/>
+            <field name="struct_ids" eval="[(6, 0, [ref('syncoria_can_payroll.structure_can_employee')])]"/>
             <field name="condition_select">none</field>
             <field name="amount_python_compute">
               <![CDATA[

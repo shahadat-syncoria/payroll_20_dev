@@ -59,9 +59,6 @@
             >5B94D0E7290D4D33953BD12EE6B467A4</field>
             <field name="bamboraeft_create_profile">1</field>
 
-            <field name="payment_method_ids"
-               eval="[(6, 0, [
-                   ref('bambora_batch_payment.payment_method_bambora_eft')])]"/>
 <!--            <field name="inline_form_view_id" ref="inline_form"/>-->
 <!--            <field name="support_authorization">True</field>-->
 <!--            <field name="support_fees_computation">False</field>-->
@@ -70,6 +67,14 @@
             <field name="allow_tokenization">True</field>
         </record>
 
+        <record id="payment_method_bambora_eft" model="payment.method">
+            <field name="name">Bambora EFT</field>
+            <field name="code">bamboraeft</field>
+            <field name="provider_id" ref="bambora_batch_payment.payment_provider_bamboraeft"/>
+            <field name="image" type="bytes" file="bambora_batch_payment/static/description/icon.png"/>
+            <field name="active">True</field>
+            <field name="support_tokenization">True</field>
+        </record>
 
     </data>
 </odoo>

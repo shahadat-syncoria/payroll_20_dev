@@ -1,21 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <data>
+        <!-- Odoo 20: pay run actions live in the kanban card menu (hr_payroll.hr_payrun_payslip_kanban_card_view) -->
         <record id="bambora_hr_payslip_run_form_inherit" model="ir.ui.view">
             <field name="name">ProjectName.bambora_hr_payslip_run.form</field>
             <field name="model">hr.payslip.run</field>
-            <field name="inherit_id" ref="hr_payroll.hr_payslip_run_form"/>
-            <!--            <field name="priority" eval="8"/>-->
+            <field name="inherit_id" ref="hr_payroll.hr_payrun_payslip_kanban_card_view"/>
             <field name="arch" type="xml">
-                <xpath expr="//field[@name='company_id']" position="after">
-                    <field invisible="1" name="is_bambora_deposite"/>
+                <xpath expr="//field[@name='currency_id']" position="after">
+                    <field name="is_bambora_deposite"/>
                 </xpath>
                 <xpath expr="//button[@name='action_paid']" position="after">
-                    <button class="oe_highlight" invisible="is_bambora_deposite == True or state not in ['close']" name="action_register_bambora_batch_payment" string="Bambora Bank Deposit" type="object"/>
+                    <button class="btn oe_highlight" invisible="is_bambora_deposite or state != '02_close'" name="action_register_bambora_batch_payment" string="Bambora Bank Deposit" type="object"/>
                 </xpath>
                 <xpath expr="//button[@name='action_draft']" position="after">
-                    <button class="button button-primary" name="print_deposit_report" string="Print" type="object"/>
-                </xpath></field>
+                    <button class="btn btn-secondary" name="print_deposit_report" string="Print" type="object"/>
+                </xpath>
+            </field>
         </record>
     </data>
 </odoo>

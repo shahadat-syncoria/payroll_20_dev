@@ -18,10 +18,10 @@
             <!--            <field name="priority" eval="8"/>-->
             <field name="arch" type="xml">
                 <xpath expr="//field[@name='state']" position="replace">
-                    <field name="state" statusbar_visible="draft,done,waiting,paid" widget="statusbar"/>
+                    <field name="state" statusbar_visible="draft,validated,waiting,paid" widget="statusbar"/>
                 </xpath>
-                <xpath expr="//button[@name='action_payslip_paid']" position="after">
-                    <button class="oe_highlight" invisible="state not in ['done','waiting']" name="action_register_bambora_batch_payment" string="Bambora Bank Deposit" type="object"/>
+                <xpath expr="//button[@name='action_payslip_payment_report']" position="after">
+                    <button class="oe_highlight" invisible="state not in ['validated','waiting']" name="action_register_bambora_batch_payment" string="Bambora Bank Deposit" type="object"/>
                 </xpath>
                 <xpath expr="//page[@name='account_info']" position="after">
                     <page name="bambora_info" string="Bambora Info">

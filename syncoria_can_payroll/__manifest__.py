@@ -24,14 +24,16 @@
     "application": True,
     # any module necessary for this one to work correctly
     # "depends": ["base", "hr_payroll", "hr_work_entry", "hr_payroll_account", "portal", "queue_job_cron_jobrunner"],
-    "depends": ["base", "hr_payroll", "hr_work_entry", "hr_payroll_account", "portal"],
+    "depends": ["base", "hr_payroll", "hr_work_entry", "hr_payroll_account", "portal", "hr_attendance"],
     # "external_dependencies": {"python": ["requests"]},
     # always loaded
     "data": [
         # DATA
         # "data/paycycle_data.xml",
         "data/t4_box_selection_data.xml",
+        "data/structure_type_data.xml",
         "data/salary_category.xml",
+        "data/portal_entry_data.xml",
         "data/salary_rules/salary_rules.xml",
         "data/salary_rules/cpp.xml",
         "data/salary_rules/cpp2.xml",

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="portal_entry_payslip" model="portal.entry">
+        <field name="name">Payslip</field>
+        <field name="description">Efficient payroll isn't just about numbers; it's about ensuring your team's well-being while your project evolves.</field>
+        <field name="url">/my/payslip</field>
+        <field name="image" type="bytes" file="syncoria_can_payroll/static/src/img/portal-addresses.svg"/>
+        <field name="placeholder_count">payslip_count</field>
+        <field name="category">client_category</field>
+        <field name="sequence" eval="60"/>
+    </record>
+</odoo>

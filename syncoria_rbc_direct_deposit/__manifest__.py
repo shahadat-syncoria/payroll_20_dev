@@ -29,11 +29,6 @@ This Module is for RBC Direct Download
         "views/res_partner.xml",
         "views/res_config_settings_views.xml",
     ],
-    'assets': {
-        'web.assets_backend': [
-            'syncoria_rbc_direct_deposit/static/src/**/*',
-        ],
-    },
     # only loaded in demonstration mode
     "demo": [
         "demo/demo.xml",

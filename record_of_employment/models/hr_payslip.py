@@ -46,7 +46,7 @@ class InsurablePayslip(models.Model):
     #     #
     #     #     if work_entry.work_entry_type_id.code == "TIMESHEET_WORK100" and self.contract_id.work_entry_source == 'timesheet_hours':
     #     #         insurable_hour += work_entry.number_of_hours
-    #     #     elif work_entry.work_entry_type_id.code == "WORK100":
+    #     #     elif work_entry.work_entry_type_id.code == "002.00":
     #     #         insurable_hour += work_entry.number_of_hours
     #
     #     return insurable_hour

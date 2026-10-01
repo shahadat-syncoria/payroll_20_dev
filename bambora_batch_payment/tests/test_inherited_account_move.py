@@ -92,7 +92,7 @@ class TestInheritedAccountMove(TransactionCase):
                             0,
                             0,
                             {
-                                "acc_number": "225566",
+                                "account_number": "225566",
                                 "bank_transit_no": "22668",
                                 "bank_bic": "123",
                             },
@@ -100,7 +100,7 @@ class TestInheritedAccountMove(TransactionCase):
                     ]
                 }
             )
-            # partner.bank_ids.acc_number = '2589631'
+            # partner.bank_ids.account_number = '2589631'
             # partner.bank_ids.bank_transit_no = '22668'
             # partner.bank_ids.bank_bic = '123'
 
@@ -108,7 +108,7 @@ class TestInheritedAccountMove(TransactionCase):
 
         # move_form.bambora_bank_identifier_number = '123'
         # move_form.bambora_bank_transit_number = '22668'
-        # move_form.acc_number = '2589631'
+        # move_form.account_number = '2589631'
 
         for product in products:
             with move_form.invoice_line_ids.new() as line_form:
@@ -161,7 +161,6 @@ class TestInheritedAccountMove(TransactionCase):
         print("*******************BAMBORA BATCH DATA UPDATE DONE****************")
 
         domain = [("code", "=", "bamboraeft")]
-        domain += [("state", "!=", "disabled")]
         providers = self.env["payment.provider"].sudo().search(domain)
         bambora_batch_payment = self.invoice.bambora_batch_payment_id
 
@@ -211,7 +210,6 @@ class TestInheritedAccountMove(TransactionCase):
         print("*******************BAMBORA BATCH DATA UPDATE DONE****************")
 
         domain = [("code", "=", "bamboraeft")]
-        domain += [("state", "!=", "disabled")]
         providers = self.env["payment.provider"].sudo().search(domain)
         bambora_batch_payment = self.invoice.bambora_batch_payment_id
 
@@ -265,7 +263,6 @@ class TestInheritedAccountMove(TransactionCase):
         print("*******************BAMBORA BATCH DATA UPDATE DONE****************")
 
         domain = [("code", "=", "bamboraeft")]
-        domain += [("state", "!=", "disabled")]
         providers = self.env["payment.provider"].sudo().search(domain)
         bambora_batch_payment = self.invoice.bambora_batch_payment_id
 
@@ -321,7 +318,6 @@ class TestInheritedAccountMove(TransactionCase):
         print("*******************BAMBORA BATCH DATA UPDATE DONE****************")
 
         domain = [("code", "=", "bamboraeft")]
-        domain += [("state", "!=", "disabled")]
         providers = self.env["payment.provider"].sudo().search(domain)
         bambora_batch_payment = self.invoice.bambora_batch_payment_id
 

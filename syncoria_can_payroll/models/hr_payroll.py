@@ -36,7 +36,8 @@ class HrPayrollStructure(models.Model):
             if struct_paycycle_id.pay_cycle == '12':
                 self.schedule_pay = 'monthly'
             elif struct_paycycle_id.pay_cycle == '24':
-                self.schedule_pay = 'bi-monthly'
+                # Odoo 20: schedule_pay is now a related field of the structure type ('bi-monthly' means every 2 months)
+                self.schedule_pay = 'semi-monthly'
 
             elif struct_paycycle_id.pay_cycle == '26':
                 self.schedule_pay = 'bi-weekly'

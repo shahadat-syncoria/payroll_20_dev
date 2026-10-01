@@ -7,13 +7,8 @@ class InheritedResUser(models.Model):
 
     ytd_vac_pay_amount = fields.Float("Remaining Vacation Pay Amount",related="employee_id.ytd_vac_pay_amount",related_sudo=False)
 
-    @property
-    def SELF_READABLE_FIELDS(self):
-        return super().SELF_READABLE_FIELDS + ['ytd_vac_pay_amount']
-
-    @property
-    def SELF_WRITEABLE_FIELDS(self):
-        return super().SELF_WRITEABLE_FIELDS + ['ytd_vac_pay_amount']
+    # v20: SELF_READABLE_FIELDS / SELF_WRITEABLE_FIELDS no longer exist (fields are readable by the user;
+    # writing is governed by the `user_writeable` field parameter). This related field is read-only anyway.
 
     def action_view_employee_vacation_pay(self):
         self.ensure_one()

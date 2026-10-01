@@ -7,7 +7,7 @@ from io import StringIO
 
 from odoo import fields, models, _
 from odoo.exceptions import UserError, ValidationError
-from odoo.tools import format_list
+from odoo.tools import BinaryBytes, format_list
 from odoo.tools.misc import format_date
 from decimal import Decimal, ROUND_HALF_UP
 
@@ -20,12 +20,11 @@ class HrPayrollPaymentReportWizardInherit(models.TransientModel):
     _inherit = 'hr.payroll.payment.report.wizard'
     _description = 'HR Payroll Payment Report Wizard'
 
-    export_format = fields.Selection(
-        selection_add=[('txt', 'TXT')],
-        ondelete={
-            'txt': 'cascade',
-        }
-    )
+    def _get_export_format_selection(self):
+        # Odoo 20: the selection is provided by a method, so it is extended by overriding it
+        selection = super()._get_export_format_selection()
+        selection.append(('txt', 'TXT'))
+        return selection
 
     def _create_txt_binary(self):
 
@@ -68,9 +67,9 @@ class HrPayrollPaymentReportWizardInherit(models.TransientModel):
             try:
                 # Validate Required Fields
                 customer_number = employee.employee_code if 'employee_code' in employee.employee_id._fields else employee.employee_id.barcode
-                institution_number = getattr(employee.employee_id.bank_account_ids[0].bank_id, 'bic', '')
+                institution_number = getattr(employee.employee_id.bank_account_ids[0], 'bank_bic', '')
                 branch_number = getattr(employee.employee_id.bank_account_ids[0], 'rbc_bank_transit_no', '')
-                account_number = getattr(employee.employee_id.bank_account_ids[0], 'acc_number', '')
+                account_number = getattr(employee.employee_id.bank_account_ids[0], 'account_number', '')
                 employee_currency_name = getattr(employee.employee_id.bank_account_ids[0].currency_id, 'display_name','')
                 payment_amount = Decimal(employee.net_wage) or 0.0
                 payment_date = f"{employee.paid_date.year}{employee.paid_date.timetuple().tm_yday:03d}"
@@ -159,7 +158,8 @@ class HrPayrollPaymentReportWizardInherit(models.TransientModel):
             )
 
             content = output.getvalue()
-            return base64.encodebytes(content.encode())
+            # Odoo 20: Binary fields take raw bytes (BinaryValue), not base64
+            return content.encode()
     def _write_file_txt(self, payment_report, extension, filename=''):
 
 
@@ -167,7 +167,7 @@ class HrPayrollPaymentReportWizardInherit(models.TransientModel):
 
         if self.payslip_run_id and extension == '.txt':
             self.payslip_run_id.write({
-                'direct_deposit_txt': payment_report,
+                'direct_deposit_txt': BinaryBytes(payment_report) if payment_report else None,
                 'direct_deposit_txt_filename': filename + extension,
                 'direct_deposit_txt_date': fields.Date.today()})
 

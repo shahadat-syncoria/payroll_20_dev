@@ -59,6 +59,7 @@ class VacationPayslip(models.Model):
     account_credit = fields.Many2one(
         'account.account', 'Credit Account', company_dependent=True, domain=[('active', '!=', False)])
 
+    @api.model_create_multi
     def create(self, vals_list):
         employees = super().create(vals_list)
         slabs = self.env['hr.vacation.slab'].search([])
@@ -71,7 +72,6 @@ class VacationPayslip(models.Model):
                         'end_year': slab.end_year,
                         'allocated_leave': slab.allocated_leave,
                         'leave_percentage': slab.leave_percentage,
-                        'employee_id': employees.id
                     })]
                 })
 
@@ -116,7 +116,7 @@ class VacationPayslip(models.Model):
 
     def _compute_vacation_type(self):
         for rec in self:
-            rec.vacation_type = self.env["ir.config_parameter"].sudo().get_param(
+            rec.vacation_type = self.env["ir.config_parameter"].sudo().get_str(
                     'syncoria_can_vacation_pay.vac_pay_type')
 
 
@@ -189,7 +189,7 @@ class VacationPayslip(models.Model):
         return taken_vacation_leave
 
     def get_vacation_pay(self):
-        if self.env["ir.config_parameter"].sudo().get_param('syncoria_can_vacation_pay.vac_pay_type')=='time_wise':
+        if self.env["ir.config_parameter"].sudo().get_str('syncoria_can_vacation_pay.vac_pay_type')=='time_wise':
             self.vacation_pay_taken = self._get_vacation_pay_calculation()
         else:
             self.vacation_pay_taken = 0.0
@@ -211,7 +211,7 @@ class VacationPayslip(models.Model):
     #
     # def _calculated_vacation_pay_allocated(self):
     #     for rec in self:
-    #         if self.env["ir.config_parameter"].sudo().get_param('syncoria_can_vacation_pay.vac_pay_type')=='time_wise':
+    #         if self.env["ir.config_parameter"].sudo().get_str('syncoria_can_vacation_pay.vac_pay_type')=='time_wise':
     #             today_date = datetime.today().date()
     #
     #             def _is_leap_year():

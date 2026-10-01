@@ -331,7 +331,7 @@
                     <field name="employee_prpp_dpsp_rgst_nbr"/>
                 </field>
 
-                <xpath expr="//span[@class='mx-2']" position="replace">
+                <xpath expr="//span[hasclass('mx-2')]" position="replace">
                 </xpath>
                 <xpath expr="//field[@name='schedule_pay']" position="replace">
                 </xpath>

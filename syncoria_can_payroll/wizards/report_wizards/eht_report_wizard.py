@@ -77,14 +77,14 @@ class EHTReportWizard(models.TransientModel):
         # Make the API call ******************************************************************
         try:
             with_user = self.env['ir.config_parameter'].sudo()
-            base_url = with_user.get_param('syncoria_can_payroll.base_url')
+            base_url = with_user.get_str('syncoria_can_payroll.base_url')
             if not base_url:
                 raise ValidationError(f"Failed to call the API, Need to configure a base url from the settings.")
 
             # Process the base URL to remove extra / if present.
             final_url = self._process_base_url(base_url)
 
-            token = with_user.get_param('syncoria_can_payroll.token')
+            token = with_user.get_str('syncoria_can_payroll.token')
             # Define the API endpoint and headers
             endpoint = '/api/v1/payroll_info/calculate_eht/'
             headers = {

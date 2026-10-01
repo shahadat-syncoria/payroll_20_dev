@@ -51,7 +51,6 @@ class YTDPayrollEarning(models.TransientModel):
         store=True,
     )
     payslip_state = fields.Selection([("paid", "Paid"),
-                                      ("done", "Done"),
                                       ("validated", "Waiting"),
                                       ("all", "All")],
                                      string="Payslip State", default="paid")
@@ -254,7 +253,7 @@ class YTDPayrollEarning(models.TransientModel):
 
         attachment_id = self.env['ir.attachment'].create({
             'name': f"Payroll_Earning_Report_{data['date_from']} - {data['date_to']}.xlsx",
-            'datas': base64.encodebytes(output.getvalue()),
+            'raw': output.getvalue(),
             'res_model': self._name,
             'res_id': self.id,
             'mimetype': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',

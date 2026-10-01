@@ -4,6 +4,7 @@
 
           <record id="employer_contribution" model="hr.salary.rule.category">
             <field name="code">EMPLOYER_CONTRIBUTION</field>
+            <field name="country_id" ref="base.ca"/>
             <field name="name">Employer Contribution</field>
         </record>
 
@@ -11,11 +12,12 @@
             <field name="name">Employer Contribution</field>
             <field name="sequence" eval="410"/>
             <field name="code">RRSP_EMPLOYER</field>
-            <field name="category_id" ref="syncoria_can_payroll.employer_contribution"/>
-            <field name="appears_on_payslip" eval="1"/>
+            <field name="country_id" ref="base.ca"/>
+            <field name="category_ids" eval="[(6, 0, [ref('syncoria_can_payroll.employer_contribution')])]"/>
+            <field name="appears_on_payslip" eval="'always'"/>
             <field name="active" eval="1"/>
             <field name="amount_select">code</field>
-            <field name="struct_id" ref="syncoria_can_payroll.structure_can_employee"/>
+            <field name="struct_ids" eval="[(6, 0, [ref('syncoria_can_payroll.structure_can_employee')])]"/>
             <field name="condition_select">python</field>
             <field name="condition_python">result = employee.employer_rrsp > 0.0</field>
             <field name="amount_python_compute">
@@ -30,11 +32,11 @@ else:
 <!--            <field name="name">Employer Contribution</field>-->
 <!--            <field name="sequence" eval="410"/>-->
 <!--            <field name="code">RRSP_EMPLOYER</field>-->
-<!--            <field name="category_id" ref="syncoria_can_payroll.employer_contribution"/>-->
-<!--            <field name="appears_on_payslip" eval="1"/>-->
+<!--            <field name="category_ids" eval="[(6, 0, [ref('syncoria_can_payroll.employer_contribution')])]"/>-->
+<!--            <field name="appears_on_payslip" eval="'always'"/>-->
 <!--            <field name="active" eval="1"/>-->
 <!--            <field name="amount_select">code</field>-->
-<!--            <field name="struct_id" ref="syncoria_can_payroll.structure_can_worker"/>-->
+<!--            <field name="struct_ids" eval="[(6, 0, [ref('syncoria_can_payroll.structure_can_worker')])]"/>-->
 <!--            <field name="condition_select">python</field>-->
 <!--            <field name="condition_python">result = employee.employer_rrsp > 0.0</field>-->
 <!--            <field name="amount_python_compute">-->

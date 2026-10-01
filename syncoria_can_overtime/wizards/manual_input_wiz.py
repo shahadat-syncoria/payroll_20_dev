@@ -20,11 +20,11 @@ class SyncoriaHrEmployeeManualWizardOvertime(models.TransientModel):
 
             return file_signature == xls_magic_number
 
-        if is_xls_file(self.file):
+        if is_xls_file(self.file.content):
             print("The file is an Excel (.xls) file.")
         else:
             print("The file is not an Excel (.xls) file.")
-        file_data = base64.b64decode(self.file)
+        file_data = self.file.content
         workbook = xlrd.open_workbook(file_contents=file_data)
         sheet = workbook.sheet_by_index(0)
         for rx in range(sheet.nrows):
@@ -39,7 +39,7 @@ class SyncoriaHrEmployeeManualWizardOvertime(models.TransientModel):
 
     def _default_manual_input_ids(self):
 
-        employee_data = super()._default_manual_input_ids()
+        employee_data = super()._default_manual_input_ids() or []
 
         # Context and related data
         context = self.env.context

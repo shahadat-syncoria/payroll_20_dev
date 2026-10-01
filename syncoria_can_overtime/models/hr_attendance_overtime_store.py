@@ -36,7 +36,14 @@ class AttendanceOvertimeStore(models.Model):
 
 
     def action_allocate_extra_hour(self):
-        contract_domain = [('contract_ids.state', 'in', ('open',)),
+        today = fields.Date.context_today(self)
+        # v20: employees with a currently running contract (hr.version with contract dates covering today)
+        contract_domain = [('version_ids', 'any', [
+                               ('contract_date_start', '!=', False),
+                               ('contract_date_start', '<=', today),
+                               '|', ('contract_date_end', '=', False),
+                               ('contract_date_end', '>=', today),
+                           ]),
                            ('company_id', '=', self.env.company.id),
                            ]
         employees = self.env['hr.employee'].search(contract_domain)

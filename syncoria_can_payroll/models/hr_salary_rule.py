@@ -17,7 +17,7 @@ class SyncoriaHrWorkEntryType(models.Model):
     is_vacation_pay = fields.Boolean("Accrued Vacation Pay",default=False,
                                      help="This rule in payslip will be calculated for storing the vacation pay, if this field is true. ")
     is_irregular_payment = fields.Boolean("Calculate as Irregular Payment",default=False)
-    cat_code = fields.Char(related="category_id.code", string="Category Code")
+    cat_code = fields.Char(string="Category Code", compute="_compute_cat_code")
     is_rrsp = fields.Boolean("Calculate as RRSP",default=False)
     is_wsib = fields.Boolean("Calculate as WSIB", default=False)
     is_eht = fields.Boolean("Calculate as EHT", default=False)
@@ -31,6 +31,11 @@ class SyncoriaHrWorkEntryType(models.Model):
         domain=[('active', '=', True)],
         help='Select T4 statement remuneration fields that will be used for this salary rule.',
     )
+
+    @api.depends("category_ids.code")
+    def _compute_cat_code(self):
+        for rule in self:
+            rule.cat_code = rule.category_ids[:1].code
 
     def _get_managed_t4_statement_fields(self):
         return self.env["syncoria_can_payroll.t4_box_selection"].with_context(active_test=False).search([

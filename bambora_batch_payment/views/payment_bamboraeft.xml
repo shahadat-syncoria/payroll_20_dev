@@ -6,7 +6,7 @@
             <div class="bamboraeft_form">
                 <input data-create-route="/payment/bamboraeft/s2s/create_json_3ds" name="data_set" type="hidden"/>
                 <input name="provider_id" t-att-value="id" type="hidden"/>
-                <input name="provider_state" t-att-value="acq.state" type="hidden"/>
+                <input name="provider_state" t-att-value="'enabled' if acq.is_live else 'test'" type="hidden"/>
                 <input name="bamboraeft_merchant_id" t-att-value="acq.bamboraeft_merchant_id" type="hidden"/>
                 <input name="bamboraeft_batch_api" t-att-value="acq.bamboraeft_batch_api" type="hidden"/>
                 <input name="bamboraeft_report_api" t-att-value="acq.bamboraeft_report_api" type="hidden"/>
@@ -159,7 +159,7 @@
             <field name="model">payment.provider</field>
             <field name="inherit_id" ref="payment.payment_provider_form"/>
             <field name="arch" type="xml">
-                <xpath expr='//page[@name="credentials"]' position="inside">
+                <xpath expr="//group[@name='provider_credentials']" position="inside">
                     <group invisible="code != 'bamboraeft'">
                         <field invisible="1" name="debug_logging"/>
                     </group>
@@ -185,19 +185,19 @@
                     </button>
                     <!--                    </div>-->
                 </xpath>
-                <xpath expr='//page[@name="credentials"]' position="inside">
+                <xpath expr="//group[@name='provider_credentials']" position="inside">
                     <group invisible="code != 'bamboraeft'">
                         <group name="bambora_base" string="Bambora Credentials">
-                            <field name="bamboraeft_merchant_id" required="code == 'bamboraeft' and state != 'disabled'"/>
-                            <field name="bamboraeft_payment_api" required="code == 'bamboraeft' and state != 'disabled'"/>
-                            <field name="bamboraeft_profile_api" required="code == 'bamboraeft' and state != 'disabled'"/>
+                            <field name="bamboraeft_merchant_id" required="code == 'bamboraeft'"/>
+                            <field name="bamboraeft_payment_api" required="code == 'bamboraeft'"/>
+                            <field name="bamboraeft_profile_api" required="code == 'bamboraeft'"/>
                         </group>
                         <group name="bambora_batch" string="Bambora Batch Credentials">
-                            <field name="bamboraeft_batch_api" required="code == 'bamboraeft' and state != 'disabled'"/>
-                            <field name="bamboraeft_report_api" required="code == 'bamboraeft' and state != 'disabled'"/>
-                            <field name="bamboraeft_transaction_type" required="code == 'bamboraeft' and state != 'disabled'"/>
-                            <field name="bamboraeft_tran_type" required="code == 'bamboraeft' and state != 'disabled'"/>
-                            <field name="bamboraeft_create_profile" required="code == 'bamboraeft' and state != 'disabled'"/>
+                            <field name="bamboraeft_batch_api" required="code == 'bamboraeft'"/>
+                            <field name="bamboraeft_report_api" required="code == 'bamboraeft'"/>
+                            <field name="bamboraeft_transaction_type" required="code == 'bamboraeft'"/>
+                            <field name="bamboraeft_tran_type" required="code == 'bamboraeft'"/>
+                            <field name="bamboraeft_create_profile" required="code == 'bamboraeft'"/>
                         </group>
                     </group>
                 </xpath>

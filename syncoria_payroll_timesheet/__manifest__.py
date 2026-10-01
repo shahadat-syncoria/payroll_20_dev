@@ -28,6 +28,7 @@
     "data": [
         "data/data.xml",
         "views/hr_payslip.xml",
+        "views/hr_employee_views.xml",
         # 'views/views.xml',
         # 'views/templates.xml',
         # 'views/hr_contract_inherited_view.xml'

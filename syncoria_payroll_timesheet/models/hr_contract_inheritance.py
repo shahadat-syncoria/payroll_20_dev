@@ -1,9 +1,4 @@
-from collections import defaultdict
-import pytz
-
-from pytz import timezone
-
-from odoo import fields, models
+from odoo import api, fields, models
 
 
 
@@ -11,10 +6,16 @@ class InheritedContract(models.Model):
     _inherit = "hr.version"
 
 
-    work_entry_source = fields.Selection(selection_add=[('timesheet_hours', 'Timesheet Hours')],
-                                         ondelete={'timesheet_hours': 'set default'})
+    is_timesheet_based = fields.Boolean(
+        string="Timesheet Based", groups="hr.group_hr_user",
+        help="When enabled, payslip hours are computed from the employee's timesheets.")
+    work_entry_source = fields.Selection(selection_add=[('timesheet_hours', 'Timesheet Hours')])
 
-
+    @api.depends('is_timesheet_based')
+    def _compute_work_entry_source(self):
+        super()._compute_work_entry_source()
+        for version in self.filtered('is_timesheet_based'):
+            version.work_entry_source = 'timesheet_hours'
 
     # def generate_work_entries(self, date_start, date_stop, force=False):
     #     # for contract in self:
@@ -24,24 +25,10 @@ class InheritedContract(models.Model):
     #
     #     return super().generate_work_entries(date_start, date_stop, force)
 
-    def _get_attendance_intervals(self, start_dt, end_dt):
-        mapped_intervals = super()._get_attendance_intervals(start_dt, end_dt)
-        # {resource: intervals}
-        employees_by_calendar = defaultdict(lambda: self.env['hr.employee'])
-        for contract in self:
-            if contract.work_entry_source not in ['calendar','timesheet_hours']:
-                continue
-            employees_by_calendar[contract.resource_calendar_id] |= contract.employee_id
-        result = dict()
-        for calendar, employees in employees_by_calendar.items():
-            mapped_intervals.update(calendar._attendance_intervals_batch(
-                start_dt,
-                end_dt,
-                resources=employees.resource_id,
-                tz=pytz.timezone(calendar.tz)
-            ))
-        return mapped_intervals
-
+    # v20: the former `_get_attendance_intervals` override (which forced 'calendar' and 'timesheet_hours'
+    # versions to use the calendar attendance intervals) is no longer needed: hr.version now decides through
+    # `has_static_work_entries()` (= not attendance_based) and its signature
+    # `calendar._attendance_intervals_batch(start_dt, end_dt, resources_per_tz=None, domain=None)` changed.
 
     # def _get_work_entries_values(self, date_start, date_stop):
     #     """

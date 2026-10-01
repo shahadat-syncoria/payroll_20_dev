@@ -5,7 +5,6 @@
         <field name="model">roe.earning.wizard</field>
         <field name="report_type">qweb-pdf</field>
         <field name="report_name">syncoria_can_payroll.report_roe_earning_per_employee</field>
-        <field name="report_file">syncoria_can_payroll.report_roe_earning_per_employee</field>
     </record>
 
     <!--    Remitance Summary Action -->
@@ -15,7 +14,6 @@
         <field name="model">remittance.summary.wizard</field>
         <field name="report_type">qweb-pdf</field>
         <field name="report_name">syncoria_can_payroll.report_remittance_summary</field>
-        <field name="report_file">syncoria_can_payroll.report_remittance_summary</field>
     </record>
 
     <record id="action_report_rgr" model="ir.actions.report">
@@ -23,7 +21,6 @@
         <field name="model">receiver.general.wizard</field>
         <field name="report_type">qweb-pdf</field>
         <field name="report_name">syncoria_can_payroll.report_rgr</field>
-        <field name="report_file">syncoria_can_payroll.report_rgr</field>
     </record>
 
     <record id="action_report_employee_net_pay" model="ir.actions.report">
@@ -31,7 +28,6 @@
         <field name="model">employee.net.pay.wizard</field>
         <field name="report_type">qweb-pdf</field>
         <field name="report_name">syncoria_can_payroll.report_employee_net_pay</field>
-        <field name="report_file">syncoria_can_payroll.report_employee_net_pay</field>
     </record>
 
      <record id="action_report_payroll_earning" model="ir.actions.report">
@@ -39,7 +35,6 @@
         <field name="model">payroll.earning.wizard</field>
         <field name="report_type">qweb-pdf</field>
         <field name="report_name">syncoria_can_payroll.report_payroll_earning</field>
-        <field name="report_file">syncoria_can_payroll.report_payroll_earning</field>
     </record>
 
         <record id="action_report_ytd_payroll_earning" model="ir.actions.report">
@@ -47,7 +42,6 @@
         <field name="model">ytd.payroll.earning.wizard</field>
         <field name="report_type">qweb-pdf</field>
         <field name="report_name">syncoria_can_payroll.report_ytd_payroll_earning</field>
-        <field name="report_file">syncoria_can_payroll.report_ytd_payroll_earning</field>
     </record>
 
     <record id="action_report_wsib" model="ir.actions.report">
@@ -55,6 +49,5 @@
         <field name="model">wsib.wizard</field>
         <field name="report_type">qweb-pdf</field>
         <field name="report_name">syncoria_can_payroll.report_wsib</field>
-        <field name="report_file">syncoria_can_payroll.report_wsib</field>
     </record>
 </odoo>

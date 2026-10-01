@@ -6,21 +6,19 @@
 import time
 
 import odoo
-from lxml import objectify
-from odoo.addons.payment.models.payment_provider import ValidationError
+from odoo.exceptions import ValidationError
 from odoo.tests.common import TransactionCase
-from odoo.tools import mute_logger
 
 
 class BamboraEftCommon(TransactionCase):
     @classmethod
-    def setUpClass(cls, chart_template_ref=None):
-        super().setUpClass(chart_template_ref=chart_template_ref)
+    def setUpClass(cls):
+        super().setUpClass()
 
         cls.currency_cad = cls.env.ref("base.CAD")
         cls.country_canada = cls.env.ref("base.ca")
         cls.currency_usd = cls.env.ref("base.USD")
-        cls.country_usa = cls.env.ref("base.USD")
+        cls.country_usa = cls.env.ref("base.us")
 
         # 1:Canadian
         # dict partner values
@@ -190,62 +188,11 @@ class BamboraEftCommon(TransactionCase):
         )
         cls.buyer_id4 = cls.buyer4.id
 
-        # Banks:
-        cls.bank1 = cls.env["res.bank"].create(
-            {
-                "name": "Royal Bank of Canada",
-                "bic": "12773",
-                "email": "rbc@ca.com",
-                "street": "200 Bay St. Main Floor,",
-                "street2": "RBC Dominion Securities",
-                "phone": "416-974-3940",
-                "city": "Toronto",
-                "zip": "M5J 2J5",
-                "country_id": cls.country_canada.id,
-            }
-        )
-
-        cls.bank2 = cls.env["res.bank"].create(
-            {
-                "name": "Bank of America",
-                "bic": "92773",
-                "email": "rbc@ca.com",
-                "street": "150 Broadway",
-                "street2": "",
-                "phone": "(212) 406-0475)",
-                "city": "New York",
-                "zip": "10038",
-                "country_id": cls.country_usa.id,
-            }
-        )
-
-        cls.bank3 = cls.env["res.bank"].create(
-            {
-                "name": "Bank of Montreal",
-                "bic": "12698",
-                "email": "bom@ca.com",
-                "street": "3647 portage ave unit c1a",
-                "street2": "",
-                "phone": "(204) 985-2025)",
-                "city": "Winnipeg",
-                "zip": "R3K 2G6",
-                "country_id": cls.country_canada.id,
-            }
-        )
-
-        cls.bank4 = cls.env["res.bank"].create(
-            {
-                "name": "Wells Fargo",
-                "bic": "11595",
-                "email": "wellfargo@usatest.com",
-                "street": "7900 Moorsbridge Rd",
-                "street2": "",
-                "phone": "(269) 323-4800",
-                "city": "Portage",
-                "zip": "49024",
-                "country_id": cls.country_usa.id,
-            }
-        )
+        # Banks: res.bank no longer exists in Odoo 20, bank name/BIC are stored on res.partner.bank
+        cls.bank1 = {"bank_name": "Royal Bank of Canada", "bank_bic": "12773"}
+        cls.bank2 = {"bank_name": "Bank of America", "bank_bic": "92773"}
+        cls.bank3 = {"bank_name": "Bank of Montreal", "bank_bic": "12698"}
+        cls.bank4 = {"bank_name": "Wells Fargo", "bank_bic": "11595"}
 
         # Adding Demo Data
         cls.bank_account_1 = ("Patricia C Gregg", "00001", "Canadian", "127", "12773")
@@ -260,7 +207,7 @@ class BamboraEftCommon(TransactionCase):
             "bambora_batch_payment.bamboraeft_customer_journal"
         )
         cls.vendor_journal_id = cls.env.ref(
-            "bambora_batch_payment.bamboraeft_vendor_journal_id"
+            "bambora_batch_payment.bamboraeft_vendor_journal"
         )
         cls.bamboraeft.write(
             {
@@ -271,267 +218,64 @@ class BamboraEftCommon(TransactionCase):
                 "bamboraeft_profile_api": "5B94D0E7290D4D33953BD12EE6B467A4",
                 "bamboraeft_create_profile": True,
                 "journal_id": cls.journal_id.id,
-                "vendor_journal_id": cls.vendor_journal_id.id,
+                "bamboraeft_vendor_journal_id": cls.vendor_journal_id.id,
             }
         )
 
 
-@odoo.tests.tagged("post_install", "-at_install", "-standard", "external")
+@odoo.tests.tagged("post_install", "-at_install")
 class BamboraEftForm(BamboraEftCommon):
-    def test_10_bamboraeft_form_render(self):
-        self.assertEqual(self.bamboraeft.state, "test", "test without test environment")
-        # ----------------------------------------
-        # Test: button direct rendering
-        # ----------------------------------------
-        print("Test: button direct rendering")
-        self.env["ir.config_parameter"].get_param("web.base.url")
-        form_values = {
-            "data_set": "/payment/bamboraeft/s2s/create_json_3ds",
-            "x_amount": "56.16",
-            "provider_id": self.bamboraeft.id,
-            "provider_state": self.bamboraeft.state,
-            "bamboraeft_merchant_id": self.bamboraeft.bamboraeft_merchant_id,
-            "bamboraeft_batch_api": self.bamboraeft.bamboraeft_batch_api,
-            "bamboraeft_report_api": self.bamboraeft.bamboraeft_report_api,
-            "bamboraeft_payment_api": self.bamboraeft.bamboraeft_payment_api,
-            "bamboraeft_profile_api": self.bamboraeft.bamboraeft_profile_api,
-            # 'request': request,
-            # 'csrf_token': request.csrf_token(),
-            "return_url": "5B94D0E7290D4D33953BD12EE6B467A4",
-            "partner_id": self.cls.buyer_id1.id,
-            # 'order_id': request.httprequest,
-            "window_href": str(int(time.time())),
-            "data_key": "",
-            "charge_total": "56.16",
-            "order_name": None,
-            "note": None,
-            "email": self.cls.buyer_id1.email,
-            # 'bamboraTran': 'Norbert',
-            "bank_name": "Royal Bank of Canada",
-            "acc_holder_name": "Patricia C Gregg",
-            "acc_number": "00001",
-            "bank_account_type": "Canadian",
-            "institution_number": "12773",
-            "branch_number": "127",
-        }
-
-        # render the button
-        res = self.bamboraeft.render(
-            "SO004", 56.16, self.currency_ca.id, values=self.buyer_values1
+    def _create_tx(self, reference):
+        return self.env["payment.transaction"].create(
+            {
+                "amount": 320.0,
+                "provider_id": self.bamboraeft.id,
+                "payment_method_id": self.env.ref(
+                    "bambora_batch_payment.payment_method_bambora_eft"
+                ).id,
+                "currency_id": self.currency_cad.id,
+                "reference": reference,
+                "partner_id": self.buyer_id1,
+                "partner_country_id": self.country_canada.id,
+            }
         )
-        # check form result
-        tree = objectify.fromstring(res)
 
-        data_set = tree.xpath("//input[@name='data_set']")
-        self.assertEqual(
-            len(data_set),
-            1,
-            'Bambora EFT: Found %d "data_set" input instead of 1' % len(data_set),
-        )
-        # self.assertEqual(data_set[0].get('data-action-url'), 'https://test.bamboraeft.net/gateway/transact.dll', 'bamboraeft: wrong data-action-url POST url')
-        # for el in tree.iterfind('input'):
-        #     values = list(el.attrib.values())
-        #     if values[1] in ['submit', 'return_url', 'data_set']:
-        #         continue
-        #     self.assertEqual(
-        #         values[2],
-        #         form_values[values[1]],
-        #         'bamboraeft: wrong value for input %s: received %s instead of %s' % (values[1], values[2], form_values[values[1]])
-        #     )
+    def test_10_provider_setup(self):
+        self.assertFalse(self.bamboraeft.is_live, "test without live environment")
+        self.assertTrue(self.bamboraeft.support_tokenization)
+        self.assertEqual(self.bamboraeft.code, "bamboraeft")
 
-    @mute_logger("odoo.addons.bambora_batch_payment.models.payment", "ValidationError")
-    def test_20_bamboraeft_form_management(self):
-        # be sure not to do stupid thing
-        print("Test: test_20_bamboraeft_form_management")
-        self.assertEqual(self.bamboraeft.state, "test", "test without test environment")
+    def test_20_bamboraeft_payment_data_management(self):
+        self.assertFalse(self.bamboraeft.is_live, "test without live environment")
 
-        # typical data posted by bamboraeft after client has successfully paid
-        bamboraeft_post_data = {
+        # typical data posted by bambora after the batch file has been received
+        payment_data = {
             "code": 1,
             "message": "File successfully received",
             "batch_id": 10000347,
             "process_date": "20211129",
             "process_time_zone": "GMT-08:00",
             "batch_mode": "test",
+            "reference": "SO004",
         }
 
-        # should raise error about unknown tx
+        # unknown reference: no transaction found
+        self.assertFalse(
+            self.env["payment.transaction"]._search_by_reference("bamboraeft", payment_data)
+        )
+
+        tx = self._create_tx("SO004")
+        found_tx = self.env["payment.transaction"]._search_by_reference(
+            "bamboraeft", payment_data
+        )
+        self.assertEqual(found_tx, tx)
+
+        # process it: a received batch leaves the transaction pending
+        tx.with_context(payment_safe_write=True)._process(payment_data)
+        self.assertEqual(tx.state, "pending")
+        self.assertEqual(tx.provider_reference, str(payment_data["batch_id"]))
+
+        # missing payment state
+        tx2 = self._create_tx("SO004-2")
         with self.assertRaises(ValidationError):
-            self.env["payment.transaction"].form_feedback(
-                bamboraeft_post_data, "bamboraeft"
-            )
-
-        tx = self.env["payment.transaction"].create(
-            {
-                "amount": 320.0,
-                "provider_id": self.bamboraeft.id,
-                "currency_id": self.currency_cad.id,
-                "reference": "SO004",
-                "partner_name": "Patricia C Gregg",
-                "partner_country_id": self.country_canada.id,
-            }
-        )
-
-        # validate it
-        self.env["payment.transaction"].form_feedback(
-            bamboraeft_post_data, "bamboraeft"
-        )
-        # check state
-        self.assertEqual(
-            tx.state, "done", "bamboraeft: validation did not put tx into done state"
-        )
-        self.assertEqual(
-            tx.provider_reference,
-            bamboraeft_post_data.get("x_trans_id"),
-            "bamboraeft: validation did not update tx payid",
-        )
-
-        tx = self.env["payment.transaction"].create(
-            {
-                "amount": 320.0,
-                "providerid": self.bamboraeft.id,
-                "currency_id": self.currency_cad.id,
-                "reference": "SO004-2",
-                "partner_name": "Patricia C Gregg",
-                "partner_country_id": self.country_canada.id,
-            }
-        )
-
-        # simulate an error
-        self.env["payment.transaction"].form_feedback(
-            bamboraeft_post_data, "bamboraeft"
-        )
-        # check state
-        self.assertNotEqual(
-            tx.state,
-            "done",
-            "bamboraeft: erroneous validation did put tx into done state",
-        )
-
-
-@odoo.tests.tagged("post_install", "-at_install", "-standard")
-class BamboraEftS2s(BamboraEftCommon):
-    def test_30_bamboraeft_s2s(self):
-        print("Test: test_30_bamboraeft_s2s")
-        # be sure not to do stupid thing
-        bamboraeft = self.bamboraeft
-        self.assertEqual(bamboraeft.state, "test", "test without test environment")
-
-        # add credential
-        # FIXME: put this test in master-nightly on odoo/odoo + create sandbox account
-        journal_id = self.env.ref("bambora_batch_payment.bamboraeft_customer_journal")
-        vendor_journal_id = self.env.ref(
-            "bambora_batch_payment.bamboraeft_vendor_journal_id"
-        )
-
-        bamboraeft.write(
-            {
-                "bamboraeft_merchant_id": "383610231",
-                "bamboraeft_batch_api": "59346692ed194CD1805A66f541287B74",
-                "bamboraeft_report_api": "AF492A390B00481CbD4a2907FA33e3ed",
-                "bamboraeft_payment_api": "9F0F1cE3EA9541489656E0d2470F5285",
-                "bamboraeft_profile_api": "5B94D0E7290D4D33953BD12EE6B467A4",
-                "bamboraeft_create_profile": True,
-                "journal_id": "5B94D0E7290D4D33953BD12EE6B467A4",
-            }
-        )
-        bamboraeft.write(
-            {
-                "bamboraeft_merchant_id": "383610231",
-                "bamboraeft_batch_api": "59346692ed194CD1805A66f541287B74",
-                "bamboraeft_report_api": "AF492A390B00481CbD4a2907FA33e3ed",
-                "bamboraeft_payment_api": "9F0F1cE3EA9541489656E0d2470F5285",
-                "bamboraeft_profile_api": "5B94D0E7290D4D33953BD12EE6B467A4",
-                "bamboraeft_create_profile": True,
-                "journal_id": journal_id.id,
-                "vendor_journal_id": vendor_journal_id.id,
-            }
-        )
-
-        # self.assertTrue(bamboraeft.bamboraeft_test_credentials, 'bamboraeft.net: s2s authentication failed')#NA
-
-        # create payment meethod
-        payment_token = self.env["payment.token"].create(
-            {
-                "providerid": bamboraeft.id,
-                "partner_id": self.buyer_id1,
-                "bambora_token_type": "permanent",
-                "bambora_token": "A22651A33D824A3990ddC10287290ef0",
-                "code": "bamboraeft",
-                "providerref": "bamboraeft",
-                "name": "***1901 (EFT)",
-            }
-        )
-
-        # create normal s2s transaction
-        transaction = self.env["payment.transaction"].create(
-            {
-                "amount": 500,
-                "providerid": bamboraeft.id,
-                "type": "server2server",
-                "currency_id": self.currency_canada.id,
-                "reference": "test_ref_%s" % int(time.time()),
-                "payment_token_id": payment_token.id,
-                "partner_id": self.buyer_id1,
-            }
-        )
-        transaction.bamboraeft_s2s_do_transaction()
-        self.assertEqual(
-            transaction.state,
-            "done",
-        )
-
-        # switch to 'bamboraeft only'
-        # create bamboraeft only s2s transaction & capture it
-        self.bamboraeft.capture_manually = True
-        transaction = self.env["payment.transaction"].create(
-            {
-                "amount": 500,
-                "providerid": bamboraeft.id,
-                "type": "server2server",
-                "currency_id": self.currency_canada.id,
-                "reference": "test_ref_%s" % int(time.time()),
-                "payment_token_id": payment_token.id,
-                "partner_id": self.buyer_id1,
-            }
-        )
-        transaction.bamboraeft_s2s_do_transaction()
-        self.assertEqual(transaction.state, "bamboraeftd")
-        transaction.action_capture()
-        self.assertEqual(transaction.state, "done")
-
-        # create bamboraeft only s2s transaction & void it
-        self.bamboraeft.capture_manually = True
-        transaction = self.env["payment.transaction"].create(
-            {
-                "amount": 500,
-                "providerid": bamboraeft.id,
-                "type": "server2server",
-                "currency_id": self.currency_canada.id,
-                "reference": "test_ref_%s" % int(time.time()),
-                "payment_token_id": payment_token.id,
-                "partner_id": self.buyer_id1,
-            }
-        )
-        transaction.bamboraeft_s2s_do_transaction()
-        self.assertEqual(transaction.state, "bamboraeftd")
-        transaction.action_void()
-        self.assertEqual(transaction.state, "cancel")
-
-        # try charging an unexisting profile
-        ghost_payment_token = payment_token.copy()
-        ghost_payment_token.bamboraeft_profile = "99999999999"
-        # create normal s2s transaction
-        transaction = self.env["payment.transaction"].create(
-            {
-                "amount": 500,
-                "providerid": bamboraeft.id,
-                "type": "server2server",
-                "currency_id": self.currency_canada.id,
-                "reference": "test_ref_%s" % int(time.time()),
-                "@tagged": ghost_payment_token.id,
-                "partner_id": self.buyer_id1,
-            }
-        )
-        transaction.bamboraeft_s2s_do_transaction()
-        self.assertEqual(transaction.state, "cancel")
+            tx2.with_context(payment_safe_write=True)._process({"reference": "SO004-2"})

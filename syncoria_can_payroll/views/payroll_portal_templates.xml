@@ -15,29 +15,6 @@
         </xpath>
     </template>
 
-    <template id="portal_my_home" name="Show Payroll" customize_show="True" inherit_id="portal.portal_my_home" priority="110">
-        <xpath expr="//div[hasclass('o_portal_docs')]" position="inside">
-            <t t-set="portal_service_category_enable" t-value="True"/>
-        </xpath>
-        <div id="portal_service_category" position="inside">
-            <div>
-                 <t t-if="payslip_count &gt; 0" >
-                     <t t-set="show_payslip" t-value="True"/>
-                 </t>
-                 <t t-else="" >
-                     <t t-set="show_payslip" t-value="False"/>
-                 </t>
-                <t t-call="portal.portal_docs_entry"
-                    icon.f="/syncoria_can_payroll/static/src/img/portal-addresses.svg"
-                    title.translate="Payslip"
-                    url.f="/my/payslip"
-                    text.translate="Efficient payroll isn't just about numbers; it's about ensuring your team's well-being while your project evolves."
-                    config_card="show_payslip"
-                    placeholder_count="payslip_count"/>
-            </div>
-        </div>
-    </template>
-
     <template id="portal_my_payslips" name="All Payslip">
         <t t-call="portal.portal_layout" breadcrumbs_searchbar="True">
 
@@ -118,7 +95,7 @@
                                     <span t-esc="d.name" />
                                 </td>
                                 <td>
-                                    <span t-esc="d.category_id.name" />
+                                    <span t-esc="', '.join(d.category_ids.mapped('name'))" />
                                 </td>
                                 <td>
                                     <span t-esc="d.quantity" />

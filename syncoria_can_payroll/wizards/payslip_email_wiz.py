@@ -71,11 +71,10 @@ class PayslipEmailWizard(models.TransientModel):
                     pdf_content, dummy = self.env['ir.actions.report'].sudo().with_context(
                         lang=payslip.employee_id.lang
                     )._render_qweb_pdf(report, payslip.id)
-                    pdf_content_encoded = base64.b64encode(pdf_content).decode('utf-8')
                     attachment = self.env['ir.attachment'].sudo().create({
                         'name': 'Payslip',
                         'type': 'binary',
-                        'datas': pdf_content_encoded,
+                        'raw': pdf_content,
                         'res_model': 'hr.payslip',
                         'res_id': payslip.id,
                         'mimetype': 'application/pdf'

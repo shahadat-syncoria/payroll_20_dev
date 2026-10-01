@@ -22,12 +22,12 @@ class BamboraEftController(http.Controller):
         """
         provider_sudo = request.env['payment.provider'].sudo().browse(provider_id).exists()
         return {
-            'state': providersudo.state,
-            'payment_method_type': providersudo.bamboraeft_tran_type,
+            'state': 'enabled' if provider_sudo.is_live else 'test',
+            'payment_method_type': provider_sudo.bamboraeft_tran_type,
             # # The public API key solely used to identify the seller account with Authorize.Net
-            # 'login_id': providersudo.authorize_login,
+            # 'login_id': provider_sudo.authorize_login,
             # # The public client key solely used to identify requests from the Accept.js suite
-            # 'client_key': providersudo.authorize_client_key,
+            # 'client_key': provider_sudo.authorize_client_key,
         }
 
 
@@ -41,19 +41,23 @@ class BamboraEftController(http.Controller):
         :return: None
         """
         # Make the payment request to Adyen
-        providersudo = request.env['payment.provider'].sudo().browse(providerid).exists()
+        provider_sudo = request.env['payment.provider'].sudo().browse(providerid).exists()
         print('data', data, reference)
         tx_sudo = request.env['payment.transaction'].sudo().search([('reference', '=', reference)])
 
         data['providerid'] = providerid
         data['tx_id'] = tx_sudo.id
-        response_content = providersudo._bambora_make_request(
+        response_content = provider_sudo._bambora_make_request(
             payload=data,
         )
 
         # Handle the payment request response
         _logger.info("payment request response:\n%s", pprint.pformat(response_content))
-        request.env['payment.transaction'].sudo()._handle_feedback_data(
-            'bamboraeft', dict(response_content, reference=reference, data=data),  # Match the transaction
-        )
+        # Odoo 20: payment data are recorded and processed asynchronously (`_search_by_reference` +
+        # `_record` replace `_handle_feedback_data`)
+        payment_data = dict(response_content, reference=reference, data=data)
+        if tx_sudo := request.env['payment.transaction'].sudo()._search_by_reference(
+            'bamboraeft', payment_data
+        ):
+            tx_sudo._record(payment_data)
         return response_content

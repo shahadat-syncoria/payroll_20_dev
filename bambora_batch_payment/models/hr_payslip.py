@@ -34,42 +34,44 @@ def bambora_payment(provider):
 class HrPayslipBatchPayment(models.Model):
     _inherit = "hr.payslip"
 
-    state = fields.Selection([
-        ('draft', 'Draft'),
-        ('validated', 'Waiting'),
-        ('done', 'Done'),
-        ('waiting', 'Bambora waiting'),
-        ('paid', 'Paid'),
-        ('cancel', 'Rejected')],
-        string='Status', index=True, readonly=True, copy=False,
-        default='draft', tracking=True,
-        help="""* When the payslip is created the status is \'Draft\'
-                    \n* If the payslip is under verification, the status is \'Waiting\'.
-                    \n* If the payslip is confirmed then status is set to \'Done\'.
-                    \n* If the payslip is process of deposit through bambora EFT then status is set to \'Bambora Waiting\'.
-                    \n* When user cancel payslip the status is \'Rejected\'.""")
+    # Odoo 20: payslip states are draft/validated/paid/cancel ('done' was replaced by 'validated')
+    state = fields.Selection(
+        selection_add=[('waiting', 'Bambora waiting')],
+        ondelete={'waiting': 'set default'},
+    )
     batch_id = fields.Char("Batch ID", readonly=True)
     bambora_batch_payment_id = fields.Many2one("batch.payment.tracking", "Bambora Batch Payment", readonly=True)
     bambora_batch_state = fields.Selection(string="Bambora State", related="bambora_batch_payment_id.state")
     bambora_batch_status = fields.Char(string="Bambora Status", related="bambora_batch_payment_id.status")
 
-    bambora_payroll_account_id = fields.Many2one('res.partner.bank', related='employee_id.bank_account_id')
+    # Odoo 20: employees can have several bank accounts, the payroll one is `primary_bank_account_id`
+    bambora_payroll_account_id = fields.Many2one(
+        'res.partner.bank', string="Bank Account", compute='_compute_bambora_bank_details')
     bambora_bank_identifier_number = fields.Char(
-        "Bank Identifier No.", related="bambora_payroll_account_id.bank_bic", readonly=True
+        "Bank Identifier No.", compute='_compute_bambora_bank_details'
     )
     bambora_bank_transit_number = fields.Char(
-        "Bank Transit No.", related="bambora_payroll_account_id.bank_transit_no", readonly=True
+        "Bank Transit No.", compute='_compute_bambora_bank_details'
     )
+
+    @api.depends('employee_id.bank_account_ids', 'employee_id.bank_account_ids.sequence',
+                 'employee_id.bank_account_ids.bank_bic', 'employee_id.bank_account_ids.bank_transit_no')
+    def _compute_bambora_bank_details(self):
+        for payslip in self:
+            account = payslip.employee_id.primary_bank_account_id
+            payslip.bambora_payroll_account_id = account
+            payslip.bambora_bank_identifier_number = account.bank_bic
+            payslip.bambora_bank_transit_number = account.bank_transit_no
 
     def action_register_bambora_batch_payment_(self):
         for pay in self:
             if pay.state == 'waiting':
-                pay.write({'state': 'done'})
+                pay.write({'state': 'validated'})
             else:
                 pay.write({'state': 'waiting'})
     def _get_net_pay(self):
         try:
-            amount = self.line_ids.filtered(lambda x: x.category_id.code == 'NET').amount
+            amount = self.line_ids.filtered(lambda x: 'NET' in x.category_ids.mapped('code')).amount
         except:
             self.message_post(body="Net pay Error")
             raise Exception(_("Net pay Error"))
@@ -82,14 +84,14 @@ class HrPayslipBatchPayment(models.Model):
         if tx:
             raise UserError(_("%s Record already in transaction process") % record.name)
         if (
-                not record.bambora_payroll_account_id.acc_number
+                not record.bambora_payroll_account_id.account_number
                 or not record.bambora_bank_identifier_number
                 or not record.bambora_bank_transit_number
                 or not record.bambora_bank_identifier_number.isdigit()
                 or not record.bambora_bank_transit_number.isdigit()
         ):
             raise UserError(_("Please Add Full Account Information for  %s") % record.name)
-        elif record.state != "done":
+        elif record.state != "validated":
             raise UserError(_("Please only sent Done entries!! %s") % record.name)
         # elif record.payment_state == "paid":
         #     raise UserError(_("%s invoice Already Paid!!") % record.name)
@@ -102,7 +104,7 @@ class HrPayslipBatchPayment(models.Model):
                     transaction_type,
                     record.bambora_bank_identifier_number,
                     record.bambora_bank_transit_number,
-                    record.bambora_payroll_account_id.acc_number,
+                    record.bambora_payroll_account_id.account_number,
 
                     round(record._get_net_pay() * 100),
                     record.number,
@@ -118,7 +120,6 @@ class HrPayslipBatchPayment(models.Model):
     def action_register_bambora_batch_payment(self):
         # icp_sudo = self.env['ir.config_parameter'].sudo()
         domain = [("code", "=", "bamboraeft")]
-        domain += [("state", "!=", "disabled")]
         providers = self.env["payment.provider"].sudo().search(domain)
         if not providers:
             raise UserError(_("Module not install or disable!"))
@@ -194,13 +195,14 @@ class HrPayslipBatchPayment(models.Model):
 
     def write(self, vals):
         res = super(HrPayslipBatchPayment,self).write(vals)
+        return res
 
 
 
     def send_bambora_refuse_mail(self):
         try:
             with_user = self.env['ir.config_parameter'].sudo()
-            email_partner_ids = ast.literal_eval(with_user.get_param('syncoria_can_payroll.reminder_recipient_ids'))
+            email_partner_ids = ast.literal_eval(with_user.get_str('syncoria_can_payroll.reminder_recipient_ids') or '[]')
             if email_partner_ids:
                 email_partner_obj_ids = self.env['res.partner'].browse(email_partner_ids)
                 email_ids = ','.join([i.email for i in email_partner_obj_ids])

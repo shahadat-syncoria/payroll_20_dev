@@ -70,34 +70,34 @@ class ProviderBamboraEft(models.Model):
         ondelete={"bamboraeft": "set default"},
     )
     bamboraeft_merchant_id = fields.Char(
-        string="Merchant ID", required_if_code="bamboraeft"
+        string="Merchant ID", required_if_provider="bamboraeft"
     )
     bamboraeft_batch_api = fields.Char(
-        string="Batch API", required_if_code="bamboraeft"
+        string="Batch API", required_if_provider="bamboraeft"
     )
     bamboraeft_report_api = fields.Char(
-        string="Report API", required_if_code="bamboraeft"
+        string="Report API", required_if_provider="bamboraeft"
     )
     bamboraeft_transaction_type = fields.Selection(
         string="Transaction Type",
         selection=[("E", "EFT"), ("A", "ACH")],
         default="E",
-        required_if_code="bamboraeft",
+        required_if_provider="bamboraeft",
     )
     bamboraeft_create_profile = fields.Boolean(
         string="Create Profile",
     )
     bamboraeft_payment_api = fields.Char(
-        string="Payment API", required_if_code="bamboraeft"
+        string="Payment API", required_if_provider="bamboraeft"
     )
     bamboraeft_profile_api = fields.Char(
-        string="Profile API", required_if_code="bamboraeft"
+        string="Profile API", required_if_provider="bamboraeft"
     )
     bamboraeft_report_api_version = fields.Selection(
         string="Report Api Version",
         selection=[("2.0", "2.0")],
         default="2.0",
-        required_if_code="bamboraeft",
+        required_if_provider="bamboraeft",
     )
     bamboraeft_vendor_journal_id = fields.Many2one(
         "account.journal",
@@ -129,9 +129,9 @@ class ProviderBamboraEft(models.Model):
     #             self.is_published = False
     def write(self, vals):
         res = super(ProviderBamboraEft, self).write(vals)
-        if self.code == 'bamboraeft':
-            if self.is_published:
-                self.is_published = False
+        for provider in self.filtered(lambda p: p.code == 'bamboraeft'):
+            if provider.is_published:
+                provider.is_published = False
 
         return res
 
@@ -207,30 +207,29 @@ class ProviderBamboraEft(models.Model):
 
     def toggle_prod_environment(self):
         for rec in self:
-            rec.prod_environment = not rec.prod_environment
+            rec.is_live = not rec.is_live
 
     def toggle_debug(self):
         for rec in self:
             rec.debug_logging = not rec.debug_logging
 
-    def _get_feature_support(self):
-        # pylint: disable=super-with-arguments
-        res = super(ProviderBamboraEft, self)._get_feature_support()
-        res["tokenize"].append("bamboraeft")
-        return res
+    def _compute_feature_support_fields(self):
+        """ Override of `payment` to enable tokenization (replaces `_get_feature_support`). """
+        super()._compute_feature_support_fields()
+        self.filtered(lambda p: p.code == "bamboraeft").update({
+            "support_tokenization": True,
+        })
+
+    def _get_default_payment_method_codes(self):
+        """ Override of `payment` to return the default payment method codes. """
+        self.ensure_one()
+        if self.code != 'bamboraeft':
+            return super()._get_default_payment_method_codes()
+        return {'bamboraeft'}
 
     def bamboraeft_compute_fees(self, amount, currency_id, country_id):
-        if not self.fees_active:
-            return 0.0
-        country = self.env["res.country"].browse(country_id)
-        if country and self.company_id.country_id.id == country.id:
-            percentage = self.fees_dom_var
-            fixed = self.fees_dom_fixed
-        else:
-            percentage = self.fees_int_var
-            fixed = self.fees_int_fixed
-        fees = (percentage / 100.0 * amount + fixed) / (1 - percentage / 100.0)
-        return fees
+        # Odoo 20: payment.provider no longer has the `fees_*` fields (payment fees feature removed)
+        return 0.0
 
 
 class Txbambora(models.Model):

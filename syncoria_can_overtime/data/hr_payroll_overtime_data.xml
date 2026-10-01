@@ -37,12 +37,6 @@
     </record>
 
 
-  <record id="input_ca_bank_overtime" model="hr.payslip.input.type">
-            <field name="name">Banked Overtime</field>
-            <field name="code">BNK_OVERTIME</field>
-            <field name="country_id" eval="False"/>
-        </record>
-
      <record id="sync_banked_overtime_work_entry_type" model="hr.work.entry.type">
         <field name="name">Banked Over Time</field>
         <field name="color">0</field>

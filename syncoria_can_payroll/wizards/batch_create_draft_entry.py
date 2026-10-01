@@ -18,7 +18,7 @@ class SyncoriaCreateDraftWizard(models.TransientModel):
     @api.model
     def _get_default_attendance_hours(self,hr_payslip_run,employee_id):
         if not employee_id.version_id.is_hourly:
-            return (hr_payslip_run.date_end - hr_payslip_run.date_start).days *employee_id.version_id.standard_calendar_id.hours_per_day
+            return (hr_payslip_run.date_end - hr_payslip_run.date_start).days *employee_id.version_id.resource_calendar_id.hours_per_day
         else:
             return 0.0
 
@@ -32,17 +32,17 @@ class SyncoriaCreateDraftWizard(models.TransientModel):
     def _get_payslips(self):
 
         hr_payslip_run = self._get_payslip_run_id()
-        vac_pay = self.env.ref('syncoria_can_vacation_pay.input_ca_vac_pay')
-        commission = self.env.ref('syncoria_can_irregular_payment.input_ca_commission')
-        bonus = self.env.ref('syncoria_can_irregular_payment.input_ca_bonus_pay')
-        retro = self.env.ref('syncoria_can_irregular_payment.input_ca_retro_pay')
+        vac_pay = self.env.ref('syncoria_can_vacation_pay.rule_ca_vacation_pay')
+        commission = self.env.ref('syncoria_can_irregular_payment.rule_ca_commission')
+        bonus = self.env.ref('syncoria_can_irregular_payment.rule_ca_bonus_pay')
+        retro = self.env.ref('syncoria_can_irregular_payment.rule_ca_retro_pay')
         rec = []
         for payslip in hr_payslip_run.slip_ids:
             rec.append((0,0,{
                 "slip_id" : payslip.id,
                 "employee_id": payslip.employee_id,
                 "struct_id":payslip.struct_id,
-                "attendance_hours": payslip.worked_days_line_ids.filtered(lambda x: x.code == "WORK100").number_of_hours or
+                "attendance_hours": payslip.worked_days_line_ids.filtered(lambda x: x.code == "002.00").number_of_hours or
                                     payslip.worked_days_line_ids.filtered(lambda x: x.code == "TIMESHEET_WORK100").number_of_hours,
                 "overtime_hours" : payslip.worked_days_line_ids.filtered(lambda x: x.code == "CAN_OVERTIME").number_of_hours,
                 "stat_overtime_hours" : payslip.worked_days_line_ids.filtered(lambda x: x.code == "CAN_STAT_OVERTIME").number_of_hours,
@@ -91,8 +91,13 @@ class SyncoriaCreateDraftWizard(models.TransientModel):
                 structures.append(line[2]["struct_id"])
 
         for structs in structures:
-            if structs.input_line_type_ids:
-                input_codes += [input.code for input in structs.input_line_type_ids]
+            # Odoo 20: input types were replaced by the salary rules accepting an input
+            input_rules = structs.rule_ids.filtered(
+                lambda r: r.condition_select == 'property_input'
+                or r.amount_select == 'property_input'
+                or r.input_usage_payslip
+            )
+            input_codes += [code for code in input_rules.mapped('code') if code not in input_codes]
 
         # Define columns
         columns = [   "Slip ID",
@@ -133,7 +138,7 @@ class SyncoriaCreateDraftWizard(models.TransientModel):
         attachment = self.env['ir.attachment'].create({
             'name': 'Payslip_Bulk_Template.xlsx',
             'type': 'binary',
-            'datas': base64.b64encode(output.read()),
+            'raw': output.read(),
             'res_model': self._name,
             'res_id': self.id,
             'mimetype': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
@@ -152,7 +157,7 @@ class SyncoriaCreateDraftWizard(models.TransientModel):
             raise UserError("Please upload an Excel file first.")
 
         try:
-            file_content = base64.b64decode(self.upload_file)
+            file_content = self.upload_file.content
             df = pd.read_excel(io.BytesIO(file_content))
         except Exception as e:
             raise UserError(f"Failed to read Excel file: {str(e)}")
@@ -179,14 +184,16 @@ class SyncoriaCreateDraftWizard(models.TransientModel):
                 if input_line:
                     input_line.amount = amount
                 else:
-                    # Create a new input line if it exists in hr.payslip.input.type
-                    input_type = self.env['hr.payslip.input.type'].search([('code', '=', field)], limit=1)
-                    if input_type and amount > 0.0 :
+                    # Create a new input line if a salary rule accepts this code as input
+                    salary_rule = self.env['hr.salary.rule'].search([
+                        ('code', '=', field),
+                        ('input_usage_payslip', '=', True),
+                    ], limit=1)
+                    if salary_rule and amount > 0.0 :
                         hr_input_obj.create({
                             "payslip_id": slip.id,
-                            "input_type_id": input_type.id,
+                            "salary_rule_id": salary_rule.id,
                             "amount": amount,
-                            "code": field,
                         })
         self.compute_sheet()
 

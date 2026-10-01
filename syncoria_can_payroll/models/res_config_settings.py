@@ -45,14 +45,14 @@ class PayrollResConfigSettings(models.TransientModel):
                 record.attendance_manual_input = False
     def set_values(self):
         res = super(PayrollResConfigSettings,self).set_values()
-        self.env['ir.config_parameter'].sudo().set_param('syncoria_can_payroll.reminder_recipient_ids',self.reminder_recipient_ids.ids)
+        self.env['ir.config_parameter'].sudo().set_str('syncoria_can_payroll.reminder_recipient_ids',str(self.reminder_recipient_ids.ids))
         # return res
 
     @api.model
     def get_values(self):
         res = super(PayrollResConfigSettings,self).get_values()
         ICPSudo = self.env['ir.config_parameter'].sudo()
-        reminder_recipient_ids = ICPSudo.get_param('syncoria_can_payroll.reminder_recipient_ids')
+        reminder_recipient_ids = ICPSudo.get_str('syncoria_can_payroll.reminder_recipient_ids')
         if reminder_recipient_ids:
             res.update(
                 reminder_recipient_ids=[(6,0,literal_eval(reminder_recipient_ids))]

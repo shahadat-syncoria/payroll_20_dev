@@ -24,5 +24,5 @@ class ResPartnerBank(models.Model):
     @api.constrains('rbc_bank_transit_no')
     def _check_rbc_bank_transit_no(self):
         for rec in self:
-            if len(rec.rbc_bank_transit_no) != 5:
+            if rec.rbc_bank_transit_no and len(rec.rbc_bank_transit_no) != 5:
                 raise UserError(_("RBC Financial Institution Branch Number must be 5 characters long"))

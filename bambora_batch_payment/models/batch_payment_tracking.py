@@ -105,6 +105,15 @@ class BatchPaymentTracking(models.Model):
                 ],
                 limit=1,
             )
+        journal = self.env["account.journal"].browse(journal_id)
+        method_lines = (
+            journal.inbound_payment_method_line_ids
+            if payment_type == "inbound"
+            else journal.outbound_payment_method_line_ids
+        )
+        payment_method_line = method_lines.filtered(
+            lambda line: line.payment_method_id == payment_method_id
+        )[:1] or method_lines[:1]
         payment_vals = {
             "date": datetime.date.today(),
             "amount": move_id.amount_total,
@@ -115,13 +124,13 @@ class BatchPaymentTracking(models.Model):
             # 'currency_id': move_id.journal_id.currency_id.id,
             "partner_id": move_id.partner_id.id,
             "partner_bank_id": move_id.partner_bank_id.id,
-            "payment_method_id": payment_method_id.id,
+            # Odoo 20: `payment_method_id` is a readonly related, the method is set through the journal's line
+            "payment_method_line_id": payment_method_line.id,
             # 'destination_account_id': 4,  # ===>>>Need to change from 4
             "payment_token_id": False,
             # 'invoice_origin': move_id.invoice_origin,
             # 'move_id' : move_id.id,
             # 'move_type': 'out_invoice',
-            "state": "draft",
             "ref": move_id.name,
             # 'payment_reference': move_id.name,
             # 'is_reconciled': True/False,
@@ -246,7 +255,6 @@ class BatchPaymentTracking(models.Model):
 
     def action_report_bamboraeft_batch_payment(self):
         domain = [("code", "=", "bamboraeft")]
-        domain += [("state", "!=", "disabled")]
         providers = self.env["payment.provider"].sudo().search(domain)
         for rec_aq in providers:
             pass_code = providers.bamboraeft_report_api
@@ -334,7 +342,8 @@ class BatchPaymentTracking(models.Model):
                 raise AccessError(_(f"Internal Problem . Please Try again!!\n Reason:{e}"))
 
     def update_bamboraeft_tx(self, data):
-        pay_trx = self.env["payment.transaction"].sudo()
+        # Odoo 20: payment.transaction.write() requires the `payment_safe_write` context key
+        pay_trx = self.env["payment.transaction"].sudo().with_context(payment_safe_write=True)
         self.update_salebatch_tracking(data)
         # if data["batchId"] in [10000551, 10000552]:
         #     data["stateName"] = "Complete"
@@ -349,7 +358,7 @@ class BatchPaymentTracking(models.Model):
                         data.get("amount")
                     ):
                         #############################################################################
-                        tx._set_transaction_done()
+                        tx._set_done()
                         #############################################################################
                     if tx.state == "done" and data.get("stateName") == "Complete":
                         if len(tx.sale_order_ids) > 0 and len(tx.invoice_ids) == 0:
@@ -364,10 +373,10 @@ class BatchPaymentTracking(models.Model):
                                 )
                                 #####################################################################
                                 ICPSudo = self.env["ir.config_parameter"].sudo()
-                                automatic_invoice = ICPSudo.get_param(
+                                automatic_invoice = ICPSudo.get_str(
                                     "sale.automatic_invoice"
                                 )
-                                group_auto_done = ICPSudo.get_param(
+                                group_auto_done = ICPSudo.get_str(
                                     "sale.group_auto_done_setting"
                                 )
                                 _logger.info(
@@ -378,12 +387,12 @@ class BatchPaymentTracking(models.Model):
                                 )
                                 # Create Invoice if automatic_invoice is enabled
                                 if automatic_invoice:
-                                    tx._reconcile_after_transaction_done()
+                                    tx._invoice_sale_orders()
                                 if (
                                     group_auto_done
-                                    and tx.sale_order_ids[0].state != "done"
+                                    and not tx.sale_order_ids[0].locked
                                 ):
-                                    tx.sale_order_ids[0].action_done()
+                                    tx.sale_order_ids[0].action_lock()
                                 #####################################################################
 
                         if len(tx.invoice_ids) == 1 or len(tx.payment_id.move_id) == 1:
@@ -430,7 +439,7 @@ class BatchPaymentTracking(models.Model):
                                         )
                                         if len(pay_id) == 0:
                                             payment_vals = self._create_payment_vals(
-                                                move_id, tx.providerid
+                                                move_id, tx.provider_id
                                             )
                                             pay_id = acc_pay.create(payment_vals)
 
@@ -439,10 +448,10 @@ class BatchPaymentTracking(models.Model):
                                                 {"payment_reference": move_id.name}
                                             ) if not pay_id.payment_reference else None
 
-                                    if pay_id and pay_id.state in ["draft", "cancel"]:
-                                        pay_id.action_post() if server_serie == "14.0" else pay_id.post()
+                                    if pay_id and pay_id.state == "draft":
+                                        pay_id.action_post()
 
-                                    if pay_id and pay_id.state == "posted":
+                                    if pay_id and pay_id.state in ["paid", "reconciled"]:
                                         ##########################################################################################
                                         if move_id.payment_state not in [
                                             "in_payment",
@@ -450,9 +459,8 @@ class BatchPaymentTracking(models.Model):
                                         ]:
                                             move_id.write(
                                                 {
-                                                    "payment_id": pay_id.id,
                                                     "payment_reference": tx.reference,
-                                                    "bambora_batch_payment_id": tx.bamboraeft_batch_id,
+                                                    "bambora_batch_payment_id": tx.bamboraeft_batch_id.id,
                                                 }
                                             )
                                         if not pay_id.is_reconciled:
@@ -499,14 +507,15 @@ class BatchPaymentTracking(models.Model):
                     tx = (
                         self.env["payment.transaction"]
                         .sudo()
+                        .with_context(payment_safe_write=True)
                         .search([("reference", "=", move_id.ref)])
                     )
 
                     if tx and tx.payment_id:
                         if tx.state != "cancel":
                             tx.write({"state": "cancel"})
-                        if tx.payment_id.state != "cancel":
-                            tx.payment_id.write({"state": "cancel"})
+                        if tx.payment_id.state != "canceled":
+                            tx.payment_id.write({"state": "canceled"})
 
                 if "RBILL" in data.get("reference"):
                     move_id = (
@@ -519,13 +528,14 @@ class BatchPaymentTracking(models.Model):
                     tx = (
                         self.env["payment.transaction"]
                         .sudo()
+                        .with_context(payment_safe_write=True)
                         .search([("reference", "=", move_id.ref)])
                     )
 
                     if tx and tx.payment_id:
                         if tx.state != "cancel":
                             tx.write({"state": "cancel"})
-                            tx.payment_id.write({"state": "cancel"})
+                            tx.payment_id.write({"state": "canceled"})
 
     def update_bamboraeft_payslip_tx(self,data):
         payslip= self.env['hr.payslip'].sudo()
@@ -642,7 +652,7 @@ class BatchPaymentTracking(models.Model):
                     if pay_id and pay_id.state == "draft":
                         pay_id.action_post()
 
-                    if pay_id and pay_id.state == "posted":
+                    if pay_id and pay_id.state in ["paid", "reconciled"]:
                         # move_id.payment_id = pay_id.id if len(
                         #     move_id.payment_id) == 0 else move_id.payment_id
                         move_id.payment_state = (
@@ -662,7 +672,6 @@ class BatchPaymentTracking(models.Model):
         """check_status"""
 
         domain = [("code", "=", "bamboraeft")]
-        domain += [("state", "!=", "disabled")]
         acquirers = self.env["payment.provider"].sudo().search(domain, limit=1)
         if acquirers:
             batch_rec = self.env["batch.payment.tracking"]

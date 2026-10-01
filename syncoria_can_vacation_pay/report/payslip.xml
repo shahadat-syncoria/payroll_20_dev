@@ -12,7 +12,7 @@
             <table name="vacation_leave_information" class="table table-sm table-borderless">
 
                 <t t-set="vac_report"
-                   t-value="o.env['ir.config_parameter'].get_param('syncoria_can_vacation_pay.vac_report')"/>
+                   t-value="o.env['ir.config_parameter'].sudo().get_str('syncoria_can_vacation_pay.vac_report')"/>
                 <thead class="o_black_border">
                     <tr><th colspan="4" style="text-align:center;">Vacation Pay</th></tr>
                         <tr>

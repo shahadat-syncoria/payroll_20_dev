@@ -7,7 +7,7 @@
             <field name="inherit_id" ref="hr_payroll.hr_payslip_run_form"/>
             <field name="arch" type="xml">
 <!--                 <xpath expr="//button[@name='action_paid']" position="after">-->
-<!--                    <button invisible="state in ['close','paid']" icon="fa-refresh" string="Refresh" name="action_payslip_refresh" type="object"/>-->
+<!--                    <button invisible="state in ['02_close','03_paid']" icon="fa-refresh" string="Refresh" name="action_payslip_refresh" type="object"/>-->
 <!--                 </xpath>-->
 
 
@@ -21,17 +21,14 @@
                     <attribute name="force_save">
                         1</attribute>
                 </xpath>
-                <xpath expr="//field[@name='schedule_pay']" position="before">
+                <xpath expr="//field[@name='structure_id']" position="after">
 
-                        <field name="pay_cycle_year" required="1" readonly="state in ['close','paid']"/>
-                        <field name="pay_cycle" readonly="state in ['close','paid']" force_save="1"/>
+                        <field name="pay_cycle_year" required="1" readonly="state in ['02_close','03_paid']"/>
+                        <field name="pay_cycle" readonly="state in ['02_close','03_paid']" force_save="1"/>
 
-                        <field domain="[('id','in',pay_cycle_period_ids_domain)]" invisible="pay_cycle == False" name="pay_cycle_period" required="pay_cycle != False" readonly="state in ['close','paid']" force_save="1"/>
+                        <field domain="[('id','in',pay_cycle_period_ids_domain)]" invisible="pay_cycle == False" name="pay_cycle_period" required="pay_cycle != False" readonly="state in ['02_close','03_paid']" force_save="1"/>
                         <field invisible="1" name="pay_cycle_period_ids_domain"/>
 
-                </xpath>
-                <xpath expr="//field[@name='schedule_pay']" position="attributes">
-                    <attribute name="readonly">1</attribute>
                 </xpath>
             </field>
         </record>
@@ -40,7 +37,7 @@
     <record id="hr_payslip_create_draft_kanban" model="ir.ui.view">
         <field name="name">hr.payslip.create.draft.form</field>
         <field name="model">hr.payslip.run</field>
-        <field name="inherit_id" ref="hr_payroll_account.hr_payslip_run_view_kanban"/>
+        <field name="inherit_id" ref="hr_payroll.hr_payrun_payslip_kanban_card_view"/>
         <field name="arch" type="xml">
              <button name='action_validate' position="replace">
                 <button name="action_draft_entry_wizard" type="object" string="Create Draft Entry" invisible="state != '01_ready' or empty_payslips or not payslip_count"

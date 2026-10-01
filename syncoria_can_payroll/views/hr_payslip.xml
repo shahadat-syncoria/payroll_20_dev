@@ -61,8 +61,10 @@
                 <xpath expr="//field[@name='basic_wage']" position="attributes">
                     <attribute name="invisible">1</attribute>
                 </xpath>
-                <xpath expr="//list/header/button[@name='action_payslip_done']" position="after">
-                    <button string="Refresh" name="action_payslip_refresh" type="object" class="oe_highlight"/>
+                <xpath expr="//list" position="inside">
+                    <header>
+                        <button string="Refresh" name="action_payslip_refresh" type="object" class="oe_highlight"/>
+                    </header>
                 </xpath>
             </field>
         </record>

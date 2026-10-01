@@ -17,7 +17,7 @@
             <field name="inherit_id" ref="base.view_partner_bank_form"/>
             <field name="arch" type="xml">
 
-                <xpath expr="//field[@name='acc_number']" position="after">
+                <xpath expr="//field[@name='account_number']" position="after">
                     <field name="rbc_bank_transit_no"/>
 
                 </xpath>

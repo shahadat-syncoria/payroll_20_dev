@@ -6,9 +6,9 @@ class InheritedHrPaySlip(models.Model):
 
     timesheet_count = fields.Integer(compute="_compute_timesheet_count")
 
-    def _get_new_worked_days_lines(self):
+    def _get_new_worked_days_lines(self, versions, work_entries_vals):
 
-        res = super()._get_new_worked_days_lines()
+        res = super()._get_new_worked_days_lines(versions, work_entries_vals)
         for payslip in self:
             if payslip.employee_id and payslip.version_id  and payslip.version_id.work_entry_source == 'timesheet_hours':
                 employee = payslip.employee_id
@@ -31,7 +31,7 @@ class InheritedHrPaySlip(models.Model):
                     # 'amount': timesheet_hours*payslip.version_id.hourly_wage
 
                 }))
-                attendance_type_id = self.env.ref('hr_work_entry.work_entry_type_attendance').id
+                attendance_type_id = self.env.ref('hr_work_entry.generic_work_entry_type_attendance').id
                 res = [entry for entry in res if entry[2]['work_entry_type_id'] != attendance_type_id]
 
         return res

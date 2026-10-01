@@ -19,7 +19,7 @@ class EmployeeNetPay(models.TransientModel):
             day=calendar.monthrange(date.today().year, date.today().month)[1]
         ))
 
-    payslip_state = fields.Selection([("paid","Paid"),("done","Done"),("validated","Waiting"),("all","All")],
+    payslip_state = fields.Selection([("paid","Paid"),("validated","Waiting"),("all","All")],
                                      string="Payslip State", default="paid")
 
     def get_payslip_ids(self):
@@ -219,7 +219,7 @@ class EmployeeNetPay(models.TransientModel):
 
         attachment_id = self.env['ir.attachment'].create({
             'name':  f"Payroll_Earning_Report_{self.date_from}_to_{self.date_to} - {_('XLSX report')}",
-            'datas': base64.encodebytes(output.getvalue())
+            'raw': output.getvalue()
         })
 
         return {

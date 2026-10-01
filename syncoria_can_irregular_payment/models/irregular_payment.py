@@ -11,6 +11,8 @@ class HrIrregularPayment(models.Model):
     _rec_name = "name"
 
     def _get_available_contracts_domain(self):
+        # `self.date` is empty when called from the `line_ids` default (empty recordset)
+        date = self.date or fields.Date.context_today(self)
         # return [
         #     ('version_id.state', 'in', ('open', 'close')),
         #     ('company_id', '=', self.env.company.id),
@@ -21,10 +23,10 @@ class HrIrregularPayment(models.Model):
         # ]
         return [
             ('company_id', '=', self.env.company.id),
-            ('contract_date_start', '<=', self.date),
+            ('contract_date_start', '<=', date),
             '|',
             ('contract_date_end', '=', False),
-            ('contract_date_end', '>=', self.date),
+            ('contract_date_end', '>=', date),
             # ('date_version', '<=', date_end),
         ]
 

@@ -18,13 +18,3 @@ class InheritedResPartner(models.Model):
         size=5,
         help="- 5 numeric\n- Extension of the contact."
     )
-
-
-class InheritedResPartnerBank(models.Model):
-    _inherit = 'res.partner.bank'
-
-    acc_number = fields.Char('Account Number', required=True)
-
-
-
-
