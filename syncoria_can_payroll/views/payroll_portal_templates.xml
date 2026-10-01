@@ -7,10 +7,10 @@
                 <t t-else="">Payslip</t>
             </li>
             <li t-elif="payslip" t-attf-class="breadcrumb-item #{'active ' if not payslip else ''} text-truncate col-8 col-lg-10">
-                <t t-esc="payslip.name"/>
+                <t t-out="payslip.name"/>
             </li>
             <li t-if="page_name == 'payslip_details'" class="breadcrumb-item active">
-                <t t-esc="payslip.name"/>
+                <t t-out="payslip.name"/>
             </li>
         </xpath>
     </template>
@@ -92,19 +92,19 @@
                         <t t-foreach="detailed_payslip" t-as="d">
                             <tr>
                                 <td>
-                                    <span t-esc="d.name" />
+                                    <span t-out="d.name" />
                                 </td>
                                 <td>
-                                    <span t-esc="', '.join(d.category_ids.mapped('name'))" />
+                                    <span t-out="', '.join(d.category_ids.mapped('name'))" />
                                 </td>
                                 <td>
-                                    <span t-esc="d.quantity" />
+                                    <span t-out="d.quantity" />
                                 </td>
                                 <td>
-                                    <span t-esc="d.rate" />
+                                    <span t-out="d.rate" />
                                 </td>
                                 <td>
-                                    <span t-esc="d.amount" />
+                                    <span t-out="d.amount" />
                                 </td>
                             </tr>
                         </t>
@@ -117,7 +117,7 @@
                             font-size: 20px;
                             font-weight: bold;
                             margin-top: 10px;}">
-                    Net Wage: <t t-esc="payslip.net_wage"/>
+                    Net Wage: <t t-out="payslip.net_wage"/>
                 </p>
             </t>
         </t>

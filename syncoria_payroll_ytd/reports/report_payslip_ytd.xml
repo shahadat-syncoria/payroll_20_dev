@@ -11,7 +11,7 @@
     <template id="report_payslip_line_row_ytd" inherit_id="syncoria_can_payroll.report_payslip_line_row">
         <xpath expr="//td[@id='payslip_line_total']" position="after">
             <td id="payslip_ytd" class="text-end">
-                <span t-esc="o._payslip_line_ytd_total().get(line.code, 0)"
+                <span t-out="o._payslip_line_ytd_total().get(line.code, 0)"
                       t-options="{'widget': 'monetary', 'display_currency': o.company_id.currency_id}"
                       t-att-style="'color:#875A7B;' if o._payslip_line_ytd_total().get(line.code, 0) &lt; 0 else ''"/>
             </td>

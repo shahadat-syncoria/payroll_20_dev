@@ -15,22 +15,22 @@
                                 <tr style="text-align: left;">
                                     <th>
                                         Payroll History -
-                                        <span t-esc="employee_name"/>
+                                        <span t-out="employee_name"/>
                                     </th>
 
                                 </tr>
                                 <tr style="text-align: left;">
                                     <th>
                                         Hire Date:
-                                        <span t-esc="hire_date"/>
+                                        <span t-out="hire_date"/>
                                         - Term Date:
-                                        <span t-esc="term_date"/>
+                                        <span t-out="term_date"/>
                                     </th>
 
                                 </tr>
                                 <tr style="text-align: left;">
                                     <th>
-                                        Paygroup: <span t-esc="paygroup"/>
+                                        Paygroup: <span t-out="paygroup"/>
                                     </th>
 
                                 </tr>
@@ -65,31 +65,31 @@
 
                                     <tr>
                                     <td>
-                                        <span t-esc="line['pay']"/>
+                                        <span t-out="line['pay']"/>
                                     </td>
                                     <td>
-                                        <span t-esc="line['paycycle_date_from']"/>-
-                                        <span t-esc="line['paycycle_date_to']"/>
+                                        <span t-out="line['paycycle_date_from']"/>-
+                                        <span t-out="line['paycycle_date_to']"/>
 
                                     </td>
                                     <td>
-                                        <span t-esc="round(line['hours'],2)"/>
+                                        <span t-out="round(line['hours'],2)"/>
                                     </td>
                                     <td>
-                                        <span t-esc="currency_id" /> <span t-esc="round(line['Gross'],2)"/>
+                                        <span t-out="currency_id" /> <span t-out="round(line['Gross'],2)"/>
                                     </td>
                                     <td>
-                                        <span t-esc="line['details']"/>
+                                        <span t-out="line['details']"/>
                                     </td>
                                     <td>
                                         <t t-set="start" t-value="false"/>
                                          <t t-foreach="line['gross_details']" t-as="gross">
-                                             <span t-esc="currency_id" /> <span t-esc="gross['total']" /><br/>
+                                             <span t-out="currency_id" /> <span t-out="gross['total']" /><br/>
 <!--                                             <t t-if="start == false">-->
-<!--                                                 <span t-esc="gross['total']"/>-->
+<!--                                                 <span t-out="gross['total']"/>-->
 <!--                                             </t>-->
 <!--                                             <t t-else="">-->
-<!--                                                 <span t-esc="gross['total']"/><br/>-->
+<!--                                                 <span t-out="gross['total']"/><br/>-->
 <!--                                             </t>-->
 <!--                                             <t t-set="start" t-value="true"/>-->
                                          </t>
@@ -101,7 +101,7 @@
                             </table>
 
                             <div>
-                                <span t-esc="round(total_hours,2)"/> hrs to: <span t-esc="round(total_hours)"/>
+                                <span t-out="round(total_hours,2)"/> hrs to: <span t-out="round(total_hours)"/>
                             </div>
 
                         </div>

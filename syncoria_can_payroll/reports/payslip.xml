@@ -32,7 +32,7 @@
                       t-att-style="'color:#875A7B;' if line.total &lt; 0 else ''"/>
             </td>
             <td id="payslip_line_ytd" t-if="(o.ytd_computation and not is_correction)" class="text-end">
-                <span t-esc="line.ytd"
+                <span t-out="line.ytd"
                       t-options="{'widget': 'monetary', 'display_currency': o.company_id.currency_id}"
                       t-att-style="'color:#875A7B;' if line.ytd &lt; 0 else ''"/>
             </td>

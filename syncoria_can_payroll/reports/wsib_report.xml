@@ -23,7 +23,7 @@
 
                                     </th>
                                     <td>
-                                        <span t-esc="date_range"/>
+                                        <span t-out="date_range"/>
                                     </td>
                                 </tr>
 
@@ -46,18 +46,18 @@
                                     <!-- LOOP -->
                                     <t t-foreach="payslips" t-as="line">
                                         <tr>
-                                            <td name="employee_last_name" t-esc="line['employee_last_name']"/>
-                                            <td name="employee_first_name" t-esc="line['employee_first_name']"/>
+                                            <td name="employee_last_name" t-out="line['employee_last_name']"/>
+                                            <td name="employee_first_name" t-out="line['employee_first_name']"/>
                                             <td name="wc_code">
                                                 <span>WSIB</span>
                                             </td>
                                             <td name="wsib_base">
-                                                <span t-esc="round(line['wsib_base'], 2)"/>
-                                                <span t-esc="currency"/>
+                                                <span t-out="round(line['wsib_base'], 2)"/>
+                                                <span t-out="currency"/>
                                             </td>
                                             <td name="wsib_amount_assessed">
-                                                <span t-esc="round(line['wsib_amount_assessed'], 2)"/>
-                                                <span t-esc="currency"/>
+                                                <span t-out="round(line['wsib_amount_assessed'], 2)"/>
+                                                <span t-out="currency"/>
                                             </td>
                                         </tr>
                                     </t>
@@ -68,12 +68,12 @@
                                             Total:
                                         </td>
                                         <td name="total_wsib_base">
-                                            <span t-esc="round(totals['total_wsib_base'],2)"/>
-                                            <span t-esc="currency"/>
+                                            <span t-out="round(totals['total_wsib_base'],2)"/>
+                                            <span t-out="currency"/>
                                         </td>
                                         <td name="total_wsib_amount_assessed">
-                                            <span t-esc="round(totals['total_wsib_amount_assessed'],2)"/>
-                                            <span t-esc="currency"/>
+                                            <span t-out="round(totals['total_wsib_amount_assessed'],2)"/>
+                                            <span t-out="currency"/>
                                         </td>
                                     </tr>
 

@@ -11,16 +11,16 @@
                     <!-- <t t-call="report.external_layout"> -->
                     <div class="page">
                         <div class="text-center">
-                            <span t-esc="o.company_id.name"/>
+                            <span t-out="o.company_id.name"/>
                             Deposit Summary
                             <br/>
 
-                            <!--                                Paygroup:  <span t-esc="paygroup"/><br/>-->
+                            <!--                                Paygroup:  <span t-out="paygroup"/><br/>-->
                             Pay Cycle Ending:
-                            <span t-esc="o.date_end.strftime('%b %d %Y')"/>
+                            <span t-out="o.date_end.strftime('%b %d %Y')"/>
                             <br/>
                             Report Ran:
-                            <span t-esc="context_timestamp(datetime.datetime.now()).strftime('%b %d %Y %I:%M %p')"/>
+                            <span t-out="context_timestamp(datetime.datetime.now()).strftime('%b %d %Y %I:%M %p')"/>
 
                         </div>
                         <style>
@@ -62,18 +62,18 @@
 
                                         <tr>
                                             <td style="text-align:left">
-                                                <span t-esc="line.employee_id.barcode"/>
+                                                <span t-out="line.employee_id.barcode"/>
                                             </td>
                                             <td style="text-align:center">
-                                                <span t-esc="line.employee_id.name"/>
+                                                <span t-out="line.employee_id.name"/>
 
                                             </td>
                                             <td style="text-align:center">
-                                                <span t-esc="line.batch_id"/>
+                                                <span t-out="line.batch_id"/>
                                             </td>
                                             <td style="text-align:center">
                                                 <t t-if="line.bambora_payroll_account_id">
-                                                    <span t-esc="line.bambora_payroll_account_id.bank_name"/>
+                                                    <span t-out="line.bambora_payroll_account_id.bank_name"/>
                                                 </t>
                                                 <t t-else="">
                                                     <span></span>
@@ -82,7 +82,7 @@
                                             </td>
                                             <td style="text-align:center">
                                                 <t t-if="line.bambora_batch_payment_id">
-                                                    <span t-esc="line.bambora_batch_payment_id.transaction_id"/>
+                                                    <span t-out="line.bambora_batch_payment_id.transaction_id"/>
                                                 </t>
                                                 <t t-else="">
                                                     <span></span>
@@ -91,7 +91,7 @@
                                             </td>
                                             <td style="text-align:center">
                                                 <t t-if="line.bambora_payroll_account_id">
-                                                    <span t-esc="line.bambora_payroll_account_id.account_number"/>
+                                                    <span t-out="line.bambora_payroll_account_id.account_number"/>
                                                 </t>
                                                 <t t-else="">
                                                     <span></span>
@@ -100,7 +100,7 @@
                                             </td>
                                             <td style="text-align:center">
                                                 <t t-if="line.bambora_batch_payment_id">
-                                                    <span t-esc="line.bambora_batch_payment_id.amount"/>
+                                                    <span t-out="line.bambora_batch_payment_id.amount"/>
                                                 </t>
                                                 <t t-else="">
                                                     <span></span>
@@ -108,7 +108,7 @@
 
                                             </td>
                                             <td style="text-align:center">
-                                                <span t-esc="line.bambora_batch_state"/>
+                                                <span t-out="line.bambora_batch_state"/>
 
                                             </td>
                                         </tr>

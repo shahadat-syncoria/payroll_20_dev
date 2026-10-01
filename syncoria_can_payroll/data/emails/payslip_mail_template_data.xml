@@ -10,7 +10,7 @@
              <field name="body_html" type="html">
                 <div>
                     <p>
-                        Dear <t t-esc="object.employee_id.name"></t>, a new payslip is available for you.<br/><br/>
+                        Dear <t t-out="object.employee_id.name"></t>, a new payslip is available for you.<br/><br/>
                         Please find the PDF in your employee portal.<br/><br/>
                         Have a nice day,<br/>
                         The HR Team

@@ -14,4 +14,5 @@ class ReportRemitanceSummary(models.AbstractModel):
         return {
             'doc_ids' : docids,
             'data' : data,
+            **data,
         }

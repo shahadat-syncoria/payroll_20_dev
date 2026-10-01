@@ -32,16 +32,16 @@
                     <t t-set="leave_taken" t-value="o.employee_id._get_vacation_pay_calculation()"/>
                         <t t-if="vac_report in ['both', 'days']">
                             <td>
-                                <span t-esc="round(o.employee_id.allocated_vacation_leave,2)"/>
+                                <span t-out="round(o.employee_id.allocated_vacation_leave,2)"/>
                             </td>
                         </t>
                      <t t-if="vac_report in ['both', 'hours']">
                             <td>
-                                <span t-esc="round((o.employee_id.allocated_vacation_leave * o.employee_id.version_id.resource_calendar_id.hours_per_day),2)"/>
+                                <span t-out="round((o.employee_id.allocated_vacation_leave * o.employee_id.version_id.resource_calendar_id.hours_per_day),2)"/>
                             </td>
                         </t>
                     <td>
-                        <span t-esc="round(o.ytd_vac_pay_amount,2)"/>
+                        <span t-out="round(o.ytd_vac_pay_amount,2)"/>
                     </td>
                 </tr>
                 </tbody>

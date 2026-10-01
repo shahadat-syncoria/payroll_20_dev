@@ -15,13 +15,13 @@
                                 <tr style="text-align: left;">
                                     <th>
                                      Pay Cycle :
-                                        <span t-esc="pay_cycle"/>
+                                        <span t-out="pay_cycle"/>
                                     </th>
                                 </tr>
                                 <tr style="text-align: left;">
                                     <th>
                                      Pay Period :
-                                        <span t-esc="pay_period"/>
+                                        <span t-out="pay_period"/>
                                     </th>
 
                                 </tr>
@@ -56,22 +56,22 @@
 
                                     <tr>
                                     <td>
-                                        <span t-esc="line['reference']"/>
+                                        <span t-out="line['reference']"/>
                                     </td>
                                     <td>
-                                        <span t-esc="line['payslip_name']"/>
+                                        <span t-out="line['payslip_name']"/>
                                     </td>
                                     <td>
-                                        <span t-esc="line['employee_name']"/>
+                                        <span t-out="line['employee_name']"/>
                                     </td>
                                     <td>
-                                        <span t-esc="line['job_position']"/>-
+                                        <span t-out="line['job_position']"/>-
                                     </td>
                                     <td>
-                                      <span t-esc="line['bank_account']"/>
+                                      <span t-out="line['bank_account']"/>
                                     </td>
                                     <td>
-                                      <span t-esc="line['amount']"/>
+                                      <span t-out="line['amount']"/>
                                     </td>
 
                                 </tr>

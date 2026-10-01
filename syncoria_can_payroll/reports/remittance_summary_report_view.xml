@@ -45,26 +45,26 @@
                                 <t t-set="lines"
                                    t-value="payslips"/>
                                 <t t-set="sum_total_gross" t-value="0.0"/>
-<!--                                <span t-esc="data['data']"/>-->
+<!--                                <span t-out="data['data']"/>-->
                                 <t t-foreach="lines" t-as="line">
                                     <t t-set="sum_total_gross" t-value="sum_total_gross+float(line['total_gross'])"/>
 
                                     <tr>
                                         <td style="text-align:left">
-                                            <span t-esc="line['pay_date']"/>
+                                            <span t-out="line['pay_date']"/>
                                         </td>
                                         <td style="text-align:center">
-                                            <span t-esc="line['employees_paid']"/>
+                                            <span t-out="line['employees_paid']"/>
 
                                         </td>
                                         <td style="text-align:right">
-                                            <span t-esc="line['total_amount']"/>
+                                            <span t-out="line['total_amount']"/>
                                         </td>
                                         <td style="text-align:right">
-                                            <span t-esc="sum_total_gross"/>
+                                            <span t-out="sum_total_gross"/>
                                         </td>
                                         <td style="text-align:right">
-                                            <span t-esc="line['total_gross']"/>
+                                            <span t-out="line['total_gross']"/>
 
                                         </td>
                                     </tr>

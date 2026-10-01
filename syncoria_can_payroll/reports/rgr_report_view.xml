@@ -10,11 +10,11 @@
                         <!-- <t t-call="report.external_layout"> -->
                         <div class="page">
                             <div class="text-center">
-                                <span t-esc="company_name"/> Receiver General<br/>
+                                <span t-out="company_name"/> Receiver General<br/>
 
-                                Paygroup:  <span t-esc="paygroup"/><br/>
-                                Pay Cycle Ending: <span t-esc="datetime.datetime.strptime(date_to, '%Y-%m-%d').strftime('%b %d %Y')"/><br/>
-                                Report Ran: <span t-esc="context_timestamp(datetime.datetime.now()).strftime('%b %d %Y %I:%M %p')"/>
+                                Paygroup:  <span t-out="paygroup"/><br/>
+                                Pay Cycle Ending: <span t-out="datetime.datetime.strptime(date_to, '%Y-%m-%d').strftime('%b %d %Y')"/><br/>
+                                Report Ran: <span t-out="context_timestamp(datetime.datetime.now()).strftime('%b %d %Y %I:%M %p')"/>
 
                             </div>
 <!--                            <style>-->
@@ -38,13 +38,13 @@
                                               Income Tax
                                           </td>
                                           <td class="text-center">
-                                               <span t-esc="currency_id"/><span t-esc="round(payslips.get('total_income_tax',0.0),2)"/>
+                                               <span t-out="currency_id"/><span t-out="round(payslips.get('total_income_tax',0.0),2)"/>
                                           </td>
                                           <td class="text-center">
 
                                           </td>
                                           <td class="text-center">
-                                              <span t-esc="currency_id"/><span t-esc="round(payslips.get('total_income_tax',0.0),2)"/>
+                                              <span t-out="currency_id"/><span t-out="round(payslips.get('total_income_tax',0.0),2)"/>
                                           </td>
                                           <t t-set="sum_total" t-value="sum_total+payslips.get('total_income_tax',0.0)"/>
                                           <t t-set="sum_total_deduction_employee" t-value="sum_total_deduction_employee+payslips.get('total_income_tax',0.0)"/>
@@ -56,13 +56,13 @@
                                               CPP
                                           </td>
                                           <td class="text-center">
-                                              <span t-esc="currency_id"/><span t-esc="round(payslips.get('total_cpp_employee',0.0),2)"/>
+                                              <span t-out="currency_id"/><span t-out="round(payslips.get('total_cpp_employee',0.0),2)"/>
                                           </td>
                                           <td class="text-center">
-                                              <span t-esc="currency_id"/><span t-esc="round(payslips.get('total_cpp_employer',0.0),2)"/>
+                                              <span t-out="currency_id"/><span t-out="round(payslips.get('total_cpp_employer',0.0),2)"/>
                                           </td>
                                           <td class="text-center">
-                                               <span t-esc="currency_id"/><span t-esc="round(payslips.get('total_cpp_employee',0.0)+payslips.get('total_cpp_employer',0.0),2)"/>
+                                               <span t-out="currency_id"/><span t-out="round(payslips.get('total_cpp_employee',0.0)+payslips.get('total_cpp_employer',0.0),2)"/>
                                           </td>
                                           <t t-set="sum_total" t-value="sum_total+payslips.get('total_cpp_employee',0.0)+payslips.get('total_cpp_employer',0.0)"/>
                                           <t t-set="sum_total_deduction_employee" t-value="sum_total_deduction_employee+payslips.get('total_cpp_employee',0.0)"/>
@@ -74,13 +74,13 @@
                                              EI
                                           </td>
                                           <td class="text-center">
-                                              <span t-esc="currency_id"/><span t-esc="round(payslips.get('total_ei_employee',0.0),2)"/>
+                                              <span t-out="currency_id"/><span t-out="round(payslips.get('total_ei_employee',0.0),2)"/>
                                           </td>
                                           <td class="text-center">
-                                              <span t-esc="currency_id"/><span t-esc="round(payslips.get('total_ei_employer',0.0),2)"/>
+                                              <span t-out="currency_id"/><span t-out="round(payslips.get('total_ei_employer',0.0),2)"/>
                                           </td>
                                           <td class="text-center">
-                                              <span t-esc="currency_id"/><span t-esc="round(payslips.get('total_ei_employee',0.0)+payslips.get('total_ei_employer',0.0),2)"/>
+                                              <span t-out="currency_id"/><span t-out="round(payslips.get('total_ei_employee',0.0)+payslips.get('total_ei_employer',0.0),2)"/>
 
                                           </td>
                                           <t t-set="sum_total" t-value="sum_total+payslips.get('total_ei_employee',0.0)+payslips.get('total_ei_employer',0.0)"/>
@@ -99,7 +99,7 @@
 
                                           </td>
                                           <td class="text-center">
-                                              <span t-esc="currency_id"/>0.0
+                                              <span t-out="currency_id"/>0.0
                                           </td>
 
                                       </tr>
@@ -114,7 +114,7 @@
 
                                           </td>
                                           <td class="text-center">
-                                              <span t-esc="currency_id"/>0.0
+                                              <span t-out="currency_id"/>0.0
                                           </td>
 
                                       </tr>
@@ -130,7 +130,7 @@
                                           </td>
                                           <td class="text-center">
                                               <u>
-                                                  <span t-esc="currency_id"/><b><span t-esc="round(sum_total,2)"/></b>
+                                                  <span t-out="currency_id"/><b><span t-out="round(sum_total,2)"/></b>
                                               </u>
 
 
@@ -143,7 +143,7 @@
                                           </td>
                                           <td class="text-center">
                                               <u>
-                                                  <b><span t-esc="payslips.get('total_employee_paid')"/></b>
+                                                  <b><span t-out="payslips.get('total_employee_paid')"/></b>
                                               </u>
 
                                           </td>
@@ -161,7 +161,7 @@
                                           </td>
                                           <td class="text-center">
                                               <u>
-                                                  <span t-esc="currency_id"/><b><span t-esc="payslips.get('total_gross',0.0)"/></b>
+                                                  <span t-out="currency_id"/><b><span t-out="payslips.get('total_gross',0.0)"/></b>
                                               </u>
                                           </td>
                                           <td class="text-center">
@@ -177,7 +177,7 @@
                                               CRA Number
                                           </td>
                                           <td class="text-center">
-                                              <span t-esc="payslips.get('cra_number')"/>
+                                              <span t-out="payslips.get('cra_number')"/>
 
                                           </td>
                                           <td class="text-center">
@@ -208,13 +208,13 @@
                                               TOTALS
                                           </td>
                                           <td class="text-center">
-                                              <span t-esc="currency_id"/><span t-esc="round(sum_total_deduction_employee,2)"/>
+                                              <span t-out="currency_id"/><span t-out="round(sum_total_deduction_employee,2)"/>
                                           </td>
                                           <td class="text-center">
-                                              <span t-esc="currency_id"/><span t-esc="round(sum_total_deduction_employer,2)"/>
+                                              <span t-out="currency_id"/><span t-out="round(sum_total_deduction_employer,2)"/>
                                           </td>
                                           <td class="text-center">
-                                              <span t-esc="currency_id"/><span t-esc="round(sum_total_deduction_employee+sum_total_deduction_employer,2)"/>
+                                              <span t-out="currency_id"/><span t-out="round(sum_total_deduction_employee+sum_total_deduction_employer,2)"/>
                                           </td>
 
                                       </tr>

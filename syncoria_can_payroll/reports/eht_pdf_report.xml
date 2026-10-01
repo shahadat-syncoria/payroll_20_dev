@@ -14,7 +14,7 @@
                 <t t-call="web.external_layout">
                     <div class="page">
                         <div style="margin:0 6rem 0 6rem">
-                            <h2 style="text-align:center">EHT Calculation for <span t-esc="year"/> (As of <span t-esc="month_name"/>)</h2>
+                            <h2 style="text-align:center">EHT Calculation for <span t-out="year"/> (As of <span t-out="month_name"/>)</h2>
                             <table class="table mt-5" name="body">
                                 <tr>
                                     <th style="text-align:center">
@@ -39,22 +39,22 @@
 
                                 <tr>
                                     <td style="text-align:center">
-                                        <span t-esc="year"/>
+                                        <span t-out="year"/>
                                     </td>
                                     <td style="text-align:right">
-                                        <span t-esc="total_payroll"/>
+                                        <span t-out="total_payroll"/>
                                     </td>
                                     <td style="text-align:right">
-                                        <span t-esc="exemption_amount"/>
+                                        <span t-out="exemption_amount"/>
                                     </td>
                                     <td style="text-align:right">
-                                        <span t-esc="taxable_amount"/>
+                                        <span t-out="taxable_amount"/>
                                     </td>
                                     <td style="text-align:right">
-                                      <span t-esc="rate"/>
+                                      <span t-out="rate"/>
                                     </td>
                                     <td style="text-align:right">
-                                      <span t-esc="total_tax"/>
+                                      <span t-out="total_tax"/>
                                     </td>
                                 </tr>
                             </table>
