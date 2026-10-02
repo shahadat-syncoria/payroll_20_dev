@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!--
+            Company-wide: stack the company address under the logo instead of
+            Odoo's stock side-by-side placement. Applies to every PDF report
+            using the "Standard" document layout, not just payroll.
+
+            Deliberately done via CSS display:block on the existing table/tr/td
+            rather than replacing those elements: other modules (e.g.
+            account_edi_ubl_cii's invoice layout) locate and replace that same
+            <table> node for their own alternate layouts, so it must keep
+            existing as a real <table> for their xpath to still find it.
+        -->
+        <record id="external_layout_standard_logo_above_address" model="ir.ui.view">
+            <field name="name">web.external_layout_standard: logo above address</field>
+            <field name="inherit_id" ref="web.external_layout_standard"/>
+            <field name="arch" type="xml">
+                <xpath expr="//div[contains(@t-attf-class, 'header')]/table" position="attributes">
+                    <attribute name="style">display:block;</attribute>
+                </xpath>
+                <xpath expr="//div[contains(@t-attf-class, 'header')]/table/tr" position="attributes">
+                    <attribute name="style">display:block;</attribute>
+                </xpath>
+                <xpath expr="//div[contains(@t-attf-class, 'header')]/table/tr/td" position="attributes">
+                    <attribute name="style">display:block;</attribute>
+                </xpath>
+            </field>
+        </record>
+    </data>
+</odoo>

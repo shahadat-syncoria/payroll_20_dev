@@ -7,6 +7,7 @@
             <field name="code">WSIB</field>
             <field name="country_id" ref="base.ca"/>
             <field name="category_ids" eval="[(6, 0, [ref('syncoria_can_payroll.CALC')])]"/>
+            <field name="appears_on_employee_cost_dashboard" eval="1"/>
             <field name="active" eval="1"/>
             <field name="amount_select">code</field>
             <field name="struct_ids" eval="[(6, 0, [ref('syncoria_can_payroll.structure_can_employee')])]"/>
@@ -26,6 +27,7 @@ result=payslip.env['hr.payslip'].get_wsib_amount(payslip.id)
             <field name="code">EHT</field>
             <field name="country_id" ref="base.ca"/>
             <field name="category_ids" eval="[(6, 0, [ref('syncoria_can_payroll.CALC')])]"/>
+            <field name="appears_on_employee_cost_dashboard" eval="1"/>
             <field name="active" eval="1"/>
             <field name="amount_select">code</field>
             <field name="struct_ids" eval="[(6, 0, [ref('syncoria_can_payroll.structure_can_employee')])]"/>

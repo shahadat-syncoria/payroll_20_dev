@@ -14,16 +14,19 @@
                             <table class="table" name="header">
                                 <tr style="text-align: left;">
                                     <th>
-                                     Pay Cycle :
-                                        <span t-out="pay_cycle"/>
+                                        Pay Cycle :
                                     </th>
+                                    <td>
+                                        <span t-out="pay_cycle"/>
+                                    </td>
                                 </tr>
                                 <tr style="text-align: left;">
                                     <th>
-                                     Pay Period :
-                                        <span t-out="pay_period"/>
+                                        Pay Period :
                                     </th>
-
+                                    <td>
+                                        <span t-out="pay_period"/>
+                                    </td>
                                 </tr>
 
                             </table>
@@ -65,7 +68,7 @@
                                         <span t-out="line['employee_name']"/>
                                     </td>
                                     <td>
-                                        <span t-out="line['job_position']"/>-
+                                        <span t-out="line['job_position']"/>
                                     </td>
                                     <td>
                                       <span t-out="line['bank_account']"/>

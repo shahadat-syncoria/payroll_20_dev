@@ -13,17 +13,17 @@
                             type="action"
                             class="oe_stat_button"
 
-                            icon="fa-history"
+                            icon="history"
                             invisible="vacation_type != 'time_wise' ">
-                        <field name="vacation_pay_taken" icon="fa-money" widget="statinfo"/>
+                        <field name="vacation_pay_taken" icon="attach_money" widget="statinfo"/>
                     </button>
                     <button name="%(syncoria_can_vacation_pay.hr_vacation_pay_act_window)d"
                             type="action"
                             class="oe_stat_button"
                             context="{'search_default_employee_id': employee_id, 'search_default_state': 'paid'}"
-                            icon="fa-money" invisible="vacation_type != 'cash_wise' ">
+                            icon="attach_money" invisible="vacation_type != 'cash_wise' ">
 
-                        <field name="ytd_vac_pay_amount" icon="fa-money" widget="statinfo"/>
+                        <field name="ytd_vac_pay_amount" icon="attach_money" widget="statinfo"/>
                     </button>
                 </div>
 <!--                <xpath expr="//div[@name='button_box']" position="inside">-->

@@ -73,6 +73,7 @@
         "views/hr_salary_rule.xml",
         "views/payroll_portal_templates.xml",
         "views/hr_payslip_ytd_opening.xml",
+        "views/report_layout.xml",
         # "views/templates.xml",
         # ======== Report Wizards =============
         "wizards/roe_earning_per_employee_wizard_views.xml",

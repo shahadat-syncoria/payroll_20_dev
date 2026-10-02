@@ -29,6 +29,7 @@ result = 0.0
             <field name="condition_select">none</field>
             <field name="category_ids" eval="[(6, 0, [ref('hr_payroll.COMP')])]"/>
             <field name="appears_on_payslip" eval="'always'"/>
+            <field name="appears_on_employee_cost_dashboard" eval="1"/>
             <field name="active" eval="1"/>
             <field name="amount_select">code</field>
             <field name="struct_ids" eval="[(6, 0, [ref('syncoria_can_payroll.structure_can_employee')])]"/>
