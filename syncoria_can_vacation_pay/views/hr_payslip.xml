@@ -43,10 +43,8 @@
 <!--                    </div>-->
 <!--                </button>-->
 <!--            </xpath>-->
-                <xpath expr="//field[@name='struct_id']" position="after">
+                <xpath expr="//group[@name='top_left']" position="inside">
                     <field name="payout_vacation_pay_paycycle"/>
-
-
                 </xpath>
 
 

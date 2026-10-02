@@ -6,7 +6,7 @@
             <field name="model">hr.payslip</field>
             <field name="inherit_id" ref="hr_payroll.view_hr_payslip_form"/>
             <field name="arch" type="xml">
-                <xpath expr="//field[@name='struct_id']" position="after">
+                <xpath expr="//group[@name='top_left']" position="inside">
                      <field name="insurable_hour"/>
 <!--                    <field name="insurable_earning"/>-->
                 </xpath>
