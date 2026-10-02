@@ -26,8 +26,10 @@
                     <attribute name="force_save">
                         1</attribute>
                 </xpath>
-                <xpath expr="//field[@name='struct_id']" position="attributes">
-                    <attribute name="readonly">1</attribute>
+                <xpath expr="//field[@name='struct_id']" position="replace"/>
+                <xpath expr="//field[@name='payslip_run_id']" position="before">
+                    <field name="struct_id" required="1" readonly="1"
+                           options="{'no_open': True, 'no_create': True, 'no_create_edit': True}"/>
                 </xpath>
                 <xpath expr="//field[@name='payslip_run_id']" position="after">
                     <field name="pay_cycle" required="1"/>

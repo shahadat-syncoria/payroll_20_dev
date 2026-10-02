@@ -1384,9 +1384,16 @@ class StatementOfRemuneration(models.Model):
                     writer = PdfWriter()
                     writer.append(reader)
 
+                    def _join_parts(sep, *parts):
+                        return sep.join(p for p in parts if p)
+
+                    employer_region_line = _join_parts(" ", rec.employer_prov_cd, rec.employer_pstl_cd)
+                    employer_city_line = _join_parts(", ", rec.employer_cty_nm, employer_region_line)
+                    employee_region_line = _join_parts(" ", rec.employee_prov_cd, rec.employee_pstl_cd)
+
                     data = {
                         'Slip1Year[0]': rec.year,
-                        'Slip1EmployersName[0]': f'{rec.employer_l1_nm or ""}\n{rec.employer_addr_l1_txt or ""}\n{rec.employer_cty_nm or ""},{rec.employer_prov_cd or ""} {rec.employer_pstl_cd or ""}',
+                        'Slip1EmployersName[0]': f'{rec.employer_l1_nm or ""}\n{rec.employer_addr_l1_txt or ""}\n{employer_city_line}',
                         'Slip1Box54[0]': rec.employee_bn,
                         'Slip1Box12[0]': rec.employee_sin,
                         'Slip1Box14[0]': round(rec.employee_empt_incamt, 2),
@@ -1414,7 +1421,7 @@ class StatementOfRemuneration(models.Model):
                         'Slip1LastName[0]': rec.employee_snm,
                         'Slip1FirstName[0]': rec.employee_gvn_nm,
                         'Slip1Initial[0]': rec.employee_init,
-                        'Slip1Address[0]': f'{rec.employee_addr_l1_txt or ""}\n{rec.employee_addr_l2_txt or ""}\n{rec.employee_cty_nm or ""}\n{rec.employee_prov_cd or ""} {rec.employee_pstl_cd or ""}',
+                        'Slip1Address[0]': f'{rec.employee_addr_l1_txt or ""}\n{rec.employee_addr_l2_txt or ""}\n{rec.employee_cty_nm or ""}\n{employee_region_line}',
                     }
 
                     selected_boxes_with_amounts = self._get_selected_boxes_with_amounts(rec, max_boxes=6)
