@@ -69,10 +69,10 @@ class EmployeeNetPay(models.TransientModel):
         workbook = xlsxwriter.Workbook(output, {'in_memory': True})
         sheet = workbook.add_worksheet()
         cell_format = workbook.add_format(
-            {'font_size': '12px', 'align': 'center'})
+            {'font_size': 12, 'align': 'center'})
         head = workbook.add_format(
-            {'align': 'center', 'bold': True, 'font_size': '20px'})
-        txt = workbook.add_format({'font_size': '10px', 'align': 'center'})
+            {'align': 'center', 'bold': True, 'font_size': 20})
+        txt = workbook.add_format({'font_size': 10, 'align': 'center'})
         bold = workbook.add_format({'bold': True})
         sheet.set_column('E:E', 45)
         sheet.set_column('F:I', 15)
