@@ -74,7 +74,7 @@ class InheritedHrPayslipOvertime(models.Model):
         work_entry_source =self.version_id.work_entry_source
         employee = self.employee_id
         # Get the start and end date of the payslip
-        slip_tz = pytz.timezone(self.version_id.resource_calendar_id.tz)
+        slip_tz = pytz.timezone(self.version_id.tz)
         utc = pytz.timezone('UTC')
         date_from, date_to = self._get_date_range_overtime()
 

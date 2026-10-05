@@ -23,9 +23,12 @@ class VacationPayslip(models.Model):
     vacation_type = fields.Selection(related="employee_id.vacation_type", string="Vacation Type")
     vacation_pay_taken = fields.Float(related="employee_id.vacation_pay_taken")
 
-    @api.depends('employee_id.payroll_line_ids')
+    @api.depends('employee_id.payroll_line_ids', 'date_to')
     def _compute_ytd_vac(self):
         for record in self:
+            if not record.date_to:
+                record.ytd_vac_pay_amount = 0
+                continue
             line_obj = record.employee_id.payroll_line_ids.filtered(lambda x: x.year == str(record.date_to.year))
             ytd_vac_pay_amount = line_obj.ytd_vac_pay_amount
             if not line_obj and record.employee_id.is_vacation_pay_carry_over:

@@ -221,6 +221,7 @@
 
                 <xpath expr="//field[@name='structure_type_id']" position="after">
                     <field name="salary_pay_cycle"/>
+                    <field name="schedule_pay" groups="hr_payroll.group_hr_payroll_user"/>
                 </xpath>
                 <xpath expr="//field[@name='wage_type']" position="after">
 
@@ -330,11 +331,6 @@
                     <field name="payroll_account_number" string="Payroll Account Number" readonly="1"/>
                     <field name="employee_prpp_dpsp_rgst_nbr"/>
                 </field>
-
-                <xpath expr="//span[hasclass('mx-2')]" position="replace">
-                </xpath>
-                <xpath expr="//field[@name='schedule_pay']" position="replace">
-                </xpath>
 
             </field>
         </record>

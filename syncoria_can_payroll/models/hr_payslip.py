@@ -154,6 +154,21 @@ class InheritedHrPayslip(models.Model):
 
     # ======================================================
 
+    @api.depends('date_from', 'version_id', 'struct_id', 'pay_cycle', 'pay_cycle_period')
+    def _compute_date_to(self):
+        # When a pay_cycle is selected but its pay_cycle_period isn't chosen yet,
+        # don't let Odoo's schedule_pay-based guess momentarily disagree with the
+        # period that _onchange_pay_cycle_period is about to set - leave it blank
+        # until the real period is picked, which is what avoids the transient
+        # "Payslip periods mismatch pay schedule" warning on payslip creation.
+        for payslip in self:
+            if payslip.pay_cycle and not payslip.pay_cycle_period:
+                payslip.date_to = False
+            elif self.env.context.get('default_date_to'):
+                payslip.date_to = self.env.context.get('default_date_to')
+            else:
+                payslip.date_to = payslip.date_from and payslip.date_from + payslip._get_schedule_timedelta()
+
     @api.depends('pay_cycle','year')
     def _compute_pay_cycle_period_domain(self):
         for rec in self:
@@ -624,10 +639,9 @@ class InheritedHrPayslip(models.Model):
         for payslip in payslips:
             ytd_dict = payslip._payslip_line_ytd_total()
             emp_line_obj = payslip.employee_id.payroll_line_ids.filtered(lambda x: x.year == str(payslip.date_to.year))
-            # number = payslip.number or self.env['ir.sequence'].next_by_code('salary.slip')
+            number = payslip.number or self.env['ir.sequence'].next_by_code('salary.slip')
             payslip.write({
-                # 'number': number,
-                # 'state': 'draft',
+                'number': number,
                 'compute_date': today
             })
 

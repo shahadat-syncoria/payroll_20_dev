@@ -77,6 +77,8 @@
 
         <xpath expr="//tbody[@id='payslip_lines']" position="replace">
             <tbody id="payslip_lines">
+                <t t-set="line_ytd_total_map" t-value="o._payslip_line_ytd_total()"/>
+
                 <t t-set="earnings_lines"
                    t-value="o.line_ids.filtered(
                         lambda l: l.appears_on_payslip == 'always' and (
@@ -120,7 +122,7 @@
 
                 <t t-if="earnings_lines">
                     <tr class="table-active fw-bold">
-                        <td t-att-colspan="6 if (o.ytd_computation and not is_correction) else 5">Gross Income</td>
+                        <td t-att-colspan="7 if (o.ytd_computation and not is_correction) else 6">Gross Income</td>
                     </tr>
                     <t t-foreach="earnings_lines" t-as="line">
                         <t t-call="syncoria_can_payroll.report_payslip_line_row"/>
@@ -129,6 +131,10 @@
                         <td colspan="4" class="text-start">Total Gross Income</td>
                         <td class="text-end">
                             <span t-out="sum(earnings_lines.mapped('total'))"
+                                  t-options='{"widget": "monetary", "display_currency": o.company_id.currency_id}'/>
+                        </td>
+                        <td class="text-end">
+                            <span t-out="sum(line_ytd_total_map.get(l.code, 0) for l in earnings_lines)"
                                   t-options='{"widget": "monetary", "display_currency": o.company_id.currency_id}'/>
                         </td>
                         <td t-if="(o.ytd_computation and not is_correction)" class="text-end">
@@ -140,7 +146,7 @@
 
                 <t t-if="deduction_lines">
                     <tr class="table-active fw-bold">
-                        <td t-att-colspan="6 if (o.ytd_computation and not is_correction) else 5">Deductions</td>
+                        <td t-att-colspan="7 if (o.ytd_computation and not is_correction) else 6">Deductions</td>
                     </tr>
                     <t t-foreach="deduction_lines" t-as="line">
                         <t t-call="syncoria_can_payroll.report_payslip_line_row"/>
@@ -149,6 +155,10 @@
                         <td colspan="4" class="text-start">Total Deductions</td>
                         <td class="text-end">
                             <span t-out="sum(deduction_lines.mapped('total'))"
+                                  t-options='{"widget": "monetary", "display_currency": o.company_id.currency_id}'/>
+                        </td>
+                        <td class="text-end">
+                            <span t-out="sum(line_ytd_total_map.get(l.code, 0) for l in deduction_lines)"
                                   t-options='{"widget": "monetary", "display_currency": o.company_id.currency_id}'/>
                         </td>
                         <td t-if="(o.ytd_computation and not is_correction)" class="text-end">
@@ -160,7 +170,7 @@
 
                 <t t-if="net_pay_lines">
                     <tr class="table-active fw-bold">
-                        <td t-att-colspan="6 if (o.ytd_computation and not is_correction) else 5">Net Pay</td>
+                        <td t-att-colspan="7 if (o.ytd_computation and not is_correction) else 6">Net Pay</td>
                     </tr>
                     <t t-foreach="net_pay_lines" t-as="line">
                         <t t-call="syncoria_can_payroll.report_payslip_line_row"/>
@@ -169,7 +179,7 @@
 
                 <t t-if="withholding_lines">
                     <tr class="table-active fw-bold">
-                        <td t-att-colspan="6 if (o.ytd_computation and not is_correction) else 5">Withholdings</td>
+                        <td t-att-colspan="7 if (o.ytd_computation and not is_correction) else 6">Withholdings</td>
                     </tr>
                     <t t-foreach="withholding_lines" t-as="line">
                         <t t-call="syncoria_can_payroll.report_payslip_line_row"/>
@@ -178,6 +188,10 @@
                         <td colspan="4" class="text-start">Total Withholdings</td>
                         <td class="text-end">
                             <span t-out="sum(withholding_lines.mapped('total'))"
+                                  t-options='{"widget": "monetary", "display_currency": o.company_id.currency_id}'/>
+                        </td>
+                        <td class="text-end">
+                            <span t-out="sum(line_ytd_total_map.get(l.code, 0) for l in withholding_lines)"
                                   t-options='{"widget": "monetary", "display_currency": o.company_id.currency_id}'/>
                         </td>
                         <td t-if="(o.ytd_computation and not is_correction)" class="text-end">
@@ -189,7 +203,7 @@
 
                 <t t-if="other_lines">
                     <tr class="table-active fw-bold">
-                        <td t-att-colspan="6 if (o.ytd_computation and not is_correction) else 5">Others</td>
+                        <td t-att-colspan="7 if (o.ytd_computation and not is_correction) else 6">Others</td>
                     </tr>
                     <t t-foreach="other_lines" t-as="line">
                         <t t-call="syncoria_can_payroll.report_payslip_line_row"/>
