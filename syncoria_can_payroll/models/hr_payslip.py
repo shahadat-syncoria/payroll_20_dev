@@ -267,6 +267,12 @@ class InheritedHrPayslip(models.Model):
         # The "wrong version" check is intentionally disabled for this payroll.
         # Odoo 20 requires a compute method to assign its field, so set it explicitly.
         self.is_wrong_version = False
+    def _get_basic_wage_line_codes(self):
+        # Syncoria structures never define a 'BASIC' rule (core's default) - the
+        # consolidated earnings line uses code 'GROSS' instead, so the "Wage"
+        # summary box on the payslip form always showed 0 without this override.
+        return {'GROSS'}
+
     # ================== Report ======================
     def _get_paygroup(self, value):
         return PAYGROUP.get(value)
