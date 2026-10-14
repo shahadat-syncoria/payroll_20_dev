@@ -225,7 +225,7 @@ class SyncoriaHrEmployeeManualWizard(models.TransientModel):
         # --------------------------------------------------
         # 7️⃣ Compute payslips with manual inputs
         # --------------------------------------------------
-        payslip_run.slip_ids._compute_name()
+        # year / pay period are copied from the run by hr.payslip.create()
         for slip in payslip_run.slip_ids:
             slip.compute_workdays_manual_input(self.manual_input_ids)
             slip.compute_sheet()

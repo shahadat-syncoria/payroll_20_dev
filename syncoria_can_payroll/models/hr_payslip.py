@@ -75,18 +75,28 @@ class InheritedHrPayslip(models.Model):
         for payslip in self:
             payslip.is_manual_input = attendance_manual
 
-    # ============ Base overided method ===================
-    @api.depends('employee_id.legal_name', 'struct_id.payslip_name', 'date_from', 'date_to', 'title',
-                 'is_refund_payslip', 'is_correction_payslip', 'origin_payslip_id.name', 'payslip_run_id')
-    @api.depends_context('lang')
-    def _compute_name(self):
-        super(InheritedHrPayslip, self)._compute_name()
-        for slip in self.filtered(lambda p: p.employee_id and p.date_from):
-            if slip.payslip_run_id:
-                slip.update({
-                    'year' :slip.payslip_run_id.pay_cycle_year,
-                    'pay_cycle_period': slip.payslip_run_id.pay_cycle_period if slip.payslip_run_id.pay_cycle_period else slip.pay_cycle_period,
-                })
+    # ============ Pay run -> payslip sync ===================
+    # The year / pay period of a payslip that belongs to a pay run always come from the run.
+    # This must NOT be done inside _compute_name: writing pay_cycle_period re-triggers
+    # _compute_date_to, and name depends on date_to, so Odoo drops the freshly computed
+    # (non-stored) name -> "Compute method failed to assign hr.payslip.name".
+    @api.model
+    def _vals_from_payslip_run(self, run_id):
+        run = self.env['hr.payslip.run'].browse(run_id)
+        vals = {}
+        if run.pay_cycle_year:
+            vals['year'] = run.pay_cycle_year
+        if run.pay_cycle_period:
+            vals['pay_cycle_period'] = run.pay_cycle_period.id
+        return vals
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        vals_list = [dict(vals) for vals in vals_list]
+        for vals in vals_list:
+            if vals.get('payslip_run_id'):
+                vals.update(self._vals_from_payslip_run(vals['payslip_run_id']))
+        return super().create(vals_list)
 
     # over writing the function to remove the unnecessary warnings
     def _get_warnings_by_slip(self):
@@ -247,6 +257,8 @@ class InheritedHrPayslip(models.Model):
 
 
     def write(self, vals):
+        if vals.get('payslip_run_id'):
+            vals = dict(vals, **self._vals_from_payslip_run(vals['payslip_run_id']))
         res = super(InheritedHrPayslip,self).write(vals)
         for rec in self:
             if rec.payslip_run_id and res and 'state' in vals and vals.get('state') == 'paid':

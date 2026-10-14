@@ -209,6 +209,7 @@ class PayrollHrPayslipRun(models.Model):
         self.ensure_one()
         if self.slip_ids:
             self.slip_ids.write({
+                "year": self.pay_cycle_year,
                 "pay_cycle_period": self.pay_cycle_period.id,
             })
         return super(PayrollHrPayslipRun, self)._generate_payslips()
